@@ -5,7 +5,8 @@
       "WebFetch(domain:brochures.formula1.com)",
       "Bash(awk END{print NR} *)",
       "Bash(npm run *)",
-      "mcp__claude_ai_Sanity__query_documents"
+      "mcp__claude_ai_Sanity__query_documents",
+      "Bash(awk '{print $5}')"
     ]
   }
 }

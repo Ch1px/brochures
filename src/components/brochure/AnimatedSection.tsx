@@ -27,7 +27,7 @@ export function AnimatedSection(props: Props) {
   useEffect(() => {
     const wrapper = wrapRef.current
     if (!wrapper) return
-    const target = wrapper.firstElementChild as HTMLElement | null
+    const target = wrapper.querySelector<HTMLElement>('section.section')
     if (!target) return
 
     const io = new IntersectionObserver(

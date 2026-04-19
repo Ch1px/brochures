@@ -817,7 +817,6 @@
 
   /* TEXT · CENTER — simple centered body text */
   .page-text-center {
-    background: var(--page-bg);
     min-height: auto;
   }
   .page-text-center-inner {
@@ -851,8 +850,8 @@
     max-width: 18ch;
   }
   .text-center-body {
-    font-size: clamp(12px, 1.55cqi, 17px);
-    line-height: 1.75;
+    font-size: clamp(11px, 1.4cqi, 15px);
+    line-height: 1.7;
     color: var(--page-text-muted);
     max-width: 60ch;
   }
@@ -2142,10 +2141,11 @@
   }
   .preview-mode-slider .brochure-page {
     width: 100vw; flex-shrink: 0;
-    height: 100vh;
+    height: 100%;
     max-width: none;
     aspect-ratio: auto;
     overflow-y: auto;
+    scroll-padding-bottom: 96px;
   }
 
 
@@ -2564,6 +2564,34 @@
 
   /* --- < 560px section width (main phone breakpoint) --- */
   @container (max-width: 560px) {
+    /* BODY TEXT legibility — raise small-text floors so copy stays readable */
+    .intro-body,
+    .text-center-body,
+    .feature-card-text,
+    .packages-features li,
+    .day-description,
+    .circuit-map-caption,
+    .closing-subtitle,
+    .gallery-hero-caption,
+    .gallery-duo-caption {
+      font-size: clamp(14px, 3.3cqi, 16px);
+      line-height: 1.65;
+    }
+
+    /* EYEBROW bump — the script-italic accents above titles feel small
+       on phones; raise the floor so they read as the decorative flourish
+       they are on desktop. */
+    .intro-eyebrow,
+    .text-center-eyebrow,
+    .image-hero-eyebrow,
+    .stats-eyebrow,
+    .closing-eyebrow,
+    .quote-profile-eyebrow,
+    .gallery-variant-eyebrow,
+    .circuit-map-eyebrow {
+      font-size: clamp(36px, 7cqi, 52px);
+    }
+
     /* COVER */
     .page-cover-inner { padding: 12% 8%; }
     .page-cover-top {
@@ -2571,7 +2599,7 @@
       align-items: flex-start;
       gap: 12px;
     }
-    .cover-title { font-size: clamp(36px, 11cqi, 60px); line-height: 0.95; }
+    .cover-title { font-size: clamp(28px, 9cqi, 48px); line-height: 0.95; }
     .cover-tag { max-width: 100%; font-size: clamp(15px, 2.8cqi, 20px); }
     .page-cover-bottom {
       flex-direction: column;
@@ -2595,7 +2623,7 @@
       max-height: 280px;
     }
     .intro-mark-letter { font-size: clamp(90px, 28cqi, 140px); }
-    .intro-title { font-size: clamp(30px, 9cqi, 48px); }
+    .intro-title { font-size: clamp(24px, 7.5cqi, 40px); }
 
     /* FEATURES — stack cards vertically with horizontal card layout (image + text row) */
     .features-grid { grid-template-columns: 1fr; gap: 14px; }
@@ -2604,7 +2632,7 @@
       align-items: flex-start;
       gap: 10px;
     }
-    .features-title { font-size: clamp(30px, 9cqi, 48px); }
+    .features-title { font-size: clamp(24px, 7.5cqi, 40px); }
     .features-subtitle { max-width: 100%; margin-left: 0; }
     .feature-card { flex-direction: row; min-height: 110px; }
     .feature-card-media {
@@ -2616,31 +2644,31 @@
       flex: 1;
       padding: 14px;
     }
-    .feature-card-title { font-size: 14px; }
-    .feature-card-text { font-size: 12px; }
+    .feature-card-title { font-size: 15px; }
+    .feature-card-text { font-size: 13px; }
 
     /* IMAGE HERO */
     .page-image-hero-content { max-width: 100%; padding: 10% 8%; }
     .page-image-hero-bg::after {
       background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.75) 100%);
     }
-    .image-hero-title { font-size: clamp(36px, 10cqi, 60px); }
+    .image-hero-title { font-size: clamp(28px, 8.5cqi, 48px); }
 
     /* STATS — 2 cols */
-    .stats-title { font-size: clamp(28px, 8cqi, 44px); }
+    .stats-title { font-size: clamp(22px, 7cqi, 38px); }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .stats-cell { padding: 18px 14px; border-right: 1px solid var(--page-border); }
     .stats-cell:nth-child(2n) { border-right: none; }
     .stats-cell:nth-child(-n+2):nth-last-child(n+3) { border-bottom: 1px solid var(--page-border); }
     .stats-cell:nth-child(odd):nth-last-child(-n+2) { border-bottom: none; }
-    .stat-value { font-size: clamp(32px, 9cqi, 54px); }
+    .stat-value { font-size: clamp(26px, 8cqi, 44px); }
 
     /* PACKAGES — stack */
     .packages-grid { grid-template-columns: 1fr; gap: 12px; }
-    .packages-title { font-size: clamp(28px, 8cqi, 44px); }
+    .packages-title { font-size: clamp(22px, 7cqi, 38px); }
 
     /* ITINERARY — tighter */
-    .itinerary-title { font-size: clamp(28px, 8cqi, 44px); }
+    .itinerary-title { font-size: clamp(22px, 7cqi, 38px); }
     .itinerary-day {
       grid-template-columns: auto 1fr;
       gap: 14px;
@@ -2648,12 +2676,12 @@
       align-items: start;
       padding: 16px 0;
     }
-    .day-num { grid-row: 1 / span 2; font-size: clamp(28px, 8cqi, 40px); }
+    .day-num { grid-row: 1 / span 2; font-size: clamp(24px, 7cqi, 36px); }
     .day-label { grid-column: 2; grid-row: 1; padding-top: 2px; }
     .day-content { grid-column: 2; grid-row: 2; }
 
     /* GALLERY — 2 col grid */
-    .gallery-title { font-size: clamp(28px, 8cqi, 44px); }
+    .gallery-title { font-size: clamp(22px, 7cqi, 38px); }
     .gallery-grid {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto auto auto;
@@ -2676,11 +2704,11 @@
       gap: 16px;
     }
     .quote-profile-photo { max-width: 110px; flex-shrink: 0; }
-    .quote-profile-name { font-size: clamp(28px, 8cqi, 40px); margin-bottom: 8px; }
-    .quote-profile-quote { font-size: clamp(15px, 3cqi, 18px); }
+    .quote-profile-name { font-size: clamp(22px, 7cqi, 36px); margin-bottom: 8px; }
+    .quote-profile-quote { font-size: clamp(16px, 3.4cqi, 19px); line-height: 1.5; }
 
     /* CLOSING */
-    .closing-title { font-size: clamp(40px, 12cqi, 64px); }
+    .closing-title { font-size: clamp(32px, 10cqi, 52px); }
     .closing-subtitle { max-width: 100%; }
     .closing-actions {
       flex-direction: column;
@@ -2690,12 +2718,12 @@
     .closing-cta { width: 100%; justify-content: center; }
 
     /* SECTION HEADING */
-    .section-heading-eyebrow { font-size: clamp(38px, 11cqi, 60px); }
-    .section-heading-title { font-size: clamp(30px, 9cqi, 48px); }
-    .section-heading-text { max-width: 100%; font-size: clamp(13px, 2.8cqi, 15px); }
+    .section-heading-eyebrow { font-size: clamp(36px, 10cqi, 60px); }
+    .section-heading-title { font-size: clamp(24px, 7.5cqi, 40px); }
+    .section-heading-text { max-width: 100%; font-size: clamp(14px, 3.3cqi, 16px); line-height: 1.65; }
 
     /* CIRCUIT MAP */
-    .circuit-map-title { font-size: clamp(28px, 8cqi, 44px); }
+    .circuit-map-title { font-size: clamp(22px, 7cqi, 38px); }
     .circuit-map-caption { max-width: 100%; }
     .circuit-map-stat { padding: 12px 8px; }
     .circuit-map-stat-value { font-size: clamp(22px, 6cqi, 34px); }
@@ -2994,9 +3022,14 @@
        breaks aspect-ratio on mobile. Reset before the grid rule applies. */
     .page-intro-right { height: auto; }
 
-    /* Section-heading keeps some visual weight via generous padding,
-       but not a rigid viewport-height floor */
-    .page-section-heading-inner { padding: 14% 8%; }
+    /* Section-heading retains chapter-opener weight on mobile —
+       fill most of the viewport so it reads as a deliberate pause */
+    .page-section-heading { min-height: 38svh; }
+    .page-section-heading-inner {
+      padding: 10% 8%;
+      min-height: 38svh;
+      flex: 1;
+    }
 
     /* Extra padding to give content-height sections room to breathe */
     .page-intro-inner,
@@ -3220,7 +3253,8 @@
   .page-gallery-duo,
   .page-gallery-hero,
   .page-quote-profile,
-  .page-circuit-map {
+  .page-circuit-map,
+  .page-text-center {
     background-image: url('/textures/halftone.png');
     background-size: 600px auto;
     background-position: top left;
@@ -3240,7 +3274,8 @@
   [data-theme="dark"] .page-gallery-duo,
   [data-theme="dark"] .page-gallery-hero,
   [data-theme="dark"] .page-quote-profile,
-  [data-theme="dark"] .page-circuit-map {
+  [data-theme="dark"] .page-circuit-map,
+  [data-theme="dark"] .page-text-center {
     background-image:
       linear-gradient(rgba(11, 11, 13, 0.88), rgba(11, 11, 13, 0.88)),
       url('/textures/halftone.png');

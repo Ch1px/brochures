@@ -82,7 +82,7 @@ export function BrochureReader({ brochure }: Props) {
             top: 'var(--brochure-nav-h, 52px)',
             left: 0,
             width: '100vw',
-            height: 'calc(100vh - var(--brochure-nav-h, 52px))',
+            height: 'calc(100dvh - var(--brochure-nav-h, 52px))',
             transform,
           }}
         >
