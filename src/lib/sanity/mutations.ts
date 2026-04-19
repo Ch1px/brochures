@@ -107,18 +107,25 @@ export async function createBrochure(input: {
 }
 
 /** Duplicate a brochure — copies pages/sections but resets status and slug. */
-export async function duplicateBrochure(id: string): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+export async function duplicateBrochure(
+  id: string,
+  overrides?: { title?: string; slug?: string; season?: string; event?: string }
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   try {
     const src = await sanityWriteClient.fetch<Brochure | null>(`*[_id == $id][0]`, { id })
     if (!src) return { ok: false, error: 'Source brochure not found' }
     const doc = await sanityWriteClient.create({
       _type: 'brochure',
-      title: `${src.title} (copy)`,
-      slug: { _type: 'slug', current: `${src.slug.current}-copy-${Date.now()}` },
-      season: src.season,
-      event: src.event,
+      title: overrides?.title?.trim() || `${src.title} (copy)`,
+      slug: {
+        _type: 'slug',
+        current: overrides?.slug?.trim() || `${src.slug.current}-copy-${Date.now()}`,
+      },
+      season: overrides?.season?.trim() || src.season,
+      event: overrides?.event?.trim() ?? src.event,
       status: 'draft',
       featured: false,
+      theme: src.theme,
       pages: src.pages ?? [],
       seo: src.seo,
       leadCapture: src.leadCapture,

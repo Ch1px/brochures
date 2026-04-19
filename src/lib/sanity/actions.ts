@@ -74,9 +74,12 @@ export async function createBrochureAction(input: {
   return result
 }
 
-export async function duplicateBrochureAction(id: string) {
+export async function duplicateBrochureAction(
+  id: string,
+  overrides?: { title?: string; slug?: string; season?: string; event?: string }
+) {
   await assertAdmin()
-  const result = await duplicateBrochureMutation(id)
+  const result = await duplicateBrochureMutation(id, overrides)
   revalidatePath('/admin')
   return result
 }

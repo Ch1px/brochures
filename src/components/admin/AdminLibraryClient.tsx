@@ -1,10 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { duplicateBrochureAction } from '@/lib/sanity/actions'
-import { NewBrochureModal } from './NewBrochureModal'
+import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
 
 type BrochureRow = {
   _id: string
@@ -28,26 +26,8 @@ type Props = {
  * passes the pre-fetched list down.
  */
 export function AdminLibraryClient({ brochures }: Props) {
-  const router = useRouter()
   const [newOpen, setNewOpen] = useState(false)
-  const [duplicating, startDuplicate] = useTransition()
-  const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
-
-  function handleDuplicate(id: string) {
-    setDuplicatingId(id)
-    startDuplicate(async () => {
-      try {
-        const res = await duplicateBrochureAction(id)
-        if (res.ok) {
-          router.push(`/admin/brochures/${res.id}/edit`)
-        } else {
-          alert(`Duplicate failed: ${res.error}`)
-        }
-      } finally {
-        setDuplicatingId(null)
-      }
-    })
-  }
+  const [duplicateSource, setDuplicateSource] = useState<DuplicateSource | null>(null)
 
   return (
     <>
@@ -132,8 +112,15 @@ export function AdminLibraryClient({ brochures }: Props) {
               <div style={{ opacity: 0.35, fontSize: 11, marginTop: 6, fontFamily: 'ui-monospace, monospace' }}>/{b.slug}</div>
             </Link>
             <button
-              onClick={() => handleDuplicate(b._id)}
-              disabled={duplicating && duplicatingId === b._id}
+              onClick={() =>
+                setDuplicateSource({
+                  id: b._id,
+                  title: b.title,
+                  slug: b.slug,
+                  season: b.season,
+                  event: b.event,
+                })
+              }
               title="Duplicate this brochure"
               style={{
                 position: 'absolute',
@@ -144,14 +131,14 @@ export function AdminLibraryClient({ brochures }: Props) {
                 border: '1px solid rgba(255,255,255,0.12)',
                 borderRadius: 2,
                 color: 'rgba(255,255,255,0.55)',
-                cursor: duplicating && duplicatingId === b._id ? 'wait' : 'pointer',
+                cursor: 'pointer',
                 fontSize: 9,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
                 fontFamily: 'ui-monospace, monospace',
               }}
             >
-              {duplicating && duplicatingId === b._id ? '…' : 'Duplicate'}
+              Duplicate
             </button>
           </div>
         ))}
@@ -178,6 +165,11 @@ export function AdminLibraryClient({ brochures }: Props) {
       ) : null}
 
       <NewBrochureModal open={newOpen} onClose={() => setNewOpen(false)} />
+      <NewBrochureModal
+        open={duplicateSource !== null}
+        onClose={() => setDuplicateSource(null)}
+        duplicateFrom={duplicateSource ?? undefined}
+      />
     </>
   )
 }

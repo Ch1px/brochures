@@ -2,11 +2,21 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { createBrochureAction } from '@/lib/sanity/actions'
+import { createBrochureAction, duplicateBrochureAction } from '@/lib/sanity/actions'
+
+export type DuplicateSource = {
+  id: string
+  title: string
+  slug: string
+  season: string
+  event?: string
+}
 
 type Props = {
   open: boolean
   onClose: () => void
+  /** When set, the modal runs in duplicate mode and prefills from the source. */
+  duplicateFrom?: DuplicateSource
 }
 
 function slugify(input: string): string {
@@ -19,11 +29,15 @@ function slugify(input: string): string {
 }
 
 /**
- * New brochure modal — triggered from the admin library.
- * Creates a draft brochure and redirects to the editor on success.
+ * New / duplicate brochure modal — triggered from the admin library.
+ * In "new" mode: calls createBrochureAction.
+ * In "duplicate" mode (`duplicateFrom` set): prefills the source values,
+ * lets the admin rename, and calls duplicateBrochureAction. Always redirects
+ * to the editor on success.
  */
-export function NewBrochureModal({ open, onClose }: Props) {
+export function NewBrochureModal({ open, onClose, duplicateFrom }: Props) {
   const router = useRouter()
+  const isDuplicate = Boolean(duplicateFrom)
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [slugDirty, setSlugDirty] = useState(false)
@@ -32,7 +46,9 @@ export function NewBrochureModal({ open, onClose }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
-  // Reset form when the modal is dismissed and reopened
+  // Reset form when the modal is dismissed and reopened.
+  // In duplicate mode, prefill with the source values (suffixed) so the admin
+  // sees a sensible default they can immediately accept or tweak.
   useEffect(() => {
     if (!open) {
       setTitle('')
@@ -41,8 +57,17 @@ export function NewBrochureModal({ open, onClose }: Props) {
       setSeason('2026')
       setEvent('')
       setError(null)
+      return
     }
-  }, [open])
+    if (duplicateFrom) {
+      setTitle(`${duplicateFrom.title} (copy)`)
+      setSlug(`${duplicateFrom.slug}-copy`)
+      setSlugDirty(true)
+      setSeason(duplicateFrom.season)
+      setEvent(duplicateFrom.event ?? '')
+      setError(null)
+    }
+  }, [open, duplicateFrom])
 
   // Auto-derive slug from title unless the user has edited it manually
   useEffect(() => {
@@ -60,19 +85,26 @@ export function NewBrochureModal({ open, onClose }: Props) {
 
   if (!open) return null
 
-  function handleCreate() {
+  function handleSubmit() {
     if (!title.trim() || !slug.trim() || !season.trim()) {
       setError('Title, slug, and season are required.')
       return
     }
     setError(null)
     startTransition(async () => {
-      const res = await createBrochureAction({
-        title: title.trim(),
-        slug: slug.trim(),
-        season: season.trim(),
-        event: event.trim() || undefined,
-      })
+      const res = duplicateFrom
+        ? await duplicateBrochureAction(duplicateFrom.id, {
+            title: title.trim(),
+            slug: slug.trim(),
+            season: season.trim(),
+            event: event.trim() || undefined,
+          })
+        : await createBrochureAction({
+            title: title.trim(),
+            slug: slug.trim(),
+            season: season.trim(),
+            event: event.trim() || undefined,
+          })
       if (res.ok) {
         router.push(`/admin/brochures/${res.id}/edit`)
       } else {
@@ -82,12 +114,14 @@ export function NewBrochureModal({ open, onClose }: Props) {
   }
 
   return (
-    <div className="add-section-overlay" onClick={pending ? undefined : onClose} role="dialog" aria-modal="true" aria-label="New brochure">
+    <div className="add-section-overlay" onClick={pending ? undefined : onClose} role="dialog" aria-modal="true" aria-label={isDuplicate ? 'Duplicate brochure' : 'New brochure'}>
       <div className="add-section-modal new-brochure-modal" onClick={(e) => e.stopPropagation()}>
         <header className="add-section-modal-header">
           <div>
-            <div className="add-section-modal-eyebrow">New</div>
-            <h2 className="add-section-modal-title">Create a brochure</h2>
+            <div className="add-section-modal-eyebrow">{isDuplicate ? 'Duplicate' : 'New'}</div>
+            <h2 className="add-section-modal-title">
+              {isDuplicate ? `Duplicate "${duplicateFrom!.title}"` : 'Create a brochure'}
+            </h2>
           </div>
           <button
             type="button"
@@ -162,8 +196,14 @@ export function NewBrochureModal({ open, onClose }: Props) {
           <button className="editor-topbar-btn" onClick={onClose} disabled={pending}>
             Cancel
           </button>
-          <button className="editor-topbar-btn primary" onClick={handleCreate} disabled={pending}>
-            {pending ? 'Creating…' : 'Create & open'}
+          <button className="editor-topbar-btn primary" onClick={handleSubmit} disabled={pending}>
+            {pending
+              ? isDuplicate
+                ? 'Duplicating…'
+                : 'Creating…'
+              : isDuplicate
+                ? 'Duplicate & open'
+                : 'Create & open'}
           </button>
         </footer>
       </div>
