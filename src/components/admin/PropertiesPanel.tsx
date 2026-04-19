@@ -113,7 +113,7 @@ function renderEditor(section: Section, onChange: (u: Partial<Section>) => void)
       return (
         <div className="properties-pending">
           <p>
-            Editor for <strong>{labelFor((section as { _type: string })._type)}</strong> not wired.
+            Editor for <strong>{labelFor((section as Section)._type)}</strong> not wired.
           </p>
         </div>
       )

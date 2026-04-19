@@ -272,6 +272,7 @@ export type Brochure = {
   status: BrochureStatus
   theme?: BrochureTheme
   publishedAt?: string
+  featured?: boolean
   ogImage?: SanityImage
   seo?: {
     metaTitle?: string
