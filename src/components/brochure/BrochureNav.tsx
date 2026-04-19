@@ -46,7 +46,14 @@ export function BrochureNav({ brand, pages, currentIndex, onPageClick }: Props) 
 
   return (
     <nav ref={navRef} className="brochure-nav" data-nav-ctx="public">
-      <div className="brochure-nav-brand">{brand}</div>
+      <div className="brochure-nav-brand">
+        <img
+          src="/textures/GPGT - LOGO -dark.png"
+          alt=""
+          className="brochure-nav-brand-logo"
+        />
+        <span className="brochure-nav-brand-name">{brand}</span>
+      </div>
 
       <div className="brochure-nav-links">
         {pages.map((p) => (

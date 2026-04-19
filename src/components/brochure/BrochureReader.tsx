@@ -79,10 +79,10 @@ export function BrochureReader({ brochure }: Props) {
         <div
           className="preview-mode-slider"
           style={{
-            top: 52,
+            top: 'var(--brochure-nav-h, 52px)',
             left: 0,
             width: '100vw',
-            height: 'calc(100vh - 52px)',
+            height: 'calc(100vh - var(--brochure-nav-h, 52px))',
             transform,
           }}
         >
