@@ -1,0 +1,168 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { currentUser } from '@clerk/nextjs/server'
+import {
+  saveBrochure as saveBrochureMutation,
+  setBrochureStatus as setBrochureStatusMutation,
+  setFeaturedBrochure as setFeaturedBrochureMutation,
+  createBrochure as createBrochureMutation,
+  duplicateBrochure as duplicateBrochureMutation,
+  deleteBrochure as deleteBrochureMutation,
+  uploadImageAsset,
+  fetchBrochureForEdit,
+} from './mutations'
+import { signPreviewToken } from '../previewToken'
+import type { Brochure, SanityImage } from '@/types/brochure'
+
+/**
+ * Server actions — invoked from client components in the editor.
+ * All enforce the admin email allowlist before running.
+ */
+
+async function assertAdmin() {
+  const user = await currentUser()
+  const email = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress
+  const allowlist = (process.env.ADMIN_EMAIL_ALLOWLIST ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+  if (!email || !allowlist.includes(email.toLowerCase())) {
+    throw new Error('Not authorised')
+  }
+}
+
+export async function saveBrochureAction(
+  id: string,
+  updates: Partial<Pick<Brochure, 'title' | 'pages' | 'seo' | 'leadCapture' | 'season' | 'event' | 'theme'>>
+) {
+  await assertAdmin()
+  return saveBrochureMutation(id, updates)
+}
+
+export async function setBrochureStatusAction(
+  id: string,
+  status: 'draft' | 'published' | 'unpublished' | 'archived',
+  slug?: string
+) {
+  await assertAdmin()
+  const result = await setBrochureStatusMutation(id, status)
+  // Bust public-page cache on any status change
+  if (slug) revalidatePath(`/${slug}`)
+  revalidatePath('/')
+  revalidatePath('/admin')
+  return result
+}
+
+export async function setFeaturedBrochureAction(id: string) {
+  await assertAdmin()
+  const result = await setFeaturedBrochureMutation(id)
+  revalidatePath('/')
+  revalidatePath('/admin')
+  return result
+}
+
+export async function createBrochureAction(input: {
+  title: string
+  slug: string
+  season: string
+  event?: string
+}) {
+  await assertAdmin()
+  const result = await createBrochureMutation(input)
+  revalidatePath('/admin')
+  return result
+}
+
+export async function duplicateBrochureAction(id: string) {
+  await assertAdmin()
+  const result = await duplicateBrochureMutation(id)
+  revalidatePath('/admin')
+  return result
+}
+
+export async function deleteBrochureAction(id: string) {
+  await assertAdmin()
+  const result = await deleteBrochureMutation(id)
+  revalidatePath('/admin')
+  return result
+}
+
+/**
+ * Upload an image file to Sanity Storage. Called from FieldImage / FieldImageSlot.
+ *
+ * Returns either { ok: true, image } where `image` is a ready-to-store Sanity image ref,
+ * or { ok: false, error } with a user-facing message.
+ *
+ * Enforces: admin allowlist · 20MB size cap · image/* MIME prefix.
+ */
+export type UploadImageResult =
+  | { ok: true; image: SanityImage }
+  | { ok: false; error: string }
+
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024 // 20MB
+
+export async function uploadImageAction(formData: FormData): Promise<UploadImageResult> {
+  await assertAdmin()
+
+  const file = formData.get('file')
+  if (!(file instanceof File)) {
+    return { ok: false, error: 'No file provided' }
+  }
+  if (!file.type.startsWith('image/')) {
+    return { ok: false, error: 'File is not an image' }
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    return { ok: false, error: `File too large (max ${MAX_IMAGE_BYTES / (1024 * 1024)}MB)` }
+  }
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const asset = await uploadImageAsset(buffer, {
+      filename: file.name,
+      contentType: file.type,
+    })
+    return {
+      ok: true,
+      image: {
+        _type: 'image',
+        asset: { _type: 'reference', _ref: asset._id },
+      },
+    }
+  } catch (err) {
+    console.error('uploadImageAction failed:', err)
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Upload failed',
+    }
+  }
+}
+
+/**
+ * Generate a signed preview URL for sharing a draft/unpublished brochure.
+ * Looks up the current slug from Sanity (so stale UI state can't spoof it)
+ * and signs a JWT scoped to that slug with a 7-day expiry.
+ */
+export async function generatePreviewLinkAction(
+  brochureId: string
+): Promise<{ ok: true; url: string; expiresInDays: number } | { ok: false; error: string }> {
+  await assertAdmin()
+  try {
+    const brochure = await fetchBrochureForEdit(brochureId)
+    if (!brochure) return { ok: false, error: 'Brochure not found' }
+    const slug = brochure.slug?.current
+    if (!slug) return { ok: false, error: 'Brochure has no slug' }
+    const token = await signPreviewToken(slug)
+    return {
+      ok: true,
+      url: `/${slug}?preview=${encodeURIComponent(token)}`,
+      expiresInDays: 7,
+    }
+  } catch (err) {
+    console.error('generatePreviewLinkAction failed:', err)
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not generate link',
+    }
+  }
+}

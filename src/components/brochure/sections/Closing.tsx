@@ -1,0 +1,79 @@
+import type { SectionClosing } from '@/types/brochure'
+
+type Props = {
+  data: SectionClosing
+  pageNum: number
+  total: number
+  showFolio: boolean
+}
+
+/**
+ * Closing — ported from renderClosing().
+ * Black background with dual red radial-gradient wash + racing lines.
+ * Eyebrow, title, subtitle, CTA button, and contact (email + phone) beneath.
+ *
+ * The CTA href defaults to '#' matching the builder. If it's '#enquire', the
+ * public brochure page should intercept the click and open the HubSpot lead modal
+ * (wire this up in BrochureReader or a global handler when the modal ships).
+ */
+export function Closing({ data, pageNum, total, showFolio }: Props) {
+  const ctaHref = data.ctaHref || '#'
+  const gradId1 = `clg1-${data._key}`
+  const gradId2 = `clg2-${data._key}`
+
+  return (
+    <section className="section page-closing" data-section-id={data._key}>
+      <svg
+        className="page-closing-svg"
+        viewBox="0 0 1600 1000"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden
+      >
+        <defs>
+          <radialGradient id={gradId1} cx="20%" cy="50%" r="60%">
+            <stop offset="0%" stopColor="#e10600" stopOpacity={0.25} />
+            <stop offset="100%" stopColor="#e10600" stopOpacity={0} />
+          </radialGradient>
+          <radialGradient id={gradId2} cx="85%" cy="80%" r="45%">
+            <stop offset="0%" stopColor="#e10600" stopOpacity={0.1} />
+            <stop offset="100%" stopColor="#e10600" stopOpacity={0} />
+          </radialGradient>
+        </defs>
+        <rect width="1600" height="1000" fill="#000" />
+        <rect width="1600" height="1000" fill={`url(#${gradId1})`} />
+        <rect width="1600" height="1000" fill={`url(#${gradId2})`} />
+        <g opacity={0.6}>
+          <line x1={-50} y1={250} x2={1700} y2={80} stroke="#e10600" strokeWidth={2} opacity={0.5} />
+          <line x1={-50} y1={310} x2={1700} y2={160} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+          <line x1={-50} y1={820} x2={1700} y2={940} stroke="#e10600" strokeWidth={2} opacity={0.4} />
+          <line x1={-50} y1={880} x2={1700} y2={1000} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
+        </g>
+      </svg>
+      <div className="page-brand-mark" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        Grand Prix Grand Tours
+      </div>
+      <div className="page-closing-inner">
+        {data.eyebrow ? <div className="closing-eyebrow">{data.eyebrow}</div> : null}
+        <h2 className="closing-title">{data.title ?? ''}</h2>
+        {data.subtitle ? <p className="closing-subtitle">{data.subtitle}</p> : null}
+        <div className="closing-actions">
+          {data.ctaText ? (
+            <a className="closing-cta" href={ctaHref}>
+              {data.ctaText} →
+            </a>
+          ) : null}
+          <div className="closing-contact">
+            {data.email ? <div>✉ {data.email}</div> : null}
+            {data.phone ? <div>☏ {data.phone}</div> : null}
+          </div>
+        </div>
+      </div>
+      {showFolio ? (
+        <div className="page-folio" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          {pageNum} / {total}
+        </div>
+      ) : null}
+    </section>
+  )
+}

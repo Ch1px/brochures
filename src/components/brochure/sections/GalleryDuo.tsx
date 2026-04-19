@@ -1,0 +1,64 @@
+import type { SectionGalleryDuo } from '@/types/brochure'
+import { urlForSection } from '@/lib/sanity/image'
+import { GalleryHeader } from './GalleryHeader'
+
+type Props = {
+  data: SectionGalleryDuo
+  pageNum: number
+  total: number
+  showFolio: boolean
+}
+
+/**
+ * Gallery · Duo — ported from renderGalleryDuo().
+ * Two large side-by-side images with optional caption overlays.
+ * Each slot without an image shows a centred numbered placeholder.
+ */
+export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
+  const images = data.images ?? []
+  const captions = data.captions ?? []
+
+  return (
+    <section className="section page-gallery-duo" data-section-id={data._key}>
+      <div className="page-brand-mark">Grand Prix Grand Tours</div>
+      <div className="page-gallery-duo-inner">
+        <GalleryHeader eyebrow={data.eyebrow} title={data.title} />
+        <div className="gallery-duo-grid">
+          {Array.from({ length: 2 }).map((_, i) => {
+            const img = images[i]
+            const url = urlForSection(img, 1600)
+            const caption = captions[i] ?? ''
+            return (
+              <div
+                key={i}
+                className={`gallery-duo-item ${!url ? 'gallery-placeholder' : ''}`.trim()}
+                style={url ? { backgroundImage: `url('${url}')` } : undefined}
+              >
+                {!url ? (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--chrome-text-subtle)',
+                    }}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                ) : null}
+                {caption ? <div className="gallery-duo-caption">{caption}</div> : null}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      {showFolio ? (
+        <div className="page-folio">
+          {pageNum} / {total}
+        </div>
+      ) : null}
+    </section>
+  )
+}

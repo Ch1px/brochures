@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "WebFetch(domain:brochures.formula1.com)",
+      "Bash(awk END{print NR} *)",
+      "Bash(npm run *)"
+    ]
+  }
+}

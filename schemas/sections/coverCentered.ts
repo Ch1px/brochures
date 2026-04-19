@@ -1,0 +1,28 @@
+import { defineType, defineField } from 'sanity'
+import { backgroundField } from './_shared/backgroundField'
+
+export default defineType({
+  name: 'coverCentered',
+  title: 'Cover · Centered',
+  type: 'object',
+  fields: [
+    defineField({ name: 'edition', type: 'string' }),
+    defineField({ name: 'brandMark', type: 'string' }),
+    defineField({ name: 'sup', type: 'string' }),
+    defineField({ name: 'title', type: 'string', validation: (Rule) => Rule.required() }),
+    defineField({ name: 'titleAccent', type: 'string' }),
+    defineField({ name: 'tag', type: 'text', rows: 2 }),
+    defineField({ name: 'cta', type: 'string' }),
+    defineField({ name: 'ref', type: 'string' }),
+    defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
+    backgroundField,
+  ],
+  preview: {
+    select: { title: 'title', titleAccent: 'titleAccent', media: 'image' },
+    prepare: ({ title, titleAccent, media }) => ({
+      title: `Cover · Centered · ${title || 'Untitled'}`,
+      subtitle: titleAccent,
+      media,
+    }),
+  },
+})
