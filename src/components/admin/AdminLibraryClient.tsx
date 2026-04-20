@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
+import { AiGenerateModal } from './AiGenerateModal'
 
 type BrochureRow = {
   _id: string
@@ -27,6 +28,7 @@ type Props = {
  */
 export function AdminLibraryClient({ brochures }: Props) {
   const [newOpen, setNewOpen] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
   const [duplicateSource, setDuplicateSource] = useState<DuplicateSource | null>(null)
 
   return (
@@ -53,6 +55,24 @@ export function AdminLibraryClient({ brochures }: Props) {
           >
             Open Studio
           </Link>
+          <button
+            onClick={() => setAiOpen(true)}
+            style={{
+              padding: '10px 16px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.25)',
+              borderRadius: 4,
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+            }}
+            title="Generate a brochure with Claude"
+          >
+            ✦ Generate with AI
+          </button>
           <button
             onClick={() => setNewOpen(true)}
             style={{
@@ -170,6 +190,7 @@ export function AdminLibraryClient({ brochures }: Props) {
         onClose={() => setDuplicateSource(null)}
         duplicateFrom={duplicateSource ?? undefined}
       />
+      <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} />
     </>
   )
 }

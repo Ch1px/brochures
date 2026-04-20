@@ -6,7 +6,13 @@
       "Bash(awk END{print NR} *)",
       "Bash(npm run *)",
       "mcp__claude_ai_Sanity__query_documents",
-      "Bash(awk '{print $5}')"
+      "Bash(awk '{print $5}')",
+      "WebFetch(domain:www.grandprixgrandtours.com)",
+      "mcp__claude_ai_Sanity__list_projects",
+      "mcp__claude_ai_Sanity__list_datasets",
+      "mcp__claude_ai_Sanity__get_schema",
+      "mcp__claude_ai_Sanity__create_documents_from_json",
+      "Skill(claude-api)"
     ]
   }
 }

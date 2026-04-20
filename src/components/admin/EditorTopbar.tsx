@@ -16,6 +16,7 @@ type Props = {
   onTitleChange: (title: string) => void
   onStatusChange: (status: BrochureStatus) => void
   onThemeChange: (theme: BrochureTheme) => void
+  onOpenSettings: () => void
 }
 
 const STATUS_LABEL: Record<BrochureStatus, string> = {
@@ -25,7 +26,7 @@ const STATUS_LABEL: Record<BrochureStatus, string> = {
   archived: 'Archived',
 }
 
-export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChange, onThemeChange }: Props) {
+export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChange, onThemeChange, onOpenSettings }: Props) {
   const theme: BrochureTheme = brochure.theme ?? 'dark'
   const [pending, startTransition] = useTransition()
   const [publishMenu, setPublishMenu] = useState(false)
@@ -129,6 +130,14 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
           title={brochure.status === 'published' ? 'Make this the site root redirect' : 'Must be published to feature'}
         >
           {brochure.featured ? '★ Featured' : 'Feature'}
+        </button>
+
+        <button
+          className="editor-topbar-btn"
+          onClick={onOpenSettings}
+          title="Edit brochure settings (slug, SEO, lead capture…)"
+        >
+          Settings
         </button>
 
         <button

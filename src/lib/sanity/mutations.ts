@@ -44,6 +44,67 @@ export async function saveBrochure(
   }
 }
 
+/**
+ * Update brochure settings (slug, season, event, SEO, lead capture).
+ * Separate from saveBrochure() because slug needs a uniqueness check and
+ * these fields aren't part of the autosave write path.
+ *
+ * Slug rule: no other brochure document may already hold the new slug.
+ * Allowed to match our own document's current slug (noop change).
+ */
+export type BrochureSettingsUpdate = {
+  slug?: string
+  season?: string
+  event?: string
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+    noIndex?: boolean
+  }
+  leadCapture?: {
+    hubspotPortalId?: string
+    hubspotFormId?: string
+    destinationEmail?: string
+  }
+}
+
+export async function updateBrochureSettings(
+  id: string,
+  updates: BrochureSettingsUpdate
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    if (updates.slug !== undefined) {
+      const slug = updates.slug.trim()
+      if (!slug) return { ok: false, error: 'Slug cannot be empty' }
+      if (!/^[a-z0-9-]+$/.test(slug)) {
+        return { ok: false, error: 'Slug can only contain lowercase letters, numbers, and hyphens' }
+      }
+      const conflict = await sanityWriteClient.fetch<number>(
+        `count(*[_type == "brochure" && slug.current == $slug && _id != $id && _id != $draftId])`,
+        { slug, id, draftId: `drafts.${id}` }
+      )
+      if (conflict > 0) {
+        return { ok: false, error: `Slug "${slug}" is already used by another brochure` }
+      }
+    }
+
+    const patch: Record<string, unknown> = {}
+    if (updates.slug !== undefined) {
+      patch.slug = { _type: 'slug', current: updates.slug.trim() }
+    }
+    if (updates.season !== undefined) patch.season = updates.season.trim()
+    if (updates.event !== undefined) patch.event = updates.event.trim()
+    if (updates.seo !== undefined) patch.seo = updates.seo
+    if (updates.leadCapture !== undefined) patch.leadCapture = updates.leadCapture
+
+    await sanityWriteClient.patch(id).set(patch).commit()
+    return { ok: true }
+  } catch (err) {
+    console.error('updateBrochureSettings failed:', err)
+    return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
+  }
+}
+
 /** Transition a brochure's status. Sets publishedAt when going to published. */
 export async function setBrochureStatus(
   id: string,

@@ -9,10 +9,14 @@ import {
   createBrochure as createBrochureMutation,
   duplicateBrochure as duplicateBrochureMutation,
   deleteBrochure as deleteBrochureMutation,
+  updateBrochureSettings as updateBrochureSettingsMutation,
   uploadImageAsset,
   fetchBrochureForEdit,
+  type BrochureSettingsUpdate,
 } from './mutations'
 import { signPreviewToken } from '../previewToken'
+import { generateBrochure, type GenerateInput, type GenerateUsage } from '../ai/generator'
+import { seedLibraryImages, type SeedResult } from '../ai/imageLibrary'
 import type { Brochure, SanityImage } from '@/types/brochure'
 
 /**
@@ -92,6 +96,26 @@ export async function deleteBrochureAction(id: string) {
 }
 
 /**
+ * Update brochure-level settings (slug, season, event, SEO, lead capture).
+ * On slug change, busts both the old and new public URL caches.
+ */
+export async function updateBrochureSettingsAction(
+  id: string,
+  updates: BrochureSettingsUpdate,
+  previousSlug?: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await assertAdmin()
+  const result = await updateBrochureSettingsMutation(id, updates)
+  if (result.ok) {
+    if (previousSlug) revalidatePath(`/${previousSlug}`)
+    if (updates.slug && updates.slug !== previousSlug) revalidatePath(`/${updates.slug}`)
+    revalidatePath('/admin')
+    revalidatePath('/')
+  }
+  return result
+}
+
+/**
  * Upload an image file to Sanity Storage. Called from FieldImage / FieldImageSlot.
  *
  * Returns either { ok: true, image } where `image` is a ready-to-store Sanity image ref,
@@ -139,6 +163,31 @@ export async function uploadImageAction(formData: FormData): Promise<UploadImage
       error: err instanceof Error ? err.message : 'Upload failed',
     }
   }
+}
+
+/**
+ * Generate a brochure with Claude and persist it as a draft in Sanity.
+ * Returns the new doc ID + slug + token-usage breakdown for telemetry.
+ */
+export async function generateBrochureAction(
+  input: GenerateInput
+): Promise<
+  | { ok: true; id: string; slug: string; title: string; usage: GenerateUsage }
+  | { ok: false; error: string }
+> {
+  await assertAdmin()
+  const result = await generateBrochure(input)
+  if (result.ok) revalidatePath('/admin')
+  return result
+}
+
+/**
+ * One-time seed: upload every image in /public/textures/images to Sanity
+ * as a tagged library asset Claude can reference by filename.
+ */
+export async function seedLibraryImagesAction(): Promise<SeedResult> {
+  await assertAdmin()
+  return seedLibraryImages()
 }
 
 /**

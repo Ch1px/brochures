@@ -9,6 +9,7 @@ import { PagesPanel } from './PagesPanel'
 import { PreviewStage } from './PreviewStage'
 import { AddSectionModal } from './AddSectionModal'
 import { PropertiesPanel } from './PropertiesPanel'
+import { BrochureSettingsModal } from './BrochureSettingsModal'
 
 type Props = {
   initialBrochure: Brochure
@@ -37,6 +38,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
 
   // Track which page we're adding a section to; null = modal closed
   const [addSectionForPage, setAddSectionForPage] = useState<number | null>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const { status: saveStatus } = useAutosave(brochure)
 
@@ -116,6 +118,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
         onTitleChange={handleTitleChange}
         onStatusChange={handleStatusChange}
         onThemeChange={handleThemeChange}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
 
       <div className="editor-body">
@@ -151,6 +154,22 @@ export function BrochureEditor({ initialBrochure }: Props) {
         open={addSectionForPage !== null}
         onClose={() => setAddSectionForPage(null)}
         onPick={handlePickSectionType}
+      />
+
+      <BrochureSettingsModal
+        open={settingsOpen}
+        brochure={brochure}
+        onClose={() => setSettingsOpen(false)}
+        onSaved={(updates) =>
+          setBrochure((prev) => ({
+            ...prev,
+            slug: updates.slug,
+            season: updates.season,
+            event: updates.event,
+            seo: updates.seo,
+            leadCapture: updates.leadCapture,
+          }))
+        }
       />
     </div>
   )

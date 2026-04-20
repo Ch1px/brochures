@@ -3,9 +3,15 @@ import { groq } from 'next-sanity'
 /**
  * Public brochure by slug, only if published.
  * Returns null if not found, not published, or unpublished/archived.
+ *
+ * Ordered by newest first so that if multiple brochures ever share a slug
+ * (e.g. an old published doc wasn't re-statused before a new one was created),
+ * the most-recently-published one always wins. `coalesce(publishedAt,
+ * _updatedAt)` falls back to _updatedAt for docs that were published before
+ * publishedAt started being stamped.
  */
 export const BROCHURE_BY_SLUG = groq`
-  *[_type == "brochure" && slug.current == $slug && status == "published"][0]{
+  *[_type == "brochure" && slug.current == $slug && status == "published"] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
     _id,
     title,
     slug,
@@ -34,9 +40,10 @@ export const BROCHURE_BY_SLUG = groq`
 
 /**
  * Preview: same as above but without the status filter, for signed preview links.
+ * Also ordered newest-first so duplicate-slug cases resolve deterministically.
  */
 export const BROCHURE_BY_SLUG_PREVIEW = groq`
-  *[_type == "brochure" && slug.current == $slug][0]{
+  *[_type == "brochure" && slug.current == $slug] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
     _id,
     title,
     slug,
