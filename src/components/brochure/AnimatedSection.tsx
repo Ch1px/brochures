@@ -104,38 +104,57 @@ export function AnimatedSection({
       isFirstRunRef.current = false
       return
     }
-    if (!isActivePage) return
     const wrapper = wrapRef.current
     if (!wrapper) return
     const target = wrapper.querySelector<HTMLElement>('section.section')
     if (!target) return
-    if (target.classList.contains('is-active')) return
 
-    let cancelled = false
-    let raf = 0
-    const start = performance.now()
-
-    const check = () => {
-      if (cancelled) return
+    if (isActivePage) {
+      // Page becoming active: poll for the moment the section crosses
+      // into the viewport (during the slider's CSS transform transition,
+      // since IntersectionObserver doesn't reliably fire on ancestor
+      // transforms) and stamp the classes the instant it's visible.
       if (target.classList.contains('is-active')) return
-      const rect = target.getBoundingClientRect()
-      const vh = window.innerHeight || document.documentElement.clientHeight
-      const visible = rect.top < vh && rect.bottom > 0
-      if (visible) {
-        target.classList.add('is-active')
-        target.classList.add('has-been-active')
-        return
+
+      let cancelled = false
+      let raf = 0
+      const start = performance.now()
+
+      const check = () => {
+        if (cancelled) return
+        if (target.classList.contains('is-active')) return
+        const rect = target.getBoundingClientRect()
+        const vh = window.innerHeight || document.documentElement.clientHeight
+        const visible = rect.top < vh && rect.bottom > 0
+        if (visible) {
+          target.classList.add('is-active')
+          target.classList.add('has-been-active')
+          return
+        }
+        if (performance.now() - start > 700) return
+        raf = requestAnimationFrame(check)
       }
-      if (performance.now() - start > 700) return
+
       raf = requestAnimationFrame(check)
+
+      return () => {
+        cancelled = true
+        cancelAnimationFrame(raf)
+      }
     }
 
-    raf = requestAnimationFrame(check)
-
-    return () => {
-      cancelled = true
-      cancelAnimationFrame(raf)
-    }
+    // Page becoming inactive: after the slide-out completes, strip
+    // `.is-active` so the next time this page is navigated to the
+    // section animates fresh from opacity:0 instead of the user briefly
+    // seeing leftover content at full opacity. IntersectionObserver
+    // doesn't reliably fire exit when the section is moved off-viewport
+    // by an ancestor transform, so we do this explicitly. We delay until
+    // the slide finishes (~500ms) so the section doesn't fade out while
+    // it's still visually on screen during the transition.
+    const timeout = window.setTimeout(() => {
+      target.classList.remove('is-active')
+    }, 500)
+    return () => window.clearTimeout(timeout)
   }, [isActivePage])
 
   return (
