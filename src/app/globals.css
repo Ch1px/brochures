@@ -3107,23 +3107,16 @@
   }
 
   /* ============================================================
-     SECTION ENTRANCE ANIMATIONS
-     Subtle fade-up on the children of the active brochure page.
-     Triggered when .brochure-page gets .is-active (BrochureReader
-     toggles this on the current slide).
-     ============================================================ */
-  @keyframes brochure-fade-up {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes brochure-image-zoom {
-    from { transform: scale(1.04); }
-    to   { transform: scale(1); }
-  }
+     PER-ELEMENT SCROLL ANIMATIONS
+     Each animatable element observes its own viewport intersection
+     (see AnimatedSection.tsx). Scrolling an element into view adds
+     `.is-in-view`; scrolling it out removes it. Visual rhythm comes
+     from elements crossing the trigger at different scroll positions
+     — no manual stagger delays needed.
 
-  /* Default: hide animatable inner blocks until the section enters the viewport.
-     Scoped to `.preview-mode` (the public BrochureReader) so the editor's
-     PreviewStage — where no IntersectionObserver runs — keeps natural opacity. */
+     Scoped to `.preview-mode` (the public BrochureReader) so the
+     editor's PreviewStage keeps natural opacity.
+     ============================================================ */
   .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *,
   .preview-mode .section .packages-grid > *,
   .preview-mode .section .features-grid > *,
@@ -3134,77 +3127,23 @@
   .preview-mode .section .gallery-duo-grid > *,
   .preview-mode .section .gallery-hero-strip > * {
     opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.6s cubic-bezier(0.2, 0, 0, 1),
+      transform 0.6s cubic-bezier(0.2, 0, 0, 1);
   }
 
-  /* Active section → animate its inner blocks with a small stagger */
-  .preview-mode .section.is-active > div:not(.page-brand-mark):not(.page-folio) > *,
-  .preview-mode .section.is-active .packages-grid > *,
-  .preview-mode .section.is-active .features-grid > *,
-  .preview-mode .section.is-active .stats-grid > *,
-  .preview-mode .section.is-active .itinerary-list > *,
-  .preview-mode .section.is-active .gallery-editorial-grid > *,
-  .preview-mode .section.is-active .gallery-grid-6 > *,
-  .preview-mode .section.is-active .gallery-duo-grid > *,
-  .preview-mode .section.is-active .gallery-hero-strip > * {
-    animation: brochure-fade-up 0.55s cubic-bezier(0.2, 0, 0, 1) both;
-  }
-
-  .preview-mode .section.is-active > div:not(.page-brand-mark):not(.page-folio) > *:nth-child(1),
-  .preview-mode .section.is-active .packages-grid > *:nth-child(1),
-  .preview-mode .section.is-active .features-grid > *:nth-child(1),
-  .preview-mode .section.is-active .stats-grid > *:nth-child(1),
-  .preview-mode .section.is-active .itinerary-list > *:nth-child(1),
-  .preview-mode .section.is-active .gallery-editorial-grid > *:nth-child(1),
-  .preview-mode .section.is-active .gallery-grid-6 > *:nth-child(1),
-  .preview-mode .section.is-active .gallery-duo-grid > *:nth-child(1),
-  .preview-mode .section.is-active .gallery-hero-strip > *:nth-child(1) { animation-delay: 80ms; }
-
-  .preview-mode .section.is-active > div:not(.page-brand-mark):not(.page-folio) > *:nth-child(2),
-  .preview-mode .section.is-active .packages-grid > *:nth-child(2),
-  .preview-mode .section.is-active .features-grid > *:nth-child(2),
-  .preview-mode .section.is-active .stats-grid > *:nth-child(2),
-  .preview-mode .section.is-active .itinerary-list > *:nth-child(2),
-  .preview-mode .section.is-active .gallery-editorial-grid > *:nth-child(2),
-  .preview-mode .section.is-active .gallery-grid-6 > *:nth-child(2),
-  .preview-mode .section.is-active .gallery-duo-grid > *:nth-child(2),
-  .preview-mode .section.is-active .gallery-hero-strip > *:nth-child(2) { animation-delay: 160ms; }
-
-  .preview-mode .section.is-active > div:not(.page-brand-mark):not(.page-folio) > *:nth-child(3),
-  .preview-mode .section.is-active .packages-grid > *:nth-child(3),
-  .preview-mode .section.is-active .features-grid > *:nth-child(3),
-  .preview-mode .section.is-active .stats-grid > *:nth-child(3),
-  .preview-mode .section.is-active .itinerary-list > *:nth-child(3),
-  .preview-mode .section.is-active .gallery-editorial-grid > *:nth-child(3),
-  .preview-mode .section.is-active .gallery-grid-6 > *:nth-child(3),
-  .preview-mode .section.is-active .gallery-duo-grid > *:nth-child(3),
-  .preview-mode .section.is-active .gallery-hero-strip > *:nth-child(3) { animation-delay: 240ms; }
-
-  .preview-mode .section.is-active > div:not(.page-brand-mark):not(.page-folio) > *:nth-child(4),
-  .preview-mode .section.is-active .packages-grid > *:nth-child(4),
-  .preview-mode .section.is-active .features-grid > *:nth-child(4),
-  .preview-mode .section.is-active .stats-grid > *:nth-child(4),
-  .preview-mode .section.is-active .itinerary-list > *:nth-child(4),
-  .preview-mode .section.is-active .gallery-editorial-grid > *:nth-child(4),
-  .preview-mode .section.is-active .gallery-grid-6 > *:nth-child(4),
-  .preview-mode .section.is-active .gallery-hero-strip > *:nth-child(4) { animation-delay: 320ms; }
-
-  .preview-mode .section.is-active > div:not(.page-brand-mark):not(.page-folio) > *:nth-child(n+5),
-  .preview-mode .section.is-active .packages-grid > *:nth-child(n+5),
-  .preview-mode .section.is-active .stats-grid > *:nth-child(n+5),
-  .preview-mode .section.is-active .itinerary-list > *:nth-child(n+5),
-  .preview-mode .section.is-active .gallery-editorial-grid > *:nth-child(n+5),
-  .preview-mode .section.is-active .gallery-grid-6 > *:nth-child(n+5) { animation-delay: 400ms; }
-
-  /* Hero / cover / package images get a subtle zoom-out on entry.
-     Keyed to .has-been-active (sticky) instead of .is-active (toggles)
-     so the heavy scale transform fires only the first time a section is
-     seen. Replaying scale on every scroll back caused mobile stutter. */
-  .preview-mode .section.has-been-active .cover-image,
-  .preview-mode .section.has-been-active .imhg-img,
-  .preview-mode .section.has-been-active .package-image,
-  .preview-mode .section.has-been-active .image-content-img,
-  .preview-mode .section.has-been-active .gallery-hero-lead {
-    animation: brochure-image-zoom 0.9s cubic-bezier(0.2, 0, 0, 1) both;
+  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *.is-in-view,
+  .preview-mode .section .packages-grid > *.is-in-view,
+  .preview-mode .section .features-grid > *.is-in-view,
+  .preview-mode .section .stats-grid > *.is-in-view,
+  .preview-mode .section .itinerary-list > *.is-in-view,
+  .preview-mode .section .gallery-editorial-grid > *.is-in-view,
+  .preview-mode .section .gallery-grid-6 > *.is-in-view,
+  .preview-mode .section .gallery-duo-grid > *.is-in-view,
+  .preview-mode .section .gallery-hero-strip > *.is-in-view {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   /* Respect reduced-motion preference */
@@ -3219,14 +3158,8 @@
     .preview-mode .section .gallery-duo-grid > *,
     .preview-mode .section .gallery-hero-strip > * {
       opacity: 1;
-      animation: none;
-    }
-    .preview-mode .section .cover-image,
-    .preview-mode .section .imhg-img,
-    .preview-mode .section .package-image,
-    .preview-mode .section .image-content-img,
-    .preview-mode .section .gallery-hero-lead {
-      animation: none;
+      transform: none;
+      transition: none;
     }
   }
 

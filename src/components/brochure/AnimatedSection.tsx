@@ -7,6 +7,23 @@ import { SectionRenderer } from './SectionRenderer'
 const useIsoLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
+/**
+ * Selector matching every individual element that should fade up as it
+ * crosses the viewport. Mirrors the CSS rule in globals.css — keep them
+ * in sync. `:scope` confines the search to descendants of the section.
+ */
+const ANIMATABLE_SELECTOR = [
+  ':scope > div:not(.page-brand-mark):not(.page-folio) > *',
+  ':scope .packages-grid > *',
+  ':scope .features-grid > *',
+  ':scope .stats-grid > *',
+  ':scope .itinerary-list > *',
+  ':scope .gallery-editorial-grid > *',
+  ':scope .gallery-grid-6 > *',
+  ':scope .gallery-duo-grid > *',
+  ':scope .gallery-hero-strip > *',
+].join(', ')
+
 type Props = {
   section: Section
   pageNum: number
@@ -16,40 +33,35 @@ type Props = {
 }
 
 /**
- * Wraps SectionRenderer with viewport detection so each section's
- * children fade up every time the section enters the viewport.
+ * Wraps SectionRenderer with per-element scroll-driven animation.
  *
- * Two parallel class flags, modelled on Foleon's pattern (the platform
- * F1 use for their hospitality brochures):
+ * Each animatable element inside the section gets its own
+ * IntersectionObserver entry. As the element crosses the viewport edge
+ * we toggle `.is-in-view`; the CSS transition does the fade + translate.
+ * No manual stagger — the natural rhythm comes from elements crossing
+ * the trigger line at different times as the user scrolls.
  *
- *   .is-active          — toggles on every viewport enter/exit. Drives
- *                         the lightweight fade-up animation, which
- *                         replays on each re-entry.
- *
- *   .has-been-active    — set once, never removed. Drives heavier
- *                         one-shot effects (image zoom). Replaying the
- *                         scale transform on every scroll caused mobile
- *                         stutter previously, so this class is sticky.
- *
- * Three triggers add the classes:
+ * Three triggers contribute, all converging on the same `.is-in-view`
+ * class:
  *
  * 1. SYNC MOUNT CHECK (useLayoutEffect, before first paint).
- *    Pre-mark sections that are already in view so above-the-fold
- *    content isn't briefly blank between paint and the first IO callback.
+ *    For elements already on screen at mount, mark them in-view
+ *    immediately so above-the-fold content isn't blank between paint
+ *    and the first IO callback.
  *
  * 2. INTERSECTION OBSERVER.
- *    The main driver. Adds .is-active + .has-been-active on entry,
- *    removes only .is-active on exit. Threshold 0.2 so the trigger
- *    fires when a meaningful chunk of the section is visible — not on
- *    a sliver of partial overlap, which would re-fire constantly
- *    during scroll.
+ *    Per-element observation. `rootMargin: '0px 0px -15% 0px'` shrinks
+ *    the bottom of the trigger zone so the element fades in once it's
+ *    a comfortable distance into the viewport rather than the moment
+ *    a single pixel crosses. Threshold 0 fires on first contact.
  *
  * 3. PAGE-CHANGE POLL.
- *    IntersectionObserver doesn't reliably fire when an element comes
- *    into view via an ancestor's CSS transform (the slider). When this
- *    section's page becomes active, we poll its bounding rect each
- *    frame for the duration of the slide and explicitly add the
- *    classes the moment it crosses into the viewport.
+ *    IntersectionObserver doesn't reliably fire when an element enters
+ *    via an ancestor's CSS transform (the slider). When this section's
+ *    page becomes active, we rAF-poll each element's bounding rect for
+ *    the duration of the slide and toggle `.is-in-view` directly.
+ *    Mirror handler on isActivePage→false strips the class after
+ *    slide-out so the next return animates fresh.
  *
  * The wrapper uses `display: contents` so it adds no box to the layout
  * — only its first child (the real <section>) is observed.
@@ -67,34 +79,39 @@ export function AnimatedSection({
   useIsoLayoutEffect(() => {
     const wrapper = wrapRef.current
     if (!wrapper) return
-    const target = wrapper.querySelector<HTMLElement>('section.section')
-    if (!target) return
+    const sectionEl = wrapper.querySelector<HTMLElement>('section.section')
+    if (!sectionEl) return
 
-    const rect = target.getBoundingClientRect()
+    const targets = sectionEl.querySelectorAll<HTMLElement>(ANIMATABLE_SELECTOR)
+    if (targets.length === 0) return
+
     const vw = window.innerWidth || document.documentElement.clientWidth
     const vh = window.innerHeight || document.documentElement.clientHeight
-    const alreadyVisible =
-      rect.top < vh && rect.bottom > 0 && rect.left < vw && rect.right > 0
-
-    if (alreadyVisible) {
-      target.classList.add('is-active')
-      target.classList.add('has-been-active')
-    }
+    targets.forEach((target) => {
+      const rect = target.getBoundingClientRect()
+      if (
+        rect.top < vh &&
+        rect.bottom > 0 &&
+        rect.left < vw &&
+        rect.right > 0
+      ) {
+        target.classList.add('is-in-view')
+      }
+    })
 
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            target.classList.add('is-active')
-            target.classList.add('has-been-active')
+            entry.target.classList.add('is-in-view')
           } else {
-            target.classList.remove('is-active')
+            entry.target.classList.remove('is-in-view')
           }
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0, rootMargin: '0px 0px -15% 0px' }
     )
-    io.observe(target)
+    targets.forEach((t) => io.observe(t))
 
     return () => io.disconnect()
   }, [])
@@ -106,53 +123,39 @@ export function AnimatedSection({
     }
     const wrapper = wrapRef.current
     if (!wrapper) return
-    const target = wrapper.querySelector<HTMLElement>('section.section')
-    if (!target) return
+    const sectionEl = wrapper.querySelector<HTMLElement>('section.section')
+    if (!sectionEl) return
+    const targets = sectionEl.querySelectorAll<HTMLElement>(ANIMATABLE_SELECTOR)
+    if (targets.length === 0) return
 
     if (isActivePage) {
-      // Page becoming active: poll for the moment the section crosses
-      // into the viewport (during the slider's CSS transform transition,
-      // since IntersectionObserver doesn't reliably fire on ancestor
-      // transforms) and stamp the classes the instant it's visible.
-      if (target.classList.contains('is-active')) return
-
       let cancelled = false
       let raf = 0
       const start = performance.now()
 
       const check = () => {
         if (cancelled) return
-        if (target.classList.contains('is-active')) return
-        const rect = target.getBoundingClientRect()
         const vh = window.innerHeight || document.documentElement.clientHeight
-        const visible = rect.top < vh && rect.bottom > 0
-        if (visible) {
-          target.classList.add('is-active')
-          target.classList.add('has-been-active')
-          return
-        }
+        targets.forEach((target) => {
+          if (target.classList.contains('is-in-view')) return
+          const rect = target.getBoundingClientRect()
+          if (rect.top < vh && rect.bottom > 0) {
+            target.classList.add('is-in-view')
+          }
+        })
         if (performance.now() - start > 700) return
         raf = requestAnimationFrame(check)
       }
 
       raf = requestAnimationFrame(check)
-
       return () => {
         cancelled = true
         cancelAnimationFrame(raf)
       }
     }
 
-    // Page becoming inactive: after the slide-out completes, strip
-    // `.is-active` so the next time this page is navigated to the
-    // section animates fresh from opacity:0 instead of the user briefly
-    // seeing leftover content at full opacity. IntersectionObserver
-    // doesn't reliably fire exit when the section is moved off-viewport
-    // by an ancestor transform, so we do this explicitly. We delay until
-    // the slide finishes (~500ms) so the section doesn't fade out while
-    // it's still visually on screen during the transition.
     const timeout = window.setTimeout(() => {
-      target.classList.remove('is-active')
+      targets.forEach((t) => t.classList.remove('is-in-view'))
     }, 500)
     return () => window.clearTimeout(timeout)
   }, [isActivePage])
