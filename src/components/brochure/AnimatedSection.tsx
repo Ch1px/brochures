@@ -17,34 +17,39 @@ type Props = {
 
 /**
  * Wraps SectionRenderer with viewport detection so each section's
- * children fade up the first time the section becomes visible.
+ * children fade up every time the section enters the viewport.
  *
- * Three triggers, each handling a different way a section can come into
- * view. All converge on adding `.is-active`, which the CSS keyframes
- * key off. One-shot — once added, it never comes back off, so scrolling
- * away doesn't replay the animation (replay caused the earlier mobile
- * mid-scroll stutter).
+ * Two parallel class flags, modelled on Foleon's pattern (the platform
+ * F1 use for their hospitality brochures):
+ *
+ *   .is-active          — toggles on every viewport enter/exit. Drives
+ *                         the lightweight fade-up animation, which
+ *                         replays on each re-entry.
+ *
+ *   .has-been-active    — set once, never removed. Drives heavier
+ *                         one-shot effects (image zoom). Replaying the
+ *                         scale transform on every scroll caused mobile
+ *                         stutter previously, so this class is sticky.
+ *
+ * Three triggers add the classes:
  *
  * 1. SYNC MOUNT CHECK (useLayoutEffect, before first paint).
- *    Read the bounding rect; if the section is already on screen,
- *    add `.is-active` immediately. Otherwise the IntersectionObserver
- *    callback would fire a tick after paint, leaving above-the-fold
- *    sections briefly blank.
+ *    Pre-mark sections that are already in view so above-the-fold
+ *    content isn't briefly blank between paint and the first IO callback.
  *
- * 2. INTERSECTION OBSERVER (threshold 0).
- *    Handles vertical scroll within a page — sections that scroll into
- *    view trigger their fade. Threshold 0 fires the moment any pixel
- *    crosses the viewport edge, so the animation feels coupled to scroll.
+ * 2. INTERSECTION OBSERVER.
+ *    The main driver. Adds .is-active + .has-been-active on entry,
+ *    removes only .is-active on exit. Threshold 0.2 so the trigger
+ *    fires when a meaningful chunk of the section is visible — not on
+ *    a sliver of partial overlap, which would re-fire constantly
+ *    during scroll.
  *
  * 3. PAGE-CHANGE POLL.
- *    The slider brings new pages in via an ancestor `translateX`
- *    transition. IntersectionObserver does not reliably fire for
- *    visibility changes caused by ancestor transforms, so we explicitly
- *    poll the section's bounding rect each frame for the duration of
- *    the slide (~500ms). The instant the section's rect intersects the
- *    viewport we add `.is-active`. If it never does (below-the-fold of
- *    the new page), polling stops and IO from #2 will handle it when
- *    the user scrolls down.
+ *    IntersectionObserver doesn't reliably fire when an element comes
+ *    into view via an ancestor's CSS transform (the slider). When this
+ *    section's page becomes active, we poll its bounding rect each
+ *    frame for the duration of the slide and explicitly add the
+ *    classes the moment it crosses into the viewport.
  *
  * The wrapper uses `display: contents` so it adds no box to the layout
  * — only its first child (the real <section>) is observed.
@@ -73,7 +78,7 @@ export function AnimatedSection({
 
     if (alreadyVisible) {
       target.classList.add('is-active')
-      return
+      target.classList.add('has-been-active')
     }
 
     const io = new IntersectionObserver(
@@ -81,13 +86,16 @@ export function AnimatedSection({
         for (const entry of entries) {
           if (entry.isIntersecting) {
             target.classList.add('is-active')
-            io.unobserve(target)
+            target.classList.add('has-been-active')
+          } else {
+            target.classList.remove('is-active')
           }
         }
       },
-      { threshold: 0 }
+      { threshold: 0.2 }
     )
     io.observe(target)
+
     return () => io.disconnect()
   }, [])
 
@@ -115,6 +123,7 @@ export function AnimatedSection({
       const visible = rect.top < vh && rect.bottom > 0
       if (visible) {
         target.classList.add('is-active')
+        target.classList.add('has-been-active')
         return
       }
       if (performance.now() - start > 700) return

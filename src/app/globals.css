@@ -3195,12 +3195,15 @@
   .preview-mode .section.is-active .gallery-editorial-grid > *:nth-child(n+5),
   .preview-mode .section.is-active .gallery-grid-6 > *:nth-child(n+5) { animation-delay: 400ms; }
 
-  /* Hero / cover / package images get a subtle zoom-out on entry */
-  .preview-mode .section.is-active .cover-image,
-  .preview-mode .section.is-active .imhg-img,
-  .preview-mode .section.is-active .package-image,
-  .preview-mode .section.is-active .image-content-img,
-  .preview-mode .section.is-active .gallery-hero-lead {
+  /* Hero / cover / package images get a subtle zoom-out on entry.
+     Keyed to .has-been-active (sticky) instead of .is-active (toggles)
+     so the heavy scale transform fires only the first time a section is
+     seen. Replaying scale on every scroll back caused mobile stutter. */
+  .preview-mode .section.has-been-active .cover-image,
+  .preview-mode .section.has-been-active .imhg-img,
+  .preview-mode .section.has-been-active .package-image,
+  .preview-mode .section.has-been-active .image-content-img,
+  .preview-mode .section.has-been-active .gallery-hero-lead {
     animation: brochure-image-zoom 0.9s cubic-bezier(0.2, 0, 0, 1) both;
   }
 

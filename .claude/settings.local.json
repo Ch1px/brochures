@@ -15,7 +15,14 @@
       "Skill(claude-api)",
       "Read(//c/Users/dangl/.claude/projects/C--brochures//**)",
       "Read(//c/Users/dangl/.claude/projects/C--brochures/memory//**)",
-      "WebFetch(domain:f1brochure.grandprixgrandtours.com)"
+      "WebFetch(domain:f1brochure.grandprixgrandtours.com)",
+      "Bash(curl -sL \"https://brochures.formula1.com/f1hospitality-gordonramsayatf1laterrasse-2026-authoriseddistributors/introduction\" -o /tmp/f1_intro.html)",
+      "Read(//tmp/**)",
+      "Bash(grep -oE 'IntersectionObserver[^a-zA-Z][^\"]{0,200}' /tmp/foleon-core.js)",
+      "Bash(grep -oE '\\(fadeIn|fadeOut|in-view|is-visible|isVisible|reveal|animate-\\)[a-zA-Z-]{0,30}' /tmp/foleon-core.js)",
+      "Bash(grep -oE 'isVisible[^a-zA-Z][^\"]{0,300}' /tmp/foleon-core.js)",
+      "Bash(grep -oE '\\(in-viewport|in-viewport-fired|in-viewport-pending\\)[^\"]{0,200}' /tmp/foleon-core.js)",
+      "Bash(grep -oE 'fadeInUp[^\"]{0,200}' /tmp/foleon-core.js)"
     ]
   }
 }
