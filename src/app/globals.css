@@ -2589,7 +2589,7 @@
     .quote-profile-eyebrow,
     .gallery-variant-eyebrow,
     .circuit-map-eyebrow {
-      font-size: clamp(36px, 7cqi, 52px);
+      font-size: clamp(44px, 8.5cqi, 64px);
     }
 
     /* COVER */
@@ -2718,8 +2718,8 @@
     .closing-cta { width: 100%; justify-content: center; }
 
     /* SECTION HEADING */
-    .section-heading-eyebrow { font-size: clamp(36px, 10cqi, 60px); }
-    .section-heading-title { font-size: clamp(24px, 7.5cqi, 40px); }
+    .section-heading-eyebrow { font-size: clamp(44px, 12cqi, 72px); }
+    .section-heading-title { font-size: clamp(30px, 9cqi, 48px); }
     .section-heading-text { max-width: 100%; font-size: clamp(14px, 3.3cqi, 16px); line-height: 1.65; }
 
     /* CIRCUIT MAP */

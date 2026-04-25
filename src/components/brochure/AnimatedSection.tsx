@@ -12,14 +12,18 @@ type Props = {
 }
 
 /**
- * Wraps SectionRenderer with an IntersectionObserver that toggles
- * `.is-active` on the rendered <section> element whenever it enters or
- * leaves the viewport. The CSS keyed off `.section.is-active` runs the
- * fade-up + stagger animation on the section's children.
+ * Wraps SectionRenderer with an IntersectionObserver that adds
+ * `.is-active` to the rendered <section> the first time it enters the
+ * viewport, then unobserves. The CSS keyed off `.section.is-active` runs
+ * the fade-up + stagger animation on the section's children once.
  *
- * Re-fires on every entry, so leaving and returning to a section replays
- * the animation. The wrapper uses `display: contents` so it adds no box
- * to the layout — only its first child (the real <section>) is observed.
+ * Why one-shot: the previous version also removed `is-active` on exit,
+ * which replayed the animation on every scroll. On mobile this caused
+ * sections to snap back to opacity:0 mid-scroll, producing a noticeable
+ * stutter as the user moved through the page.
+ *
+ * The wrapper uses `display: contents` so it adds no box to the layout
+ * — only its first child (the real <section>) is observed.
  */
 export function AnimatedSection(props: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -35,8 +39,7 @@ export function AnimatedSection(props: Props) {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             target.classList.add('is-active')
-          } else {
-            target.classList.remove('is-active')
+            io.unobserve(target)
           }
         }
       },
