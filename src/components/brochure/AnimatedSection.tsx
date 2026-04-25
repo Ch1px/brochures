@@ -8,37 +8,64 @@ const useIsoLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 /**
- * Selector matching every individual element that should fade up as it
- * crosses the viewport. Mirrors the CSS rule in globals.css — keep them
- * in sync. `:scope` confines the search to descendants of the section.
+ * Classes that fade up as they enter the viewport. Intentionally
+ * narrow scope — eyebrows, the section-heading title, the cover page,
+ * images, and decorative SVGs. Regular section titles and body text
+ * stay static.
  *
- *   - `> div > *`        — direct children of the section's inner
- *                           wrapper (catches sections whose immediate
- *                           children are content + the group containers
- *                           in sections that wrap their content).
- *   - `> div > div > *`  — grandchildren via a div container (catches
- *                           the per-element content inside those group
- *                           containers).
+ * Keep this list in sync with the matching CSS rule in globals.css.
  */
-const ANIMATABLE_SELECTOR = [
-  ':scope > div:not(.page-brand-mark):not(.page-folio) > *',
-  ':scope > div:not(.page-brand-mark):not(.page-folio) > div > *',
-].join(', ')
+const ANIMATABLE_CLASSES = [
+  // Eyebrows / taglines
+  '.intro-eyebrow',
+  '.stats-eyebrow',
+  '.image-hero-eyebrow',
+  '.closing-eyebrow',
+  '.quote-profile-eyebrow',
+  '.gallery-variant-eyebrow',
+  '.circuit-map-eyebrow',
+  '.text-center-eyebrow',
+  '.section-heading-eyebrow',
+  '.features-title-accent',
+  // Section-heading title only
+  '.section-heading-title',
+  // Cover page — everything
+  '.page-cover-bg',
+  '.page-cover-frame',
+  '.page-cover-svg-decor',
+  '.cover-brand-lockup',
+  '.cover-edition',
+  '.cover-sup',
+  '.cover-title',
+  '.cover-tag',
+  '.cover-cta',
+  '.cover-ref',
+  // Images
+  '.package-image',
+  '.feature-card-media',
+  '.page-image-hero-bg',
+  '.page-spotlight-image',
+  '.quote-profile-photo',
+  '.page-intro-right',
+  '.gallery-item',
+  '.gallery-hero-lead',
+  '.gallery-hero-thumb',
+  '.gallery-duo-item',
+  // Decorative SVGs
+  '.page-section-heading-svg-decor',
+  '.page-spotlight-svg-decor',
+  '.page-closing-svg',
+  '.circuit-map-svg-wrap',
+]
+
+const ANIMATABLE_SELECTOR = ANIMATABLE_CLASSES.map((c) => `:scope ${c}`).join(', ')
 
 const TRIGGER_RATIO = 0.9
 
-type Props = {
-  section: Section
-  pageNum: number
-  total: number
-  showFolio: boolean
-  isActivePage: boolean
-}
-
 /**
- * Walks each animatable element and toggles `.is-in-view` based on
- * whether the element intersects the viewport. Reads are batched
- * before any writes to avoid layout thrashing.
+ * Toggles `.is-in-view` on each target based on its current viewport
+ * intersection. Reads are batched before any writes to avoid layout
+ * thrashing during scroll-event handlers.
  */
 function syncVisibility(targets: NodeListOf<HTMLElement> | HTMLElement[]) {
   const vw = window.innerWidth || document.documentElement.clientWidth
@@ -55,39 +82,48 @@ function syncVisibility(targets: NodeListOf<HTMLElement> | HTMLElement[]) {
     )
   }
   for (let i = 0; i < targets.length; i++) {
-    const el = targets[i]
-    const cls = el.classList
+    const cls = targets[i].classList
     if (states[i]) cls.add('is-in-view')
     else cls.remove('is-in-view')
   }
 }
 
+type Props = {
+  section: Section
+  pageNum: number
+  total: number
+  showFolio: boolean
+  isActivePage: boolean
+}
+
 /**
- * Wraps SectionRenderer with per-element scroll-driven animation.
+ * Wraps SectionRenderer with scroll-driven, per-element animation for
+ * a curated subset of elements (see ANIMATABLE_CLASSES above).
  *
- * The brochure has two motion patterns that need different handling:
+ * Three input signals all converge on `syncVisibility`, which toggles
+ * `.is-in-view` based on each element's current viewport rect:
  *
- *   1. Vertical scroll inside `.brochure-page` (overflow:auto). On
- *      mobile Safari, IntersectionObserver can be unreliable inside
- *      an overflow:auto container, so we layer a scroll-event-driven
- *      `syncVisibility` call on top — IO is the fast path, the scroll
- *      listener is the safety net.
+ *   1. SYNC MOUNT (useLayoutEffect, before first paint).
+ *      Pre-marks above-the-fold elements so they aren't blank between
+ *      paint and the first IO callback.
  *
- *   2. Horizontal slider transition (`translateX` on an ancestor).
- *      IntersectionObserver doesn't fire for visibility changes caused
- *      by ancestor transforms at all, in any browser. When this
- *      section's page becomes active or inactive we rAF-poll each
- *      element's bounding rect for the duration of the slide and
- *      sync `.is-in-view` directly.
+ *   2. INTERSECTION OBSERVER + DOCUMENT-LEVEL SCROLL CAPTURE.
+ *      IO is the fast path on desktop. On mobile the brochure's
+ *      layout means scroll events fire on a moving target — sometimes
+ *      `.brochure-page`, sometimes the document, sometimes nothing
+ *      detectable depending on iOS gesture state. So we also bind a
+ *      capture-phase scroll listener on `document` plus `touchmove` /
+ *      `resize` on `window`. Whichever fires first wins; whichever
+ *      fires later is a cheap idempotent re-sync.
  *
- * Both mechanisms call the same `syncVisibility` helper which toggles
- * `.is-in-view` on every animatable element based on its current
- * viewport intersection. The CSS transition handles the actual fade
- * + translate, so animations naturally replay every time an element
- * crosses the trigger line.
+ *   3. PAGE-CHANGE rAF POLL.
+ *      The slider's `translateX` transition fires neither IO nor
+ *      scroll events. When `isActivePage` flips we rAF-poll the rects
+ *      for the duration of the slide so elements get `.is-in-view` as
+ *      they cross into the viewport.
  *
  * The wrapper uses `display: contents` so it adds no box to the layout
- * — only its first child (the real <section>) is observed.
+ * — only its first child (the real <section>) is queried.
  */
 export function AnimatedSection({
   section,
@@ -123,23 +159,25 @@ export function AnimatedSection({
     )
     targets.forEach((t) => io.observe(t))
 
-    const scrollContainer = sectionEl.closest('.brochure-page') as HTMLElement | null
-    let scrollRaf = 0
-    const onScroll = () => {
-      if (scrollRaf) return
-      scrollRaf = requestAnimationFrame(() => {
-        scrollRaf = 0
+    let raf = 0
+    const onSync = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
         syncVisibility(targets)
       })
     }
-    scrollContainer?.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll, { passive: true })
+
+    document.addEventListener('scroll', onSync, { passive: true, capture: true })
+    window.addEventListener('resize', onSync, { passive: true })
+    window.addEventListener('touchmove', onSync, { passive: true })
 
     return () => {
       io.disconnect()
-      scrollContainer?.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-      if (scrollRaf) cancelAnimationFrame(scrollRaf)
+      document.removeEventListener('scroll', onSync, true)
+      window.removeEventListener('resize', onSync)
+      window.removeEventListener('touchmove', onSync)
+      if (raf) cancelAnimationFrame(raf)
     }
   }, [])
 
@@ -161,7 +199,7 @@ export function AnimatedSection({
     const tick = () => {
       if (cancelled) return
       syncVisibility(targets)
-      if (performance.now() - start > 700) return
+      if (performance.now() - start > 800) return
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)

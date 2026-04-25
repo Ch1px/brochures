@@ -3107,37 +3107,65 @@
   }
 
   /* ============================================================
-     PER-ELEMENT SCROLL ANIMATIONS
-     Each animatable element observes its own viewport intersection
-     (see AnimatedSection.tsx). Scrolling an element into view adds
-     `.is-in-view`; scrolling it out removes it. Visual rhythm comes
-     from elements crossing the trigger at different scroll positions
-     — no manual stagger delays needed.
+     SCROLL ANIMATIONS — RESTRICTED SCOPE
+     Animations are intentionally limited to:
+       - eyebrows / taglines (the script-italic red accents)
+       - section-heading section's title (only that one section type)
+       - everything on the cover page
+       - images
+       - decorative SVGs
+     Regular section titles and body text are deliberately left static.
 
-     Two structural selectors cover every section uniformly:
-       - `> div > *`        — direct children of the section's inner
-                              wrapper. Catches sections whose immediate
-                              children are content (SectionHeading,
-                              ImageHero, Closing, TextCenter, etc.) and
-                              the group containers in sections that
-                              wrap their content (Cover, Intro, Stats,
-                              Packages, Itinerary, Gallery*, Spotlight,
-                              QuoteProfile, CircuitMap, Features).
-       - `> div > div > *`  — grandchildren via a div container.
-                              Catches the per-element content inside
-                              those group containers (cover-title,
-                              intro-eyebrow, stats-eyebrow, package
-                              cards, day rows, gallery items, etc.).
-
-     Scoped to `.preview-mode` (the public BrochureReader) so the
+     `.is-in-view` is toggled per-element by AnimatedSection.tsx as the
+     element crosses the viewport. The CSS transition handles the fade
+     + slight upward translate. Scoped to `.preview-mode` so the
      editor's PreviewStage keeps natural opacity.
+
+     If you change this list, update ANIMATABLE_CLASSES in
+     AnimatedSection.tsx to match.
      ============================================================ */
-  /* Pattern A: direct children of inner — fade + translate.
-     For Pattern A sections (SectionHeading, ImageHero, Closing,
-     TextCenter), these ARE the content. For Pattern B sections (Cover,
-     Intro, Stats, etc.), these are the GROUP containers; their
-     translate carries the nested content along with them. */
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > * {
+  .preview-mode .section :is(
+    /* Eyebrows / taglines */
+    .intro-eyebrow,
+    .stats-eyebrow,
+    .image-hero-eyebrow,
+    .closing-eyebrow,
+    .quote-profile-eyebrow,
+    .gallery-variant-eyebrow,
+    .circuit-map-eyebrow,
+    .text-center-eyebrow,
+    .section-heading-eyebrow,
+    .features-title-accent,
+    /* Section-heading title (only this section type's title) */
+    .section-heading-title,
+    /* Cover page — everything */
+    .page-cover-bg,
+    .page-cover-frame,
+    .page-cover-svg-decor,
+    .cover-brand-lockup,
+    .cover-edition,
+    .cover-sup,
+    .cover-title,
+    .cover-tag,
+    .cover-cta,
+    .cover-ref,
+    /* Images */
+    .package-image,
+    .feature-card-media,
+    .page-image-hero-bg,
+    .page-spotlight-image,
+    .quote-profile-photo,
+    .page-intro-right,
+    .gallery-item,
+    .gallery-hero-lead,
+    .gallery-hero-thumb,
+    .gallery-duo-item,
+    /* Decorative SVGs */
+    .page-section-heading-svg-decor,
+    .page-spotlight-svg-decor,
+    .page-closing-svg,
+    .circuit-map-svg-wrap
+  ) {
     opacity: 0;
     transform: translateY(16px);
     transition:
@@ -3145,25 +3173,85 @@
       transform 0.55s cubic-bezier(0.2, 0, 0, 1);
   }
 
-  /* Pattern B: nested content — fade only. Skipping the translate here
-     prevents compound movement (parent already translates 16px). */
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > * {
-    opacity: 0;
-    transition: opacity 0.55s cubic-bezier(0.2, 0, 0, 1);
-  }
-
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *.is-in-view {
+  .preview-mode .section :is(
+    .intro-eyebrow,
+    .stats-eyebrow,
+    .image-hero-eyebrow,
+    .closing-eyebrow,
+    .quote-profile-eyebrow,
+    .gallery-variant-eyebrow,
+    .circuit-map-eyebrow,
+    .text-center-eyebrow,
+    .section-heading-eyebrow,
+    .features-title-accent,
+    .section-heading-title,
+    .page-cover-bg,
+    .page-cover-frame,
+    .page-cover-svg-decor,
+    .cover-brand-lockup,
+    .cover-edition,
+    .cover-sup,
+    .cover-title,
+    .cover-tag,
+    .cover-cta,
+    .cover-ref,
+    .package-image,
+    .feature-card-media,
+    .page-image-hero-bg,
+    .page-spotlight-image,
+    .quote-profile-photo,
+    .page-intro-right,
+    .gallery-item,
+    .gallery-hero-lead,
+    .gallery-hero-thumb,
+    .gallery-duo-item,
+    .page-section-heading-svg-decor,
+    .page-spotlight-svg-decor,
+    .page-closing-svg,
+    .circuit-map-svg-wrap
+  ).is-in-view {
     opacity: 1;
     transform: translateY(0);
   }
 
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > *.is-in-view {
-    opacity: 1;
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *,
-    .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > * {
+    .preview-mode .section :is(
+      .intro-eyebrow,
+      .stats-eyebrow,
+      .image-hero-eyebrow,
+      .closing-eyebrow,
+      .quote-profile-eyebrow,
+      .gallery-variant-eyebrow,
+      .circuit-map-eyebrow,
+      .text-center-eyebrow,
+      .section-heading-eyebrow,
+      .features-title-accent,
+      .section-heading-title,
+      .page-cover-bg,
+      .page-cover-frame,
+      .page-cover-svg-decor,
+      .cover-brand-lockup,
+      .cover-edition,
+      .cover-sup,
+      .cover-title,
+      .cover-tag,
+      .cover-cta,
+      .cover-ref,
+      .package-image,
+      .feature-card-media,
+      .page-image-hero-bg,
+      .page-spotlight-image,
+      .quote-profile-photo,
+      .page-intro-right,
+      .gallery-item,
+      .gallery-hero-lead,
+      .gallery-hero-thumb,
+      .gallery-duo-item,
+      .page-section-heading-svg-decor,
+      .page-spotlight-svg-decor,
+      .page-closing-svg,
+      .circuit-map-svg-wrap
+    ) {
       opacity: 1;
       transform: none;
       transition: none;

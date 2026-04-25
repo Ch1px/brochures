@@ -23,7 +23,8 @@
       "Bash(grep -oE 'isVisible[^a-zA-Z][^\"]{0,300}' /tmp/foleon-core.js)",
       "Bash(grep -oE '\\(in-viewport|in-viewport-fired|in-viewport-pending\\)[^\"]{0,200}' /tmp/foleon-core.js)",
       "Bash(grep -oE 'fadeInUp[^\"]{0,200}' /tmp/foleon-core.js)",
-      "WebFetch(domain:css-tricks.com)"
+      "WebFetch(domain:css-tricks.com)",
+      "Bash(grep -oE 'className=\\([\\\\`\"]\\)[^\\\\`\"]+\\\\1')"
     ]
   }
 }
