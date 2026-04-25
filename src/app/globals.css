@@ -552,7 +552,7 @@
 
   .cover-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(24px, 4.6cqi, 60px);
+    font-size: clamp(28px, 5.3cqi, 70px);
     line-height: 0.9;
     letter-spacing: -0.01em;
     text-transform: uppercase;
@@ -564,9 +564,10 @@
     color: var(--brand-red);
     text-transform: none;
     letter-spacing: 0;
-    font-size: 0.88em;
+    font-size: 1.05em;
     line-height: 0.8;
     display: inline-block;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
   }
 
   .cover-tag {
@@ -661,14 +662,14 @@
     font-family: var(--font-script);
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(28px, 4cqi, 50px);
+    font-size: clamp(34px, 5cqi, 62px);
     color: var(--brand-red);
     margin-bottom: clamp(6px, 1cqi, 12px);
     line-height: 1;
   }
   .intro-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(20px, 3.5cqi, 44px);
+    font-size: clamp(24px, 4.1cqi, 52px);
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -803,6 +804,9 @@
   .page-spotlight .intro-body {
     color: rgba(255, 255, 255, 0.72);
   }
+  .page-spotlight .intro-eyebrow {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
   @container (max-width: 560px) {
     .page-spotlight-inner {
       grid-template-columns: 1fr;
@@ -835,7 +839,7 @@
     font-family: var(--font-script);
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(26px, 3.8cqi, 44px);
+    font-size: clamp(32px, 4.7cqi, 56px);
     color: var(--brand-red);
     line-height: 1;
   }
@@ -917,7 +921,7 @@
   .features-header { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
   .features-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(18px, 3.2cqi, 38px);
+    font-size: clamp(22px, 3.7cqi, 44px);
     line-height: 0.95;
     letter-spacing: 0.01em; text-transform: uppercase;
     flex: 1;
@@ -1009,14 +1013,14 @@
     font-family: var(--font-script);
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(26px, 3.8cqi, 44px);
+    font-size: clamp(32px, 4.7cqi, 56px);
     color: var(--brand-red);
     margin-bottom: clamp(10px, 1.5cqi, 16px);
     line-height: 1;
   }
   .image-hero-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(24px, 4.6cqi, 60px);
+    font-size: clamp(28px, 5.3cqi, 70px);
     line-height: 0.92; letter-spacing: 0.005em;
     text-transform: uppercase;
     margin-bottom: clamp(14px, 2cqi, 24px);
@@ -1042,14 +1046,14 @@
     font-family: var(--font-script);
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(26px, 3.8cqi, 44px);
+    font-size: clamp(32px, 4.7cqi, 56px);
     color: var(--brand-red);
     margin-bottom: clamp(10px, 1.4cqi, 16px);
     line-height: 1;
   }
   .stats-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(18px, 3.2cqi, 38px);
+    font-size: clamp(22px, 3.7cqi, 44px);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .stats-grid {
@@ -1101,7 +1105,7 @@
   .packages-header { margin-bottom: clamp(18px, 2.5cqi, 36px); }
   .packages-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(18px, 2.9cqi, 36px);
+    font-size: clamp(22px, 3.4cqi, 42px);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .packages-grid {
@@ -1202,7 +1206,7 @@
   .itinerary-header { margin-bottom: clamp(14px, 2cqi, 28px); }
   .itinerary-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(18px, 2.9cqi, 36px);
+    font-size: clamp(22px, 3.4cqi, 42px);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .itinerary-list {
@@ -1256,7 +1260,7 @@
   .gallery-header { margin-bottom: clamp(16px, 2cqi, 28px); }
   .gallery-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(18px, 2.9cqi, 36px);
+    font-size: clamp(22px, 3.4cqi, 42px);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .gallery-grid {
@@ -1310,14 +1314,15 @@
     font-family: var(--font-script);
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(30px, 4.4cqi, 52px);
+    font-size: clamp(36px, 5.5cqi, 64px);
     color: var(--brand-red);
     margin-bottom: clamp(10px, 1.5cqi, 16px);
     line-height: 1;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
   }
   .closing-title {
     font-family: var(--font-display); font-weight: 900;
-    font-size: clamp(24px, 4.8cqi, 66px);
+    font-size: clamp(28px, 5.5cqi, 76px);
     line-height: 0.92; letter-spacing: 0.005em; text-transform: uppercase;
     margin-bottom: clamp(14px, 2cqi, 26px);
   }
@@ -1431,10 +1436,11 @@
     font-family: var(--font-script);
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(48px, 8.8cqi, 110px);
+    font-size: clamp(40px, 7cqi, 90px);
     line-height: 0.85;
     color: var(--brand-red);
     margin-bottom: -0.05em;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
   }
   .section-heading-title {
     font-family: var(--font-display);
@@ -1485,14 +1491,14 @@
     font-family: var(--font-script);
     font-weight: 400;
     font-style: italic;
-    font-size: clamp(28px, 4cqi, 50px);
+    font-size: clamp(34px, 5cqi, 62px);
     color: var(--brand-red);
     margin-bottom: clamp(4px, 0.6cqi, 8px);
     line-height: 1;
   }
   .quote-profile-name {
     font-family: var(--font-script);
-    font-size: clamp(32px, 6cqi, 70px);
+    font-size: clamp(36px, 6.8cqi, 80px);
     line-height: 0.9;
     color: var(--brand-red);
     margin-bottom: clamp(20px, 3cqi, 40px);
@@ -1565,7 +1571,7 @@
   .gallery-variant-eyebrow {
     font-family: var(--font-script);
     font-style: italic;
-    font-size: clamp(26px, 3.8cqi, 44px);
+    font-size: clamp(32px, 4.7cqi, 56px);
     line-height: 1;
     color: var(--brand-red);
     margin-bottom: clamp(4px, 0.8cqi, 10px);
@@ -1760,7 +1766,7 @@
   .circuit-map-eyebrow {
     font-family: var(--font-script);
     font-style: italic;
-    font-size: clamp(26px, 3.8cqi, 44px);
+    font-size: clamp(32px, 4.7cqi, 56px);
     line-height: 1;
     color: var(--brand-red);
     margin-bottom: clamp(4px, 0.8cqi, 10px);
@@ -1768,7 +1774,7 @@
   .circuit-map-title {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: clamp(18px, 3.2cqi, 38px);
+    font-size: clamp(22px, 3.7cqi, 44px);
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -2600,6 +2606,7 @@
       gap: 12px;
     }
     .cover-title { font-size: clamp(28px, 9cqi, 48px); line-height: 0.95; }
+    .cover-title-accent { font-size: 1.55em; line-height: 0.85; }
     .cover-tag { max-width: 100%; font-size: clamp(15px, 2.8cqi, 20px); }
     .page-cover-bottom {
       flex-direction: column;
