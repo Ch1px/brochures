@@ -89,6 +89,7 @@ export function BrochureReader({ brochure }: Props) {
           {pages.map((page, i) => {
             const pageNum = i + 1
             const showFolio = i > 0 // cover rarely shows folio
+            const isActivePage = i === pageIndex
             return (
               <div key={page._key} className="brochure-page" style={{ width: '100vw' }}>
                 {page.sections.map((section) => (
@@ -98,6 +99,7 @@ export function BrochureReader({ brochure }: Props) {
                     pageNum={pageNum}
                     total={total}
                     showFolio={showFolio}
+                    isActivePage={isActivePage}
                   />
                 ))}
               </div>

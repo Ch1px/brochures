@@ -14,7 +14,8 @@
       "mcp__claude_ai_Sanity__create_documents_from_json",
       "Skill(claude-api)",
       "Read(//c/Users/dangl/.claude/projects/C--brochures//**)",
-      "Read(//c/Users/dangl/.claude/projects/C--brochures/memory//**)"
+      "Read(//c/Users/dangl/.claude/projects/C--brochures/memory//**)",
+      "WebFetch(domain:f1brochure.grandprixgrandtours.com)"
     ]
   }
 }

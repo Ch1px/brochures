@@ -12,33 +12,52 @@ type Props = {
   pageNum: number
   total: number
   showFolio: boolean
+  isActivePage: boolean
 }
 
 /**
  * Wraps SectionRenderer with viewport detection so each section's
  * children fade up the first time the section becomes visible.
  *
- * Two-step check, both running before the browser's first paint:
+ * Three triggers, each handling a different way a section can come into
+ * view. All converge on adding `.is-active`, which the CSS keyframes
+ * key off. One-shot — once added, it never comes back off, so scrolling
+ * away doesn't replay the animation (replay caused the earlier mobile
+ * mid-scroll stutter).
  *
- * 1. Synchronously read the section's bounding rect. If it's already in
- *    the viewport (above-the-fold), add `.is-active` immediately — the
- *    animation then starts coupled to first paint instead of waiting on
- *    an IntersectionObserver callback that fires a tick later. Without
- *    this, mobile users see the section background for a beat with the
- *    content area still at opacity:0 before the fade kicks in, which
- *    reads as a flash.
+ * 1. SYNC MOUNT CHECK (useLayoutEffect, before first paint).
+ *    Read the bounding rect; if the section is already on screen,
+ *    add `.is-active` immediately. Otherwise the IntersectionObserver
+ *    callback would fire a tick after paint, leaving above-the-fold
+ *    sections briefly blank.
  *
- * 2. Sections off-screen at mount fall back to an IntersectionObserver
- *    with threshold 0, so the fade fires the moment any part of the
- *    section touches the viewport edge. One-shot: once active, we
- *    unobserve so scrolling away doesn't replay (replay caused the
- *    earlier mid-scroll stutter on mobile).
+ * 2. INTERSECTION OBSERVER (threshold 0).
+ *    Handles vertical scroll within a page — sections that scroll into
+ *    view trigger their fade. Threshold 0 fires the moment any pixel
+ *    crosses the viewport edge, so the animation feels coupled to scroll.
+ *
+ * 3. PAGE-CHANGE POLL.
+ *    The slider brings new pages in via an ancestor `translateX`
+ *    transition. IntersectionObserver does not reliably fire for
+ *    visibility changes caused by ancestor transforms, so we explicitly
+ *    poll the section's bounding rect each frame for the duration of
+ *    the slide (~500ms). The instant the section's rect intersects the
+ *    viewport we add `.is-active`. If it never does (below-the-fold of
+ *    the new page), polling stops and IO from #2 will handle it when
+ *    the user scrolls down.
  *
  * The wrapper uses `display: contents` so it adds no box to the layout
  * — only its first child (the real <section>) is observed.
  */
-export function AnimatedSection(props: Props) {
+export function AnimatedSection({
+  section,
+  pageNum,
+  total,
+  showFolio,
+  isActivePage,
+}: Props) {
   const wrapRef = useRef<HTMLDivElement>(null)
+  const isFirstRunRef = useRef(true)
 
   useIsoLayoutEffect(() => {
     const wrapper = wrapRef.current
@@ -72,9 +91,52 @@ export function AnimatedSection(props: Props) {
     return () => io.disconnect()
   }, [])
 
+  useEffect(() => {
+    if (isFirstRunRef.current) {
+      isFirstRunRef.current = false
+      return
+    }
+    if (!isActivePage) return
+    const wrapper = wrapRef.current
+    if (!wrapper) return
+    const target = wrapper.querySelector<HTMLElement>('section.section')
+    if (!target) return
+    if (target.classList.contains('is-active')) return
+
+    let cancelled = false
+    let raf = 0
+    const start = performance.now()
+
+    const check = () => {
+      if (cancelled) return
+      if (target.classList.contains('is-active')) return
+      const rect = target.getBoundingClientRect()
+      const vh = window.innerHeight || document.documentElement.clientHeight
+      const visible = rect.top < vh && rect.bottom > 0
+      if (visible) {
+        target.classList.add('is-active')
+        return
+      }
+      if (performance.now() - start > 700) return
+      raf = requestAnimationFrame(check)
+    }
+
+    raf = requestAnimationFrame(check)
+
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
+    }
+  }, [isActivePage])
+
   return (
     <div ref={wrapRef} style={{ display: 'contents' }}>
-      <SectionRenderer {...props} />
+      <SectionRenderer
+        section={section}
+        pageNum={pageNum}
+        total={total}
+        showFolio={showFolio}
+      />
     </div>
   )
 }
