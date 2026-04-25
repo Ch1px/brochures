@@ -3114,49 +3114,42 @@
      from elements crossing the trigger at different scroll positions
      — no manual stagger delays needed.
 
+     Two structural selectors cover every section uniformly:
+       - `> div > *`        — direct children of the section's inner
+                              wrapper. Catches sections whose immediate
+                              children are content (SectionHeading,
+                              ImageHero, Closing, TextCenter, etc.) and
+                              the group containers in sections that
+                              wrap their content (Cover, Intro, Stats,
+                              Packages, Itinerary, Gallery*, Spotlight,
+                              QuoteProfile, CircuitMap, Features).
+       - `> div > div > *`  — grandchildren via a div container.
+                              Catches the per-element content inside
+                              those group containers (cover-title,
+                              intro-eyebrow, stats-eyebrow, package
+                              cards, day rows, gallery items, etc.).
+
      Scoped to `.preview-mode` (the public BrochureReader) so the
      editor's PreviewStage keeps natural opacity.
      ============================================================ */
   .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *,
-  .preview-mode .section .packages-grid > *,
-  .preview-mode .section .features-grid > *,
-  .preview-mode .section .stats-grid > *,
-  .preview-mode .section .itinerary-list > *,
-  .preview-mode .section .gallery-editorial-grid > *,
-  .preview-mode .section .gallery-grid-6 > *,
-  .preview-mode .section .gallery-duo-grid > *,
-  .preview-mode .section .gallery-hero-strip > * {
+  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > * {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(14px);
     transition:
-      opacity 0.6s cubic-bezier(0.2, 0, 0, 1),
-      transform 0.6s cubic-bezier(0.2, 0, 0, 1);
+      opacity 0.55s cubic-bezier(0.2, 0, 0, 1),
+      transform 0.55s cubic-bezier(0.2, 0, 0, 1);
   }
 
   .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *.is-in-view,
-  .preview-mode .section .packages-grid > *.is-in-view,
-  .preview-mode .section .features-grid > *.is-in-view,
-  .preview-mode .section .stats-grid > *.is-in-view,
-  .preview-mode .section .itinerary-list > *.is-in-view,
-  .preview-mode .section .gallery-editorial-grid > *.is-in-view,
-  .preview-mode .section .gallery-grid-6 > *.is-in-view,
-  .preview-mode .section .gallery-duo-grid > *.is-in-view,
-  .preview-mode .section .gallery-hero-strip > *.is-in-view {
+  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > *.is-in-view {
     opacity: 1;
     transform: translateY(0);
   }
 
-  /* Respect reduced-motion preference */
   @media (prefers-reduced-motion: reduce) {
     .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *,
-    .preview-mode .section .packages-grid > *,
-    .preview-mode .section .features-grid > *,
-    .preview-mode .section .stats-grid > *,
-    .preview-mode .section .itinerary-list > *,
-    .preview-mode .section .gallery-editorial-grid > *,
-    .preview-mode .section .gallery-grid-6 > *,
-    .preview-mode .section .gallery-duo-grid > *,
-    .preview-mode .section .gallery-hero-strip > * {
+    .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > * {
       opacity: 1;
       transform: none;
       transition: none;

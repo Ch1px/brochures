@@ -11,17 +11,20 @@ const useIsoLayoutEffect =
  * Selector matching every individual element that should fade up as it
  * crosses the viewport. Mirrors the CSS rule in globals.css — keep them
  * in sync. `:scope` confines the search to descendants of the section.
+ *
+ * Two patterns cover every section type:
+ *   - `> div > *`        — direct children of the section's inner
+ *                           wrapper (catches sections whose immediate
+ *                           children are content + the group containers
+ *                           in sections that wrap their content).
+ *   - `> div > div > *`  — grandchildren via a div container (catches
+ *                           the per-element content inside those group
+ *                           containers, e.g. cover-title, intro-eyebrow,
+ *                           stat cells, package cards, day rows, etc.).
  */
 const ANIMATABLE_SELECTOR = [
   ':scope > div:not(.page-brand-mark):not(.page-folio) > *',
-  ':scope .packages-grid > *',
-  ':scope .features-grid > *',
-  ':scope .stats-grid > *',
-  ':scope .itinerary-list > *',
-  ':scope .gallery-editorial-grid > *',
-  ':scope .gallery-grid-6 > *',
-  ':scope .gallery-duo-grid > *',
-  ':scope .gallery-hero-strip > *',
+  ':scope > div:not(.page-brand-mark):not(.page-folio) > div > *',
 ].join(', ')
 
 type Props = {
