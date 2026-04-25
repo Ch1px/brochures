@@ -3132,19 +3132,33 @@
      Scoped to `.preview-mode` (the public BrochureReader) so the
      editor's PreviewStage keeps natural opacity.
      ============================================================ */
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *,
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > * {
+  /* Pattern A: direct children of inner — fade + translate.
+     For Pattern A sections (SectionHeading, ImageHero, Closing,
+     TextCenter), these ARE the content. For Pattern B sections (Cover,
+     Intro, Stats, etc.), these are the GROUP containers; their
+     translate carries the nested content along with them. */
+  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > * {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(16px);
     transition:
       opacity 0.55s cubic-bezier(0.2, 0, 0, 1),
       transform 0.55s cubic-bezier(0.2, 0, 0, 1);
   }
 
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *.is-in-view,
-  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > *.is-in-view {
+  /* Pattern B: nested content — fade only. Skipping the translate here
+     prevents compound movement (parent already translates 16px). */
+  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > * {
+    opacity: 0;
+    transition: opacity 0.55s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > *.is-in-view {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  .preview-mode .section > div:not(.page-brand-mark):not(.page-folio) > div > *.is-in-view {
+    opacity: 1;
   }
 
   @media (prefers-reduced-motion: reduce) {

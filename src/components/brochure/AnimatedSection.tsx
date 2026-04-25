@@ -12,20 +12,20 @@ const useIsoLayoutEffect =
  * crosses the viewport. Mirrors the CSS rule in globals.css — keep them
  * in sync. `:scope` confines the search to descendants of the section.
  *
- * Two patterns cover every section type:
  *   - `> div > *`        — direct children of the section's inner
  *                           wrapper (catches sections whose immediate
  *                           children are content + the group containers
  *                           in sections that wrap their content).
  *   - `> div > div > *`  — grandchildren via a div container (catches
  *                           the per-element content inside those group
- *                           containers, e.g. cover-title, intro-eyebrow,
- *                           stat cells, package cards, day rows, etc.).
+ *                           containers).
  */
 const ANIMATABLE_SELECTOR = [
   ':scope > div:not(.page-brand-mark):not(.page-folio) > *',
   ':scope > div:not(.page-brand-mark):not(.page-folio) > div > *',
 ].join(', ')
+
+const TRIGGER_RATIO = 0.9
 
 type Props = {
   section: Section
@@ -36,35 +36,55 @@ type Props = {
 }
 
 /**
+ * Walks each animatable element and toggles `.is-in-view` based on
+ * whether the element intersects the viewport. Reads are batched
+ * before any writes to avoid layout thrashing.
+ */
+function syncVisibility(targets: NodeListOf<HTMLElement> | HTMLElement[]) {
+  const vw = window.innerWidth || document.documentElement.clientWidth
+  const vh = window.innerHeight || document.documentElement.clientHeight
+  const triggerY = vh * TRIGGER_RATIO
+  const states: boolean[] = []
+  for (let i = 0; i < targets.length; i++) {
+    const rect = targets[i].getBoundingClientRect()
+    states.push(
+      rect.top < triggerY &&
+        rect.bottom > 0 &&
+        rect.left < vw &&
+        rect.right > 0
+    )
+  }
+  for (let i = 0; i < targets.length; i++) {
+    const el = targets[i]
+    const cls = el.classList
+    if (states[i]) cls.add('is-in-view')
+    else cls.remove('is-in-view')
+  }
+}
+
+/**
  * Wraps SectionRenderer with per-element scroll-driven animation.
  *
- * Each animatable element inside the section gets its own
- * IntersectionObserver entry. As the element crosses the viewport edge
- * we toggle `.is-in-view`; the CSS transition does the fade + translate.
- * No manual stagger — the natural rhythm comes from elements crossing
- * the trigger line at different times as the user scrolls.
+ * The brochure has two motion patterns that need different handling:
  *
- * Three triggers contribute, all converging on the same `.is-in-view`
- * class:
+ *   1. Vertical scroll inside `.brochure-page` (overflow:auto). On
+ *      mobile Safari, IntersectionObserver can be unreliable inside
+ *      an overflow:auto container, so we layer a scroll-event-driven
+ *      `syncVisibility` call on top — IO is the fast path, the scroll
+ *      listener is the safety net.
  *
- * 1. SYNC MOUNT CHECK (useLayoutEffect, before first paint).
- *    For elements already on screen at mount, mark them in-view
- *    immediately so above-the-fold content isn't blank between paint
- *    and the first IO callback.
+ *   2. Horizontal slider transition (`translateX` on an ancestor).
+ *      IntersectionObserver doesn't fire for visibility changes caused
+ *      by ancestor transforms at all, in any browser. When this
+ *      section's page becomes active or inactive we rAF-poll each
+ *      element's bounding rect for the duration of the slide and
+ *      sync `.is-in-view` directly.
  *
- * 2. INTERSECTION OBSERVER.
- *    Per-element observation. `rootMargin: '0px 0px -15% 0px'` shrinks
- *    the bottom of the trigger zone so the element fades in once it's
- *    a comfortable distance into the viewport rather than the moment
- *    a single pixel crosses. Threshold 0 fires on first contact.
- *
- * 3. PAGE-CHANGE POLL.
- *    IntersectionObserver doesn't reliably fire when an element enters
- *    via an ancestor's CSS transform (the slider). When this section's
- *    page becomes active, we rAF-poll each element's bounding rect for
- *    the duration of the slide and toggle `.is-in-view` directly.
- *    Mirror handler on isActivePage→false strips the class after
- *    slide-out so the next return animates fresh.
+ * Both mechanisms call the same `syncVisibility` helper which toggles
+ * `.is-in-view` on every animatable element based on its current
+ * viewport intersection. The CSS transition handles the actual fade
+ * + translate, so animations naturally replay every time an element
+ * crosses the trigger line.
  *
  * The wrapper uses `display: contents` so it adds no box to the layout
  * — only its first child (the real <section>) is observed.
@@ -84,23 +104,10 @@ export function AnimatedSection({
     if (!wrapper) return
     const sectionEl = wrapper.querySelector<HTMLElement>('section.section')
     if (!sectionEl) return
-
     const targets = sectionEl.querySelectorAll<HTMLElement>(ANIMATABLE_SELECTOR)
     if (targets.length === 0) return
 
-    const vw = window.innerWidth || document.documentElement.clientWidth
-    const vh = window.innerHeight || document.documentElement.clientHeight
-    targets.forEach((target) => {
-      const rect = target.getBoundingClientRect()
-      if (
-        rect.top < vh &&
-        rect.bottom > 0 &&
-        rect.left < vw &&
-        rect.right > 0
-      ) {
-        target.classList.add('is-in-view')
-      }
-    })
+    syncVisibility(targets)
 
     const io = new IntersectionObserver(
       (entries) => {
@@ -112,11 +119,28 @@ export function AnimatedSection({
           }
         }
       },
-      { threshold: 0, rootMargin: '0px 0px -15% 0px' }
+      { threshold: 0, rootMargin: '0px 0px -10% 0px' }
     )
     targets.forEach((t) => io.observe(t))
 
-    return () => io.disconnect()
+    const scrollContainer = sectionEl.closest('.brochure-page') as HTMLElement | null
+    let scrollRaf = 0
+    const onScroll = () => {
+      if (scrollRaf) return
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0
+        syncVisibility(targets)
+      })
+    }
+    scrollContainer?.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+
+    return () => {
+      io.disconnect()
+      scrollContainer?.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (scrollRaf) cancelAnimationFrame(scrollRaf)
+    }
   }, [])
 
   useEffect(() => {
@@ -131,36 +155,20 @@ export function AnimatedSection({
     const targets = sectionEl.querySelectorAll<HTMLElement>(ANIMATABLE_SELECTOR)
     if (targets.length === 0) return
 
-    if (isActivePage) {
-      let cancelled = false
-      let raf = 0
-      const start = performance.now()
-
-      const check = () => {
-        if (cancelled) return
-        const vh = window.innerHeight || document.documentElement.clientHeight
-        targets.forEach((target) => {
-          if (target.classList.contains('is-in-view')) return
-          const rect = target.getBoundingClientRect()
-          if (rect.top < vh && rect.bottom > 0) {
-            target.classList.add('is-in-view')
-          }
-        })
-        if (performance.now() - start > 700) return
-        raf = requestAnimationFrame(check)
-      }
-
-      raf = requestAnimationFrame(check)
-      return () => {
-        cancelled = true
-        cancelAnimationFrame(raf)
-      }
+    let cancelled = false
+    let raf = 0
+    const start = performance.now()
+    const tick = () => {
+      if (cancelled) return
+      syncVisibility(targets)
+      if (performance.now() - start > 700) return
+      raf = requestAnimationFrame(tick)
     }
-
-    const timeout = window.setTimeout(() => {
-      targets.forEach((t) => t.classList.remove('is-in-view'))
-    }, 500)
-    return () => window.clearTimeout(timeout)
+    raf = requestAnimationFrame(tick)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
+    }
   }, [isActivePage])
 
   return (
