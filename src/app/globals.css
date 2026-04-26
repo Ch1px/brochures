@@ -1792,21 +1792,27 @@
 
   /* Mobile stacking */
   @container (max-width: 560px) {
+    /* Reset the desktop grid aspect-ratios — on mobile the layout restacks
+       and each tile sets its own aspect-ratio, so the parent grid should
+       be sized by content, not by a forced desktop-shape ratio. */
     .gallery-grid-6 {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto;
       gap: 6px;
       flex: 0 1 auto;
+      aspect-ratio: auto;
     }
-    /* Reset the desktop single-row override — tiles get their height from
-       aspect-ratio below, not from a forced 3:1 grid ratio. */
     .gallery-grid-6[data-rows="1"] {
       aspect-ratio: auto;
       max-height: none;
       grid-template-rows: auto;
     }
     .gallery-grid-6 .gallery-item { aspect-ratio: 1; }
-    .gallery-duo-grid { grid-template-columns: 1fr; gap: 10px; }
+    .gallery-duo-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      aspect-ratio: auto;
+    }
     .gallery-duo-item { aspect-ratio: 4/3; }
     .gallery-hero-lead { aspect-ratio: 16/9; flex: none; }
     .gallery-hero-caption { max-width: 100%; }
@@ -2836,6 +2842,7 @@
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto auto auto;
       gap: 6px;
+      aspect-ratio: auto;
     }
     .gallery-grid > .gallery-item:nth-child(1) { grid-row: auto; grid-column: span 2; aspect-ratio: 16/9; }
     .gallery-grid > .gallery-item:nth-child(4) { grid-column: span 2; aspect-ratio: 16/9; }
@@ -2897,6 +2904,7 @@
     .gallery-grid {
       grid-template-columns: 1fr;
       grid-template-rows: auto;
+      aspect-ratio: auto;
     }
     .gallery-grid > .gallery-item:nth-child(1),
     .gallery-grid > .gallery-item:nth-child(4) { grid-column: auto; }
