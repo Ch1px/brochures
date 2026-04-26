@@ -183,6 +183,20 @@ export function sectionDefaults(type: Section['_type']): Section {
         body: 'A short, centered paragraph to give readers a pause between the headline sections. Use it for a transition moment — a reflection, an aside, or a short editorial note.',
       }
 
+    case 'footer':
+      return {
+        _key,
+        _type: 'footer',
+        legal: '© 2026 Grand Prix Grand Tours · Registered in England No. 12345678',
+        email: 'hospitality@grandprixgrandtours.com',
+        phone: '+44 20 1234 5678',
+        socials: [
+          { _key: nanokey(), platform: 'instagram', href: 'https://instagram.com/grandprixgrandtours' },
+          { _key: nanokey(), platform: 'x', href: 'https://x.com/gpgrandtours' },
+          { _key: nanokey(), platform: 'linkedin', href: 'https://linkedin.com/company/grandprixgrandtours' },
+        ],
+      }
+
     case 'circuitMap':
       return {
         _key,

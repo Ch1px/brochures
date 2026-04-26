@@ -27,6 +27,7 @@ export const SECTION_LABELS: Record<Section['_type'], string> = {
   circuitMap: 'Circuit Map',
   spotlight: 'Spotlight',
   textCenter: 'Text · Center',
+  footer: 'Footer',
 }
 
 export const SECTION_DESCRIPTIONS: Record<Section['_type'], string> = {
@@ -51,6 +52,7 @@ export const SECTION_DESCRIPTIONS: Record<Section['_type'], string> = {
   circuitMap: 'SVG circuit diagram with stats',
   spotlight: 'Framed image + content with a full-bleed background image',
   textCenter: 'Simple centered body text block',
+  footer: 'Slim overlay strip pinned to the bottom of the page slide',
 }
 
 export function labelFor(type: Section['_type']): string {

@@ -20,6 +20,7 @@ import { QuoteProfileEditor } from './editors/QuoteProfileEditor'
 import { CircuitMapEditor } from './editors/CircuitMapEditor'
 import { SpotlightEditor } from './editors/SpotlightEditor'
 import { TextCenterEditor } from './editors/TextCenterEditor'
+import { FooterEditor } from './editors/FooterEditor'
 import { FieldBackground } from './fields/FieldBackground'
 
 type Props = {
@@ -114,6 +115,8 @@ function renderEditor(
       return <SpotlightEditor section={section} onChange={anyOnChange} />
     case 'textCenter':
       return <TextCenterEditor section={section} onChange={anyOnChange} />
+    case 'footer':
+      return <FooterEditor section={section} onChange={anyOnChange} />
     default:
       return (
         <div className="properties-pending">

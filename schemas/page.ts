@@ -44,6 +44,7 @@ export default defineType({
         { type: 'circuitMap' },
         { type: 'spotlight' },
         { type: 'textCenter' },
+        { type: 'footer' },
       ],
       validation: (Rule) => Rule.required().min(1),
     }),

@@ -238,6 +238,30 @@ export type SectionTextCenter = {
   background?: string
 }
 
+export type SocialPlatform =
+  | 'instagram'
+  | 'x'
+  | 'facebook'
+  | 'linkedin'
+  | 'youtube'
+  | 'tiktok'
+
+export type SocialLink = {
+  _key: string
+  platform: SocialPlatform
+  href: string
+}
+
+export type SectionFooter = {
+  _key: string
+  _type: 'footer'
+  legal?: string
+  email?: string
+  phone?: string
+  socials?: SocialLink[]
+  background?: string
+}
+
 export type Section =
   | SectionCover
   | SectionIntro
@@ -257,6 +281,7 @@ export type Section =
   | SectionCircuitMap
   | SectionSpotlight
   | SectionTextCenter
+  | SectionFooter
 
 export type Page = {
   _key: string

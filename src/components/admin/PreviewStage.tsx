@@ -92,6 +92,7 @@ export function PreviewStage({
         <div className="brochure-page" style={{ width: '100%' }}>
           {page.sections.map((section) => {
             const isSelected = currentSectionKey === section._key
+            const isFooter = section._type === 'footer'
             return (
               <div
                 key={section._key}
@@ -111,7 +112,11 @@ export function PreviewStage({
                   section={section}
                   pageNum={currentPageIndex + 1}
                   total={total}
-                  showFolio={currentPageIndex > 0}
+                  showFolio={
+                    !isFooter &&
+                    currentPageIndex > 0 &&
+                    !page.sections.some((s) => s._type === 'footer')
+                  }
                 />
               </div>
             )

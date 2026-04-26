@@ -36,17 +36,73 @@ export function BrochureNav({ brand, pages, currentIndex, onPageClick, logo, the
     return () => document.removeEventListener('click', onDocClick)
   }, [])
 
-  // Scroll active link into view horizontally
+  // Scroll active link into view horizontally (smooth)
   useEffect(() => {
     const link = navRef.current?.querySelector<HTMLElement>('.brochure-nav-link.active')
     if (link) {
       requestAnimationFrame(() => {
         try {
-          link.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' })
+          link.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
         } catch {}
       })
     }
   }, [currentIndex])
+
+  // Edge-hover auto-scroll: when the mouse enters the left or right hot zone
+  // of the links row, the row scrolls in that direction continuously until
+  // the cursor leaves the zone. Speed ramps up the closer to the edge you
+  // get, mirroring the hospitality-brochure nav pattern.
+  useEffect(() => {
+    const linksEl = navRef.current?.querySelector<HTMLElement>('.brochure-nav-links')
+    if (!linksEl) return
+
+    let raf = 0
+    let velocity = 0 // px per frame; negative = scroll left, positive = scroll right
+    const MAX_SPEED = 14
+    const HOT_ZONE_PX = 100 // size of the active edge region
+
+    const tick = () => {
+      if (velocity === 0) {
+        raf = 0
+        return
+      }
+      if (linksEl.scrollWidth > linksEl.clientWidth) {
+        linksEl.scrollLeft += velocity
+      }
+      raf = requestAnimationFrame(tick)
+    }
+
+    const setVelocity = (v: number) => {
+      velocity = v
+      if (v !== 0 && raf === 0) raf = requestAnimationFrame(tick)
+    }
+
+    const onMove = (e: MouseEvent) => {
+      const rect = linksEl.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const hot = Math.min(HOT_ZONE_PX, rect.width * 0.25)
+      if (x < hot) {
+        // Closer to left edge → faster left scroll. depth ∈ (0, 1].
+        const depth = 1 - x / hot
+        setVelocity(-MAX_SPEED * depth)
+      } else if (x > rect.width - hot) {
+        const depth = 1 - (rect.width - x) / hot
+        setVelocity(MAX_SPEED * depth)
+      } else {
+        setVelocity(0)
+      }
+    }
+
+    const onLeave = () => setVelocity(0)
+
+    linksEl.addEventListener('mousemove', onMove)
+    linksEl.addEventListener('mouseleave', onLeave)
+    return () => {
+      linksEl.removeEventListener('mousemove', onMove)
+      linksEl.removeEventListener('mouseleave', onLeave)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [])
 
   return (
     <nav ref={navRef} className="brochure-nav" data-nav-ctx="public">

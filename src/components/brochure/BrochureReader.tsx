@@ -96,7 +96,8 @@ export function BrochureReader({ brochure }: Props) {
         >
           {pages.map((page, i) => {
             const pageNum = i + 1
-            const showFolio = i > 0 // cover rarely shows folio
+            const hasFooter = page.sections.some((s) => s._type === 'footer')
+            const showFolio = i > 0 && !hasFooter // footer replaces the folio
             const isActivePage = i === pageIndex
             return (
               <div key={page._key} className="brochure-page" style={{ width: '100vw' }}>
@@ -106,7 +107,7 @@ export function BrochureReader({ brochure }: Props) {
                     section={section}
                     pageNum={pageNum}
                     total={total}
-                    showFolio={showFolio}
+                    showFolio={section._type === 'footer' ? false : showFolio}
                     isActivePage={isActivePage}
                   />
                 ))}

@@ -17,6 +17,7 @@ import { Closing } from './sections/Closing'
 import { CircuitMap } from './sections/CircuitMap'
 import { Spotlight } from './sections/Spotlight'
 import { TextCenter } from './sections/TextCenter'
+import { Footer } from './sections/Footer'
 import { UnsupportedSection } from './sections/UnsupportedSection'
 
 type Props = {
@@ -99,6 +100,9 @@ function renderSection({ section, pageNum, total, showFolio }: Props) {
 
     case 'textCenter':
       return <TextCenter data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
+
+    case 'footer':
+      return <Footer data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
 
     default:
       return <UnsupportedSection type={(section as { _type: string })._type} />

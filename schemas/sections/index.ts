@@ -19,6 +19,7 @@ import closing from './closing'
 import circuitMap from './circuitMap'
 import spotlight from './spotlight'
 import textCenter from './textCenter'
+import footer from './footer'
 
 export const sectionSchemas = [
   cover,
@@ -42,4 +43,5 @@ export const sectionSchemas = [
   circuitMap,
   spotlight,
   textCenter,
+  footer,
 ]
