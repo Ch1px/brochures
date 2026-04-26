@@ -12,7 +12,7 @@ export default defineType({
       name: 'images',
       type: 'array',
       of: [{ type: 'image', options: { hotspot: true } }],
-      validation: (Rule) => Rule.max(5),
+      validation: (Rule) => Rule.max(4),
     }),
     backgroundField,
   ],

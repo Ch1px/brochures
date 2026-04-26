@@ -18,6 +18,10 @@ export type BrochureBranding = {
   accentColor?: string
   logo?: SanityImage
   theme: BrochureTheme
+  /** True when rendered inside the admin editor preview. Section components
+   *  use this to keep authoring affordances (numbered placeholders for empty
+   *  gallery slots, etc.) that should not appear on the public site. */
+  editorMode?: boolean
 }
 
 const DEFAULT_BRANDING: BrochureBranding = { theme: 'dark' }

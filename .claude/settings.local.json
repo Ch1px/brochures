@@ -24,7 +24,11 @@
       "Bash(grep -oE '\\(in-viewport|in-viewport-fired|in-viewport-pending\\)[^\"]{0,200}' /tmp/foleon-core.js)",
       "Bash(grep -oE 'fadeInUp[^\"]{0,200}' /tmp/foleon-core.js)",
       "WebFetch(domain:css-tricks.com)",
-      "Bash(grep -oE 'className=\\([\\\\`\"]\\)[^\\\\`\"]+\\\\1')"
+      "Bash(grep -oE 'className=\\([\\\\`\"]\\)[^\\\\`\"]+\\\\1')",
+      "Read(//c//**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/admin)",
+      "Bash(curl -sL http://localhost:3000/ -w \"\\\\nFinal: %{url_effective}\\\\n\" -o /tmp/page.html)"
     ]
   }
 }

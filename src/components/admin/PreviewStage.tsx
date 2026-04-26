@@ -75,7 +75,7 @@ export function PreviewStage({
   const accentStyle = accentColorVars(brochure.accentColor)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme, editorMode: true }}>
     <div className="preview-stage-wrap">
       <div className="preview-stage-label">
         <span className="preview-stage-label-num">

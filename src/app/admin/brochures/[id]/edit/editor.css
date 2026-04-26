@@ -555,18 +555,28 @@
   .preview-stage-frame { aspect-ratio: auto; height: 100%; }
 }
 
+/* The wrapper itself contributes no box — the .section becomes a direct
+   flex child of .brochure-page, identical to the public reader (whose
+   AnimatedSection wrapper also uses display: contents). This keeps the
+   height chain `.brochure-page (100%) → .section (min-height:100%) →
+   …-inner (min-height:100%) → .gallery-grid-* (flex:1)` intact, which
+   is what the gallery grids rely on to fill the frame. Outline and
+   click affordance live on the .section element via the parent class. */
 .preview-section-hitbox {
-  position: relative;
+  display: contents;
+  cursor: pointer;
+}
+.preview-section-hitbox > section.section {
   cursor: pointer;
   outline: 2px solid transparent;
   outline-offset: -2px;
   transition: outline-color 0.1s;
 }
-.preview-section-hitbox:hover:not(.selected) {
+.preview-section-hitbox:hover:not(.selected) > section.section {
   outline-color: rgba(255, 255, 255, 0.2);
   outline-style: dashed;
 }
-.preview-section-hitbox.selected {
+.preview-section-hitbox.selected > section.section {
   outline-color: var(--brand-red);
   outline-style: solid;
 }

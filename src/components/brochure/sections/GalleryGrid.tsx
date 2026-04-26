@@ -1,6 +1,7 @@
 import type { SectionGalleryGrid } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { GalleryHeader } from './GalleryHeader'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionGalleryGrid
@@ -10,36 +11,45 @@ type Props = {
 }
 
 /**
- * Gallery · Grid — ported from renderGalleryGrid().
- * 6 equal tiles, 3 columns × 2 rows. Empty slots show numbered placeholders 01-06.
+ * Gallery · Grid — 3-column equal grid.
+ *
+ * Editor: always 6 slots (numbered placeholders for empty ones) so the
+ * admin can see what's missing.
+ * Public: only renders the images that exist. 1–3 images = single row,
+ * 4–6 images = two rows. The grid keeps 3 columns either way so the last
+ * row simply has fewer tiles when the count isn't a multiple of 3.
  */
 export function GalleryGrid({ data, pageNum, total, showFolio }: Props) {
   const images = data.images ?? []
+  const { editorMode } = useBrochureBranding()
+
+  const tiles = editorMode
+    ? Array.from({ length: 6 }, (_, i) => ({ url: urlForSection(images[i], 1000), index: i }))
+    : images
+        .map((img, i) => ({ url: urlForSection(img, 1000), index: i }))
+        .filter((t) => t.url)
+
+  const rows = tiles.length <= 3 ? 1 : 2
 
   return (
     <section className="section page-gallery-grid" data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-grid-inner">
         <GalleryHeader eyebrow={data.eyebrow} title={data.title} />
-        <div className="gallery-grid-6">
-          {Array.from({ length: 6 }).map((_, i) => {
-            const img = images[i]
-            const url = urlForSection(img, 1000)
-            if (url) {
-              return (
-                <div
-                  key={i}
-                  className="gallery-item"
-                  style={{ backgroundImage: `url('${url}')` }}
-                />
-              )
-            }
-            return (
-              <div key={i} className="gallery-item gallery-placeholder">
-                {String(i + 1).padStart(2, '0')}
+        <div className="gallery-grid-6" data-rows={rows}>
+          {tiles.map(({ url, index }) =>
+            url ? (
+              <div
+                key={index}
+                className="gallery-item"
+                style={{ backgroundImage: `url('${url}')` }}
+              />
+            ) : (
+              <div key={index} className="gallery-item gallery-placeholder">
+                {String(index + 1).padStart(2, '0')}
               </div>
-            )
-          })}
+            ),
+          )}
         </div>
       </div>
       {showFolio ? (
