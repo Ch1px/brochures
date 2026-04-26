@@ -43,6 +43,8 @@ export function useAutosave(brochure: Brochure | null, options: Options = {}) {
       season: current.season,
       event: current.event,
       theme: current.theme,
+      accentColor: current.accentColor,
+      logo: current.logo,
     })
     setStatus(result.ok ? 'saved' : 'error')
   }, [])
@@ -76,6 +78,8 @@ export function useAutosave(brochure: Brochure | null, options: Options = {}) {
     brochure?.season,
     brochure?.event,
     brochure?.theme,
+    brochure?.accentColor,
+    JSON.stringify(brochure?.logo),
     debounceMs,
     performSave,
   ])

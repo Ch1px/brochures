@@ -212,6 +212,7 @@ export type SectionCircuitMap = {
   title: string
   caption?: string
   svg?: string
+  svgOriginal?: string
   stats?: StatItem[]
   background?: string
 }
@@ -271,6 +272,8 @@ export type Brochure = {
   event?: string
   status: BrochureStatus
   theme?: BrochureTheme
+  accentColor?: string
+  logo?: SanityImage
   publishedAt?: string
   featured?: boolean
   ogImage?: SanityImage

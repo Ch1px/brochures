@@ -25,6 +25,7 @@ import { FieldBackground } from './fields/FieldBackground'
 type Props = {
   section: Section | null
   onChange: (update: Partial<Section>) => void
+  accentColor?: string
 }
 
 /**
@@ -32,7 +33,7 @@ type Props = {
  * All 19 section types wired (20 _type values including variants).
  * Image uploads are still disabled; the upload pipeline lands in sub-batch 2F.
  */
-export function PropertiesPanel({ section, onChange }: Props) {
+export function PropertiesPanel({ section, onChange, accentColor }: Props) {
   if (!section) {
     return (
       <div className="properties-empty">
@@ -52,7 +53,7 @@ export function PropertiesPanel({ section, onChange }: Props) {
         <div className="properties-key">{section._key}</div>
       </div>
       <div className="properties-body">
-        {renderEditor(section, onChange)}
+        {renderEditor(section, onChange, accentColor)}
         <div className="properties-section-divider" />
         <FieldBackground
           label="Section background"
@@ -65,7 +66,11 @@ export function PropertiesPanel({ section, onChange }: Props) {
   )
 }
 
-function renderEditor(section: Section, onChange: (u: Partial<Section>) => void) {
+function renderEditor(
+  section: Section,
+  onChange: (u: Partial<Section>) => void,
+  accentColor?: string
+) {
   // Each editor narrows to its own section type. The cast on onChange is safe
   // because the editor only passes partials valid for that narrower type.
   const anyOnChange = onChange as (u: Record<string, unknown>) => void
@@ -104,7 +109,7 @@ function renderEditor(section: Section, onChange: (u: Partial<Section>) => void)
     case 'quoteProfile':
       return <QuoteProfileEditor section={section} onChange={anyOnChange} />
     case 'circuitMap':
-      return <CircuitMapEditor section={section} onChange={anyOnChange} />
+      return <CircuitMapEditor section={section} onChange={anyOnChange} accentColor={accentColor} />
     case 'spotlight':
       return <SpotlightEditor section={section} onChange={anyOnChange} />
     case 'textCenter':

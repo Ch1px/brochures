@@ -1,6 +1,6 @@
 import 'server-only'
 import { sanityWriteClient } from './client'
-import type { Brochure } from '@/types/brochure'
+import type { Brochure, SanityImage } from '@/types/brochure'
 
 /**
  * Sanity mutations for brochure documents — all server-side only.
@@ -33,7 +33,20 @@ export async function uploadImageAsset(
 /** Save the editable fields of a brochure. Does not touch status/publishedAt/featured. */
 export async function saveBrochure(
   id: string,
-  updates: Partial<Pick<Brochure, 'title' | 'pages' | 'seo' | 'leadCapture' | 'season' | 'event' | 'theme'>>
+  updates: Partial<
+    Pick<
+      Brochure,
+      | 'title'
+      | 'pages'
+      | 'seo'
+      | 'leadCapture'
+      | 'season'
+      | 'event'
+      | 'theme'
+      | 'accentColor'
+      | 'logo'
+    >
+  >
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     await sanityWriteClient.patch(id).set(updates).commit({ autoGenerateArrayKeys: true })
@@ -56,6 +69,8 @@ export type BrochureSettingsUpdate = {
   slug?: string
   season?: string
   event?: string
+  accentColor?: string | null
+  logo?: SanityImage | null
   seo?: {
     metaTitle?: string
     metaDescription?: string
@@ -89,6 +104,7 @@ export async function updateBrochureSettings(
     }
 
     const patch: Record<string, unknown> = {}
+    const unset: string[] = []
     if (updates.slug !== undefined) {
       patch.slug = { _type: 'slug', current: updates.slug.trim() }
     }
@@ -96,8 +112,20 @@ export async function updateBrochureSettings(
     if (updates.event !== undefined) patch.event = updates.event.trim()
     if (updates.seo !== undefined) patch.seo = updates.seo
     if (updates.leadCapture !== undefined) patch.leadCapture = updates.leadCapture
+    if (updates.accentColor !== undefined) {
+      const trimmed = updates.accentColor?.trim() ?? ''
+      if (trimmed === '' || updates.accentColor === null) unset.push('accentColor')
+      else patch.accentColor = trimmed
+    }
+    if (updates.logo !== undefined) {
+      if (updates.logo === null) unset.push('logo')
+      else patch.logo = updates.logo
+    }
 
-    await sanityWriteClient.patch(id).set(patch).commit()
+    let tx = sanityWriteClient.patch(id)
+    if (Object.keys(patch).length > 0) tx = tx.set(patch)
+    if (unset.length > 0) tx = tx.unset(unset)
+    await tx.commit()
     return { ok: true }
   } catch (err) {
     console.error('updateBrochureSettings failed:', err)

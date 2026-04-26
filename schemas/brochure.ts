@@ -12,6 +12,7 @@ export default defineType({
   groups: [
     { name: 'content', title: 'Content', default: true },
     { name: 'meta', title: 'Metadata' },
+    { name: 'branding', title: 'Branding' },
     { name: 'seo', title: 'SEO & sharing' },
     { name: 'lead', title: 'Lead capture' },
   ],
@@ -114,6 +115,31 @@ export default defineType({
         'If true, brochures.grandprixgrandtours.com root redirects to this brochure. Only one brochure should be featured at a time.',
       initialValue: false,
       group: 'meta',
+    }),
+
+    // === BRANDING GROUP ===
+    defineField({
+      name: 'accentColor',
+      type: 'string',
+      title: 'Accent colour',
+      description:
+        'Overrides the platform brand red for this brochure. Hex format (e.g. #1a8cd8). Leave blank for the default (#e10600).',
+      validation: (Rule) =>
+        Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
+          value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
+            ? true
+            : 'Must be a 6-digit hex colour like #e10600'
+        ),
+      group: 'branding',
+    }),
+    defineField({
+      name: 'logo',
+      type: 'image',
+      title: 'Logo',
+      description:
+        'Custom nav logo for this brochure. Leave blank to use the GPGT default logo.',
+      options: { hotspot: false },
+      group: 'branding',
     }),
 
     // === SEO GROUP ===

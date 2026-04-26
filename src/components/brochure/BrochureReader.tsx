@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Brochure } from '@/types/brochure'
 import { BrochureNav } from './BrochureNav'
 import { AnimatedSection } from './AnimatedSection'
+import { BrochureBrandingProvider } from './BrochureContext'
+import { accentColorVars } from '@/lib/accentColor'
 
 type Props = {
   brochure: Brochure
@@ -62,17 +64,23 @@ export function BrochureReader({ brochure }: Props) {
     )
   }
 
+  const theme = brochure.theme ?? 'dark'
+  const accentStyle = accentColorVars(brochure.accentColor)
+
   return (
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme }}>
     <div
       className="preview-mode visible"
-      data-theme={brochure.theme ?? 'dark'}
-      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1 }}
+      data-theme={theme}
+      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle }}
     >
       <BrochureNav
         brand={brochure.title}
         pages={pages.map((p, i) => ({ name: p.name, index: i }))}
         currentIndex={pageIndex}
         onPageClick={goTo}
+        logo={brochure.logo}
+        theme={theme}
       />
 
       <div className="preview-mode-canvas">
@@ -147,5 +155,6 @@ export function BrochureReader({ brochure }: Props) {
         </button>
       </div>
     </div>
+    </BrochureBrandingProvider>
   )
 }

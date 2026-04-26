@@ -14,7 +14,7 @@ export function ImagePlaceholderSVG() {
   const id = `imgpl-${rawId.replace(/[^a-zA-Z0-9_-]/g, '-')}`
   return (
     <svg
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', color: 'var(--brand-red)' }}
       viewBox="0 0 400 300"
       preserveAspectRatio="xMidYMid slice"
       xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +28,7 @@ export function ImagePlaceholderSVG() {
       </defs>
       <rect width="400" height="300" fill={`url(#${id})`} />
       <g opacity={0.5}>
-        <line x1="10" y1="10" x2="40" y2="10" stroke="#e10600" strokeWidth={3} />
+        <line x1="10" y1="10" x2="40" y2="10" stroke="currentColor" strokeWidth={3} />
         <text
           x="380"
           y="285"

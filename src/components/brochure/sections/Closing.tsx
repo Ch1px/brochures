@@ -25,6 +25,7 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
     <section className="section page-closing" data-section-id={data._key}>
       <svg
         className="page-closing-svg"
+        style={{ color: 'var(--brand-red)' }}
         viewBox="0 0 1600 1000"
         preserveAspectRatio="xMidYMid slice"
         xmlns="http://www.w3.org/2000/svg"
@@ -32,21 +33,21 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
       >
         <defs>
           <radialGradient id={gradId1} cx="20%" cy="50%" r="60%">
-            <stop offset="0%" stopColor="#e10600" stopOpacity={0.25} />
-            <stop offset="100%" stopColor="#e10600" stopOpacity={0} />
+            <stop offset="0%" stopColor="currentColor" stopOpacity={0.25} />
+            <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
           </radialGradient>
           <radialGradient id={gradId2} cx="85%" cy="80%" r="45%">
-            <stop offset="0%" stopColor="#e10600" stopOpacity={0.1} />
-            <stop offset="100%" stopColor="#e10600" stopOpacity={0} />
+            <stop offset="0%" stopColor="currentColor" stopOpacity={0.1} />
+            <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
           </radialGradient>
         </defs>
         <rect width="1600" height="1000" fill="#000" />
         <rect width="1600" height="1000" fill={`url(#${gradId1})`} />
         <rect width="1600" height="1000" fill={`url(#${gradId2})`} />
         <g opacity={0.6}>
-          <line x1={-50} y1={250} x2={1700} y2={80} stroke="#e10600" strokeWidth={2} opacity={0.5} />
+          <line x1={-50} y1={250} x2={1700} y2={80} stroke="currentColor" strokeWidth={2} opacity={0.5} />
           <line x1={-50} y1={310} x2={1700} y2={160} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
-          <line x1={-50} y1={820} x2={1700} y2={940} stroke="#e10600" strokeWidth={2} opacity={0.4} />
+          <line x1={-50} y1={820} x2={1700} y2={940} stroke="currentColor" strokeWidth={2} opacity={0.4} />
           <line x1={-50} y1={880} x2={1700} y2={1000} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
         </g>
       </svg>

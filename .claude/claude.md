@@ -138,6 +138,9 @@ brochure {
   title, slug, season ('2026'|'2027'|'2028'), event,
   status ('draft'|'published'|'unpublished'|'archived'),
   publishedAt, featured,
+  theme ('dark'|'light'),
+  accentColor (hex like '#e10600'; overrides --brand-red for this brochure),
+  logo (image; overrides the GPGT nav logo for this brochure),
   seo { metaTitle, metaDescription, ogImage, noIndex },
   leadCapture { hubspotFormId, hubspotPortalId, destinationEmail },
   pages [ page { _key, name, sections: [ … ] } ]
@@ -198,6 +201,14 @@ The brochure CSS (in `globals.css`) uses `cqi` (container query inline) and `cqh
 ### Per-instance SVG gradient IDs
 
 `Cover.tsx`, `Closing.tsx`, `ImageHero.tsx`, `ImagePlaceholderSVG.tsx` all generate unique SVG `<defs>` gradient IDs using the section `_key` or `useId()`. The builder prototype used hard-coded IDs (`id="imhg1"` etc.) which collide when multiple sections of the same type render on one page. Don't revert — bugs are subtle and visual.
+
+### Per-brochure accent + logo override
+
+Each brochure may set an `accentColor` (single hex) and a `logo` (image). The accent overrides the four `--brand-red*` CSS variables at the brochure root (`BrochureReader` for public, `.preview-stage-frame` for editor preview) via `accentColorVars()` in `src/lib/accentColor.ts`. Hover/glow/dim values are derived from the single hex (lighten 10%, alpha 0.35, alpha 0.12). All section CSS already reads `var(--brand-red)`, and section JSX SVGs use `currentColor` with the SVG element's `color` set to `var(--brand-red)` — so the override cascades automatically. Admin chrome (topbar, panels) is outside this scope and stays on the platform default.
+
+`circuitMap` sections store both `svg` (themed at upload time) and `svgOriginal` (untouched). `CircuitMap` re-themes from `svgOriginal` at render via `themeCircuitSvg(svgOriginal, accentColor)` so accent changes take effect without re-uploading. Existing brochures without `svgOriginal` keep their stored `svg` (back-compat).
+
+`BrochureContext.tsx` exposes `accentColor`, `logo`, `theme` to descendants that need them outside the prop tree (currently only `CircuitMap`). The provider wraps both reader and editor-preview roots.
 
 ### `.page-brand-mark` is in the markup but hidden
 

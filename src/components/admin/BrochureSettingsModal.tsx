@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import type { Brochure } from '@/types/brochure'
+import type { Brochure, SanityImage } from '@/types/brochure'
 import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
 import { FieldInput } from './fields/FieldInput'
 import { FieldTextarea } from './fields/FieldTextarea'
 import { FieldBoolean } from './fields/FieldBoolean'
 import { FieldSelect } from './fields/FieldSelect'
+import { FieldColor } from './fields/FieldColor'
+import { FieldImage } from './fields/FieldImage'
 
 type Props = {
   open: boolean
@@ -18,6 +20,8 @@ type Props = {
     event: string
     seo: NonNullable<Brochure['seo']>
     leadCapture: NonNullable<Brochure['leadCapture']>
+    accentColor: string | undefined
+    logo: SanityImage | undefined
   }) => void
 }
 
@@ -37,6 +41,8 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   const [hubspotPortalId, setHubspotPortalId] = useState(brochure.leadCapture?.hubspotPortalId ?? '')
   const [hubspotFormId, setHubspotFormId] = useState(brochure.leadCapture?.hubspotFormId ?? '')
   const [destinationEmail, setDestinationEmail] = useState(brochure.leadCapture?.destinationEmail ?? '')
+  const [accentColor, setAccentColor] = useState<string | undefined>(brochure.accentColor)
+  const [logo, setLogo] = useState<SanityImage | undefined>(brochure.logo)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -53,6 +59,8 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     setHubspotPortalId(brochure.leadCapture?.hubspotPortalId ?? '')
     setHubspotFormId(brochure.leadCapture?.hubspotFormId ?? '')
     setDestinationEmail(brochure.leadCapture?.destinationEmail ?? '')
+    setAccentColor(brochure.accentColor)
+    setLogo(brochure.logo)
     setError(null)
   }, [open, brochure])
 
@@ -105,6 +113,8 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
           event: event.trim(),
           seo,
           leadCapture,
+          accentColor: accentColor ?? null,
+          logo: logo ?? null,
         },
         brochure.slug.current
       )
@@ -118,6 +128,8 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         event: event.trim(),
         seo,
         leadCapture,
+        accentColor,
+        logo,
       })
       onClose()
     })
@@ -187,6 +199,23 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             value={slug}
             onChange={(v) => setSlug(v.toLowerCase())}
             placeholder="italian-grand-prix"
+          />
+
+          <SectionHeader label="Branding" />
+
+          <FieldColor
+            label="Accent colour"
+            description="Overrides the platform brand red across this brochure (buttons, eyebrows, accent rules, decorative SVG washes). Leave default for #e10600."
+            value={accentColor}
+            onChange={setAccentColor}
+          />
+
+          <FieldImage
+            label="Logo"
+            description="Replaces the GPGT logo in the brochure nav. Leave blank to use the default."
+            value={logo}
+            onChange={setLogo}
+            previewWidth={400}
           />
 
           <SectionHeader label="SEO" />

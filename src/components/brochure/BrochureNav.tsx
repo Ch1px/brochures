@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import type { BrochureTheme, SanityImage } from '@/types/brochure'
+import { LogoMark } from './LogoMark'
 
 type NavPage = { name: string; index: number }
 
@@ -9,6 +11,8 @@ type Props = {
   pages: NavPage[]
   currentIndex: number
   onPageClick: (idx: number) => void
+  logo?: SanityImage
+  theme: BrochureTheme
 }
 
 /**
@@ -18,7 +22,7 @@ type Props = {
  * - active page has red underline
  * - on mobile (<720px) links collapse to a burger that opens a stacked menu
  */
-export function BrochureNav({ brand, pages, currentIndex, onPageClick }: Props) {
+export function BrochureNav({ brand, pages, currentIndex, onPageClick, logo, theme }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const navRef = useRef<HTMLElement | null>(null)
 
@@ -47,11 +51,7 @@ export function BrochureNav({ brand, pages, currentIndex, onPageClick }: Props) 
   return (
     <nav ref={navRef} className="brochure-nav" data-nav-ctx="public">
       <div className="brochure-nav-brand">
-        <img
-          src="/textures/GPGT - LOGO -dark.png"
-          alt=""
-          className="brochure-nav-brand-logo"
-        />
+        <LogoMark logo={logo} theme={theme} className="brochure-nav-brand-logo" />
         <span className="brochure-nav-brand-name">{brand}</span>
       </div>
 

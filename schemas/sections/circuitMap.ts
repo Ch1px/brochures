@@ -46,6 +46,13 @@ export default defineType({
         'Themed SVG XML. Uploaded via the builder, which remaps source colours to the brochure palette.',
     }),
     defineField({
+      name: 'svgOriginal',
+      type: 'text',
+      rows: 4,
+      description:
+        'Untouched original SVG. Re-themed at render time so the circuit picks up the brochure accent colour.',
+    }),
+    defineField({
       name: 'stats',
       type: 'array',
       description: 'Up to 3 stats displayed in a strip below the map',

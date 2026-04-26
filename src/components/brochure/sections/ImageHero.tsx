@@ -21,7 +21,7 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
     <section className="section page-image-hero" data-section-id={data._key}>
       {!imageUrl ? (
         <svg
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', color: 'var(--brand-red)' }}
           viewBox="0 0 1600 1000"
           preserveAspectRatio="xMidYMid slice"
           xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +37,7 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
           <path
             d="M -50,800 Q 500,700 1000,750 T 1700,720"
             fill="none"
-            stroke="#e10600"
+            stroke="currentColor"
             strokeWidth={3}
             opacity={0.3}
           />

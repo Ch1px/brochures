@@ -19,6 +19,8 @@ export const BROCHURE_BY_SLUG = groq`
     event,
     status,
     theme,
+    accentColor,
+    logo,
     publishedAt,
     "ogImage": seo.ogImage,
     "seo": {
@@ -51,6 +53,8 @@ export const BROCHURE_BY_SLUG_PREVIEW = groq`
     event,
     status,
     theme,
+    accentColor,
+    logo,
     publishedAt,
     "ogImage": seo.ogImage,
     "seo": {

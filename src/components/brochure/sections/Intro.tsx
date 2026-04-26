@@ -27,13 +27,16 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
           <h2 className="intro-title">{data.title ?? ''}</h2>
           <p className="intro-body">{data.body ?? ''}</p>
         </div>
-        <div
-          className="page-intro-right"
-          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-        >
-          <div className="page-intro-right-frame" />
-          {!imageUrl ? <ImagePlaceholderSVG /> : null}
-          {data.caption ? <div className="page-intro-right-caption">{data.caption}</div> : null}
+        <div className="page-intro-right-wrap">
+          <div className="image-offset-frame" aria-hidden="true" />
+          <div
+            className="page-intro-right"
+            style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+          >
+            <div className="page-intro-right-frame" />
+            {!imageUrl ? <ImagePlaceholderSVG /> : null}
+            {data.caption ? <div className="page-intro-right-caption">{data.caption}</div> : null}
+          </div>
         </div>
       </div>
       {showFolio ? (

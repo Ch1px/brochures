@@ -16,20 +16,24 @@
  *   // save `themed` to Sanity's circuitMap.svg text field
  */
 
-const PALETTE_MAP: Record<string, string> = {
-  '#EF4444': '#e10600',                  // red → brand red
-  '#F59E0B': '#ffb340',                  // orange → warm amber
-  '#FDE68A': '#ffffff',                  // highlight yellow → white
-  '#96A3B5': 'rgba(255,255,255,0.7)',    // primary outline → bright white
-  '#64748B': 'rgba(255,255,255,0.35)',   // secondary outline → muted
-  '#3C8C67': 'rgba(255,255,255,0.06)',   // land/green → near-bg
-  '#0F1115': '#ffffff',                  // near-black labels → white for dark bg
+export const DEFAULT_BRAND_RED = '#e10600'
+
+function buildPaletteMap(accent: string): Record<string, string> {
+  return {
+    '#EF4444': accent,                     // red → brand accent
+    '#F59E0B': '#ffb340',                  // orange → warm amber
+    '#FDE68A': '#ffffff',                  // highlight yellow → white
+    '#96A3B5': 'rgba(255,255,255,0.7)',    // primary outline → bright white
+    '#64748B': 'rgba(255,255,255,0.35)',   // secondary outline → muted
+    '#3C8C67': 'rgba(255,255,255,0.06)',   // land/green → near-bg
+    '#0F1115': '#ffffff',                  // near-black labels → white for dark bg
+  }
 }
 
-export function themeCircuitSvg(svgText: string): string {
+export function themeCircuitSvg(svgText: string, accent: string = DEFAULT_BRAND_RED): string {
   if (!svgText) return ''
   let out = svgText
-  for (const [from, to] of Object.entries(PALETTE_MAP)) {
+  for (const [from, to] of Object.entries(buildPaletteMap(accent))) {
     // Case-insensitive replace of fill="#HEX" and stroke="#HEX"
     const reFill = new RegExp(`fill="${from}"`, 'gi')
     const reStroke = new RegExp(`stroke="${from}"`, 'gi')

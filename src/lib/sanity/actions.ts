@@ -38,7 +38,20 @@ async function assertAdmin() {
 
 export async function saveBrochureAction(
   id: string,
-  updates: Partial<Pick<Brochure, 'title' | 'pages' | 'seo' | 'leadCapture' | 'season' | 'event' | 'theme'>>
+  updates: Partial<
+    Pick<
+      Brochure,
+      | 'title'
+      | 'pages'
+      | 'seo'
+      | 'leadCapture'
+      | 'season'
+      | 'event'
+      | 'theme'
+      | 'accentColor'
+      | 'logo'
+    >
+  >
 ) {
   await assertAdmin()
   return saveBrochureMutation(id, updates)

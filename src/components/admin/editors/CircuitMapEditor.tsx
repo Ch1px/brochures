@@ -9,9 +9,10 @@ import { FieldInput, FieldTextarea, FieldObjectArray, FieldLabel } from '../fiel
 type Props = {
   section: SectionCircuitMap
   onChange: (update: Partial<SectionCircuitMap>) => void
+  accentColor?: string
 }
 
-export function CircuitMapEditor({ section, onChange }: Props) {
+export function CircuitMapEditor({ section, onChange, accentColor }: Props) {
   const svgInputRef = useRef<HTMLInputElement>(null)
   const [svgError, setSvgError] = useState<string | null>(null)
   const [svgLoading, setSvgLoading] = useState(false)
@@ -29,9 +30,10 @@ export function CircuitMapEditor({ section, onChange }: Props) {
         setSvgError('File does not contain an <svg> element')
         return
       }
-      // Run the palette remap so the circuit fits the dark brochure theme.
-      const themed = themeCircuitSvg(text)
-      onChange({ svg: themed })
+      // Store the original alongside the themed copy so accent changes can
+      // re-theme at render time without losing the source.
+      const themed = themeCircuitSvg(text, accentColor)
+      onChange({ svg: themed, svgOriginal: text })
     } catch (err) {
       setSvgError(err instanceof Error ? err.message : 'Could not read SVG')
     } finally {
@@ -80,7 +82,7 @@ export function CircuitMapEditor({ section, onChange }: Props) {
             <button
               type="button"
               className="field-btn field-btn-ghost"
-              onClick={() => onChange({ svg: '' })}
+              onClick={() => onChange({ svg: '', svgOriginal: '' })}
             >
               Clear
             </button>

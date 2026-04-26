@@ -146,7 +146,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
 
         <aside className="editor-panel-right">
           <div className="editor-panel-header">Properties</div>
-          <PropertiesPanel section={currentSection} onChange={handleSectionChange} />
+          <PropertiesPanel section={currentSection} onChange={handleSectionChange} accentColor={brochure.accentColor} />
         </aside>
       </div>
 
@@ -168,6 +168,8 @@ export function BrochureEditor({ initialBrochure }: Props) {
             event: updates.event,
             seo: updates.seo,
             leadCapture: updates.leadCapture,
+            accentColor: updates.accentColor,
+            logo: updates.logo,
           }))
         }
       />

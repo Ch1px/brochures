@@ -1,4 +1,7 @@
+import { useMemo } from 'react'
 import type { SectionCircuitMap } from '@/types/brochure'
+import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionCircuitMap
@@ -12,12 +15,20 @@ type Props = {
  * Themed SVG circuit diagram with eyebrow + title + caption header and a
  * stats strip below (up to 3 stats with red-tick accent).
  *
- * The SVG is already themed at upload time via themeCircuitSvg() and stored
- * as XML text on the Sanity circuitMap.svg field. We inline it here via
- * dangerouslySetInnerHTML — safe because the content is authored by admins.
+ * Render-time theming: when `svgOriginal` is present, the circuit is re-themed
+ * each render using the brochure's current accent colour. Older docs without
+ * `svgOriginal` fall back to the already-themed `svg` field (back-compat).
+ * Inlined via dangerouslySetInnerHTML — safe because the content is admin-authored.
  */
 export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
-  const hasSvg = Boolean(data.svg && data.svg.trim().length > 0)
+  const { accentColor } = useBrochureBranding()
+  const themedSvg = useMemo(() => {
+    if (data.svgOriginal && data.svgOriginal.trim().length > 0) {
+      return themeCircuitSvg(data.svgOriginal, accentColor)
+    }
+    return data.svg ?? ''
+  }, [data.svgOriginal, data.svg, accentColor])
+  const hasSvg = themedSvg.trim().length > 0
   const stats = (data.stats ?? []).slice(0, 3)
 
   return (
@@ -33,7 +44,7 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
           {hasSvg ? (
             <div
               className="circuit-map-svg-wrap"
-              dangerouslySetInnerHTML={{ __html: data.svg! }}
+              dangerouslySetInnerHTML={{ __html: themedSvg }}
             />
           ) : (
             <div className="circuit-map-svg-wrap">

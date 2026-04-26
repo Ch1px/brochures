@@ -30,13 +30,16 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
   )
 
   const imageDiv = (
-    <div
-      className="page-intro-right"
-      style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-    >
-      <div className="page-intro-right-frame" />
-      {!imageUrl ? <ImagePlaceholderSVG /> : null}
-      {data.caption ? <div className="page-intro-right-caption">{data.caption}</div> : null}
+    <div className={`page-intro-right-wrap${reversed ? ' reversed' : ''}`}>
+      <div className="image-offset-frame" aria-hidden="true" />
+      <div
+        className="page-intro-right"
+        style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+      >
+        <div className="page-intro-right-frame" />
+        {!imageUrl ? <ImagePlaceholderSVG /> : null}
+        {data.caption ? <div className="page-intro-right-caption">{data.caption}</div> : null}
+      </div>
     </div>
   )
 

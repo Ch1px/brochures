@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react'
 import type { Brochure } from '@/types/brochure'
 import { SectionRenderer } from '../brochure/SectionRenderer'
+import { BrochureBrandingProvider } from '../brochure/BrochureContext'
+import { accentColorVars } from '@/lib/accentColor'
 
 type Props = {
   brochure: Brochure
@@ -69,7 +71,11 @@ export function PreviewStage({
 
   // ───────── Normal render ─────────
 
+  const theme = brochure.theme ?? 'dark'
+  const accentStyle = accentColorVars(brochure.accentColor)
+
   return (
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme }}>
     <div className="preview-stage-wrap">
       <div className="preview-stage-label">
         <span className="preview-stage-label-num">
@@ -79,7 +85,8 @@ export function PreviewStage({
       </div>
       <div
         className="preview-stage-frame"
-        data-theme={brochure.theme ?? 'dark'}
+        data-theme={theme}
+        style={accentStyle}
         ref={frameRef}
       >
         <div className="brochure-page" style={{ width: '100%' }}>
@@ -112,6 +119,7 @@ export function PreviewStage({
         </div>
       </div>
     </div>
+    </BrochureBrandingProvider>
   )
 }
 

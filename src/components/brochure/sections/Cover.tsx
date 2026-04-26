@@ -24,9 +24,11 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
         style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
       />
 
-      {/* Decorative SVG — gradient wash + racing lines. Same as builder. */}
+      {/* Decorative SVG — gradient wash + racing lines. Same as builder.
+          Uses currentColor so a parent override of --brand-red retints. */}
       <svg
         className="page-cover-svg-decor"
+        style={{ color: 'var(--brand-red)' }}
         viewBox="0 0 1600 1000"
         preserveAspectRatio="xMidYMid slice"
         xmlns="http://www.w3.org/2000/svg"
@@ -34,12 +36,12 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
       >
         <defs>
           <radialGradient id={`cov-g1-${data._key}`} cx="15%" cy="70%" r="55%">
-            <stop offset="0%" stopColor="#e10600" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#e10600" stopOpacity="0" />
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </radialGradient>
           <radialGradient id={`cov-g2-${data._key}`} cx="85%" cy="20%" r="40%">
-            <stop offset="0%" stopColor="#e10600" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#e10600" stopOpacity="0" />
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </radialGradient>
         </defs>
         {!imageUrl && (
@@ -50,9 +52,9 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
           </>
         )}
         <g opacity={imageUrl ? 0.55 : 1}>
-          <line x1={-50} y1={180} x2={1700} y2={60} stroke="#e10600" strokeWidth={2} opacity={0.5} />
+          <line x1={-50} y1={180} x2={1700} y2={60} stroke="currentColor" strokeWidth={2} opacity={0.5} />
           <line x1={-50} y1={230} x2={1700} y2={140} stroke="rgba(255,255,255,0.12)" strokeWidth={1} />
-          <line x1={-50} y1={770} x2={1700} y2={870} stroke="#e10600" strokeWidth={2} opacity={0.4} />
+          <line x1={-50} y1={770} x2={1700} y2={870} stroke="currentColor" strokeWidth={2} opacity={0.4} />
           <line x1={-50} y1={820} x2={1700} y2={900} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
           <line x1={-50} y1={870} x2={1700} y2={950} stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
         </g>
