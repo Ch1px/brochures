@@ -445,11 +445,30 @@
   .section {
     position: relative;
     width: 100%;
-    min-height: 100%;
+    min-height: auto;
     flex-shrink: 0;
     overflow: hidden;
     container-type: inline-size;
     scroll-padding-top: var(--nav-safe-top);
+  }
+  /* Single-section pages fill the full slide so the layout still feels
+     deliberate when there's only one section on the page. Multi-section
+     pages let each section size to its content (no forced full-page fill
+     for short sections like quote-profile or section-heading). The
+     intermediate wrapper (`AnimatedSection` on public, `.preview-section
+     -hitbox` in the editor) uses `display: contents`, so we target the
+     sole wrapper child of `.brochure-page` rather than `.section` directly. */
+  .brochure-page > :only-child > .section {
+    min-height: 100%;
+  }
+  /* Full-bleed sections always fill the slide regardless of stacking,
+     because they're designed as immersive page-takeovers. */
+  .section.page-cover,
+  .section.page-image-hero,
+  .section.page-features,
+  .section.page-closing,
+  .section.page-circuit-map {
+    min-height: 100%;
   }
   /* Ensure direct content wrappers within sections clear the nav overlay */
   .page-intro-inner,
@@ -1467,7 +1486,6 @@
 
   /* ===== SECTION-HEADING SECTION TYPE (F1 chapter heading) ===== */
   .page-section-heading {
-    min-height: 65%;
     background-color: var(--page-bg);
     background-size: cover;
     background-position: center;
@@ -1654,7 +1672,6 @@
   .page-gallery-hero-inner {
     position: relative;
     width: 100%;
-    min-height: 100%;
     padding: 6% 7% 5%;
     display: flex;
     flex-direction: column;
@@ -2764,15 +2781,19 @@
     }
     .features-title { font-size: clamp(24px, 7.5cqi, 40px); }
     .features-subtitle { max-width: 100%; margin-left: 0; }
-    .feature-card { flex-direction: row; min-height: 110px; }
+    .features-grid { flex: none; min-height: 0; }
+    .feature-card {
+      flex-direction: column;
+      min-height: 0;
+    }
     .feature-card-media {
-      flex: 0 0 40%;
-      aspect-ratio: auto;
-      min-height: 100%;
+      flex: none;
+      aspect-ratio: 16 / 9;
+      min-height: 0;
     }
     .feature-card-body {
-      flex: 1;
-      padding: 14px;
+      flex: none;
+      padding: 16px;
     }
     .feature-card-title { font-size: 15px; }
     .feature-card-text { font-size: 13px; }
@@ -2882,9 +2903,9 @@
     .gallery-grid > .gallery-item:nth-child(4) { grid-column: auto; }
     .gallery-grid > .gallery-item { aspect-ratio: 4/3; }
 
-    /* Features revert to vertical card layout */
+    /* Features stay column layout — image on top, body below. */
     .feature-card { flex-direction: column; min-height: 0; }
-    .feature-card-media { aspect-ratio: 16/9; flex: none; }
+    .feature-card-media { aspect-ratio: 16 / 9; flex: none; }
   }
 
 
@@ -3148,8 +3169,9 @@
     }
 
     /* Single-section pages: fill the brochure page for visual completeness.
-       Uses :only-child so multi-section pages keep content-flow. */
-    .brochure-page > .section:only-child {
+       Targets the sole wrapper child (AnimatedSection / preview hitbox is
+       display:contents) rather than `.section` directly. */
+    .brochure-page > :only-child > .section {
       min-height: 100%;
     }
 
