@@ -67,7 +67,7 @@
        in. Tweak here once instead of chasing a dozen `font-size: clamp(...)`
        declarations. */
     --body-text-size: clamp(11px, 1.4cqi, 15px);
-    --body-text-size-mobile: clamp(14px, 3.3cqi, 16px);
+    --body-text-size-mobile: clamp(15px, 3.8cqi, 18px);
     --body-text-line-height: 1.7;
     --body-text-line-height-mobile: 1.65;
   }
@@ -3196,8 +3196,8 @@
       gap: 4px;
       padding: 4px 6px;
     }
-    .preview-mode-nav-btn { width: 30px; height: 30px; }
-    .preview-mode-nav-btn svg { width: 14px; height: 14px; }
+    .preview-mode-nav-btn { width: 38px; height: 38px; }
+    .preview-mode-nav-btn svg { width: 18px; height: 18px; }
     /* Dots aren't useful on a phone — with anything more than ~6 pages
        they get clipped, and the counter already conveys position. */
     .preview-mode-dots { display: none; }
