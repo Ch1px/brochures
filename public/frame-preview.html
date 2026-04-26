@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Image frame — design preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --brand-red: #e10600;
+    --brand-red-dim: rgba(225, 6, 0, 0.35);
+    --bg: #0a0a0c;
+    --panel: #131316;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.18);
+    --text: #e8e8ea;
+    --text-mute: rgba(255,255,255,0.45);
+    --text-faint: rgba(255,255,255,0.25);
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); }
+  body { padding: 48px 56px 96px; }
+  header { max-width: 1280px; margin: 0 auto 48px; }
+  h1 { font-size: 22px; font-weight: 600; letter-spacing: 0.02em; margin: 0 0 6px; }
+  header p { margin: 0; color: var(--text-mute); font-size: 13px; max-width: 70ch; line-height: 1.5; }
+
+  .controls {
+    max-width: 1280px;
+    margin: 0 auto 32px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-mute);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; }
+  .controls input[type="color"] { width: 32px; height: 22px; background: transparent; border: 1px solid var(--border-strong); padding: 0; cursor: pointer; }
+  .controls button {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border-strong);
+    padding: 6px 12px; cursor: pointer;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .controls button:hover { border-color: var(--brand-red); color: var(--brand-red); }
+
+  .grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 56px 48px;
+  }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .variant {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .variant-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .variant-meta .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--brand-red);
+    letter-spacing: 0.18em;
+  }
+  .variant-meta h2 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: 0.01em; }
+  .variant-meta p { font-size: 12px; color: var(--text-mute); margin: 4px 0 0; line-height: 1.5; max-width: 50ch; }
+  .variant-meta-text { flex: 1; }
+
+  /* Stage that mimics the brochure preview frame proportions and container scale */
+  .stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--panel);
+    container-type: size;
+  }
+
+  /* ─────────────── Shared image inner ─────────────── */
+  .img-wrap {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    height: 100%;
+  }
+  .img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-color: #18181c;
+    z-index: 1;
+  }
+
+  /* ─────────────── V0  Current (baseline) ─────────────── */
+  .v0 .offset-rect {
+    position: absolute;
+    top: clamp(10px, 1.6cqi, 22px);
+    bottom: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    left: clamp(10px, 1.6cqi, 22px);
+    right: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    border: 1px solid var(--border);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .v0 .offset-rect::before,
+  .v0 .offset-rect::after {
+    content: '';
+    position: absolute;
+    width: clamp(16px, 2.4cqi, 32px);
+    height: clamp(16px, 2.4cqi, 32px);
+    border: 3px solid var(--brand-red);
+  }
+  .v0 .offset-rect::before { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+  .v0 .offset-rect::after  { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+  .v0 .inner-frame {
+    position: absolute; inset: 0;
+    border: 1px solid var(--border);
+    z-index: 2; pointer-events: none;
+  }
+
+  /* ─────────────── V1  Four-corner crosshair brackets ─────────────── */
+  .v1 .deco {
+    position: absolute; inset: 0;
+    z-index: 3; pointer-events: none;
+    color: var(--brand-red);
+  }
+  .v1 .inner-frame {
+    position: absolute; inset: 0;
+    border: 1px solid rgba(255,255,255,0.12);
+    z-index: 2; pointer-events: none;
+  }
+
+  /* ─────────────── V2  Refined offset + edge ticks ─────────────── */
+  .v2 .offset-rect {
+    position: absolute;
+    top: clamp(10px, 1.6cqi, 22px);
+    bottom: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    left: clamp(10px, 1.6cqi, 22px);
+    right: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: 0;
+  }
+  .v2 .offset-rect::before,
+  .v2 .offset-rect::after {
+    content: '';
+    position: absolute;
+    width: clamp(20px, 3cqi, 36px);
+    height: clamp(20px, 3cqi, 36px);
+    border: 2px solid var(--brand-red);
+  }
+  .v2 .offset-rect::before { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+  .v2 .offset-rect::after  { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+  .v2 .deco {
+    position: absolute; inset: 0;
+    z-index: 3; pointer-events: none;
+    color: var(--brand-red);
+  }
+  .v2 .inner-frame {
+    position: absolute; inset: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 2; pointer-events: none;
+  }
+
+  /* ─────────────── V3  Racing stripe + corner index tag ─────────────── */
+  .v3 .offset-rect {
+    position: absolute;
+    top: clamp(10px, 1.6cqi, 22px);
+    bottom: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    left: clamp(10px, 1.6cqi, 22px);
+    right: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: 0;
+  }
+  .v3 .deco {
+    position: absolute; inset: 0;
+    z-index: 3; pointer-events: none;
+    color: var(--brand-red);
+  }
+  .v3 .inner-frame {
+    position: absolute; inset: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 2; pointer-events: none;
+  }
+  .v3 .tag {
+    position: absolute;
+    bottom: 0; left: 0;
+    transform: translate(-12%, 50%);
+    background: var(--brand-red);
+    color: #0a0a0c;
+    font-family: var(--font-mono);
+    font-size: clamp(9px, 1.1cqi, 12px);
+    letter-spacing: 0.18em;
+    padding: 6px 10px;
+    z-index: 4;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* ─────────────── V4  Telemetry / film-strip ticks ─────────────── */
+  .v4 .offset-rect {
+    position: absolute;
+    top: clamp(10px, 1.6cqi, 22px);
+    bottom: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    left: clamp(10px, 1.6cqi, 22px);
+    right: calc(-1 * clamp(10px, 1.6cqi, 22px));
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: 0;
+  }
+  .v4 .offset-rect::before,
+  .v4 .offset-rect::after {
+    content: '';
+    position: absolute;
+    width: clamp(14px, 2cqi, 24px);
+    height: clamp(14px, 2cqi, 24px);
+    border: 2px solid var(--brand-red);
+  }
+  .v4 .offset-rect::before { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+  .v4 .offset-rect::after  { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+  .v4 .deco {
+    position: absolute; inset: 0;
+    z-index: 3; pointer-events: none;
+    color: var(--brand-red);
+  }
+  .v4 .inner-frame {
+    position: absolute; inset: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 2; pointer-events: none;
+  }
+
+  /* Caption shared style (mirror of .page-intro-right-caption) */
+  .caption {
+    position: absolute;
+    bottom: clamp(8px, 1.6cqi, 16px);
+    left: clamp(10px, 1.8cqi, 18px);
+    right: clamp(10px, 1.8cqi, 18px);
+    z-index: 4;
+    font-family: var(--font-mono);
+    font-size: clamp(9px, 1cqi, 11px);
+    letter-spacing: 0.16em;
+    color: rgba(255,255,255,0.85);
+    text-transform: uppercase;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Image frame — decorative variants</h1>
+  <p>Five takes on the decoration around the image used in <code>Intro</code> and <code>SplitSection</code>. Same image, same dark canvas, same accent. V0 is the current production design. Use the controls to swap accent colour and image so the variants get tested against different palettes.</p>
+</header>
+
+<div class="controls">
+  <label>Accent <input type="color" id="accent" value="#e10600" /></label>
+  <button id="reroll">Re‑roll image</button>
+  <span id="seedlabel" style="color: var(--text-faint);"></span>
+</div>
+
+<div class="grid" id="grid">
+  <!-- V0 baseline -->
+  <div class="variant v0">
+    <div class="variant-meta">
+      <div class="variant-meta-text">
+        <h2>Current (baseline)</h2>
+        <p>Offset rectangle + two opposing red corner brackets + 1px inner frame. The shipped design.</p>
+      </div>
+      <span class="num">V0</span>
+    </div>
+    <div class="stage">
+      <div class="img-wrap">
+        <div class="offset-rect"></div>
+        <div class="img"></div>
+        <div class="inner-frame"></div>
+        <div class="caption">Circuit de Monaco · Sector 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V1 four-corner crosshair brackets -->
+  <div class="variant v1">
+    <div class="variant-meta">
+      <div class="variant-meta-text">
+        <h2>Four-corner crosshair</h2>
+        <p>Thin red brackets at all four corners with short crosshair extensions. Telemetry/HUD feel, fully symmetrical.</p>
+      </div>
+      <span class="num">V1</span>
+    </div>
+    <div class="stage">
+      <div class="img-wrap">
+        <div class="img"></div>
+        <div class="inner-frame"></div>
+        <svg class="deco" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+          <!-- corner brackets, length scales with viewBox -->
+          <g fill="none" stroke="currentColor" stroke-width="2.5" vector-effect="non-scaling-stroke">
+            <!-- TL -->
+            <path d="M0 28 L0 0 L28 0" />
+            <path d="M14 0 L14 6 M0 14 L6 14" stroke-width="1.5" />
+            <!-- TR -->
+            <path d="M372 0 L400 0 L400 28" />
+            <path d="M386 0 L386 6 M394 14 L400 14" stroke-width="1.5" />
+            <!-- BL -->
+            <path d="M0 272 L0 300 L28 300" />
+            <path d="M14 294 L14 300 M0 286 L6 286" stroke-width="1.5" />
+            <!-- BR -->
+            <path d="M372 300 L400 300 L400 272" />
+            <path d="M386 294 L386 300 M394 286 L400 286" stroke-width="1.5" />
+          </g>
+        </svg>
+        <div class="caption">Circuit de Monaco · Sector 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V2 refined offset + tick marks -->
+  <div class="variant v2">
+    <div class="variant-meta">
+      <div class="variant-meta-text">
+        <h2>Refined offset + tick scale</h2>
+        <p>Same offset construction as V0 but tighter brackets and a measurement-style tick scale along top + left. Keeps the asymmetry, adds character.</p>
+      </div>
+      <span class="num">V2</span>
+    </div>
+    <div class="stage">
+      <div class="img-wrap">
+        <div class="offset-rect"></div>
+        <div class="img"></div>
+        <div class="inner-frame"></div>
+        <svg class="deco" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+          <g stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0.85">
+            <!-- top edge ticks: every 40 units -->
+            <line x1="40"  y1="0" x2="40"  y2="6" />
+            <line x1="80"  y1="0" x2="80"  y2="4" />
+            <line x1="120" y1="0" x2="120" y2="4" />
+            <line x1="160" y1="0" x2="160" y2="6" />
+            <line x1="200" y1="0" x2="200" y2="10" stroke-width="1.5" />
+            <line x1="240" y1="0" x2="240" y2="6" />
+            <line x1="280" y1="0" x2="280" y2="4" />
+            <line x1="320" y1="0" x2="320" y2="4" />
+            <line x1="360" y1="0" x2="360" y2="6" />
+            <!-- left edge ticks -->
+            <line x1="0" y1="40"  x2="6"  y2="40" />
+            <line x1="0" y1="75"  x2="4"  y2="75" />
+            <line x1="0" y1="110" x2="4"  y2="110" />
+            <line x1="0" y1="150" x2="10" y2="150" stroke-width="1.5" />
+            <line x1="0" y1="190" x2="4"  y2="190" />
+            <line x1="0" y1="225" x2="4"  y2="225" />
+            <line x1="0" y1="260" x2="6"  y2="260" />
+          </g>
+        </svg>
+        <div class="caption">Circuit de Monaco · Sector 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V3 racing stripe + corner tag -->
+  <div class="variant v3">
+    <div class="variant-meta">
+      <div class="variant-meta-text">
+        <h2>Slash + index tag</h2>
+        <p>A diagonal red slash exits the top-right corner; a small index tag overlaps the bottom-left. Asymmetric, editorial, more graphic energy.</p>
+      </div>
+      <span class="num">V3</span>
+    </div>
+    <div class="stage">
+      <div class="img-wrap">
+        <div class="offset-rect"></div>
+        <div class="img"></div>
+        <div class="inner-frame"></div>
+        <svg class="deco" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+          <g fill="none" stroke="currentColor" vector-effect="non-scaling-stroke">
+            <!-- TR slash exiting the corner -->
+            <path d="M340 0 L400 0 L400 60" stroke-width="3" />
+            <path d="M325 0 L400 75" stroke-width="2" opacity="0.9" />
+            <path d="M360 0 L400 40" stroke-width="1" opacity="0.5" />
+            <!-- subtle BL bracket to balance -->
+            <path d="M0 270 L0 300 L30 300" stroke-width="2" opacity="0.6" />
+          </g>
+        </svg>
+        <div class="tag">FIG · 03</div>
+        <div class="caption" style="left: clamp(60px, 9cqi, 96px);">Circuit de Monaco · Sector 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V4 film-strip ticks -->
+  <div class="variant v4">
+    <div class="variant-meta">
+      <div class="variant-meta-text">
+        <h2>Film-strip ticks</h2>
+        <p>Asymmetric corners (V0-style) plus regular red ticks running the full top edge — a sense of motion / timeline. Reads as motorsport without leaning HUD.</p>
+      </div>
+      <span class="num">V4</span>
+    </div>
+    <div class="stage">
+      <div class="img-wrap">
+        <div class="offset-rect"></div>
+        <div class="img"></div>
+        <div class="inner-frame"></div>
+        <svg class="deco" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+          <g stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke">
+            <!-- regular short ticks on top edge -->
+            <line x1="20" y1="0" x2="20" y2="5" />
+            <line x1="40" y1="0" x2="40" y2="5" />
+            <line x1="60" y1="0" x2="60" y2="5" />
+            <line x1="80" y1="0" x2="80" y2="5" />
+            <line x1="100" y1="0" x2="100" y2="5" />
+            <line x1="120" y1="0" x2="120" y2="5" />
+            <line x1="140" y1="0" x2="140" y2="5" />
+            <line x1="160" y1="0" x2="160" y2="5" />
+            <line x1="180" y1="0" x2="180" y2="5" />
+            <line x1="200" y1="0" x2="200" y2="9" stroke-width="2.5" />
+            <line x1="220" y1="0" x2="220" y2="5" />
+            <line x1="240" y1="0" x2="240" y2="5" />
+            <line x1="260" y1="0" x2="260" y2="5" />
+            <line x1="280" y1="0" x2="280" y2="5" />
+            <line x1="300" y1="0" x2="300" y2="5" />
+            <line x1="320" y1="0" x2="320" y2="5" />
+            <line x1="340" y1="0" x2="340" y2="5" />
+            <line x1="360" y1="0" x2="360" y2="5" />
+            <line x1="380" y1="0" x2="380" y2="5" />
+          </g>
+        </svg>
+        <div class="caption">Circuit de Monaco · Sector 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V5 minimal serif corners + thin offset -->
+  <div class="variant v0" style="--brand-red: var(--brand-red);">
+    <div class="variant-meta">
+      <div class="variant-meta-text">
+        <h2>Quiet refinement</h2>
+        <p>Same construction as current but: thinner accent strokes (2px), longer corner runs, softer offset rectangle. Less "F1 livery", more "editorial monograph".</p>
+      </div>
+      <span class="num">V5</span>
+    </div>
+    <div class="stage">
+      <div class="img-wrap">
+        <div style="
+          position: absolute;
+          top: clamp(8px, 1.4cqi, 18px);
+          bottom: calc(-1 * clamp(8px, 1.4cqi, 18px));
+          left: clamp(8px, 1.4cqi, 18px);
+          right: calc(-1 * clamp(8px, 1.4cqi, 18px));
+          border: 1px solid rgba(255,255,255,0.05);
+          z-index: 0;
+        "></div>
+        <div class="img"></div>
+        <div style="position: absolute; inset: 0; z-index: 2; pointer-events: none; color: var(--brand-red);">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="none" style="width:100%;height:100%; display:block;" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke">
+              <!-- TR longer L -->
+              <path d="M340 0 L400 0 L400 60" />
+              <!-- BL longer L -->
+              <path d="M0 240 L0 300 L60 300" />
+            </g>
+            <g stroke="rgba(255,255,255,0.18)" stroke-width="1" vector-effect="non-scaling-stroke">
+              <rect x="0.5" y="0.5" width="399" height="299" fill="none" />
+            </g>
+          </svg>
+        </div>
+        <div class="caption">Circuit de Monaco · Sector 2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const accentInput = document.getElementById('accent');
+  const reroll = document.getElementById('reroll');
+  const seedlabel = document.getElementById('seedlabel');
+  const imgs = document.querySelectorAll('.img');
+
+  function setAccent(hex) {
+    document.documentElement.style.setProperty('--brand-red', hex);
+  }
+  accentInput.addEventListener('input', e => setAccent(e.target.value));
+
+  let seed = Math.floor(Math.random() * 1000);
+  function paintImages() {
+    seedlabel.textContent = 'image seed ' + seed;
+    imgs.forEach((el, i) => {
+      const url = `https://picsum.photos/seed/${seed}-${i}/1200/900`;
+      el.style.backgroundImage = `url('${url}')`;
+    });
+  }
+  reroll.addEventListener('click', () => { seed = Math.floor(Math.random() * 1000); paintImages(); });
+  paintImages();
+</script>
+
+</body>
+</html>

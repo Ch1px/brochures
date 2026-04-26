@@ -45,6 +45,7 @@
     --brand-red-hover: #ff1a14;
     --brand-red-glow: rgba(225, 6, 0, 0.35);
     --brand-red-dim: rgba(225, 6, 0, 0.12);
+    --brand-on-accent: #fff;
     --success: #00d9a3;
 
     --page-bg: #0b0b0d;
@@ -637,7 +638,7 @@
     display: inline-flex; align-items: center; gap: 14px;
     padding: 16px 28px;
     background: var(--brand-red);
-    color: #fff;
+    color: var(--brand-on-accent);
     font-family: var(--font-condensed); font-weight: 600;
     font-size: clamp(13px, 1.6cqi, 16px);
     letter-spacing: 0.22em; text-transform: uppercase;
@@ -1425,7 +1426,7 @@
     display: inline-flex; align-items: center; gap: 14px;
     padding: clamp(12px, 1.8cqi, 18px) clamp(20px, 3cqi, 36px);
     background: var(--brand-red);
-    color: #fff; text-decoration: none;
+    color: var(--brand-on-accent); text-decoration: none;
     font-family: var(--font-condensed); font-weight: 600;
     font-size: clamp(12px, 1.5cqi, 16px);
     letter-spacing: 0.22em; text-transform: uppercase;
@@ -2254,7 +2255,7 @@
     color: #fff; border-radius: 50%;
     transition: all 0.2s;
   }
-  .preview-mode-nav-btn:hover:not(:disabled) { background: var(--brand-red); }
+  .preview-mode-nav-btn:hover:not(:disabled) { background: var(--brand-red); color: var(--brand-on-accent); }
   .preview-mode-nav-btn:disabled { opacity: 0.3; cursor: default; }
   .preview-mode-nav-btn svg { width: 16px; height: 16px; }
 
@@ -2997,7 +2998,7 @@
     flex-shrink: 0;
     transition: all 0.15s;
   }
-  .brochure-nav-close:hover { background: var(--brand-red); border-color: var(--brand-red); }
+  .brochure-nav-close:hover { background: var(--brand-red); border-color: var(--brand-red); color: var(--brand-on-accent); }
   .brochure-nav-close svg { width: 16px; height: 16px; }
 
   .brochure-nav-menu {
