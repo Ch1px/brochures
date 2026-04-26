@@ -915,7 +915,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 7% 12%;
+    padding: 4% 12%;
     gap: clamp(10px, 1.8cqi, 22px);
   }
   .text-center-eyebrow {
@@ -940,7 +940,7 @@
     font-size: clamp(11px, 1.4cqi, 15px);
     line-height: 1.7;
     color: var(--page-text-muted);
-    max-width: 60ch;
+    max-width: 120ch;
   }
 
   /* Mini preview for the Add Section modal */
@@ -956,7 +956,7 @@
   }
   .mini-text-center-eyebrow { height: 3px; width: 28%; background: var(--brand-red); border-radius: 1px; }
   .mini-text-center-title { height: 5px; width: 55%; background: #cfd1d6; border-radius: 1px; margin-bottom: 3px; }
-  .mini-text-center-body { height: 2px; width: 80%; background: #7a7d85; border-radius: 1px; }
+  .mini-text-center-body { height: 2px; width: 100%; background: #7a7d85; border-radius: 1px; }
 
   /* Mini preview for the Add Section modal */
   .mini-spotlight {
