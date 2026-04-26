@@ -18,22 +18,30 @@
 
 export const DEFAULT_BRAND_RED = '#e10600'
 
-function buildPaletteMap(accent: string): Record<string, string> {
+type CircuitTheme = 'dark' | 'light'
+
+function buildPaletteMap(accent: string, theme: CircuitTheme): Record<string, string> {
+  const fg = theme === 'light' ? '0,0,0' : '255,255,255'
+  const labelColor = theme === 'light' ? '#0F1115' : '#ffffff'
   return {
     '#EF4444': accent,                     // red → brand accent
-    '#F59E0B': '#ffb340',                  // orange → warm amber
-    '#FDE68A': '#ffffff',                  // highlight yellow → white
-    '#96A3B5': 'rgba(255,255,255,0.7)',    // primary outline → bright white
-    '#64748B': 'rgba(255,255,255,0.35)',   // secondary outline → muted
-    '#3C8C67': 'rgba(255,255,255,0.06)',   // land/green → near-bg
-    '#0F1115': '#ffffff',                  // near-black labels → white for dark bg
+    '#F59E0B': '#ffb340',                  // orange → warm amber (theme-agnostic)
+    '#FDE68A': labelColor,                 // highlight yellow → theme foreground
+    '#96A3B5': `rgba(${fg},0.7)`,          // primary outline → theme foreground
+    '#64748B': `rgba(${fg},0.35)`,         // secondary outline → muted foreground
+    '#3C8C67': `rgba(${fg},0.06)`,         // land/green → near-bg
+    '#0F1115': labelColor,                 // near-black labels → theme foreground
   }
 }
 
-export function themeCircuitSvg(svgText: string, accent: string = DEFAULT_BRAND_RED): string {
+export function themeCircuitSvg(
+  svgText: string,
+  accent: string = DEFAULT_BRAND_RED,
+  theme: CircuitTheme = 'dark',
+): string {
   if (!svgText) return ''
   let out = svgText
-  for (const [from, to] of Object.entries(buildPaletteMap(accent))) {
+  for (const [from, to] of Object.entries(buildPaletteMap(accent, theme))) {
     // Case-insensitive replace of fill="#HEX" and stroke="#HEX"
     const reFill = new RegExp(`fill="${from}"`, 'gi')
     const reStroke = new RegExp(`stroke="${from}"`, 'gi')

@@ -21,13 +21,13 @@ type Props = {
  * Inlined via dangerouslySetInnerHTML — safe because the content is admin-authored.
  */
 export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
-  const { accentColor } = useBrochureBranding()
+  const { accentColor, theme } = useBrochureBranding()
   const themedSvg = useMemo(() => {
     if (data.svgOriginal && data.svgOriginal.trim().length > 0) {
-      return themeCircuitSvg(data.svgOriginal, accentColor)
+      return themeCircuitSvg(data.svgOriginal, accentColor, theme)
     }
     return data.svg ?? ''
-  }, [data.svgOriginal, data.svg, accentColor])
+  }, [data.svgOriginal, data.svg, accentColor, theme])
   const hasSvg = themedSvg.trim().length > 0
   const stats = (data.stats ?? []).slice(0, 3)
 
