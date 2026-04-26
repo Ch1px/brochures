@@ -67,7 +67,7 @@
        in. Tweak here once instead of chasing a dozen `font-size: clamp(...)`
        declarations. */
     --body-text-size: clamp(11px, 1.4cqi, 15px);
-    --body-text-size-mobile: clamp(15px, 3.8cqi, 18px);
+    --body-text-size-mobile: clamp(15px, 3.8cqi, 16px);
     --body-text-line-height: 1.7;
     --body-text-line-height-mobile: 1.65;
   }
