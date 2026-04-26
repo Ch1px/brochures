@@ -465,8 +465,7 @@
      because they're designed as immersive page-takeovers. */
   .section.page-cover,
   .section.page-image-hero,
-  .section.page-closing,
-  .section.page-circuit-map {
+  .section.page-closing {
     min-height: 100%;
   }
   /* Ensure direct content wrappers within sections clear the nav overlay */
@@ -2809,6 +2808,7 @@
       background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.75) 100%);
     }
     .image-hero-title { font-size: clamp(28px, 8.5cqi, 48px); }
+    .image-hero-text { max-width: 100%; }
 
     /* STATS — 2 cols */
     .stats-title { font-size: clamp(22px, 7cqi, 38px); }
@@ -2936,8 +2936,10 @@
     }
     /* Section-heading: already has bigger padding (14%), keep as anchor chapter */
     .page-section-heading-inner { padding: max(16%, 68px) 8%; }
-    /* Image hero: needs less top padding since image is the focus */
-    .page-image-hero-content { padding: max(14%, 68px) 8%; }
+    /* Image hero: needs less top padding since image is the focus.
+       Top gets nav-safe clearance, bottom stays compact so the title/text
+       block doesn't get squeezed into a thin band on tall mobile screens. */
+    .page-image-hero-content { padding: max(10%, 68px) 8% 10%; }
     /* Cover: dramatic spacing */
     .page-cover-inner { padding: max(14%, 68px) 8%; }
     /* Gallery variants */
@@ -3153,7 +3155,10 @@
     /* Sections: natural content height (no forced viewport-fill) */
     .section { min-height: auto; }
 
-    /* Inner blocks: let content dictate height (no 100% forcing) */
+    /* Inner blocks: let content dictate height (no 100% forcing).
+       Image hero is excluded — it's a full-bleed immersive section that
+       must keep min-height: 100% + flex centering so the title/text block
+       sits in the vertical middle of the slide rather than hugging the top. */
     .page-intro-inner,
     .page-features-inner,
     .page-stats-inner,
@@ -3163,8 +3168,7 @@
     .page-closing-inner,
     .page-quote-profile-inner,
     .page-section-heading-inner,
-    .page-circuit-map-inner,
-    .page-image-hero-content {
+    .page-circuit-map-inner {
       min-height: auto;
       flex: none;
     }
