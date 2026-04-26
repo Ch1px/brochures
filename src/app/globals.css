@@ -465,7 +465,6 @@
      because they're designed as immersive page-takeovers. */
   .section.page-cover,
   .section.page-image-hero,
-  .section.page-features,
   .section.page-closing,
   .section.page-circuit-map {
     min-height: 100%;
@@ -1025,7 +1024,6 @@
   .page-features-inner {
     position: relative;
     width: 100%;
-    min-height: 100%;
     padding: 6% 7% 5% 7%;
     display: flex; flex-direction: column;
     gap: clamp(16px, 2.5cqi, 32px);
@@ -1072,7 +1070,8 @@
     position: relative;
   }
   .feature-card-media {
-    flex: 1 1 55%;
+    flex: none;
+    aspect-ratio: 4 / 3;
     background-size: cover; background-position: center;
     background-color: var(--chrome-raised);
     position: relative;
