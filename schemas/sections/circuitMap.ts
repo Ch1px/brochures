@@ -53,6 +53,29 @@ export default defineType({
         'Untouched original SVG. Re-themed at render time so the circuit picks up the brochure accent colour.',
     }),
     defineField({
+      name: 'colorOverrides',
+      type: 'array',
+      description:
+        'Per-element colour overrides applied on top of the themed SVG at render time. elementId is a stable index id assigned in document order (e.g. "el-3").',
+      of: [
+        {
+          type: 'object',
+          name: 'colorOverride',
+          fields: [
+            { name: 'elementId', type: 'string', title: 'Element id', validation: (Rule: any) => Rule.required() },
+            { name: 'color', type: 'string', title: 'Colour (hex)', validation: (Rule: any) => Rule.required() },
+          ],
+          preview: {
+            select: { elementId: 'elementId', color: 'color' },
+            prepare: ({ elementId, color }: any) => ({
+              title: elementId,
+              subtitle: color,
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'stats',
       type: 'array',
       description: 'Up to 3 stats displayed in a strip below the map',

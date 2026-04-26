@@ -205,6 +205,12 @@ export type SectionClosing = {
   background?: string
 }
 
+export type ColorOverride = {
+  _key: string
+  elementId: string
+  color: string
+}
+
 export type SectionCircuitMap = {
   _key: string
   _type: 'circuitMap'
@@ -213,6 +219,7 @@ export type SectionCircuitMap = {
   caption?: string
   svg?: string
   svgOriginal?: string
+  colorOverrides?: ColorOverride[]
   stats?: StatItem[]
   background?: string
 }

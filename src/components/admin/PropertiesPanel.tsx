@@ -27,6 +27,8 @@ type Props = {
   section: Section | null
   onChange: (update: Partial<Section>) => void
   accentColor?: string
+  recolorMode?: boolean
+  onRecolorModeChange?: (next: boolean) => void
 }
 
 /**
@@ -34,7 +36,13 @@ type Props = {
  * All 19 section types wired (20 _type values including variants).
  * Image uploads are still disabled; the upload pipeline lands in sub-batch 2F.
  */
-export function PropertiesPanel({ section, onChange, accentColor }: Props) {
+export function PropertiesPanel({
+  section,
+  onChange,
+  accentColor,
+  recolorMode = false,
+  onRecolorModeChange,
+}: Props) {
   if (!section) {
     return (
       <div className="properties-empty">
@@ -54,7 +62,7 @@ export function PropertiesPanel({ section, onChange, accentColor }: Props) {
         <div className="properties-key">{section._key}</div>
       </div>
       <div className="properties-body">
-        {renderEditor(section, onChange, accentColor)}
+        {renderEditor(section, onChange, accentColor, recolorMode, onRecolorModeChange)}
         <div className="properties-section-divider" />
         <FieldBackground
           label="Section background"
@@ -70,7 +78,9 @@ export function PropertiesPanel({ section, onChange, accentColor }: Props) {
 function renderEditor(
   section: Section,
   onChange: (u: Partial<Section>) => void,
-  accentColor?: string
+  accentColor?: string,
+  recolorMode = false,
+  onRecolorModeChange?: (next: boolean) => void
 ) {
   // Each editor narrows to its own section type. The cast on onChange is safe
   // because the editor only passes partials valid for that narrower type.
@@ -110,7 +120,15 @@ function renderEditor(
     case 'quoteProfile':
       return <QuoteProfileEditor section={section} onChange={anyOnChange} />
     case 'circuitMap':
-      return <CircuitMapEditor section={section} onChange={anyOnChange} accentColor={accentColor} />
+      return (
+        <CircuitMapEditor
+          section={section}
+          onChange={anyOnChange}
+          accentColor={accentColor}
+          recolorMode={recolorMode}
+          onRecolorModeChange={onRecolorModeChange}
+        />
+      )
     case 'spotlight':
       return <SpotlightEditor section={section} onChange={anyOnChange} />
     case 'textCenter':

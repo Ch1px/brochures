@@ -10,9 +10,17 @@ type Props = {
   section: SectionCircuitMap
   onChange: (update: Partial<SectionCircuitMap>) => void
   accentColor?: string
+  recolorMode?: boolean
+  onRecolorModeChange?: (next: boolean) => void
 }
 
-export function CircuitMapEditor({ section, onChange, accentColor }: Props) {
+export function CircuitMapEditor({
+  section,
+  onChange,
+  accentColor,
+  recolorMode = false,
+  onRecolorModeChange,
+}: Props) {
   const svgInputRef = useRef<HTMLInputElement>(null)
   const [svgError, setSvgError] = useState<string | null>(null)
   const [svgLoading, setSvgLoading] = useState(false)
@@ -31,15 +39,20 @@ export function CircuitMapEditor({ section, onChange, accentColor }: Props) {
         return
       }
       // Store the original alongside the themed copy so accent changes can
-      // re-theme at render time without losing the source.
+      // re-theme at render time without losing the source. Clear any existing
+      // colour overrides since their elementIds reference indices in the
+      // previous SVG and would otherwise apply to the wrong elements.
       const themed = themeCircuitSvg(text, accentColor)
-      onChange({ svg: themed, svgOriginal: text })
+      onChange({ svg: themed, svgOriginal: text, colorOverrides: [] })
     } catch (err) {
       setSvgError(err instanceof Error ? err.message : 'Could not read SVG')
     } finally {
       setSvgLoading(false)
     }
   }
+
+  const overrides = section.colorOverrides ?? []
+  const hasOriginal = Boolean(section.svgOriginal && section.svgOriginal.trim().length > 0)
 
   return (
     <>
@@ -108,6 +121,60 @@ export function CircuitMapEditor({ section, onChange, accentColor }: Props) {
           placeholder="<svg>…</svg>"
           spellCheck={false}
         />
+      </FieldLabel>
+
+      <FieldLabel
+        label="Recolour mode"
+        description="Toggle on, then click any path or shape inside the circuit on the centre preview to pick a colour for that element. Re-uploading the SVG clears all overrides."
+      >
+        <div className="recolor-toggle-row">
+          <button
+            type="button"
+            className={`field-btn${recolorMode ? ' field-btn-active' : ''}`}
+            onClick={() => onRecolorModeChange?.(!recolorMode)}
+            disabled={!hasOriginal}
+          >
+            {recolorMode ? 'Recolour mode: on' : 'Enable recolour mode'}
+          </button>
+          {!hasOriginal ? (
+            <span className="field-color-hint">Upload an SVG to enable</span>
+          ) : null}
+        </div>
+        {overrides.length > 0 ? (
+          <ul className="recolor-overrides-list">
+            {overrides.map((o) => (
+              <li key={o._key} className="recolor-overrides-item">
+                <span
+                  className="recolor-overrides-swatch"
+                  style={{ background: o.color }}
+                  aria-hidden
+                />
+                <span className="recolor-overrides-id">{o.elementId}</span>
+                <span className="recolor-overrides-hex">{o.color}</span>
+                <button
+                  type="button"
+                  className="field-btn field-btn-ghost"
+                  onClick={() =>
+                    onChange({
+                      colorOverrides: overrides.filter((x) => x.elementId !== o.elementId),
+                    })
+                  }
+                >
+                  Reset
+                </button>
+              </li>
+            ))}
+            <li>
+              <button
+                type="button"
+                className="field-btn field-btn-ghost"
+                onClick={() => onChange({ colorOverrides: [] })}
+              >
+                Reset all
+              </button>
+            </li>
+          </ul>
+        ) : null}
       </FieldLabel>
 
       <FieldObjectArray<StatItem>

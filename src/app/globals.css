@@ -1949,6 +1949,23 @@
     max-height: 100%;
     display: block;
   }
+  /* Editor-only: when recolour mode is active for this section, make
+     recolourable elements look clickable and outline them on hover so admins
+     can see which paths/shapes will respond. The .recolor-active class is
+     toggled in CircuitMap and only applied inside the editor preview. */
+  .circuit-map-svg-wrap.recolor-active [data-recolor-id] {
+    cursor: pointer;
+    transition: filter 0.1s, outline-color 0.1s;
+  }
+  .circuit-map-svg-wrap.recolor-active [data-recolor-id]:hover {
+    outline: 2px solid var(--brand-red);
+    outline-offset: 1px;
+    filter: brightness(1.1);
+  }
+  .circuit-map-svg-wrap.recolor-active [data-recolor-id][data-recolor-selected="true"] {
+    outline: 2px dashed var(--brand-red);
+    outline-offset: 1px;
+  }
   .circuit-map-placeholder {
     width: 100%;
     aspect-ratio: 16 / 7;

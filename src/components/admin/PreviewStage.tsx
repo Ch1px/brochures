@@ -11,6 +11,18 @@ type Props = {
   currentPageIndex: number
   currentSectionKey: string | null
   setCurrentSectionKey: (key: string | null) => void
+  recolor?: {
+    active: boolean
+    targetSectionKey: string | null
+    selectedIds: string[]
+    onElementClick: (
+      sectionKey: string,
+      elementId: string,
+      x: number,
+      y: number,
+      multi: boolean,
+    ) => void
+  }
 }
 
 /**
@@ -30,6 +42,7 @@ export function PreviewStage({
   currentPageIndex,
   currentSectionKey,
   setCurrentSectionKey,
+  recolor,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null)
   const page = brochure.pages[currentPageIndex]
@@ -75,7 +88,7 @@ export function PreviewStage({
   const accentStyle = accentColorVars(brochure.accentColor)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme, editorMode: true }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme, editorMode: true, recolor }}>
     <div className="preview-stage-wrap">
       <div className="preview-stage-label">
         <span className="preview-stage-label-num">
