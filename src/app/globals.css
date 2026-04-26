@@ -1296,8 +1296,9 @@
   }
   .package-feature {
     display: flex; align-items: flex-start; gap: 10px;
-    font-size: clamp(10px, 1.2cqi, 12px);
-    color: var(--page-text-muted); line-height: 1.5;
+    font-size: var(--body-text-size);
+    color: var(--page-text-muted);
+    line-height: var(--body-text-line-height);
   }
   .package-feature::before {
     content: ''; display: block; flex-shrink: 0;
