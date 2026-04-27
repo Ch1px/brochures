@@ -3097,6 +3097,37 @@
     background: var(--brand-red);
   }
 
+  /* Print / save-as-PDF button — sits to the left of the burger and mirrors
+     its dimensions and hover treatment. Always visible (desktop + mobile).
+     Hidden during print itself via the @media print block. */
+  .brochure-print-btn {
+    display: flex;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 3px;
+    margin-left: auto;
+    transition: background 0.15s, color 0.15s;
+  }
+  .brochure-print-btn:hover { background: var(--brand-red-dim); color: var(--brand-red); }
+  .brochure-print-btn:disabled { cursor: progress; opacity: 0.85; }
+  .brochure-print-btn svg { width: 16px; height: 16px; }
+  .brochure-print-btn.is-loading svg { animation: brochure-print-spin 0.9s linear infinite; }
+  @keyframes brochure-print-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  /* When the burger follows the print button (mobile), it sits flush next to
+     it. The print button's own margin-left:auto already pushes both to the
+     right of the nav, so the burger needs no extra auto. */
+  .brochure-print-btn + .brochure-nav-burger { margin-left: 4px; }
+
   .brochure-nav-burger {
     display: none;
     position: relative;
@@ -3553,7 +3584,8 @@
   .page-gallery-hero,
   .page-quote-profile,
   .page-circuit-map,
-  .page-text-center {
+  .page-text-center,
+  .page-logos {
     background-image: url('/textures/halftone.png');
     background-size: 600px auto;
     background-position: top left;
@@ -3574,7 +3606,8 @@
   [data-theme="dark"] .page-gallery-hero,
   [data-theme="dark"] .page-quote-profile,
   [data-theme="dark"] .page-circuit-map,
-  [data-theme="dark"] .page-text-center {
+  [data-theme="dark"] .page-text-center,
+  [data-theme="dark"] .page-logos {
     background-image:
       linear-gradient(rgba(11, 11, 13, 0.88), rgba(11, 11, 13, 0.88)),
       url('/textures/halftone.png');
@@ -3720,3 +3753,293 @@
     opacity: 0.8;
   }
 
+  /* ===== LOGOS SECTION (wall + strip variants) =====
+     Two _types share these styles via .page-logos plus a variant modifier.
+     Logos float directly on the page background (no card surround) and are
+     desaturated by default, regaining colour on hover. The wall uses a
+     responsive grid; the strip flexes into a single wrapping row. */
+  .page-logos { background-color: var(--page-bg); }
+  .page-logos-inner {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    padding: 6% 7%;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 3.5cqi, 48px);
+  }
+  .logos-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 70%;
+  }
+  .logos-eyebrow {
+    font-family: var(--font-script);
+    font-style: italic;
+    font-size: clamp(28px, 4.2cqi, 52px);
+    line-height: 1;
+    color: var(--brand-red);
+    margin-bottom: clamp(4px, 0.8cqi, 10px);
+  }
+  .logos-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(22px, 3.7cqi, 44px);
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .logos-subtitle {
+    font-family: var(--font-body);
+    font-size: var(--body-text-size);
+    line-height: var(--body-text-line-height);
+    color: var(--page-text-muted);
+    margin-top: clamp(6px, 1cqi, 14px);
+    max-width: 100%;
+  }
+
+  /* The grid wrapper is shared; each variant overrides its layout. */
+  .logos-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    align-content: center;
+    justify-content: stretch;
+  }
+
+  /* Each logo cell — anchor or div. Aspect ratio keeps cells consistent
+     regardless of logo dimensions; contain-fit prevents distortion. */
+  .logos-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 5 / 2;
+    padding: clamp(8px, 1.4cqi, 18px);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s ease;
+  }
+  .logos-item img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: opacity 0.25s ease;
+  }
+  /* Anchor variants only: a small hover lift signals interactivity. Plain
+     divs (no href) stay calm. */
+  a.logos-item:hover {
+    transform: translateY(-1px);
+  }
+  a.logos-item:hover img,
+  a.logos-item:focus-visible img {
+    opacity: 0.85;
+  }
+  a.logos-item:focus-visible {
+    outline: 2px solid var(--brand-red);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  /* Editor-only placeholder shown for logo entries that have no image yet —
+     in the public reader those entries are filtered out before render. */
+  .logos-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--page-border);
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 22px),
+      var(--page-bg-alt);
+    color: var(--page-text-subtle);
+    font-family: var(--font-mono);
+    font-size: clamp(9px, 1.1cqi, 12px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 8px;
+  }
+
+  /* --- Wall variant: 4-column responsive grid by default. --- */
+  .page-logos-wall .logos-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(12px, 2cqi, 32px);
+  }
+  /* When a wall has 6 logos exactly, snap to a 3-col layout so it lands as a
+     clean 3 × 2 — the most common partner-wall configuration. */
+  .page-logos-wall .logos-grid[data-count="6"] { grid-template-columns: repeat(3, 1fr); }
+  .page-logos-wall .logos-grid[data-count="3"] { grid-template-columns: repeat(3, 1fr); }
+  .page-logos-wall .logos-grid[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
+  .page-logos-wall .logos-grid[data-count="1"] { grid-template-columns: 1fr; }
+
+  /* --- Strip variant: single horizontal row that wraps when narrow. --- */
+  .page-logos-strip .logos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-around;
+    gap: clamp(16px, 2.5cqi, 40px);
+  }
+  .page-logos-strip .logos-item {
+    flex: 1 1 calc(20% - 40px);
+    min-width: 110px;
+    max-width: 22%;
+    aspect-ratio: 4 / 2;
+  }
+
+  /* Mini-preview tile shown in the Add Section modal. */
+  .mini-logos {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: linear-gradient(180deg, #1a1a1d 0%, #0b0b0d 100%);
+    padding: 6px;
+  }
+  .mini-logos-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 0 0 auto;
+  }
+  .mini-logos-title {
+    height: 4px;
+    width: 55%;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 1px;
+  }
+  .mini-logos-sub {
+    height: 2px;
+    width: 80%;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 1px;
+  }
+  .mini-logos-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 3px;
+  }
+  .mini-logos-grid > div {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1px;
+  }
+  .mini-logos-row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3px;
+  }
+  .mini-logos-row > div {
+    flex: 1;
+    height: 60%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1px;
+  }
+
+  /* ============================================================
+     PRINT VIEW — /[slug]/print and the Puppeteer PDF pipeline.
+     Renders a flat, scrollable document of A4-landscape pages
+     stacked vertically. No fixed positioning, no slider, no
+     animations. Each page is its own size container so cqi
+     units resolve to the printed sheet width.
+     ============================================================ */
+  .brochure-print-root {
+    display: block;
+    width: 297mm;
+    margin: 0 auto;
+    background: #fff;
+    --nav-safe-top: 0;
+  }
+  .brochure-print-page {
+    width: 297mm;
+    height: 210mm;
+    min-height: 210mm;
+    max-height: 210mm;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--page-bg);
+    container-type: inline-size;
+  }
+
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+    html, body {
+      background: #fff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .brochure-print-root {
+      width: auto;
+      margin: 0;
+    }
+    .brochure-print-page {
+      page-break-after: always;
+      break-after: page;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .brochure-print-page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* --- < 720px: tighten padding (matches other sections) and drop wall to
+         2 columns; strip already wraps naturally so just shrink min-widths. */
+  @container (max-width: 720px) {
+    .page-logos-inner { padding: 8% 7%; gap: clamp(16px, 3cqi, 28px); }
+    .logos-header { max-width: 100%; }
+    .logos-title { font-size: clamp(22px, 7cqi, 38px); }
+    .logos-subtitle { max-width: 100%; }
+    .page-logos-wall .logos-grid,
+    .page-logos-wall .logos-grid[data-count="6"],
+    .page-logos-wall .logos-grid[data-count="3"] {
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(10px, 2cqi, 18px);
+    }
+    .page-logos-strip .logos-item {
+      flex: 1 1 calc(33.33% - 24px);
+      max-width: 33.33%;
+      min-width: 90px;
+    }
+  }
+
+  /* --- < 400px: narrow phones — wall to single column, strip to 2 across. */
+  @container (max-width: 400px) {
+    .page-logos-wall .logos-grid,
+    .page-logos-wall .logos-grid[data-count="6"],
+    .page-logos-wall .logos-grid[data-count="3"],
+    .page-logos-wall .logos-grid[data-count="2"] {
+      grid-template-columns: 1fr;
+    }
+    .page-logos-strip .logos-item {
+      flex: 1 1 calc(50% - 20px);
+      max-width: 50%;
+    }
+  }

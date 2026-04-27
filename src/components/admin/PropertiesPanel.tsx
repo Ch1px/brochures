@@ -21,6 +21,7 @@ import { CircuitMapEditor } from './editors/CircuitMapEditor'
 import { SpotlightEditor } from './editors/SpotlightEditor'
 import { TextCenterEditor } from './editors/TextCenterEditor'
 import { FooterEditor } from './editors/FooterEditor'
+import { LogosEditor } from './editors/LogosEditor'
 import { FieldBackground } from './fields/FieldBackground'
 
 type Props = {
@@ -135,6 +136,9 @@ function renderEditor(
       return <TextCenterEditor section={section} onChange={anyOnChange} />
     case 'footer':
       return <FooterEditor section={section} onChange={anyOnChange} />
+    case 'logoWall':
+    case 'logoStrip':
+      return <LogosEditor section={section} onChange={anyOnChange} />
     default:
       return (
         <div className="properties-pending">

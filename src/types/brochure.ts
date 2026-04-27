@@ -245,6 +245,23 @@ export type SectionTextCenter = {
   background?: string
 }
 
+export type LogoItem = {
+  _key: string
+  name: string
+  image?: SanityImage
+  href?: string
+}
+
+export type SectionLogos = {
+  _key: string
+  _type: 'logoWall' | 'logoStrip'
+  eyebrow?: string
+  title?: string
+  subtitle?: string
+  logos: LogoItem[]
+  background?: string
+}
+
 export type SocialPlatform =
   | 'instagram'
   | 'x'
@@ -289,6 +306,7 @@ export type Section =
   | SectionSpotlight
   | SectionTextCenter
   | SectionFooter
+  | SectionLogos
 
 export type Page = {
   _key: string

@@ -28,6 +28,8 @@ export const SECTION_LABELS: Record<Section['_type'], string> = {
   spotlight: 'Spotlight',
   textCenter: 'Text · Center',
   footer: 'Footer',
+  logoWall: 'Logos · Wall',
+  logoStrip: 'Logos · Strip',
 }
 
 export const SECTION_DESCRIPTIONS: Record<Section['_type'], string> = {
@@ -53,6 +55,8 @@ export const SECTION_DESCRIPTIONS: Record<Section['_type'], string> = {
   spotlight: 'Framed image + content with a full-bleed background image',
   textCenter: 'Simple centered body text block',
   footer: 'Slim overlay strip pinned to the bottom of the page slide',
+  logoWall: 'Grid of partner / sponsor logos',
+  logoStrip: 'Single row of partner / sponsor logos',
 }
 
 export function labelFor(type: Section['_type']): string {

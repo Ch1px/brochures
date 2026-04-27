@@ -20,6 +20,8 @@ import circuitMap from './circuitMap'
 import spotlight from './spotlight'
 import textCenter from './textCenter'
 import footer from './footer'
+import logoWall from './logoWall'
+import logoStrip from './logoStrip'
 
 export const sectionSchemas = [
   cover,
@@ -44,4 +46,6 @@ export const sectionSchemas = [
   spotlight,
   textCenter,
   footer,
+  logoWall,
+  logoStrip,
 ]

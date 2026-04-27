@@ -197,6 +197,23 @@ export function sectionDefaults(type: Section['_type']): Section {
         ],
       }
 
+    case 'logoWall':
+    case 'logoStrip':
+      return {
+        _key,
+        _type: type,
+        eyebrow: 'Trusted by',
+        title: type === 'logoStrip' ? 'Official partners' : 'Our partners',
+        subtitle:
+          type === 'logoStrip'
+            ? undefined
+            : 'Working with the best in motorsport hospitality, travel, and venue partners.',
+        logos: Array.from(
+          { length: type === 'logoStrip' ? 5 : 6 },
+          (_, i) => ({ _key: nanokey(), name: `Partner ${String(i + 1).padStart(2, '0')}` }),
+        ),
+      }
+
     case 'circuitMap':
       return {
         _key,

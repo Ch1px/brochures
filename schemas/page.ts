@@ -45,6 +45,8 @@ export default defineType({
         { type: 'spotlight' },
         { type: 'textCenter' },
         { type: 'footer' },
+        { type: 'logoWall' },
+        { type: 'logoStrip' },
       ],
       validation: (Rule) => Rule.required().min(1),
     }),
