@@ -1893,11 +1893,18 @@
     width: 100%;
     min-height: 100%;
     padding: 6% 7%;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(14px, 2cqi, 24px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "header stage"
+      ".      stage"
+      "stats  stage";
+    column-gap: clamp(24px, 3.5cqi, 48px);
+    row-gap: clamp(14px, 2cqi, 24px);
   }
   .circuit-map-header {
+    grid-area: header;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -1927,6 +1934,7 @@
     margin-top: clamp(6px, 1cqi, 12px);
   }
   .circuit-map-stage {
+    grid-area: stage;
     flex: 1;
     display: flex;
     align-items: center;
@@ -1992,17 +2000,19 @@
     text-transform: uppercase;
   }
   .circuit-map-stats {
+    grid-area: stats;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     border-top: 1px solid var(--page-border);
     border-bottom: 1px solid var(--page-border);
+    align-self: end;
   }
   .circuit-map-stat {
     padding: clamp(12px, 2cqi, 22px) clamp(10px, 1.5cqi, 22px);
-    border-right: 1px solid var(--page-border);
+    border-bottom: 1px solid var(--page-border);
     position: relative;
   }
-  .circuit-map-stat:last-child { border-right: none; }
+  .circuit-map-stat:last-child { border-bottom: none; }
   .circuit-map-stat::before {
     content: '';
     position: absolute;
@@ -2722,6 +2732,31 @@
       padding: 8% 7%;
     }
     .page-image-hero-content { padding: 8% 7%; max-width: 80%; }
+  }
+
+  /* --- < 1000px section width — circuit map collapses earlier than other
+         sections because its two-column layout (content | map) needs more
+         breathing room than the others; below this, stack to header → map →
+         stats. Source order in JSX is already header → stage → stats, so
+         plain flex column gives the right reading order. */
+  @container (max-width: 1000px) {
+    .page-circuit-map-inner {
+      display: flex;
+      flex-direction: column;
+      grid-template-columns: none;
+      grid-template-rows: none;
+      grid-template-areas: none;
+      gap: clamp(14px, 2cqi, 24px);
+    }
+    .circuit-map-stats {
+      grid-template-columns: repeat(3, 1fr);
+      align-self: stretch;
+    }
+    .circuit-map-stat {
+      border-right: 1px solid var(--page-border);
+      border-bottom: none;
+    }
+    .circuit-map-stat:last-child { border-right: none; }
   }
 
   /* --- < 560px section width (main phone breakpoint) --- */
