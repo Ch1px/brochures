@@ -1,5 +1,6 @@
 import type { SectionSectionHeading } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionSectionHeading
@@ -64,7 +65,7 @@ export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
       <div className="page-section-heading-inner">
         {data.eyebrow ? <div className="section-heading-eyebrow">{data.eyebrow}</div> : null}
         {data.title ? <div className="section-heading-title">{data.title}</div> : null}
-        {data.text ? <p className="section-heading-text">{data.text}</p> : null}
+        {data.text ? <RichBody className="section-heading-text" text={data.text} /> : null}
       </div>
       {showFolio ? (
         <div className="page-folio">

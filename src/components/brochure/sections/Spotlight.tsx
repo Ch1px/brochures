@@ -1,6 +1,7 @@
 import type { SectionSpotlight } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionSpotlight
@@ -70,7 +71,7 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
         <div className="page-spotlight-text">
           {data.eyebrow ? <div className="intro-eyebrow">{data.eyebrow}</div> : null}
           <h2 className="intro-title">{data.title ?? ''}</h2>
-          {data.body ? <p className="intro-body">{data.body}</p> : null}
+          {data.body ? <RichBody className="intro-body" text={data.body} /> : null}
         </div>
       </div>
       {showFolio ? (

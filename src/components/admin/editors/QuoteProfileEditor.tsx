@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionQuoteProfile } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
 
 type Props = {
   section: SectionQuoteProfile
@@ -36,7 +36,7 @@ export function QuoteProfileEditor({ section, onChange }: Props) {
         onChange={(quote) => onChange({ quote })}
         rows={4}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Body"
         description="Supporting text beneath the quote."
         value={section.body}

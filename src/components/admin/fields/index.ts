@@ -1,6 +1,7 @@
 export { FieldLabel } from './FieldLabel'
 export { FieldInput } from './FieldInput'
 export { FieldTextarea } from './FieldTextarea'
+export { FieldRichText } from './FieldRichText'
 export { FieldBoolean } from './FieldBoolean'
 export { FieldSelect } from './FieldSelect'
 export { FieldImage } from './FieldImage'

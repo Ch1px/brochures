@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionClosing } from '@/types/brochure'
-import { FieldInput, FieldTextarea } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText } from '../fields'
 
 type Props = {
   section: SectionClosing
@@ -22,7 +22,7 @@ export function ClosingEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Subtitle"
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}

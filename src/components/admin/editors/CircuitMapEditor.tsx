@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import type { SectionCircuitMap, StatItem } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
-import { FieldInput, FieldTextarea, FieldObjectArray, FieldLabel } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldObjectArray, FieldLabel } from '../fields'
 
 type Props = {
   section: SectionCircuitMap
@@ -67,7 +67,7 @@ export function CircuitMapEditor({
         value={section.title}
         onChange={(title) => onChange({ title })}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Caption"
         value={section.caption}
         onChange={(caption) => onChange({ caption })}

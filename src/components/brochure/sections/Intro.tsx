@@ -1,6 +1,7 @@
 import type { SectionIntro } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionIntro
@@ -25,7 +26,7 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
           {data.letter ? <div className="intro-mark-letter">{data.letter}</div> : null}
           {data.eyebrow ? <div className="intro-eyebrow">{data.eyebrow}</div> : null}
           <h2 className="intro-title">{data.title ?? ''}</h2>
-          <p className="intro-body">{data.body ?? ''}</p>
+          <RichBody className="intro-body" text={data.body} />
         </div>
         <div className="page-intro-right-wrap">
           <div className="image-offset-frame" aria-hidden="true" />

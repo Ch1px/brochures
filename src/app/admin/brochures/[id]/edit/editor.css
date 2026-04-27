@@ -923,6 +923,49 @@
   color: var(--chrome-text-tertiary);
 }
 
+.field-richtext {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field-richtext-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.field-richtext-btn {
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-border);
+  color: var(--chrome-text-secondary);
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s, background 0.1s;
+}
+.field-richtext-btn:hover {
+  border-color: var(--chrome-border-strong);
+  color: var(--chrome-text);
+  background: var(--chrome-surface);
+}
+.field-richtext-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--chrome-text-tertiary);
+  letter-spacing: 0.04em;
+  margin-left: auto;
+}
+.field-richtext-hint code {
+  background: var(--chrome-raised);
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+}
+
 .field-select {
   appearance: none;
   -webkit-appearance: none;

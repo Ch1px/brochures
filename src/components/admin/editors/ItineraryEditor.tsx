@@ -2,7 +2,7 @@
 
 import type { SectionItinerary } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
-import { FieldInput, FieldTextarea, FieldObjectArray } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldObjectArray } from '../fields'
 
 type Props = {
   section: SectionItinerary
@@ -51,7 +51,7 @@ export function ItineraryEditor({ section, onChange }: Props) {
               value={day.title}
               onChange={(title) => update({ title })}
             />
-            <FieldTextarea
+            <FieldRichText
               label="Description"
               value={day.description}
               onChange={(description) => update({ description })}

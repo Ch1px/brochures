@@ -1,4 +1,5 @@
 import type { SectionItinerary } from '@/types/brochure'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionItinerary
@@ -28,7 +29,7 @@ export function Itinerary({ data, pageNum, total, showFolio }: Props) {
               <div className="day-label">{d.label ?? ''}</div>
               <div className="day-content">
                 <h4>{d.title}</h4>
-                <p>{d.description}</p>
+                <RichBody text={d.description} />
               </div>
             </div>
           ))}

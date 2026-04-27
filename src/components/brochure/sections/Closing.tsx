@@ -1,4 +1,5 @@
 import type { SectionClosing } from '@/types/brochure'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionClosing
@@ -57,7 +58,7 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
       <div className="page-closing-inner">
         {data.eyebrow ? <div className="closing-eyebrow">{data.eyebrow}</div> : null}
         <h2 className="closing-title">{data.title ?? ''}</h2>
-        {data.subtitle ? <p className="closing-subtitle">{data.subtitle}</p> : null}
+        {data.subtitle ? <RichBody className="closing-subtitle" text={data.subtitle} /> : null}
         <div className="closing-actions">
           {data.ctaText ? (
             <a className="closing-cta" href={ctaHref}>

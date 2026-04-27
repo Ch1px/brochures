@@ -1,4 +1,5 @@
 import type { SectionTextCenter } from '@/types/brochure'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionTextCenter
@@ -14,7 +15,7 @@ export function TextCenter({ data, pageNum, total, showFolio }: Props) {
       <div className="page-text-center-inner">
         {data.eyebrow ? <div className="text-center-eyebrow">{data.eyebrow}</div> : null}
         {data.title ? <h2 className="text-center-title">{data.title}</h2> : null}
-        <p className="text-center-body">{data.body}</p>
+        <RichBody className="text-center-body" text={data.body} />
       </div>
       {showFolio ? (
         <div className="page-folio">

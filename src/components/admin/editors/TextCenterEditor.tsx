@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionTextCenter } from '@/types/brochure'
-import { FieldInput, FieldTextarea } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText } from '../fields'
 
 type Props = {
   section: SectionTextCenter
@@ -22,7 +22,7 @@ export function TextCenterEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Body"
         value={section.body}
         onChange={(body) => onChange({ body })}

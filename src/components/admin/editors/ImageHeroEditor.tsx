@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionImageHero } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
 
 type Props = {
   section: SectionImageHero
@@ -22,7 +22,7 @@ export function ImageHeroEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Text"
         value={section.text}
         onChange={(text) => onChange({ text })}

@@ -1,5 +1,6 @@
 import type { SectionQuoteProfile } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionQuoteProfile
@@ -30,7 +31,7 @@ export function QuoteProfile({ data, pageNum, total, showFolio }: Props) {
         </div>
         <div className="quote-profile-right">
           {data.quote ? <p className="quote-profile-quote">{data.quote}</p> : null}
-          {data.body ? <p className="quote-profile-body">{data.body}</p> : null}
+          {data.body ? <RichBody className="quote-profile-body" text={data.body} /> : null}
         </div>
       </div>
       {showFolio ? (

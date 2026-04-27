@@ -729,6 +729,44 @@
     line-height: var(--body-text-line-height);
     color: var(--page-text-muted);
   }
+
+  /* Rich body output — used by <RichBody> when the value contains lists or
+     multiple paragraphs. The wrapper inherits the body-text class (size,
+     colour, line-height); these rules style the inner blocks. */
+  .rich-body p { margin: 0 0 0.8em; }
+  .rich-body p:last-child { margin-bottom: 0; }
+  .rich-body ul,
+  .rich-body ol {
+    margin: 0 0 0.8em;
+    padding-left: 1.6em;
+    list-style-position: outside;
+  }
+  .rich-body ul:last-child,
+  .rich-body ol:last-child { margin-bottom: 0; }
+  .rich-body ul { list-style: none; padding-left: 1.4em; }
+  .rich-body ul > li {
+    position: relative;
+  }
+  .rich-body ul > li::before {
+    content: '';
+    position: absolute;
+    left: -1.1em;
+    top: 0.78em;
+    width: 0.6em;
+    height: 2px;
+    background: var(--brand-red);
+  }
+  .rich-body ol { list-style: decimal; }
+  .rich-body ol > li::marker {
+    color: var(--brand-red);
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+  .rich-body li {
+    margin-bottom: 0.35em;
+  }
+  .rich-body li:last-child { margin-bottom: 0; }
+
   .page-intro-right-wrap {
     position: relative;
     isolation: isolate;
@@ -1924,7 +1962,7 @@
     font-size: var(--body-text-size);
     line-height: var(--body-text-line-height);
     color: var(--page-text-muted);
-    max-width: 62%;
+    max-width: 1200px;
     margin-top: clamp(6px, 1cqi, 12px);
   }
   .circuit-map-stage {

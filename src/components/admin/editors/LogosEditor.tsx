@@ -2,7 +2,7 @@
 
 import type { SectionLogos, LogoItem } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
-import { FieldInput, FieldTextarea, FieldImage, FieldObjectArray } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldObjectArray } from '../fields'
 
 type Props = {
   section: SectionLogos
@@ -23,7 +23,7 @@ export function LogosEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Subtitle"
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}

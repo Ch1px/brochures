@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionIntro } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
 
 type Props = {
   section: SectionIntro
@@ -29,8 +29,9 @@ export function IntroEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Body"
+        description="Use the toolbar or start a line with - for a bullet."
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={6}

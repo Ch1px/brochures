@@ -1,6 +1,7 @@
 import type { SectionLogos } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { useBrochureBranding } from '../BrochureContext'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionLogos
@@ -42,7 +43,7 @@ export function Logos({ data, pageNum, total, showFolio }: Props) {
           <div className="logos-header">
             {data.eyebrow ? <div className="logos-eyebrow">{data.eyebrow}</div> : null}
             {data.title ? <h2 className="logos-title">{data.title}</h2> : null}
-            {data.subtitle ? <p className="logos-subtitle">{data.subtitle}</p> : null}
+            {data.subtitle ? <RichBody className="logos-subtitle" text={data.subtitle} /> : null}
           </div>
         ) : null}
 

@@ -1,5 +1,6 @@
 import type { SectionImageHero } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionImageHero
@@ -60,7 +61,7 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
       <div className="page-image-hero-content">
         {data.eyebrow ? <div className="image-hero-eyebrow">{data.eyebrow}</div> : null}
         <h2 className="image-hero-title">{data.title ?? ''}</h2>
-        {data.text ? <p className="image-hero-text">{data.text}</p> : null}
+        {data.text ? <RichBody className="image-hero-text" text={data.text} /> : null}
       </div>
 
       {showFolio ? (

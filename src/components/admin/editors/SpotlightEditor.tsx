@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSpotlight } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
 
 type Props = {
   section: SectionSpotlight
@@ -22,7 +22,7 @@ export function SpotlightEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Body"
         value={section.body}
         onChange={(body) => onChange({ body })}

@@ -1,6 +1,7 @@
 import type { SectionFeatures } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionFeatures
@@ -30,7 +31,7 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
               </>
             ) : null}
           </h2>
-          {data.subtitle ? <p className="features-subtitle">{data.subtitle}</p> : null}
+          {data.subtitle ? <RichBody className="features-subtitle" text={data.subtitle} /> : null}
         </div>
         <div className="features-grid">
           {cards.map((card) => {
@@ -45,7 +46,7 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
                 </div>
                 <div className="feature-card-body">
                   <div className="feature-card-title">{card.title ?? ''}</div>
-                  <p className="feature-card-text">{card.text ?? ''}</p>
+                  <RichBody className="feature-card-text" text={card.text} />
                 </div>
               </div>
             )

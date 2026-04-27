@@ -5,6 +5,7 @@ import type { SectionCircuitMap } from '@/types/brochure'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { bakeOverridesIntoSvg, bakeRecolorIds } from '@/lib/svgRecolor'
 import { useBrochureBranding } from '../BrochureContext'
+import { RichBody } from '../RichBody'
 
 type Props = {
   data: SectionCircuitMap
@@ -138,7 +139,7 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
         <div className="circuit-map-header">
           {data.eyebrow ? <div className="circuit-map-eyebrow">{data.eyebrow}</div> : null}
           {data.title ? <h2 className="circuit-map-title">{data.title}</h2> : null}
-          {data.caption ? <p className="circuit-map-caption">{data.caption}</p> : null}
+          {data.caption ? <RichBody className="circuit-map-caption" text={data.caption} /> : null}
         </div>
         <div className="circuit-map-stage">
           {hasSvg ? (

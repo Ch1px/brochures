@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSectionHeading } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
 
 type Props = {
   section: SectionSectionHeading
@@ -23,7 +23,7 @@ export function SectionHeadingEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Body text"
         description="Optional body beneath the title."
         value={section.text}

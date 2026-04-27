@@ -2,7 +2,7 @@
 
 import type { SectionFeatures } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
-import { FieldInput, FieldTextarea, FieldImage, FieldObjectArray } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldObjectArray } from '../fields'
 
 type Props = {
   section: SectionFeatures
@@ -25,7 +25,7 @@ export function FeaturesEditor({ section, onChange }: Props) {
         value={section.titleAccent}
         onChange={(titleAccent) => onChange({ titleAccent })}
       />
-      <FieldTextarea
+      <FieldRichText
         label="Subtitle"
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
@@ -47,7 +47,7 @@ export function FeaturesEditor({ section, onChange }: Props) {
               value={card.title}
               onChange={(title) => update({ title })}
             />
-            <FieldTextarea
+            <FieldRichText
               label="Text"
               value={card.text}
               onChange={(text) => update({ text })}
