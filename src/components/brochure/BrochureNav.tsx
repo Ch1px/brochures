@@ -35,8 +35,32 @@ export function BrochureNav({ brand, pages, currentIndex, onPageClick, logo, the
     setDownloading(true)
     try {
       const previewToken = new URLSearchParams(window.location.search).get('preview')
-      const url = `/api/export/${encodeURIComponent(slug)}/pdf${previewToken ? `?preview=${encodeURIComponent(previewToken)}` : ''}`
+      const params = new URLSearchParams()
+      if (previewToken) params.set('preview', previewToken)
+      const url = `/api/export/${encodeURIComponent(slug)}/pdf${params.toString() ? `?${params}` : ''}`
       const res = await fetch(url, { method: 'GET' })
+      const contentType = res.headers.get('content-type') ?? ''
+
+      // Server returns JSON when Puppeteer captured a render error or the
+      // caller asked for ?debug=1. Surface the full diagnostic to the
+      // browser console so the failure is visible without a server log.
+      if (contentType.includes('application/json')) {
+        const diagnostic = await res.json().catch(() => null)
+        console.group(`[PDF export] ${res.ok ? 'debug' : 'failed'} (${res.status})`)
+        console.log(diagnostic)
+        if (diagnostic?.printUrl) console.log('print url:', diagnostic.printUrl)
+        if (diagnostic?.renderedError) console.error('rendered error:', diagnostic.renderedError)
+        if (diagnostic?.pageErrors?.length) console.error('page errors:', diagnostic.pageErrors)
+        if (diagnostic?.httpFailures?.length) console.error('http failures:', diagnostic.httpFailures)
+        if (diagnostic?.logs?.length) console.log('browser logs:', diagnostic.logs)
+        console.groupEnd()
+        if (!res.ok) {
+          alert('PDF export failed — see browser console for details.')
+          return
+        }
+        return
+      }
+
       if (!res.ok) {
         const text = await res.text().catch(() => '')
         throw new Error(`PDF export failed (${res.status}) ${text}`)

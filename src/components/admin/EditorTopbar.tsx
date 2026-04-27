@@ -31,6 +31,7 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
   const [pending, startTransition] = useTransition()
   const [publishMenu, setPublishMenu] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<'idle' | 'generating' | 'copied' | 'error'>('idle')
+  const [htmlExportStatus, setHtmlExportStatus] = useState<'idle' | 'generating' | 'error'>('idle')
 
   function handleStatus(next: BrochureStatus) {
     setPublishMenu(false)
@@ -44,6 +45,77 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
     startTransition(async () => {
       await setFeaturedBrochureAction(brochure._id)
     })
+  }
+
+  async function handleExportHtml() {
+    if (htmlExportStatus === 'generating') return
+    setHtmlExportStatus('generating')
+    try {
+      // Drafts/unpublished brochures need a preview token to authorise the
+      // export; sign one and pipe it through. Published brochures don't
+      // need it but it's harmless to pass.
+      let previewToken: string | null = null
+      if (brochure.status !== 'published') {
+        const res = await generatePreviewLinkAction(brochure._id)
+        if (res.ok) {
+          const m = res.url.match(/[?&]preview=([^&]+)/)
+          if (m) previewToken = decodeURIComponent(m[1])
+        }
+      }
+
+      const slug = brochure.slug?.current
+      if (!slug) {
+        setHtmlExportStatus('error')
+        setTimeout(() => setHtmlExportStatus('idle'), 2000)
+        return
+      }
+      const params = new URLSearchParams()
+      if (previewToken) params.set('preview', previewToken)
+      const exportUrl = `/api/export/${encodeURIComponent(slug)}/html${params.toString() ? `?${params}` : ''}`
+
+      const res = await fetch(exportUrl, { method: 'GET' })
+      const contentType = res.headers.get('content-type') ?? ''
+
+      if (contentType.includes('application/json')) {
+        const diagnostic = await res.json().catch(() => null)
+        console.group(`[HTML export] ${res.ok ? 'debug' : 'failed'} (${res.status})`)
+        console.log(diagnostic)
+        if (diagnostic?.sourceUrl) console.log('source url:', diagnostic.sourceUrl)
+        if (diagnostic?.renderedError) console.error('rendered error:', diagnostic.renderedError)
+        if (diagnostic?.pageErrors?.length) console.error('page errors:', diagnostic.pageErrors)
+        if (diagnostic?.httpFailures?.length) console.error('http failures:', diagnostic.httpFailures)
+        if (diagnostic?.logs?.length) console.log('browser logs:', diagnostic.logs)
+        console.groupEnd()
+        if (!res.ok) {
+          setHtmlExportStatus('error')
+          setTimeout(() => setHtmlExportStatus('idle'), 2000)
+          alert('HTML export failed — see browser console for details.')
+          return
+        }
+        setHtmlExportStatus('idle')
+        return
+      }
+
+      if (!res.ok) {
+        setHtmlExportStatus('error')
+        setTimeout(() => setHtmlExportStatus('idle'), 2000)
+        return
+      }
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = `${slug}.html`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1_000)
+      setHtmlExportStatus('idle')
+    } catch (err) {
+      console.error(err)
+      setHtmlExportStatus('error')
+      setTimeout(() => setHtmlExportStatus('idle'), 2000)
+    }
   }
 
   async function handleCopyPreviewLink() {
@@ -153,6 +225,19 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
               : previewStatus === 'error'
                 ? 'Failed'
                 : 'Copy preview link'}
+        </button>
+
+        <button
+          className="editor-topbar-btn"
+          onClick={handleExportHtml}
+          disabled={htmlExportStatus === 'generating'}
+          title="Download a self-contained index.html that mirrors the live reader, works offline"
+        >
+          {htmlExportStatus === 'generating'
+            ? 'Generating…'
+            : htmlExportStatus === 'error'
+              ? 'Failed'
+              : 'Export HTML'}
         </button>
 
         {brochure.status === 'published' ? (

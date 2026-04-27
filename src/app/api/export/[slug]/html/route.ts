@@ -3,19 +3,36 @@ import { sanityClient } from '@/lib/sanity/client'
 import { BROCHURE_BY_SLUG, BROCHURE_BY_SLUG_PREVIEW } from '@/lib/sanity/queries'
 import { signPreviewToken, verifyPreviewToken } from '@/lib/previewToken'
 import { launchBrowser } from '@/lib/pdf/browser'
+import {
+  composeStandaloneHtml,
+  extractStylesheets,
+  inlineSanityImages,
+  stripNextRuntime,
+} from '@/lib/htmlExport/inline'
+import { offlineRuntime } from '@/lib/htmlExport/runtime'
 import type { Brochure } from '@/types/brochure'
 
 /**
- * Generate a PDF of a brochure by driving headless Chromium against
- * /[slug]/print. A4 landscape, one sheet per page.
+ * Generate a self-contained `index.html` of a brochure that mirrors the
+ * live public reader (slider, nav, keyboard arrows, fade-up animations)
+ * but works entirely offline.
  *
- * Access rules mirror the public reader:
- *   - status === 'published' → anyone may export
- *   - any other status → caller must supply a valid ?preview=<token>
+ * Pipeline:
+ *   1. Verify access. Same rules as the PDF export and the public route:
+ *      published is open, anything else needs a valid `?preview=<token>`.
+ *   2. Sign a fresh internal preview token so Puppeteer can fetch
+ *      drafts/unpublished content regardless of how the request was
+ *      authorised.
+ *   3. Drive Puppeteer to /[slug]/static-export, wait for fonts.
+ *   4. Pull the merged stylesheet text out of the browser, then capture
+ *      the rendered body markup.
+ *   5. Strip Next.js runtime/scripts/links and base64-inline every
+ *      Sanity CDN image so the file is portable.
+ *   6. Compose into a clean shell with the inlined CSS in <head> and
+ *      the offline runtime as a single inline <script> before </body>.
  *
- * Internally we always sign a fresh short-lived preview token and pass it to
- * Chromium so the print route renders draft/unpublished content correctly
- * regardless of how the request itself was authorised.
+ * `?debug=1` mirrors the PDF route — returns JSON diagnostics instead
+ * of the file so failures are inspectable from the browser console.
  */
 
 export const runtime = 'nodejs'
@@ -40,10 +57,9 @@ export async function GET(req: Request, { params }: RouteContext) {
     return NextResponse.json({ error: 'Not available' }, { status: 403 })
   }
 
-  // Sign an internal token so Puppeteer can render any status.
   const token = await signPreviewToken(slug, 5 * 60)
   const origin = url.origin
-  const printUrl = `${origin}/${encodeURIComponent(slug)}/print?preview=${encodeURIComponent(token)}`
+  const sourceUrl = `${origin}/${encodeURIComponent(slug)}/static-export?preview=${encodeURIComponent(token)}`
 
   const debug = url.searchParams.get('debug') === '1'
 
@@ -69,14 +85,14 @@ export async function GET(req: Request, { params }: RouteContext) {
       if (res.status() >= 400) httpFailures.push({ status: res.status(), url: res.url() })
     })
 
-    // Match the printed sheet pixel size at 96dpi so layout settles before
-    // Chromium reflows for the @page rule. 297mm × 210mm ≈ 1123 × 794.
-    await page.setViewport({ width: 1123, height: 794, deviceScaleFactor: 2 })
+    // Render at a desktop-width viewport so layout-sensitive container
+    // queries pick the desktop branch when the file is opened later.
+    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 })
 
-    await page.goto(printUrl, { waitUntil: 'networkidle0', timeout: 45_000 })
+    await page.goto(sourceUrl, { waitUntil: 'networkidle0', timeout: 45_000 })
     await page.evaluateHandle(() => document.fonts?.ready)
 
-    // Detect Next.js error UI so we don't silently produce a "server error" PDF.
+    // Detect Next.js error UI so we don't silently produce a broken file.
     const renderedError = await page.evaluate(() => {
       const text = document.body?.innerText ?? ''
       if (text.includes("This page couldn't load") || text.includes('A server error occurred')) {
@@ -85,44 +101,47 @@ export async function GET(req: Request, { params }: RouteContext) {
       return null
     })
 
-    if (debug || renderedError || pageErrors.length > 0) {
+    if (renderedError || pageErrors.length > 0) {
       return NextResponse.json(
-        {
-          ok: !renderedError && pageErrors.length === 0,
-          printUrl,
-          renderedError,
-          pageErrors,
-          httpFailures,
-          logs,
-        },
-        { status: renderedError || pageErrors.length ? 500 : 200 }
+        { ok: false, sourceUrl, renderedError, pageErrors, httpFailures, logs },
+        { status: 500 }
       )
     }
 
-    // We want one continuous PDF sheet at A4-landscape width whose height
-    // equals the full stacked document. Chromium does NOT honour
-    // `@page { size: 297mm auto }` as content-sized — `auto` falls back to
-    // the default paper height and the document then breaks across pages.
-    // So measure the rendered document height in the browser and pass it
-    // explicitly to puppeteer. Width is locked to A4 landscape (1123px @ 96dpi).
-    const heightPx = await page.evaluate(() => {
-      const root = document.querySelector('.brochure-print-root') as HTMLElement | null
-      const el = root ?? document.documentElement
-      return Math.ceil(el.getBoundingClientRect().height)
+    const css = (await page.evaluate(extractStylesheets)) as string
+    const rawHtml = await page.content()
+
+    if (debug) {
+      return NextResponse.json(
+        {
+          ok: true,
+          sourceUrl,
+          cssLength: css.length,
+          htmlLength: rawHtml.length,
+          httpFailures,
+          logs,
+        },
+        { status: 200 }
+      )
+    }
+
+    const cleanedHtml = stripNextRuntime(rawHtml)
+    const inlinedHtml = await inlineSanityImages(cleanedHtml)
+
+    const themeBg = brochure.theme === 'light' ? '#f5f5f3' : '#0a0a0b'
+    const finalHtml = composeStandaloneHtml({
+      title: brochure.title || 'Brochure',
+      bodyHtml: inlinedHtml,
+      css,
+      runtime: offlineRuntime,
+      themeBgColor: themeBg,
     })
 
-    const pdf = await page.pdf({
-      printBackground: true,
-      width: '297mm',
-      height: `${heightPx}px`,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
-    })
-
-    const filename = pdfFilename(brochure)
-    return new NextResponse(pdf as unknown as BodyInit, {
+    const filename = htmlFilename(brochure)
+    return new NextResponse(finalHtml, {
       status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
+        'Content-Type': 'text/html; charset=utf-8',
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Cache-Control': 'private, no-store',
       },
@@ -130,9 +149,9 @@ export async function GET(req: Request, { params }: RouteContext) {
   } catch (err) {
     return NextResponse.json(
       {
-        error: 'PDF generation failed',
+        error: 'HTML export failed',
         detail: err instanceof Error ? err.stack || err.message : String(err),
-        printUrl,
+        sourceUrl,
         pageErrors,
         httpFailures,
         logs,
@@ -144,10 +163,10 @@ export async function GET(req: Request, { params }: RouteContext) {
   }
 }
 
-function pdfFilename(brochure: Brochure): string {
+function htmlFilename(brochure: Brochure): string {
   const base = (brochure.slug?.current || brochure.title || 'brochure')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-  return `${base || 'brochure'}.pdf`
+  return `${base || 'brochure'}.html`
 }
