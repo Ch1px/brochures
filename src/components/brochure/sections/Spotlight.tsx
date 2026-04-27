@@ -1,5 +1,5 @@
 import type { SectionSpotlight } from '@/types/brochure'
-import { urlForSection } from '@/lib/sanity/image'
+import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
 
@@ -12,6 +12,7 @@ type Props = {
 
 export function Spotlight({ data, pageNum, total, showFolio }: Props) {
   const imageUrl = urlForSection(data.image, 1400)
+  const videoUrl = urlForFile(data.video)
   const backgroundUrl = urlForSection(data.backgroundImage, 2000)
 
   return (
@@ -64,8 +65,19 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
           className="page-spotlight-image"
           style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
         >
+          {videoUrl ? (
+            <video
+              className="media-video"
+              src={videoUrl}
+              poster={imageUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : null}
           <div className="page-spotlight-image-frame" />
-          {!imageUrl ? <ImagePlaceholderSVG /> : null}
+          {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
           {data.caption ? <div className="page-spotlight-caption">{data.caption}</div> : null}
         </div>
         <div className="page-spotlight-text">

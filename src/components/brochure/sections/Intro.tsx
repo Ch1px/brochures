@@ -1,5 +1,5 @@
 import type { SectionIntro } from '@/types/brochure'
-import { urlForSection } from '@/lib/sanity/image'
+import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
 
@@ -17,6 +17,7 @@ type Props = {
  */
 export function Intro({ data, pageNum, total, showFolio }: Props) {
   const imageUrl = urlForSection(data.image, 1400)
+  const videoUrl = urlForFile(data.video)
 
   return (
     <section className="section page-intro" data-section-id={data._key}>
@@ -34,8 +35,19 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
             className="page-intro-right"
             style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
           >
+            {videoUrl ? (
+              <video
+                className="media-video"
+                src={videoUrl}
+                poster={imageUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : null}
             <div className="page-intro-right-frame" />
-            {!imageUrl ? <ImagePlaceholderSVG /> : null}
+            {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
             {data.caption ? <div className="page-intro-right-caption">{data.caption}</div> : null}
           </div>
         </div>

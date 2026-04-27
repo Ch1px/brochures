@@ -21,6 +21,11 @@ export type SanityImage = {
   alt?: string
 }
 
+export type SanityFile = {
+  _type: 'file'
+  asset: { _ref: string; _type: 'reference' }
+}
+
 // --- Section types (discriminated union by _type) ---
 
 export type SectionCover = {
@@ -46,6 +51,7 @@ export type SectionIntro = {
   title: string
   body?: string
   image?: SanityImage
+  video?: SanityFile
   caption?: string
   background?: string
 }
@@ -93,6 +99,7 @@ export type SectionImageHero = {
   title: string
   text?: string
   image: SanityImage
+  video?: SanityFile
   background?: string
 }
 
@@ -231,6 +238,7 @@ export type SectionSpotlight = {
   title: string
   body?: string
   image?: SanityImage
+  video?: SanityFile
   caption?: string
   backgroundImage?: SanityImage
   background?: string

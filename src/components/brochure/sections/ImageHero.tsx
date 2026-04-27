@@ -1,5 +1,5 @@
 import type { SectionImageHero } from '@/types/brochure'
-import { urlForSection } from '@/lib/sanity/image'
+import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
 
 type Props = {
@@ -16,6 +16,7 @@ type Props = {
  */
 export function ImageHero({ data, pageNum, total, showFolio }: Props) {
   const imageUrl = urlForSection(data.image, 2000)
+  const videoUrl = urlForFile(data.video)
   const gradId = `imhg1-${data._key}`
 
   return (
@@ -54,7 +55,19 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
       <div
         className="page-image-hero-bg"
         style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-      />
+      >
+        {videoUrl ? (
+          <video
+            className="media-video"
+            src={videoUrl}
+            poster={imageUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : null}
+      </div>
 
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
 

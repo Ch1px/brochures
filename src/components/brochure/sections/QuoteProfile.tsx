@@ -22,8 +22,10 @@ export function QuoteProfile({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-quote-profile-inner">
         <div className="quote-profile-left">
-          {data.eyebrow ? <div className="quote-profile-eyebrow">{data.eyebrow}</div> : null}
-          {data.name ? <div className="quote-profile-name">{data.name}</div> : null}
+          <div className="quote-profile-text">
+            {data.eyebrow ? <div className="quote-profile-eyebrow">{data.eyebrow}</div> : null}
+            {data.name ? <div className="quote-profile-name">{data.name}</div> : null}
+          </div>
           <div
             className="quote-profile-photo"
             style={photoUrl ? { backgroundImage: `url('${photoUrl}')` } : undefined}

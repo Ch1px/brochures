@@ -79,11 +79,7 @@ export function RichBody({ text, className }: Props): ReactNode {
     <div className={wrapperClass}>
       {blocks.map((block, i) => {
         if (block.type === 'p') {
-          return (
-            <p key={i} style={{ whiteSpace: 'pre-line' }}>
-              {block.text}
-            </p>
-          )
+          return <p key={i}>{block.text}</p>
         }
         if (block.type === 'ul') {
           return (

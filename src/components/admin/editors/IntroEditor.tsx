@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionIntro } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
 
 type Props = {
   section: SectionIntro
@@ -41,6 +41,12 @@ export function IntroEditor({ section, onChange }: Props) {
         description="Right-column image."
         value={section.image}
         onChange={(image) => onChange({ image })}
+      />
+      <FieldVideo
+        label="Video (optional)"
+        description="If set, plays in place of the image. The image above is used as the poster while the video loads. Best as a short MP4/WebM loop."
+        value={section.video}
+        onChange={(video) => onChange({ video })}
       />
       <FieldInput
         label="Caption"

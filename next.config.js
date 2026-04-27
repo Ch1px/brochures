@@ -10,7 +10,7 @@ const nextConfig = {
     // Raise the default 1MB server-action limit so image uploads
     // (photos often 5–15MB) don't get rejected at the framework boundary.
     serverActions: {
-      bodySizeLimit: '20mb',
+      bodySizeLimit: '50mb',
     },
   },
 }

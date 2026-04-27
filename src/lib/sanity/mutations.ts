@@ -30,6 +30,20 @@ export async function uploadImageAsset(
   })
 }
 
+/**
+ * Upload a generic file (e.g. video) to Sanity Storage.
+ * Returns the asset doc; callers should build a { _type: 'file', asset: { _ref } } ref.
+ */
+export async function uploadFileAsset(
+  body: Buffer,
+  options: { filename: string; contentType: string }
+) {
+  return sanityWriteClient.assets.upload('file', body, {
+    filename: options.filename,
+    contentType: options.contentType,
+  })
+}
+
 /** Save the editable fields of a brochure. Does not touch status/publishedAt/featured. */
 export async function saveBrochure(
   id: string,

@@ -11,13 +11,14 @@ import {
   deleteBrochure as deleteBrochureMutation,
   updateBrochureSettings as updateBrochureSettingsMutation,
   uploadImageAsset,
+  uploadFileAsset,
   fetchBrochureForEdit,
   type BrochureSettingsUpdate,
 } from './mutations'
 import { signPreviewToken } from '../previewToken'
 import { generateBrochure, type GenerateInput, type GenerateUsage } from '../ai/generator'
 import { seedLibraryImages, type SeedResult } from '../ai/imageLibrary'
-import type { Brochure, SanityImage } from '@/types/brochure'
+import type { Brochure, SanityImage, SanityFile } from '@/types/brochure'
 
 /**
  * Server actions — invoked from client components in the editor.
@@ -171,6 +172,61 @@ export async function uploadImageAction(formData: FormData): Promise<UploadImage
     }
   } catch (err) {
     console.error('uploadImageAction failed:', err)
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Upload failed',
+    }
+  }
+}
+
+/**
+ * Upload a video file to Sanity Storage. Called from FieldVideo.
+ *
+ * Returns either { ok: true, video } where `video` is a ready-to-store Sanity file ref,
+ * or { ok: false, error } with a user-facing message.
+ *
+ * Enforces: admin allowlist · 50MB size cap · video/* MIME prefix.
+ *
+ * Note: Vercel serverless functions cap request body size at ~4.5MB in
+ * production. For prod uploads beyond that, switch to direct browser-to-Sanity
+ * upload or a dedicated video host (Mux). Compressed short MP4/WebM loops
+ * usually fit comfortably under the cap.
+ */
+export type UploadVideoResult =
+  | { ok: true; video: SanityFile }
+  | { ok: false; error: string }
+
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024 // 50MB
+
+export async function uploadVideoAction(formData: FormData): Promise<UploadVideoResult> {
+  await assertAdmin()
+
+  const file = formData.get('file')
+  if (!(file instanceof File)) {
+    return { ok: false, error: 'No file provided' }
+  }
+  if (!file.type.startsWith('video/')) {
+    return { ok: false, error: 'File is not a video' }
+  }
+  if (file.size > MAX_VIDEO_BYTES) {
+    return { ok: false, error: `File too large (max ${MAX_VIDEO_BYTES / (1024 * 1024)}MB)` }
+  }
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const asset = await uploadFileAsset(buffer, {
+      filename: file.name,
+      contentType: file.type,
+    })
+    return {
+      ok: true,
+      video: {
+        _type: 'file',
+        asset: { _type: 'reference', _ref: asset._id },
+      },
+    }
+  } catch (err) {
+    console.error('uploadVideoAction failed:', err)
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Upload failed',

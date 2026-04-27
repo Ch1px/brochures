@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSpotlight } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
 
 type Props = {
   section: SectionSpotlight
@@ -33,6 +33,12 @@ export function SpotlightEditor({ section, onChange }: Props) {
         description="Smaller framed image shown on the left."
         value={section.image}
         onChange={(image) => onChange({ image })}
+      />
+      <FieldVideo
+        label="Foreground video (optional)"
+        description="If set, plays in place of the foreground image. The image above is used as the poster while the video loads."
+        value={section.video}
+        onChange={(video) => onChange({ video })}
       />
       <FieldInput
         label="Caption"

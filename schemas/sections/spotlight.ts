@@ -17,6 +17,13 @@ export default defineType({
       options: { hotspot: true },
       description: 'The smaller framed image on the left.',
     }),
+    defineField({
+      name: 'video',
+      title: 'Foreground video',
+      type: 'file',
+      description: 'Optional looping video. If set, plays in place of the foreground image; the image is used as the poster.',
+      options: { accept: 'video/*' },
+    }),
     defineField({ name: 'caption', type: 'string' }),
     defineField({
       name: 'backgroundImage',

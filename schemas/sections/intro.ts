@@ -26,6 +26,12 @@ export default defineType({
       description: 'Right-column image',
       options: { hotspot: true },
     }),
+    defineField({
+      name: 'video',
+      type: 'file',
+      description: 'Optional looping video. If set, plays in place of the image; the image is used as the poster.',
+      options: { accept: 'video/*' },
+    }),
     defineField({ name: 'caption', type: 'string', description: 'Caption beneath the image' }),
     backgroundField,
   ],

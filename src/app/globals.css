@@ -66,7 +66,7 @@
        size so prose looks consistent regardless of which section it lives
        in. Tweak here once instead of chasing a dozen `font-size: clamp(...)`
        declarations. */
-    --body-text-size: clamp(13px, 1.5cqi, 18px);
+    --body-text-size: clamp(12px, 1.3cqi, 16px);
     --body-text-size-mobile: clamp(15px, 3.8cqi, 16px);
     --body-text-line-height: 1.7;
     --body-text-line-height-mobile: 1.65;
@@ -836,7 +836,21 @@
     background-position: center;
     background-color: var(--chrome-raised);
   }
-  .page-intro-right-frame { position: absolute; inset: 0; border: 1px solid var(--page-border); }
+  .page-intro-right-frame { position: absolute; inset: 0; border: 1px solid var(--page-border); z-index: 1; pointer-events: none; }
+
+  /* Generic media-video — drops into any image container that already does
+     its own background-image positioning (intro-right, image-hero-bg,
+     spotlight-image). Fills the parent and sits behind any overlay frame
+     or caption (those get explicit z-index above). */
+  .media-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    z-index: 0;
+  }
 
   /* Flipped variant: image on left, content on right */
   .page-intro-reversed .page-intro-inner {
@@ -2922,6 +2936,12 @@
       align-items: center;
       text-align: left;
       gap: 16px;
+    }
+    .quote-profile-text {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
     }
     .quote-profile-photo { max-width: 110px; flex-shrink: 0; }
     .quote-profile-name { font-size: clamp(22px, 7cqi, 36px); margin-bottom: 8px; }
