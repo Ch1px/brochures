@@ -21,7 +21,8 @@ type Props = {
  * - red-tick brand on the left (Formula1 bold uppercase)
  * - horizontal page links on the right, scroll with hidden scrollbar + edge fade
  * - active page has red underline
- * - on mobile (<720px) links collapse to a burger that opens a stacked menu
+ * - burger menu sits alongside the inline links at every width; on mobile
+ *   (<768px) the inline links hide and the burger is the only nav
  */
 export function BrochureNav({ brand, pages, currentIndex, onPageClick, logo, theme }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)

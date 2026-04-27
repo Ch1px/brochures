@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionContentImage } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
 
 type Props = {
   section: SectionContentImage
@@ -36,6 +36,12 @@ export function SplitSectionEditor({ section, onChange }: Props) {
         label="Image"
         value={section.image}
         onChange={(image) => onChange({ image })}
+      />
+      <FieldVideo
+        label="Video (optional)"
+        description="If set, plays in place of the image. The image above is used as the poster while the video loads."
+        value={section.video}
+        onChange={(video) => onChange({ video })}
       />
       <FieldInput
         label="Caption"

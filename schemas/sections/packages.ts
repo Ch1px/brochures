@@ -7,6 +7,7 @@ export default defineType({
   type: 'object',
   description: 'Tiered hospitality cards, each with features list.',
   fields: [
+    defineField({ name: 'eyebrow', type: 'string', description: 'Script-italic accent above the title.' }),
     defineField({ name: 'title', type: 'string', validation: (Rule) => Rule.required() }),
     defineField({
       name: 'packages',

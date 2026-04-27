@@ -3,8 +3,9 @@
 import { useRef, useState } from 'react'
 import type { SanityImage } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
-import { uploadImageAction } from '@/lib/sanity/actions'
 import { FieldLabel } from './FieldLabel'
+
+type UploadResult = { ok: true; image: SanityImage } | { ok: false; error: string }
 
 type Props = {
   label: string
@@ -33,9 +34,15 @@ export function FieldImage({ label, description, value, onChange, previewWidth =
     setUploading(true)
     setError(null)
     try {
-      const fd = new FormData()
-      fd.append('file', file)
-      const result = await uploadImageAction(fd)
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+          'X-Filename': encodeURIComponent(file.name),
+        },
+        body: file,
+      })
+      const result = (await res.json()) as UploadResult
       if (result.ok) {
         onChange(result.image)
       } else {

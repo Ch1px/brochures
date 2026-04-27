@@ -30,6 +30,12 @@ export default defineType({
       description: 'Optional background image',
       options: { hotspot: true },
     }),
+    defineField({
+      name: 'video',
+      type: 'file',
+      description: 'Optional looping background video. If set, plays in place of the image; the image is used as the poster.',
+      options: { accept: 'video/*' },
+    }),
     backgroundField,
   ],
   preview: {

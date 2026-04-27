@@ -11,6 +11,12 @@ export default defineType({
     defineField({ name: 'title', type: 'text', rows: 2, validation: (Rule) => Rule.required() }),
     defineField({ name: 'body', type: 'text', rows: 6 }),
     defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
+    defineField({
+      name: 'video',
+      type: 'file',
+      description: 'Optional looping video. If set, plays in place of the image; the image is used as the poster.',
+      options: { accept: 'video/*' },
+    }),
     defineField({ name: 'caption', type: 'string' }),
     backgroundField,
   ],

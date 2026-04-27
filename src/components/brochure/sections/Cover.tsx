@@ -1,5 +1,5 @@
 import type { SectionCover } from '@/types/brochure'
-import { urlForSection } from '@/lib/sanity/image'
+import { urlForSection, urlForFile } from '@/lib/sanity/image'
 
 type Props = {
   data: SectionCover
@@ -16,13 +16,26 @@ type Props = {
 export function Cover({ data, pageNum, total, showFolio }: Props) {
   const variantClass = data._type === 'coverCentered' ? 'page-cover-centered' : ''
   const imageUrl = urlForSection(data.image, 2000)
+  const videoUrl = urlForFile(data.video)
 
   return (
     <section className={`section page-cover ${variantClass}`} data-section-id={data._key}>
       <div
         className="page-cover-bg"
         style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-      />
+      >
+        {videoUrl ? (
+          <video
+            className="media-video"
+            src={videoUrl}
+            poster={imageUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : null}
+      </div>
 
       {/* Decorative SVG — gradient wash + racing lines. Same as builder.
           Uses currentColor so a parent override of --brand-red retints. */}

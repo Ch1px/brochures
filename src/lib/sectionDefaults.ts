@@ -108,6 +108,7 @@ export function sectionDefaults(type: Section['_type']): Section {
       return {
         _key,
         _type: 'packages',
+        eyebrow: 'Choose your',
         title: 'Hospitality packages',
         packages: [
           { _key: nanokey(), tier: 'Essential', name: 'Grandstand', price: '8,950', currency: '£', from: 'From · per person', featured: false, features: ['3-day grandstand access', '4 nights 4★ accommodation', 'Breakfast daily', 'All airport transfers'] },

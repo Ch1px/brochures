@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSectionHeading } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
 
 type Props = {
   section: SectionSectionHeading
@@ -35,6 +35,12 @@ export function SectionHeadingEditor({ section, onChange }: Props) {
         description="Optional full-bleed backdrop."
         value={section.image}
         onChange={(image) => onChange({ image })}
+      />
+      <FieldVideo
+        label="Background video (optional)"
+        description="If set, plays in place of the background image. The image above is used as the poster while the video loads."
+        value={section.video}
+        onChange={(video) => onChange({ video })}
       />
     </>
   )

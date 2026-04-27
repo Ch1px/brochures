@@ -21,6 +21,7 @@ export function Packages({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-packages-inner">
         <div className="packages-header">
+          {data.eyebrow ? <div className="packages-eyebrow">{data.eyebrow}</div> : null}
           <h2 className="packages-title">{data.title ?? ''}</h2>
         </div>
         <div className="packages-grid">

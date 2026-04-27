@@ -15,6 +15,12 @@ export function PackagesEditor({ section, onChange }: Props) {
   return (
     <>
       <FieldInput
+        label="Eyebrow"
+        description="Script-italic accent above the title."
+        value={section.eyebrow}
+        onChange={(eyebrow) => onChange({ eyebrow })}
+      />
+      <FieldInput
         label="Title"
         value={section.title}
         onChange={(title) => onChange({ title })}

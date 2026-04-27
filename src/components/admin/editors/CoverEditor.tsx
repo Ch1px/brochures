@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionCover } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage } from '../fields'
+import { FieldInput, FieldTextarea, FieldImage, FieldVideo } from '../fields'
 
 type Props = {
   section: SectionCover
@@ -66,6 +66,12 @@ export function CoverEditor({ section, onChange }: Props) {
         description="Full-bleed image behind the cover."
         value={section.image}
         onChange={(image) => onChange({ image })}
+      />
+      <FieldVideo
+        label="Background video (optional)"
+        description="If set, plays in place of the background image. The image above is used as the poster while the video loads."
+        value={section.video}
+        onChange={(video) => onChange({ video })}
       />
     </>
   )

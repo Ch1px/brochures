@@ -51,6 +51,12 @@ export function SpotlightEditor({ section, onChange }: Props) {
         value={section.backgroundImage}
         onChange={(backgroundImage) => onChange({ backgroundImage })}
       />
+      <FieldVideo
+        label="Background video (optional)"
+        description="If set, plays in place of the background image. The image above is used as the poster while the video loads."
+        value={section.backgroundVideo}
+        onChange={(backgroundVideo) => onChange({ backgroundVideo })}
+      />
     </>
   )
 }

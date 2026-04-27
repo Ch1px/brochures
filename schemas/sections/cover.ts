@@ -34,6 +34,12 @@ export default defineType({
       description: 'Full-bleed background image',
       options: { hotspot: true },
     }),
+    defineField({
+      name: 'video',
+      type: 'file',
+      description: 'Optional looping video. If set, plays in place of the background image; the image is used as the poster.',
+      options: { accept: 'video/*' },
+    }),
     backgroundField,
   ],
   preview: {

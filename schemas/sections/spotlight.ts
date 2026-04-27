@@ -32,6 +32,13 @@ export default defineType({
       options: { hotspot: true },
       description: 'Full-bleed image behind the section. A dark overlay is applied so the text stays readable.',
     }),
+    defineField({
+      name: 'backgroundVideo',
+      title: 'Background video',
+      type: 'file',
+      description: 'Optional looping background video. If set, plays in place of the background image; the image is used as the poster.',
+      options: { accept: 'video/*' },
+    }),
     backgroundField,
   ],
   preview: {

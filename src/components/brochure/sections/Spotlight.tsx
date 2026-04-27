@@ -14,6 +14,7 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
   const imageUrl = urlForSection(data.image, 1400)
   const videoUrl = urlForFile(data.video)
   const backgroundUrl = urlForSection(data.backgroundImage, 2000)
+  const backgroundVideoUrl = urlForFile(data.backgroundVideo)
 
   return (
     <section
@@ -21,6 +22,17 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
       data-section-id={data._key}
       style={backgroundUrl ? { backgroundImage: `url('${backgroundUrl}')` } : undefined}
     >
+      {backgroundVideoUrl ? (
+        <video
+          className="media-video"
+          src={backgroundVideoUrl}
+          poster={backgroundUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      ) : null}
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-spotlight-overlay" aria-hidden="true" />
 

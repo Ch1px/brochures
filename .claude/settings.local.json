@@ -32,7 +32,8 @@
       "Bash(awk 'BEGIN{depth=0} {n=gsub\\(/{/,\"&\"\\); m=gsub\\(/}/,\"&\"\\); depth+=n-m; if \\(NR%500==0 || NR>=3450\\) print NR\": depth=\"depth}' C:/gpgt-brochures/src/app/globals.css)",
       "Bash(awk 'BEGIN{depth=0} {n=gsub\\(/{/,\"&\"\\); m=gsub\\(/}/,\"&\"\\); depth+=n-m; if \\(NR>=3120 && NR<=3470 && depth<=1\\) print NR\": depth=\"depth\" \"$0}' C:/gpgt-brochures/src/app/globals.css)",
       "Bash(awk 'BEGIN{depth=0} {n=gsub\\(/{/,\"&\"\\); m=gsub\\(/}/,\"&\"\\); old=depth; depth+=n-m; if \\(old==0 && depth>0\\) print \"OPEN \"NR\": \"$0}' C:/gpgt-brochures/src/app/globals.css)",
-      "Bash(git log *)"
+      "Bash(git log *)",
+      "Bash(grep -nA3 \"^  \\\\.section {\" /c/brochures/src/app/globals.css)"
     ]
   }
 }

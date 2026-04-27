@@ -1,5 +1,5 @@
 import type { SectionSectionHeading } from '@/types/brochure'
-import { urlForSection } from '@/lib/sanity/image'
+import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
 
 type Props = {
@@ -16,6 +16,7 @@ type Props = {
  */
 export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
   const imageUrl = urlForSection(data.image, 2000)
+  const videoUrl = urlForFile(data.video)
   const variantClass = data._type === 'sectionHeadingCentered' ? 'page-section-heading-centered' : ''
 
   return (
@@ -24,6 +25,17 @@ export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
       data-section-id={data._key}
       style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
     >
+      {videoUrl ? (
+        <video
+          className="media-video"
+          src={videoUrl}
+          poster={imageUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      ) : null}
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
 
       <svg

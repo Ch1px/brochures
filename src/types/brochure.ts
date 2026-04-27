@@ -40,6 +40,7 @@ export type SectionCover = {
   cta?: string
   ref?: string
   image?: SanityImage
+  video?: SanityFile
   background?: string
 }
 
@@ -63,6 +64,7 @@ export type SectionContentImage = {
   title: string
   body?: string
   image?: SanityImage
+  video?: SanityFile
   caption?: string
   background?: string
 }
@@ -74,6 +76,7 @@ export type SectionSectionHeading = {
   title: string
   text?: string
   image?: SanityImage
+  video?: SanityFile
   background?: string
 }
 
@@ -122,6 +125,7 @@ export type SectionStats = {
 export type SectionPackages = {
   _key: string
   _type: 'packages'
+  eyebrow?: string
   title: string
   packages: Array<{
     _key: string
@@ -241,6 +245,7 @@ export type SectionSpotlight = {
   video?: SanityFile
   caption?: string
   backgroundImage?: SanityImage
+  backgroundVideo?: SanityFile
   background?: string
 }
 

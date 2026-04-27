@@ -487,7 +487,7 @@
   /* Mobile: mirror the nav-safe top padding on the bottom so vertical
      padding reads as symmetric. On desktop the per-section rules already
      give comfortable bottom padding; this only kicks in below 720px. */
-  @media (max-width: 720px) {
+  @media (max-width: 768px) {
     .page-intro-inner,
     .page-features-inner,
     .page-stats-inner,
@@ -859,7 +859,7 @@
   .page-intro-reversed .page-intro-left {
     padding: 0;
   }
-  @container (max-width: 560px) {
+  @container (max-width: 768px) {
     .page-intro-reversed .page-intro-inner {
       grid-template-columns: 1fr;
     }
@@ -969,7 +969,7 @@
   .page-spotlight .intro-eyebrow {
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
   }
-  @container (max-width: 560px) {
+  @container (max-width: 768px) {
     .page-spotlight-inner {
       grid-template-columns: 1fr;
       gap: clamp(18px, 4cqi, 32px);
@@ -1265,6 +1265,15 @@
     display: flex; flex-direction: column;
   }
   .packages-header { margin-bottom: clamp(18px, 2.5cqi, 36px); }
+  .packages-eyebrow {
+    font-family: var(--font-script);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(32px, 4.7cqi, 56px);
+    color: var(--brand-red);
+    margin-bottom: clamp(4px, 0.6cqi, 10px);
+    line-height: 1;
+  }
   .packages-title {
     font-family: var(--font-display); font-weight: 900;
     font-size: clamp(22px, 3.4cqi, 42px);
@@ -1842,7 +1851,7 @@
   }
 
   /* Mobile stacking */
-  @container (max-width: 560px) {
+  @container (max-width: 768px) {
     /* Reset the desktop grid aspect-ratios — on mobile the layout restacks
        and each tile sets its own aspect-ratio, so the parent grid should
        be sized by content, not by a forced desktop-shape ratio. */
@@ -2645,7 +2654,7 @@
   }
 
   /* --- MOBILE (< 720px): the full mobile UX --- */
-  @media (max-width: 720px) {
+  @media (max-width: 768px) {
     .mobile-only { display: flex !important; }
 
     /* Topbar compacts */
@@ -2767,7 +2776,7 @@
      ============================================================ */
 
   /* --- < 720px section width --- */
-  @container (max-width: 720px) {
+  @container (max-width: 768px) {
     .page-cover-inner,
     .page-intro-inner,
     .page-features-inner,
@@ -2785,7 +2794,7 @@
   }
 
   /* --- < 560px section width (main phone breakpoint) --- */
-  @container (max-width: 560px) {
+  @container (max-width: 768px) {
     /* BODY TEXT legibility — raise small-text floors so copy stays readable */
     .intro-body,
     .text-center-body,
@@ -2812,6 +2821,7 @@
     .text-center-eyebrow,
     .image-hero-eyebrow,
     .stats-eyebrow,
+    .packages-eyebrow,
     .closing-eyebrow,
     .quote-profile-eyebrow,
     .gallery-variant-eyebrow,
@@ -3003,7 +3013,7 @@
   /* ============================================================
      MOBILE PADDING — more generous breathing room around sections
      ============================================================ */
-  @media (max-width: 720px) {
+  @media (max-width: 768px) {
     /* Content sections: bump vertical padding for breathing room */
     .page-intro-inner,
     .page-features-inner,
@@ -3160,7 +3170,7 @@
   .brochure-print-btn + .brochure-nav-burger { margin-left: 4px; }
 
   .brochure-nav-burger {
-    display: none;
+    display: flex;
     position: relative;
     width: 36px;
     height: 36px;
@@ -3276,7 +3286,7 @@
     background: var(--brand-red);
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: 768px) {
     .brochure-nav { height: 48px; padding: 0 14px; gap: 10px; }
     .preview-mode { --brochure-nav-h: 48px; }
     .brochure-nav-brand { gap: 8px; }
@@ -3296,7 +3306,7 @@
   }
 
   /* ---- MOBILE SECTION HEIGHTS — content-based with dramatic cover ---- */
-  @media (max-width: 720px) {
+  @media (max-width: 768px) {
     /* Sections: natural content height (no forced viewport-fill) */
     .section { min-height: auto; }
 
@@ -3731,7 +3741,7 @@
     transform: translateY(-1px);
   }
 
-  @container (max-width: 560px) {
+  @container (max-width: 768px) {
     .page-footer-inner {
       flex-wrap: wrap;
       gap: clamp(6px, 1.2cqi, 12px);
@@ -4091,7 +4101,7 @@
 
   /* --- < 720px: tighten padding (matches other sections) and drop wall to
          2 columns; strip already wraps naturally so just shrink min-widths. */
-  @container (max-width: 720px) {
+  @container (max-width: 768px) {
     .page-logos-inner { padding: 8% 7%; gap: clamp(16px, 3cqi, 28px); }
     .logos-header { max-width: 100%; }
     .logos-title { font-size: clamp(22px, 7cqi, 38px); }
