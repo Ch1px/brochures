@@ -129,7 +129,7 @@ export function BrochureNav({ brand, pages, currentIndex, onPageClick, logo, the
 
       <button
         type="button"
-        className="brochure-nav-burger"
+        className={`brochure-nav-burger${menuOpen ? ' is-open' : ''}`}
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen}
         onClick={(e) => {
@@ -137,18 +137,9 @@ export function BrochureNav({ brand, pages, currentIndex, onPageClick, logo, the
           setMenuOpen((v) => !v)
         }}
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
+        <span className="brochure-nav-burger-bar" aria-hidden />
+        <span className="brochure-nav-burger-bar" aria-hidden />
+        <span className="brochure-nav-burger-bar" aria-hidden />
       </button>
 
       <div className={`brochure-nav-menu ${menuOpen ? 'open' : ''}`} role="menu">

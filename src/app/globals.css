@@ -3099,6 +3099,7 @@
 
   .brochure-nav-burger {
     display: none;
+    position: relative;
     width: 36px;
     height: 36px;
     border: 0px solid rgba(255, 255, 255, 0.14);
@@ -3113,7 +3114,37 @@
     transition: all 0.15s;
   }
   .brochure-nav-burger:hover { border-color: var(--brand-red); background: var(--brand-red-dim); }
-  .brochure-nav-burger svg { width: 16px; height: 16px; }
+
+  /* Three bars are absolutely centred and translated up/down to form a burger;
+     when .is-open the outer bars rotate to meet at centre forming an X, and
+     the middle bar collapses + fades. Transition stack matches the rotate so
+     both halves of the X arrive together. */
+  .brochure-nav-burger-bar {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    transform-origin: 50% 50%;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.15s ease;
+  }
+  .brochure-nav-burger-bar:nth-child(1) { transform: translate(-50%, calc(-50% - 5px)); }
+  .brochure-nav-burger-bar:nth-child(2) { transform: translate(-50%, -50%); }
+  .brochure-nav-burger-bar:nth-child(3) { transform: translate(-50%, calc(-50% + 5px)); }
+
+  .brochure-nav-burger.is-open .brochure-nav-burger-bar:nth-child(1) {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .brochure-nav-burger.is-open .brochure-nav-burger-bar:nth-child(2) {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(0);
+  }
+  .brochure-nav-burger.is-open .brochure-nav-burger-bar:nth-child(3) {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
 
   .brochure-nav-close {
     width: 36px;
