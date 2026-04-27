@@ -57,7 +57,7 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
   }, [data.svgOriginal, data.svg, data.colorOverrides, accentColor, theme])
 
   const hasSvg = themedSvg.trim().length > 0
-  const stats = (data.stats ?? []).slice(0, 3)
+  const stats = (data.stats ?? []).slice(0, 4)
 
   const sectionKey = data._key
   const isRecolorTarget =
@@ -171,7 +171,10 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
           )}
         </div>
         {stats.length > 0 ? (
-          <div className="circuit-map-stats">
+          <div
+            className="circuit-map-stats"
+            style={{ gridTemplateColumns: `repeat(${stats.length}, 1fr)` }}
+          >
             {stats.map((s) => (
               <div key={s._key} className="circuit-map-stat">
                 <div className="circuit-map-stat-value">

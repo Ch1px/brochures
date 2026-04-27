@@ -3,8 +3,9 @@
 import { useRef, useState } from 'react'
 import type { SanityFile } from '@/types/brochure'
 import { urlForFile } from '@/lib/sanity/image'
-import { uploadVideoAction } from '@/lib/sanity/actions'
 import { FieldLabel } from './FieldLabel'
+
+type UploadResult = { ok: true; video: SanityFile } | { ok: false; error: string }
 
 type Props = {
   label: string
@@ -30,9 +31,15 @@ export function FieldVideo({ label, description, value, onChange }: Props) {
     setUploading(true)
     setError(null)
     try {
-      const fd = new FormData()
-      fd.append('file', file)
-      const result = await uploadVideoAction(fd)
+      const res = await fetch('/api/upload-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+          'X-Filename': encodeURIComponent(file.name),
+        },
+        body: file,
+      })
+      const result = (await res.json()) as UploadResult
       if (result.ok) {
         onChange(result.video)
       } else {

@@ -7,11 +7,13 @@ const nextConfig = {
   },
   experimental: {
     taint: true,
-    // Raise the default 1MB server-action limit so image uploads
-    // (photos often 5–15MB) don't get rejected at the framework boundary.
-    serverActions: {
-      bodySizeLimit: '50mb',
-    },
+  },
+  // Raise the default 1MB server-action body limit so image and video
+  // uploads (videos can be 20–40MB compressed) aren't rejected at the
+  // framework boundary. In Next 15+ this lives at the top level, not under
+  // experimental — putting it under experimental silently does nothing.
+  serverActions: {
+    bodySizeLimit: '50mb',
   },
 }
 

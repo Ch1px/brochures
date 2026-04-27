@@ -19,7 +19,7 @@ export default defineType({
   name: 'circuitMap',
   title: 'Circuit Map',
   type: 'object',
-  description: 'SVG circuit diagram with eyebrow, title, caption, and up to 3 stats below.',
+  description: 'SVG circuit diagram with eyebrow, title, caption, and up to 4 stats below.',
   fields: [
     defineField({
       name: 'eyebrow',
@@ -78,8 +78,8 @@ export default defineType({
     defineField({
       name: 'stats',
       type: 'array',
-      description: 'Up to 3 stats displayed in a strip below the map',
-      validation: (Rule) => Rule.max(3),
+      description: 'Up to 4 stats displayed in a strip below the map',
+      validation: (Rule) => Rule.max(4),
       of: [
         {
           type: 'object',

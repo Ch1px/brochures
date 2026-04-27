@@ -179,10 +179,10 @@ export function CircuitMapEditor({
 
       <FieldObjectArray<StatItem>
         label="Stats"
-        description="Up to 3 stats show beneath the map."
+        description="Up to 4 stats show beneath the map."
         value={section.stats}
         onChange={(stats) => onChange({ stats })}
-        maxItems={3}
+        maxItems={4}
         addLabel="+ Add stat"
         itemTitle={(i, it) => (it.label ? it.label : `Stat ${String(i + 1).padStart(2, '0')}`)}
         createNew={() => ({ _key: nanokey(), value: '', unit: '', label: '' })}
