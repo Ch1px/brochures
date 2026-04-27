@@ -173,7 +173,7 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
         {stats.length > 0 ? (
           <div
             className="circuit-map-stats"
-            style={{ gridTemplateColumns: `repeat(${stats.length}, 1fr)` }}
+            style={{ ['--stat-count' as string]: stats.length }}
           >
             {stats.map((s) => (
               <div key={s._key} className="circuit-map-stat">

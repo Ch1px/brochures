@@ -2061,7 +2061,7 @@
   }
   .circuit-map-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(var(--stat-count, 3), 1fr);
     border-top: 1px solid var(--page-border);
     border-bottom: 1px solid var(--page-border);
     align-self: stretch;
@@ -2791,6 +2791,20 @@
       padding: 8% 7%;
     }
     .page-image-hero-content { padding: 8% 7%; max-width: 80%; }
+
+    /* Circuit-map stats wrap to 2 columns at tablet/mobile widths so 4 stats
+       don't squash. Right-borders are dropped on the rightmost cell of each
+       row, and bottom borders are added between rows. Single-item edge case
+       is handled by the existing `:last-child` rule that removes its right
+       border. */
+    .circuit-map-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .circuit-map-stat {
+      border-bottom: 1px solid var(--page-border);
+    }
+    .circuit-map-stat:nth-child(2n) { border-right: none; }
+    .circuit-map-stat:nth-last-child(-n+2) { border-bottom: none; }
   }
 
   /* --- < 560px section width (main phone breakpoint) --- */
