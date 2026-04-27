@@ -16,8 +16,10 @@ import 'server-only'
  */
 
 /**
- * Browser-side function passed to `page.evaluate`. Returns one concatenated
- * CSS string covering every stylesheet on the page.
+ * Browser-side function passed to `page.evaluate` *by reference* so
+ * Puppeteer serialises and invokes it. (Passing it as a string would
+ * evaluate it as an expression — yielding the function value, not its
+ * return — which is a silent foot-gun.)
  *
  * Two-pass strategy because Next.js dev (Turbopack) and prod can both
  * produce sheets whose `cssRules` access throws (cross-origin chunk URLs,
@@ -26,37 +28,37 @@ import 'server-only'
  * `<link rel="stylesheet">` we didn't already capture, which works because
  * the request is same-origin from the page context.
  */
-export const extractStylesheets = `async () => {
-  const parts = [];
-  const captured = new Set();
+export async function extractStylesheets(): Promise<string> {
+  const parts: string[] = []
+  const captured = new Set<string>()
 
   for (const sheet of Array.from(document.styleSheets)) {
     try {
-      const rules = Array.from(sheet.cssRules);
-      const text = rules.map((r) => r.cssText).join('\\n');
+      const rules = Array.from(sheet.cssRules)
+      const text = rules.map((r) => r.cssText).join('\n')
       if (text) {
-        parts.push(text);
-        if (sheet.href) captured.add(sheet.href);
+        parts.push(text)
+        if (sheet.href) captured.add(sheet.href)
       }
-    } catch (e) {
+    } catch {
       // unreadable — fall through to the fetch pass
     }
   }
 
-  const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
+  const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[]
   for (const link of links) {
-    const href = link.href;
-    if (!href || captured.has(href)) continue;
+    const href = link.href
+    if (!href || captured.has(href)) continue
     try {
-      const res = await fetch(href);
-      if (res.ok) parts.push(await res.text());
-    } catch (e) {
-      // ignore — best effort
+      const res = await fetch(href)
+      if (res.ok) parts.push(await res.text())
+    } catch {
+      // best effort
     }
   }
 
-  return parts.join('\\n');
-}`
+  return parts.join('\n')
+}
 
 const SANITY_URL_RE = /https?:\/\/cdn\.sanity\.io\/[^\s"'`)<>]+/g
 
@@ -98,6 +100,39 @@ function guessContentType(url: string): string {
   if (lower.includes('.gif')) return 'image/gif'
   if (lower.includes('.svg')) return 'image/svg+xml'
   return 'image/jpeg'
+}
+
+/**
+ * Inline any root-relative `src="/..."` references (e.g. the default GPGT
+ * logo at `/textures/GPGT - LOGO -dark.png`) by fetching them from the
+ * page origin and rewriting to data URIs. Without this, /public assets
+ * stay as `/textures/...` paths that 404 when the file is opened offline.
+ */
+export async function inlineLocalImages(html: string, origin: string): Promise<string> {
+  const re = /(\bsrc=["'])(\/[^"'#?]+(?:\?[^"']*)?)(["'])/g
+  const matches = Array.from(html.matchAll(re))
+  const paths = Array.from(new Set(matches.map((m) => m[2])))
+  if (paths.length === 0) return html
+
+  const cache = new Map<string, string>()
+  await Promise.all(
+    paths.map(async (path) => {
+      try {
+        const res = await fetch(`${origin}${path}`)
+        if (!res.ok) return
+        const contentType = res.headers.get('content-type') ?? guessContentType(path)
+        const buf = Buffer.from(await res.arrayBuffer())
+        cache.set(path, `data:${contentType};base64,${buf.toString('base64')}`)
+      } catch {
+        // best effort
+      }
+    })
+  )
+
+  return html.replace(re, (full, prefix, path, suffix) => {
+    const data = cache.get(path)
+    return data ? `${prefix}${data}${suffix}` : full
+  })
 }
 
 /**

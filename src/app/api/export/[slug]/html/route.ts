@@ -6,6 +6,7 @@ import { launchBrowser } from '@/lib/pdf/browser'
 import {
   composeStandaloneHtml,
   extractStylesheets,
+  inlineLocalImages,
   inlineSanityImages,
   stripNextRuntime,
 } from '@/lib/htmlExport/inline'
@@ -126,7 +127,8 @@ export async function GET(req: Request, { params }: RouteContext) {
     }
 
     const cleanedHtml = stripNextRuntime(rawHtml)
-    const inlinedHtml = await inlineSanityImages(cleanedHtml)
+    const sanityInlined = await inlineSanityImages(cleanedHtml)
+    const inlinedHtml = await inlineLocalImages(sanityInlined, origin)
 
     const themeBg = brochure.theme === 'light' ? '#f5f5f3' : '#0a0a0b'
     const finalHtml = composeStandaloneHtml({
