@@ -3983,6 +3983,7 @@
     display: flex;
     flex-direction: column;
     background: var(--page-bg);
+    color: var(--page-text);
     container-type: inline-size;
   }
   /* Mirror the public reader's two height rules for the print view:
@@ -3999,6 +4000,18 @@
   .brochure-print-page > .section.page-image-hero,
   .brochure-print-page > .section.page-closing {
     min-height: 210mm;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Make the inner stretch to the takeover section's full height so the
+     inner's `flex: 1` center band can vertically centre the cover content.
+     Without this, `.page-cover-inner { min-height: 100% }` resolves against
+     a parent with only min-height (no explicit height), which Chromium
+     treats as auto — collapsing the centre band to its content height. */
+  .brochure-print-page > .section.page-cover > .page-cover-inner,
+  .brochure-print-page > .section.page-image-hero > .page-image-hero-inner,
+  .brochure-print-page > .section.page-closing > .page-closing-inner {
+    flex: 1 0 auto;
   }
   /* Section-heading is a chapter divider, not a full-bleed takeover —
      a half-sheet floor gives the title room to breathe without inflating
