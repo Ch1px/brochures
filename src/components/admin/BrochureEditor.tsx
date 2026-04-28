@@ -10,6 +10,7 @@ import type {
   SectionCircuitMap,
 } from '@/types/brochure'
 import { useAutosave } from '@/hooks/useAutosave'
+import { useEditorLayout } from '@/hooks/useEditorLayout'
 import { nanokey } from '@/lib/nanokey'
 import { sectionDefaults } from '@/lib/sectionDefaults'
 import { EditorTopbar } from './EditorTopbar'
@@ -19,6 +20,7 @@ import { AddSectionModal } from './AddSectionModal'
 import { PropertiesPanel } from './PropertiesPanel'
 import { BrochureSettingsModal } from './BrochureSettingsModal'
 import { RecolorPopover } from './RecolorPopover'
+import { CollapseButton, CollapsedRail, ResizeHandle } from './EditorLayoutControls'
 
 type Props = {
   initialBrochure: Brochure
@@ -91,6 +93,8 @@ export function BrochureEditor({ initialBrochure }: Props) {
   }, [brochure.pages, currentSectionKey])
 
   const { status: saveStatus } = useAutosave(brochure)
+
+  const layout = useEditorLayout()
 
   // Resolve the currently-selected section from the brochure tree
   const currentSection = useMemo<Section | null>(() => {
@@ -262,18 +266,32 @@ export function BrochureEditor({ initialBrochure }: Props) {
       />
 
       <div className="editor-body">
-        <aside className="editor-panel-left">
-          <div className="editor-panel-header">Pages</div>
-          <PagesPanel
-            brochure={brochure}
-            setBrochure={updateBrochure}
-            currentPageIndex={currentPageIndex}
-            setCurrentPageIndex={setCurrentPageIndex}
-            currentSectionKey={currentSectionKey}
-            setCurrentSectionKey={setCurrentSectionKey}
-            onRequestAddSection={handleRequestAddSection}
-          />
-        </aside>
+        {layout.leftCollapsed ? (
+          <CollapsedRail label="Pages" side="left" onExpand={layout.toggleLeft} />
+        ) : (
+          <>
+            <aside className="editor-panel-left" style={{ width: layout.leftWidth }}>
+              <div className="editor-panel-header">
+                <span>Pages</span>
+                <CollapseButton side="left" onClick={layout.toggleLeft} />
+              </div>
+              <PagesPanel
+                brochure={brochure}
+                setBrochure={updateBrochure}
+                currentPageIndex={currentPageIndex}
+                setCurrentPageIndex={setCurrentPageIndex}
+                currentSectionKey={currentSectionKey}
+                setCurrentSectionKey={setCurrentSectionKey}
+                onRequestAddSection={handleRequestAddSection}
+              />
+            </aside>
+            <ResizeHandle
+              width={layout.leftWidth}
+              onChange={layout.setLeftWidth}
+              side="left"
+            />
+          </>
+        )}
 
         <main className="editor-panel-center">
           <PreviewStage
@@ -285,16 +303,30 @@ export function BrochureEditor({ initialBrochure }: Props) {
           />
         </main>
 
-        <aside className="editor-panel-right">
-          <div className="editor-panel-header">Properties</div>
-          <PropertiesPanel
-            section={currentSection}
-            onChange={handleSectionChange}
-            accentColor={brochure.accentColor}
-            recolorMode={recolorMode}
-            onRecolorModeChange={setRecolorMode}
-          />
-        </aside>
+        {layout.rightCollapsed ? (
+          <CollapsedRail label="Properties" side="right" onExpand={layout.toggleRight} />
+        ) : (
+          <>
+            <ResizeHandle
+              width={layout.rightWidth}
+              onChange={layout.setRightWidth}
+              side="right"
+            />
+            <aside className="editor-panel-right" style={{ width: layout.rightWidth }}>
+              <div className="editor-panel-header">
+                <CollapseButton side="right" onClick={layout.toggleRight} />
+                <span>Properties</span>
+              </div>
+              <PropertiesPanel
+                section={currentSection}
+                onChange={handleSectionChange}
+                accentColor={brochure.accentColor}
+                recolorMode={recolorMode}
+                onRecolorModeChange={setRecolorMode}
+              />
+            </aside>
+          </>
+        )}
       </div>
 
       {recolorSelection ? (

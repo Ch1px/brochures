@@ -4024,72 +4024,48 @@
     background: #fff;
     --nav-safe-top: 0;
   }
-  /* Each brochure page is a 297mm-wide block at least one A4-landscape
-     sheet tall (210mm) so sections that rely on cqh / flex:1 / absolute
-     decorations don't collapse and overlap the next page. Pages grow
-     beyond 210mm when their content needs more room. The whole document
-     stacks into a single continuous PDF sheet — no page breaks, no
-     clipping. */
+  /* Each section gets its own A4-landscape sheet (297mm × 210mm). Overflow
+     is clipped. Non-takeover sections size to content and are vertically
+     centred via the page's flex column; takeovers (cover/hero/closing/
+     section-heading) stretch to fill the sheet so their internal flex:1
+     centre bands resolve correctly. */
   .brochure-print-page {
     width: 297mm;
-    min-height: 210mm;
+    height: 210mm;
     flex-shrink: 0;
     position: relative;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
     background: var(--page-bg);
     color: var(--page-text);
     container-type: inline-size;
+    break-after: page;
+    page-break-after: always;
   }
-  /* Mirror the public reader's two height rules for the print view:
-     1. Page-takeover sections (cover, image-hero, closing, section-heading)
-        always fill an A4-landscape sheet — they're designed as immersive
-        full-bleed openers, not content blocks.
-     2. Single-section pages: the lone section fills the sheet, so a page
-        containing just an intro or a gallery still feels deliberate
-        rather than collapsing to text height.
-     Multi-section pages where no member is a takeover let each section
-     size to its content — keeps the PDF compact instead of every page
-     ballooning to 210mm × N. */
+  .brochure-print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
   .brochure-print-page > .section.page-cover,
   .brochure-print-page > .section.page-image-hero,
-  .brochure-print-page > .section.page-closing {
-    min-height: 210mm;
+  .brochure-print-page > .section.page-closing,
+  .brochure-print-page > .section.page-section-heading {
+    flex: 1 0 auto;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
   }
-  /* Make the inner stretch to the takeover section's full height so the
-     inner's `flex: 1` center band can vertically centre the cover content.
-     Without this, `.page-cover-inner { min-height: 100% }` resolves against
-     a parent with only min-height (no explicit height), which Chromium
-     treats as auto — collapsing the centre band to its content height. */
   .brochure-print-page > .section.page-cover > .page-cover-inner,
   .brochure-print-page > .section.page-image-hero > .page-image-hero-inner,
   .brochure-print-page > .section.page-closing > .page-closing-inner {
     flex: 1 0 auto;
   }
-  /* Section-heading is a chapter divider, not a full-bleed takeover —
-     a half-sheet floor gives the title room to breathe without inflating
-     the page. The inner's flex:1 + justify-content:center then centers
-     the content within that height. Tighter padding (3% top/bottom vs
-     the public reader's 8%) keeps the chapter feeling balanced inside
-     the shorter section. */
-  .brochure-print-page > .section.page-section-heading {
-    min-height: 105mm;
-  }
-  .brochure-print-page > .section.page-section-heading .page-section-heading-inner {
-    padding: max(3%, var(--nav-safe-top)) 10% 3%;
-  }
-  .brochure-print-page > .section:only-child {
-    min-height: 210mm;
-  }
 
   @media print {
-    /* Single sheet sized to fit the entire stacked document — width locked
-       to A4 landscape (297mm), height auto-grows to the document's natural
-       height. preferCSSPageSize: true on the puppeteer side wires this in. */
     @page {
-      size: 297mm auto;
+      size: A4 landscape;
       margin: 0;
     }
     html, body {

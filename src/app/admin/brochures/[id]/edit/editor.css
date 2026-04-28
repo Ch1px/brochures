@@ -212,25 +212,30 @@
   margin-right: 8px;
 }
 
-/* ----- BODY (3-column layout) ----- */
+/* ----- BODY (3-column layout, resizable) -----
+   Widths are driven by inline styles from useEditorLayout() and persisted
+   to localStorage. Each side panel can also be collapsed to a thin rail. */
 .editor-body {
   flex: 1;
-  display: grid;
-  grid-template-columns: 240px 1fr 320px;
+  display: flex;
   min-height: 0;
 }
 
 .editor-panel-left,
 .editor-panel-right {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   background: var(--chrome-surface);
   overflow: hidden;
+  min-width: 200px;
+  max-width: 560px;
 }
 .editor-panel-left { border-right: 1px solid var(--chrome-border); }
 .editor-panel-right { border-left: 1px solid var(--chrome-border); }
 
 .editor-panel-center {
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -243,7 +248,9 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 8px 0 16px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.22em;
@@ -251,6 +258,7 @@
   color: var(--chrome-text-tertiary);
   border-bottom: 1px solid var(--chrome-border);
 }
+.editor-panel-right .editor-panel-header { padding: 0 16px 0 8px; }
 
 .editor-panel-placeholder {
   padding: 24px;
@@ -269,17 +277,84 @@
   text-align: center;
 }
 
-/* Responsive: collapse left panel on narrow widths */
-@media (max-width: 1100px) {
-  .editor-body { grid-template-columns: 200px 1fr 300px; }
+/* ----- RESIZE HANDLE ----- */
+.editor-resize-handle {
+  flex: 0 0 5px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  z-index: 2;
 }
-@media (max-width: 900px) {
-  .editor-body { grid-template-columns: 1fr 300px; }
-  .editor-panel-left { display: none; }
+.editor-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: transparent;
+  transition: background 0.12s;
 }
-@media (max-width: 720px) {
-  .editor-body { grid-template-columns: 1fr; }
-  .editor-panel-right { display: none; }
+.editor-resize-handle:hover::after,
+.editor-resize-handle:active::after {
+  background: var(--brand-red);
+}
+
+/* ----- COLLAPSE BUTTON (in panel header) ----- */
+.editor-panel-collapse {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--chrome-text-tertiary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.12s;
+  padding: 0;
+}
+.editor-panel-collapse:hover {
+  border-color: var(--chrome-border-strong);
+  color: var(--chrome-text);
+  background: var(--chrome-raised);
+}
+
+/* ----- COLLAPSED RAIL ----- */
+.editor-panel-rail {
+  flex: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  background: var(--chrome-surface);
+  border: 0;
+  cursor: pointer;
+  color: var(--chrome-text-tertiary);
+  transition: background 0.12s, color 0.12s;
+}
+.editor-panel-rail.left { border-right: 1px solid var(--chrome-border); }
+.editor-panel-rail.right { border-left: 1px solid var(--chrome-border); }
+.editor-panel-rail:hover {
+  background: var(--chrome-raised);
+  color: var(--chrome-text);
+}
+.editor-panel-rail-chevron {
+  font-size: 16px;
+  line-height: 1;
+}
+.editor-panel-rail-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
 }
 
 /* ----- PAGES TREE (left panel) ----- */

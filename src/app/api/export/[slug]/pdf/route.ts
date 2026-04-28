@@ -99,22 +99,11 @@ export async function GET(req: Request, { params }: RouteContext) {
       )
     }
 
-    // We want one continuous PDF sheet at A4-landscape width whose height
-    // equals the full stacked document. Chromium does NOT honour
-    // `@page { size: 297mm auto }` as content-sized — `auto` falls back to
-    // the default paper height and the document then breaks across pages.
-    // So measure the rendered document height in the browser and pass it
-    // explicitly to puppeteer. Width is locked to A4 landscape (1123px @ 96dpi).
-    const heightPx = await page.evaluate(() => {
-      const root = document.querySelector('.brochure-print-root') as HTMLElement | null
-      const el = root ?? document.documentElement
-      return Math.ceil(el.getBoundingClientRect().height)
-    })
-
     const pdf = await page.pdf({
       printBackground: true,
-      width: '297mm',
-      height: `${heightPx}px`,
+      format: 'A4',
+      landscape: true,
+      preferCSSPageSize: true,
       margin: { top: 0, right: 0, bottom: 0, left: 0 },
     })
 

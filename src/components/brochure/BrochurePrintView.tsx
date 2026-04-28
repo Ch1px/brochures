@@ -11,40 +11,32 @@ type Props = {
 
 /**
  * Print-optimised view used by /[slug]/print and the Puppeteer PDF pipeline.
- * Pages stack vertically at A4-landscape width (297mm); height grows to the
- * brochure page's natural content size so the design isn't squashed into a
- * fixed 210mm sheet. No nav, no animations, no client-side wiring — just
- * static markup that prints cleanly. Container queries resolve to the
- * printed sheet width, matching the desktop reader.
- *
- * The wrapper deliberately avoids the public reader's `.brochure-page` class
- * because that class brings height: 100%, overflow-y: auto, and scroll
- * behaviour that only make sense for the fixed-viewport slider.
+ * Each section becomes its own A4-landscape page (297mm × 210mm), so the PDF
+ * is naturally paginated by Chromium via `@page { size: A4 landscape }`.
+ * Container queries resolve to the printed sheet width, matching the desktop
+ * reader. No nav, no animations, no client-side wiring.
  */
 export function BrochurePrintView({ brochure }: Props) {
   const pages = brochure.pages ?? []
-  const total = pages.length
+  const sections = pages.flatMap((p) => p.sections ?? []).filter((s) => s._type !== 'footer')
+  const total = sections.length
   const theme = brochure.theme ?? 'dark'
   const accentStyle = accentColorVars(brochure.accentColor)
 
   return (
     <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme }}>
       <div className="brochure-print-root" data-theme={theme} style={accentStyle}>
-        {pages.map((page, i) => {
+        {sections.map((section, i) => {
           const pageNum = i + 1
-          const hasFooter = page.sections.some((s) => s._type === 'footer')
-          const showFolio = i > 0 && !hasFooter
+          const showFolio = i > 0
           return (
-            <div key={page._key} className="brochure-print-page">
-              {page.sections.map((section) => (
-                <SectionRenderer
-                  key={section._key}
-                  section={section}
-                  pageNum={pageNum}
-                  total={total}
-                  showFolio={section._type === 'footer' ? false : showFolio}
-                />
-              ))}
+            <div key={section._key} className="brochure-print-page">
+              <SectionRenderer
+                section={section}
+                pageNum={pageNum}
+                total={total}
+                showFolio={showFolio}
+              />
             </div>
           )
         })}
