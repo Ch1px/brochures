@@ -29,6 +29,9 @@ export type BrochureBranding = {
   /** Editor-only: inline text edit from the preview. Called when the user
    *  commits an inline edit (blur or Escape). */
   onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void
+  /** Editor-only: inline media replace/remove from the preview. Accepts any
+   *  value type (SanityImage, SanityFile, undefined for remove). */
+  onInlineMediaEdit?: (sectionKey: string, fieldPath: string, value: unknown) => void
   /** Editor-only: request to enter map edit mode. Called when the circuit
    *  SVG is clicked while not yet in map edit mode. */
   onRequestMapEdit?: () => void

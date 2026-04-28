@@ -4019,7 +4019,7 @@
     position: absolute;
     top: 100%;
     left: 0; right: 0;
-    background: var(--nav-bg, rgba(0, 0, 0, 0.94));
+    background: var(--nav-bg, rgba(22, 22, 24, 0.94));
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
