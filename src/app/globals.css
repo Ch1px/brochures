@@ -1029,7 +1029,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 7% 8%;
+    padding: min(7%, 60px) 8%;
     gap: clamp(10px, 1.8cqi, 22px);
   }
   .text-center-eyebrow {
