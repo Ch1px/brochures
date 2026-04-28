@@ -3520,7 +3520,8 @@
   }
   .brochure-nav-brand-logo {
     display: block;
-    height: 18px;
+    height: 40px;
+    max-width: auto;
     width: auto;
     object-fit: contain;
   }

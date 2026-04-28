@@ -9,7 +9,7 @@ type Props = {
   className?: string
 }
 
-const DEFAULT_LOGO = '/textures/GPGT - LOGO -dark.png'
+const DEFAULT_LOGO = '/textures/Grand_Prix_Logo_Vector_Editable 5.png'
 
 export function LogoMark({ logo, className }: Props) {
   const overrideUrl = urlForSection(logo, 600)
