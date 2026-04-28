@@ -43,7 +43,7 @@ type Props = {
  * up via the BrochureBranding context.
  */
 export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
-  const { accentColor, backgroundColor, textColor, customColors, theme, editorMode, recolor, annotations: annotationCtx } = useBrochureBranding()
+  const { accentColor, backgroundColor, textColor, customColors, theme, editorMode, onRequestMapEdit, recolor, annotations: annotationCtx } = useBrochureBranding()
 
   const brandCtx: BrandContext = useMemo(
     () => ({ accentColor, backgroundColor, textColor, theme, customColors }),
@@ -220,6 +220,21 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
       wrap.removeEventListener('mousedown', onMouseDown)
     }
   }, [isRecolorTarget, sectionKey])
+
+  // Click on the SVG wrap triggers map edit mode when not already editing
+  useEffect(() => {
+    if (!editorMode || isRecolorTarget || !onRequestMapEdit) return
+    const wrap = svgWrapRef.current
+    if (!wrap) return
+    const hasSvgContent = Boolean(data.svg || data.svgOriginal)
+    if (!hasSvgContent) return
+
+    const onClick = () => {
+      if (!annotationCtx) onRequestMapEdit()
+    }
+    wrap.addEventListener('click', onClick)
+    return () => wrap.removeEventListener('click', onClick)
+  }, [editorMode, isRecolorTarget, annotationCtx, onRequestMapEdit, data.svg, data.svgOriginal])
 
   return (
     <section className="section page-circuit-map" data-section-id={sectionKey}>

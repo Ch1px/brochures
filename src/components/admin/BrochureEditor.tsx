@@ -688,6 +688,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
             setCurrentSectionKey={setCurrentSectionKey}
             recolor={recolorContext}
             annotations={annotationContext}
+            onRequestMapEdit={() => setMapEditMode(true)}
           />
         </main>
 

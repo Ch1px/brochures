@@ -26,6 +26,9 @@ export type BrochureBranding = {
    *  use this to keep authoring affordances (numbered placeholders for empty
    *  gallery slots, etc.) that should not appear on the public site. */
   editorMode?: boolean
+  /** Editor-only: request to enter map edit mode. Called when the circuit
+   *  SVG is clicked while not yet in map edit mode. */
+  onRequestMapEdit?: () => void
   /** Editor-only: per-element SVG recolouring state. When `active` is true and
    *  `targetSectionKey` matches the section currently being edited, that
    *  section attaches click handlers to its recolourable SVG elements and
