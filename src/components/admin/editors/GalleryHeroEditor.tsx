@@ -26,23 +26,23 @@ export function GalleryHeroEditor({ section, onChange }: Props) {
 
   return (
     <>
+      <div className="field-section-heading">Header</div>
       <FieldInput
         label="Eyebrow"
+        description="Script-italic accent above the title."
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
+        placeholder="Experience"
       />
       <FieldInput
         label="Title"
+        description="Bold heading for the hero gallery."
         value={section.title}
         onChange={(title) => onChange({ title })}
+        placeholder="Race day gallery"
       />
-      <FieldTextarea
-        label="Lead caption"
-        description="Overlaid on the bottom of the lead image."
-        value={section.caption}
-        onChange={(caption) => onChange({ caption })}
-        rows={2}
-      />
+
+      <div className="field-section-heading">Gallery</div>
       <FieldImage
         label="Lead image"
         description="The large hero image at the top of the section."
@@ -61,6 +61,16 @@ export function GalleryHeroEditor({ section, onChange }: Props) {
           ))}
         </div>
       </FieldLabel>
+
+      <div className="field-section-heading">Caption</div>
+      <FieldTextarea
+        label="Lead caption"
+        description="Overlaid on the bottom of the lead image."
+        value={section.caption}
+        onChange={(caption) => onChange({ caption })}
+        rows={2}
+        placeholder="The atmosphere is electric as the cars line up on the grid..."
+      />
     </>
   )
 }

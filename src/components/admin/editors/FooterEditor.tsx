@@ -30,23 +30,35 @@ const PLATFORM_LABELS: Record<SocialPlatform, string> = {
 export function FooterEditor({ section, onChange }: Props) {
   return (
     <>
+      <div className="field-section-heading">Legal</div>
       <FieldTextarea
         label="Legal / copyright"
         description="Shown left-aligned on the footer bar."
         value={section.legal}
         onChange={(legal) => onChange({ legal })}
         rows={2}
+        placeholder="© 2026 Grand Prix Grand Tours. All rights reserved."
       />
-      <FieldInput
-        label="Contact email"
-        value={section.email}
-        onChange={(email) => onChange({ email })}
-      />
-      <FieldInput
-        label="Contact phone"
-        value={section.phone}
-        onChange={(phone) => onChange({ phone })}
-      />
+
+      <div className="field-section-heading">Contact</div>
+      <div className="field-row-2">
+        <FieldInput
+          label="Contact email"
+          description="Displayed as a mailto link."
+          value={section.email}
+          onChange={(email) => onChange({ email })}
+          placeholder="info@grandprixgrandtours.com"
+        />
+        <FieldInput
+          label="Contact phone"
+          description="Displayed as a tel link."
+          value={section.phone}
+          onChange={(phone) => onChange({ phone })}
+          placeholder="+44 20 1234 5678"
+        />
+      </div>
+
+      <div className="field-section-heading">Social</div>
       <FieldObjectArray<SocialLink>
         label="Social links"
         description="Rendered as platform icons on the right of the bar."
@@ -59,14 +71,17 @@ export function FooterEditor({ section, onChange }: Props) {
           <>
             <FieldSelect
               label="Platform"
+              description="Choose the social network."
               value={item.platform}
               onChange={(platform) => update({ platform: platform as SocialPlatform })}
               options={PLATFORM_OPTIONS}
             />
             <FieldInput
               label="URL"
+              description="Full profile URL including https://."
               value={item.href}
               onChange={(href) => update({ href })}
+              placeholder="https://instagram.com/grandprixgrandtours"
             />
           </>
         )}

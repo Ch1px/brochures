@@ -13,22 +13,30 @@ export function LogosEditor({ section, onChange }: Props) {
   const isStrip = section._type === 'logoStrip'
   return (
     <>
+      <div className="field-section-heading">Header</div>
       <FieldInput
         label="Eyebrow"
+        description="Script-italic accent above the title."
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
+        placeholder="Our"
       />
       <FieldInput
         label="Title"
+        description="Bold heading for the logos section."
         value={section.title}
         onChange={(title) => onChange({ title })}
+        placeholder="Partners"
       />
       <FieldRichText
         label="Subtitle"
+        description="Supporting text beneath the title."
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
         rows={2}
       />
+
+      <div className="field-section-heading">Logos</div>
       <FieldObjectArray<LogoItem>
         label="Logos"
         description={
@@ -49,9 +57,11 @@ export function LogosEditor({ section, onChange }: Props) {
               description="Brand name; used as alt text and in the editor list."
               value={logo.name}
               onChange={(name) => update({ name })}
+              placeholder="Rolex"
             />
             <FieldImage
               label="Logo image"
+              description="Transparent PNG works best on dark backgrounds."
               value={logo.image}
               onChange={(image) => update({ image })}
             />
@@ -60,6 +70,7 @@ export function LogosEditor({ section, onChange }: Props) {
               description="If set, clicking the logo opens this URL in a new tab."
               value={logo.href}
               onChange={(href) => update({ href })}
+              placeholder="https://www.rolex.com"
             />
           </>
         )}

@@ -24,11 +24,16 @@ export function GalleryEditorialEditor({ section, onChange }: Props) {
 
   return (
     <>
+      <div className="field-section-heading">Content</div>
       <FieldInput
         label="Title"
+        description="Large heading displayed above the editorial gallery."
         value={section.title}
         onChange={(title) => onChange({ title })}
+        placeholder="Behind the scenes"
       />
+
+      <div className="field-section-heading">Gallery</div>
       <FieldLabel label="Images" description="Slot 1 is large; slot 4 spans two columns. Slots without images show numbered placeholders.">
         <div className="field-image-slot-grid">
           {Array.from({ length: SLOT_COUNT }).map((_, i) => (

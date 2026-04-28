@@ -31,16 +31,23 @@ export function GalleryDuoEditor({ section, onChange }: Props) {
 
   return (
     <>
+      <div className="field-section-heading">Header</div>
       <FieldInput
         label="Eyebrow"
+        description="Script-italic accent above the title."
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
+        placeholder="Discover"
       />
       <FieldInput
         label="Title"
+        description="Bold heading for the duo gallery."
         value={section.title}
         onChange={(title) => onChange({ title })}
+        placeholder="Two perspectives"
       />
+
+      <div className="field-section-heading">Images</div>
       <FieldLabel label="Slots" description="Two large side-by-side images, each with its own caption overlay.">
         <div className="field-image-slot-grid">
           {Array.from({ length: SLOT_COUNT }).map((_, i) => (

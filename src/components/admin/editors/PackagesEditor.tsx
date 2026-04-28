@@ -14,17 +14,25 @@ type Tier = NonNullable<SectionPackages['packages']>[number]
 export function PackagesEditor({ section, onChange }: Props) {
   return (
     <>
-      <FieldInput
-        label="Eyebrow"
-        description="Script-italic accent above the title."
-        value={section.eyebrow}
-        onChange={(eyebrow) => onChange({ eyebrow })}
-      />
-      <FieldInput
-        label="Title"
-        value={section.title}
-        onChange={(title) => onChange({ title })}
-      />
+      <div className="field-section-heading">Header</div>
+      <div className="field-row-2">
+        <FieldInput
+          label="Eyebrow"
+          description="Script-italic accent above the title."
+          value={section.eyebrow}
+          onChange={(eyebrow) => onChange({ eyebrow })}
+          placeholder="Choose your"
+        />
+        <FieldInput
+          label="Title"
+          description="Bold heading for the packages section."
+          value={section.title}
+          onChange={(title) => onChange({ title })}
+          placeholder="Packages"
+        />
+      </div>
+
+      <div className="field-section-heading">Packages</div>
       <FieldObjectArray<Tier>
         label="Packages"
         description="Up to 3 render clearly; a 4th will be cramped."
@@ -32,14 +40,14 @@ export function PackagesEditor({ section, onChange }: Props) {
         onChange={(packages) => onChange({ packages })}
         maxItems={4}
         addLabel="+ Add package"
-        itemTitle={(i, p) => (p.name ? `${p.tier ? p.tier + ' · ' : ''}${p.name}` : `Package ${String(i + 1).padStart(2, '0')}`)}
+        itemTitle={(i, p) => (p.name ? `${p.tier ? p.tier + ' \u00b7 ' : ''}${p.name}` : `Package ${String(i + 1).padStart(2, '0')}`)}
         createNew={() => ({
           _key: nanokey(),
           tier: '',
           name: '',
-          currency: '£',
+          currency: '\u00a3',
           price: '',
-          from: 'From · per person',
+          from: 'From \u00b7 per person',
           featured: false,
           features: [],
         })}
@@ -53,30 +61,40 @@ export function PackagesEditor({ section, onChange }: Props) {
             />
             <FieldInput
               label="Tier"
-              description="Small label above the name, e.g. “Essential”, “Popular”, “Exclusive”."
+              description="Small label above the name, e.g. 'Essential', 'Popular', 'Exclusive'."
               value={pkg.tier}
               onChange={(tier) => update({ tier })}
+              placeholder="Essential"
             />
             <FieldInput
               label="Name"
+              description="Package display name shown on the card."
               value={pkg.name}
               onChange={(name) => update({ name })}
+              placeholder="The Monaco Experience"
             />
-            <FieldInput
-              label="Currency"
-              value={pkg.currency}
-              onChange={(currency) => update({ currency })}
-            />
-            <FieldInput
-              label="Price"
-              description="As a display string so thousands separators are preserved, e.g. “14,500”."
-              value={pkg.price}
-              onChange={(price) => update({ price })}
-            />
+            <div className="field-row-2">
+              <FieldInput
+                label="Currency"
+                description="Currency symbol."
+                value={pkg.currency}
+                onChange={(currency) => update({ currency })}
+                placeholder={'\u00a3'}
+              />
+              <FieldInput
+                label="Price"
+                description="Display string with separators, e.g. '14,500'."
+                value={pkg.price}
+                onChange={(price) => update({ price })}
+                placeholder="14,500"
+              />
+            </div>
             <FieldInput
               label="From line"
+              description="Pricing qualifier shown below the price."
               value={pkg.from}
               onChange={(from) => update({ from })}
+              placeholder="From \u00b7 per person"
             />
             <FieldBoolean
               label="Featured"

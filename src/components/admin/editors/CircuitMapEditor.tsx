@@ -71,27 +71,35 @@ export function CircuitMapEditor({
 
   return (
     <>
-      <FieldInput
-        label="Eyebrow"
-        value={section.eyebrow}
-        onChange={(eyebrow) => onChange({ eyebrow })}
-      />
-      <FieldInput
-        label="Title"
-        description="Circuit name, e.g. “Circuit de Monaco”."
-        value={section.title}
-        onChange={(title) => onChange({ title })}
-      />
+      <div className="field-section-heading">Content</div>
+      <div className="field-row-2">
+        <FieldInput
+          label="Eyebrow"
+          description="Small script label above the title."
+          value={section.eyebrow}
+          onChange={(eyebrow) => onChange({ eyebrow })}
+          placeholder="The circuit"
+        />
+        <FieldInput
+          label="Title"
+          description="Circuit name."
+          value={section.title}
+          onChange={(title) => onChange({ title })}
+          placeholder="Circuit de Monaco"
+        />
+      </div>
       <FieldRichText
         label="Caption"
+        description="Short description beneath the title. Supports bullets and numbered lists."
         value={section.caption}
         onChange={(caption) => onChange({ caption })}
         rows={2}
       />
 
+      <div className="field-section-heading">Circuit SVG</div>
       <FieldLabel
-        label="Circuit SVG"
-        description="Upload an SVG and the palette is auto-remapped to the brochure theme (brand red + whites). You can also paste the themed XML directly into the textarea below."
+        label="SVG Upload"
+        description="Upload an SVG and the palette is auto-remapped to the brochure theme. You can also paste the themed XML directly into the textarea below."
       >
         <div className="field-svg-upload">
           <button
@@ -274,31 +282,40 @@ export function CircuitMapEditor({
         ) : null}
       </div>
 
+      <div className="field-section-heading">Stats strip</div>
       <FieldObjectArray<StatItem>
         label="Stats"
-        description="Up to 4 stats show beneath the map."
+        description="Up to 4 key facts displayed in a strip beneath the map."
         value={section.stats}
         onChange={(stats) => onChange({ stats })}
         maxItems={4}
         addLabel="+ Add stat"
-        itemTitle={(i, it) => (it.label ? it.label : `Stat ${String(i + 1).padStart(2, '0')}`)}
+        itemTitle={(i, it) => (it.label ? `${it.value || '-'} ${it.unit || ''} · ${it.label}` : `Stat ${String(i + 1).padStart(2, '0')}`)}
         createNew={() => ({ _key: nanokey(), value: '', unit: '', label: '' })}
         renderItem={(stat, update) => (
           <>
-            <FieldInput
-              label="Value"
-              value={stat.value}
-              onChange={(value) => update({ value })}
-            />
-            <FieldInput
-              label="Unit"
-              value={stat.unit}
-              onChange={(unit) => update({ unit })}
-            />
+            <div className="field-row-2">
+              <FieldInput
+                label="Value"
+                description="The number, e.g. '3.337'."
+                value={stat.value}
+                onChange={(value) => update({ value })}
+                placeholder="3.337"
+              />
+              <FieldInput
+                label="Unit"
+                description="e.g. 'KM', 'KM/H'."
+                value={stat.unit}
+                onChange={(unit) => update({ unit })}
+                placeholder="KM"
+              />
+            </div>
             <FieldInput
               label="Label"
+              description="Descriptor shown below the number."
               value={stat.label}
               onChange={(label) => update({ label })}
+              placeholder="Circuit length"
             />
           </>
         )}

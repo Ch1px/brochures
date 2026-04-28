@@ -23,17 +23,26 @@ export function GalleryGridEditor({ section, onChange }: Props) {
 
   return (
     <>
-      <FieldInput
-        label="Eyebrow"
-        value={section.eyebrow}
-        onChange={(eyebrow) => onChange({ eyebrow })}
-      />
-      <FieldInput
-        label="Title"
-        value={section.title}
-        onChange={(title) => onChange({ title })}
-      />
-      <FieldLabel label="Images" description="6 equal tiles, 3 columns × 2 rows.">
+      <div className="field-section-heading">Header</div>
+      <div className="field-row-2">
+        <FieldInput
+          label="Eyebrow"
+          description="Script-italic accent above the title."
+          value={section.eyebrow}
+          onChange={(eyebrow) => onChange({ eyebrow })}
+          placeholder="Explore"
+        />
+        <FieldInput
+          label="Title"
+          description="Bold heading for the gallery grid."
+          value={section.title}
+          onChange={(title) => onChange({ title })}
+          placeholder="The circuit"
+        />
+      </div>
+
+      <div className="field-section-heading">Gallery</div>
+      <FieldLabel label="Images" description="6 equal tiles, 3 columns x 2 rows.">
         <div className="field-image-slot-grid">
           {Array.from({ length: SLOT_COUNT }).map((_, i) => (
             <FieldImageSlot
