@@ -4024,11 +4024,10 @@
     background: #fff;
     --nav-safe-top: 0;
   }
-  /* Each section gets its own A4-landscape sheet (297mm × 210mm). Overflow
-     is clipped. Non-takeover sections size to content and are vertically
-     centred via the page's flex column; takeovers (cover/hero/closing/
-     section-heading) stretch to fill the sheet so their internal flex:1
-     centre bands resolve correctly. */
+  /* Each section gets its own A4-landscape sheet (297mm × 210mm). Every
+     section stretches to fill the full sheet so backgrounds, gradients and
+     decorative frames cover edge-to-edge regardless of content height.
+     Overflow is clipped. */
   .brochure-print-page {
     width: 297mm;
     height: 210mm;
@@ -4036,7 +4035,6 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     overflow: hidden;
     background: var(--page-bg);
     color: var(--page-text);
@@ -4048,14 +4046,12 @@
     break-after: auto;
     page-break-after: auto;
   }
-  .brochure-print-page > .section.page-cover,
-  .brochure-print-page > .section.page-image-hero,
-  .brochure-print-page > .section.page-closing,
-  .brochure-print-page > .section.page-section-heading {
+  .brochure-print-page > .section {
     flex: 1 0 auto;
     min-height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
   }
   .brochure-print-page > .section.page-cover > .page-cover-inner,
   .brochure-print-page > .section.page-image-hero > .page-image-hero-inner,

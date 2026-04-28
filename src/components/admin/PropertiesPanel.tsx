@@ -26,6 +26,11 @@ import { FieldBackground } from './fields/FieldBackground'
 
 type Props = {
   section: Section | null
+  context?: {
+    pageName: string
+    sectionIndex: number
+    totalSections: number
+  } | null
   onChange: (update: Partial<Section>) => void
   accentColor?: string
   recolorMode?: boolean
@@ -39,6 +44,7 @@ type Props = {
  */
 export function PropertiesPanel({
   section,
+  context,
   onChange,
   accentColor,
   recolorMode = false,
@@ -60,7 +66,14 @@ export function PropertiesPanel({
     <div className="properties">
       <div className="properties-header">
         <div className="properties-type">{labelFor(section._type)}</div>
-        <div className="properties-key">{section._key}</div>
+        {context ? (
+          <div className="properties-context">
+            {context.pageName}
+            {context.sectionIndex >= 0
+              ? ` · Section ${context.sectionIndex + 1} of ${context.totalSections}`
+              : null}
+          </div>
+        ) : null}
       </div>
       <div className="properties-body">
         {renderEditor(section, onChange, accentColor, recolorMode, onRecolorModeChange)}

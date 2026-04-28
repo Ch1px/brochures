@@ -1,7 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import type { Brochure, Page } from '@/types/brochure'
+import {
+  DndContext,
+  type DragEndEvent,
+  type DraggableAttributes,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import type { Brochure, Page, Section } from '@/types/brochure'
 import { labelFor } from '@/lib/sectionLabels'
 import { nanokey } from '@/lib/nanokey'
 
@@ -15,15 +31,19 @@ type Props = {
   onRequestAddSection: (pageIndex: number) => void
 }
 
+// IDs are prefixed so pages and sections never collide inside the shared
+// DndContext. `p:` for pages, `s:` for sections.
+const pageId = (key: string) => `p:${key}`
+const sectionId = (key: string) => `s:${key}`
+
 /**
  * Pages tree — matches the builder's left panel.
  *
- * Top level: pages with number, name, rename/move/delete actions.
- * Nested: sections within each page with type label, move/delete actions.
- * Active page header has a red left-bar indicator + subtle tint.
+ * Top level: pages with number, name, rename/delete actions and drag handle.
+ * Nested: sections within each page with type label, delete action, drag
+ * handle. Both pages and sections reorder via @dnd-kit drag-and-drop.
  *
- * Add-section is delegated to the parent (BrochureEditor) which owns the
- * AddSectionModal state. We just fire onRequestAddSection(pageIndex).
+ * Active page header has a red left-bar indicator + subtle tint.
  */
 export function PagesPanel({
   brochure,
@@ -35,6 +55,12 @@ export function PagesPanel({
   onRequestAddSection,
 }: Props) {
   const [renamingPageKey, setRenamingPageKey] = useState<string | null>(null)
+
+  // Require a small drag distance before activation so clicks on the handle
+  // (or rows) don't get hijacked into drags.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
+  )
 
   // ───────── Page mutations ─────────
 
@@ -72,18 +98,6 @@ export function PagesPanel({
     setCurrentSectionKey(null)
   }
 
-  function movePage(pageIndex: number, dir: -1 | 1) {
-    const target = pageIndex + dir
-    if (target < 0 || target >= brochure.pages.length) return
-    setBrochure((prev) => {
-      const next = [...prev.pages]
-      ;[next[pageIndex], next[target]] = [next[target], next[pageIndex]]
-      return { ...prev, pages: next }
-    })
-    if (currentPageIndex === pageIndex) setCurrentPageIndex(target)
-    else if (currentPageIndex === target) setCurrentPageIndex(pageIndex)
-  }
-
   // ───────── Section mutations ─────────
 
   function addSection(pageIndex: number) {
@@ -103,143 +117,96 @@ export function PagesPanel({
     if (currentSectionKey === sectionKey) setCurrentSectionKey(null)
   }
 
-  function moveSection(pageIndex: number, sectionKey: string, dir: -1 | 1) {
-    setBrochure((prev) => {
-      const page = prev.pages[pageIndex]
-      if (!page) return prev
-      const idx = page.sections.findIndex((s) => s._key === sectionKey)
-      const target = idx + dir
-      if (idx < 0 || target < 0 || target >= page.sections.length) return prev
-      const next = [...page.sections]
-      ;[next[idx], next[target]] = [next[target], next[idx]]
-      return {
-        ...prev,
-        pages: prev.pages.map((p, i) => (i === pageIndex ? { ...p, sections: next } : p)),
-      }
-    })
+  // ───────── Drag-and-drop ─────────
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const activeData = active.data.current as
+      | { type: 'page' | 'section'; pageIndex?: number }
+      | undefined
+    const overData = over.data.current as
+      | { type: 'page' | 'section'; pageIndex?: number }
+      | undefined
+    if (!activeData || !overData) return
+
+    if (activeData.type === 'page' && overData.type === 'page') {
+      setBrochure((prev) => {
+        const oldIdx = prev.pages.findIndex((p) => pageId(p._key) === active.id)
+        const newIdx = prev.pages.findIndex((p) => pageId(p._key) === over.id)
+        if (oldIdx === -1 || newIdx === -1) return prev
+        // Keep the active page selection following the drag.
+        if (currentPageIndex === oldIdx) setCurrentPageIndex(newIdx)
+        else if (oldIdx < currentPageIndex && newIdx >= currentPageIndex)
+          setCurrentPageIndex(currentPageIndex - 1)
+        else if (oldIdx > currentPageIndex && newIdx <= currentPageIndex)
+          setCurrentPageIndex(currentPageIndex + 1)
+        return { ...prev, pages: arrayMove(prev.pages, oldIdx, newIdx) }
+      })
+      return
+    }
+
+    if (
+      activeData.type === 'section' &&
+      overData.type === 'section' &&
+      activeData.pageIndex === overData.pageIndex &&
+      activeData.pageIndex !== undefined
+    ) {
+      const pageIndex = activeData.pageIndex
+      setBrochure((prev) => {
+        const page = prev.pages[pageIndex]
+        if (!page) return prev
+        const oldIdx = page.sections.findIndex((s) => sectionId(s._key) === active.id)
+        const newIdx = page.sections.findIndex((s) => sectionId(s._key) === over.id)
+        if (oldIdx === -1 || newIdx === -1) return prev
+        return {
+          ...prev,
+          pages: prev.pages.map((p, i) =>
+            i === pageIndex ? { ...p, sections: arrayMove(p.sections, oldIdx, newIdx) } : p
+          ),
+        }
+      })
+    }
   }
 
   // ───────── Render ─────────
 
   return (
-    <>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <div className="editor-pages-list">
-        {brochure.pages.map((page, pageIndex) => {
-          const isActive = pageIndex === currentPageIndex
-          const isRenaming = renamingPageKey === page._key
-
-          return (
-            <div
+        <SortableContext
+          items={brochure.pages.map((p) => pageId(p._key))}
+          strategy={verticalListSortingStrategy}
+        >
+          {brochure.pages.map((page, pageIndex) => (
+            <SortablePage
               key={page._key}
-              className={`editor-page-group ${isActive ? 'active-page' : ''}`.trim()}
-            >
-              <div
-                className="editor-page-group-header"
-                onClick={() => {
-                  if (isRenaming) return
-                  setCurrentPageIndex(pageIndex)
-                  setCurrentSectionKey(null)
-                }}
-              >
-                <span className="editor-page-num">
-                  {String(pageIndex + 1).padStart(2, '0')}
-                </span>
-
-                {isRenaming ? (
-                  <input
-                    className="editor-page-name-input"
-                    defaultValue={page.name}
-                    autoFocus
-                    onBlur={(e) => {
-                      const trimmed = e.currentTarget.value.trim() || 'Untitled'
-                      renamePage(page._key, trimmed)
-                      setRenamingPageKey(null)
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
-                      if (e.key === 'Escape') setRenamingPageKey(null)
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <span className="editor-page-name">{page.name}</span>
-                )}
-
-                <div className="editor-page-group-actions" onClick={(e) => e.stopPropagation()}>
-                  <IconBtn label="Rename" onClick={() => setRenamingPageKey(page._key)}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                    </svg>
-                  </IconBtn>
-                  <IconBtn label="Move up" onClick={() => movePage(pageIndex, -1)} disabled={pageIndex === 0}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="18 15 12 9 6 15" />
-                    </svg>
-                  </IconBtn>
-                  <IconBtn label="Move down" onClick={() => movePage(pageIndex, 1)} disabled={pageIndex === brochure.pages.length - 1}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </IconBtn>
-                  <IconBtn label="Delete" danger onClick={() => deletePage(pageIndex)}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
-                      <path d="M10 11v6M14 11v6" />
-                    </svg>
-                  </IconBtn>
-                </div>
-              </div>
-
-              <div className="editor-section-list">
-                {page.sections.map((section, sectionIndex) => {
-                  const isSectionActive = currentSectionKey === section._key
-                  return (
-                    <div
-                      key={section._key}
-                      className={`editor-section-item ${isSectionActive ? 'active-section' : ''}`.trim()}
-                      onClick={() => {
-                        setCurrentPageIndex(pageIndex)
-                        setCurrentSectionKey(section._key)
-                      }}
-                    >
-                      <span className="editor-section-num">
-                        {String(sectionIndex + 1).padStart(2, '0')}
-                      </span>
-                      <span className="editor-section-type">{labelFor(section._type)}</span>
-                      <div className="editor-section-item-actions" onClick={(e) => e.stopPropagation()}>
-                        <IconBtn label="Move up" onClick={() => moveSection(pageIndex, section._key, -1)} disabled={sectionIndex === 0}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="18 15 12 9 6 15" />
-                          </svg>
-                        </IconBtn>
-                        <IconBtn label="Move down" onClick={() => moveSection(pageIndex, section._key, 1)} disabled={sectionIndex === page.sections.length - 1}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="6 9 12 15 18 9" />
-                          </svg>
-                        </IconBtn>
-                        <IconBtn label="Delete" danger onClick={() => deleteSection(pageIndex, section._key)}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
-                          </svg>
-                        </IconBtn>
-                      </div>
-                    </div>
-                  )
-                })}
-                <button
-                  className="editor-add-section"
-                  onClick={() => addSection(pageIndex)}
-                  title="Add section"
-                >
-                  + Add section
-                </button>
-              </div>
-            </div>
-          )
-        })}
+              page={page}
+              pageIndex={pageIndex}
+              isActive={pageIndex === currentPageIndex}
+              isRenaming={renamingPageKey === page._key}
+              currentSectionKey={currentSectionKey}
+              onSelectPage={() => {
+                setCurrentPageIndex(pageIndex)
+                setCurrentSectionKey(null)
+              }}
+              onSelectSection={(key) => {
+                setCurrentPageIndex(pageIndex)
+                setCurrentSectionKey(key)
+              }}
+              onStartRename={() => setRenamingPageKey(page._key)}
+              onFinishRename={(name) => {
+                renamePage(page._key, name)
+                setRenamingPageKey(null)
+              }}
+              onCancelRename={() => setRenamingPageKey(null)}
+              onDeletePage={() => deletePage(pageIndex)}
+              onAddSection={() => addSection(pageIndex)}
+              onDeleteSection={(sectionKey) => deleteSection(pageIndex, sectionKey)}
+            />
+          ))}
+        </SortableContext>
       </div>
 
       <div className="editor-pages-footer">
@@ -247,7 +214,217 @@ export function PagesPanel({
           + Add page
         </button>
       </div>
-    </>
+    </DndContext>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Sortable page row
+// ─────────────────────────────────────────────────────────────────────────
+
+type SortablePageProps = {
+  page: Page
+  pageIndex: number
+  isActive: boolean
+  isRenaming: boolean
+  currentSectionKey: string | null
+  onSelectPage: () => void
+  onSelectSection: (sectionKey: string) => void
+  onStartRename: () => void
+  onFinishRename: (name: string) => void
+  onCancelRename: () => void
+  onDeletePage: () => void
+  onAddSection: () => void
+  onDeleteSection: (sectionKey: string) => void
+}
+
+function SortablePage({
+  page,
+  pageIndex,
+  isActive,
+  isRenaming,
+  currentSectionKey,
+  onSelectPage,
+  onSelectSection,
+  onStartRename,
+  onFinishRename,
+  onCancelRename,
+  onDeletePage,
+  onAddSection,
+  onDeleteSection,
+}: SortablePageProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: pageId(page._key),
+    data: { type: 'page', pageIndex },
+  })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`editor-page-group ${isActive ? 'active-page' : ''} ${isDragging ? 'dragging' : ''}`.trim()}
+    >
+      <div
+        className="editor-page-group-header"
+        onClick={() => {
+          if (isRenaming) return
+          onSelectPage()
+        }}
+      >
+        <DragHandle attributes={attributes} listeners={listeners} />
+        <span className="editor-page-num">{String(pageIndex + 1).padStart(2, '0')}</span>
+
+        {isRenaming ? (
+          <input
+            className="editor-page-name-input"
+            defaultValue={page.name}
+            autoFocus
+            onBlur={(e) => {
+              const trimmed = e.currentTarget.value.trim() || 'Untitled'
+              onFinishRename(trimmed)
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+              if (e.key === 'Escape') onCancelRename()
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span className="editor-page-name">{page.name}</span>
+        )}
+
+        <div className="editor-page-group-actions" onClick={(e) => e.stopPropagation()}>
+          <IconBtn label="Rename" onClick={onStartRename}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+          </IconBtn>
+          <IconBtn label="Delete" danger onClick={onDeletePage}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6M14 11v6" />
+            </svg>
+          </IconBtn>
+        </div>
+      </div>
+
+      <div className="editor-section-list">
+        <SortableContext
+          items={page.sections.map((s) => sectionId(s._key))}
+          strategy={verticalListSortingStrategy}
+        >
+          {page.sections.map((section, sectionIndex) => (
+            <SortableSection
+              key={section._key}
+              section={section}
+              pageIndex={pageIndex}
+              sectionIndex={sectionIndex}
+              isActive={currentSectionKey === section._key}
+              onSelect={() => onSelectSection(section._key)}
+              onDelete={() => onDeleteSection(section._key)}
+            />
+          ))}
+        </SortableContext>
+        <button className="editor-add-section" onClick={onAddSection} title="Add section">
+          + Add section
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Sortable section row
+// ─────────────────────────────────────────────────────────────────────────
+
+type SortableSectionProps = {
+  section: Section
+  pageIndex: number
+  sectionIndex: number
+  isActive: boolean
+  onSelect: () => void
+  onDelete: () => void
+}
+
+function SortableSection({
+  section,
+  pageIndex,
+  sectionIndex,
+  isActive,
+  onSelect,
+  onDelete,
+}: SortableSectionProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: sectionId(section._key),
+    data: { type: 'section', pageIndex },
+  })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`editor-section-item ${isActive ? 'active-section' : ''} ${isDragging ? 'dragging' : ''}`.trim()}
+      onClick={onSelect}
+    >
+      <DragHandle attributes={attributes} listeners={listeners} />
+      <span className="editor-section-num">{String(sectionIndex + 1).padStart(2, '0')}</span>
+      <span className="editor-section-type">{labelFor(section._type)}</span>
+      <div className="editor-section-item-actions" onClick={(e) => e.stopPropagation()}>
+        <IconBtn label="Delete" danger onClick={onDelete}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
+          </svg>
+        </IconBtn>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Shared bits
+// ─────────────────────────────────────────────────────────────────────────
+
+type SortableState = ReturnType<typeof useSortable>
+
+function DragHandle({
+  attributes,
+  listeners,
+}: {
+  attributes: DraggableAttributes
+  listeners: SortableState['listeners']
+}) {
+  return (
+    <button
+      type="button"
+      className="editor-drag-handle"
+      aria-label="Drag to reorder"
+      title="Drag to reorder"
+      onClick={(e) => e.stopPropagation()}
+      {...attributes}
+      {...listeners}
+    >
+      <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden>
+        <circle cx="5" cy="3" r="1.4" />
+        <circle cx="11" cy="3" r="1.4" />
+        <circle cx="5" cy="8" r="1.4" />
+        <circle cx="11" cy="8" r="1.4" />
+        <circle cx="5" cy="13" r="1.4" />
+        <circle cx="11" cy="13" r="1.4" />
+      </svg>
+    </button>
   )
 }
 

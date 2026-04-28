@@ -10,7 +10,10 @@ import type {
   SectionCircuitMap,
 } from '@/types/brochure'
 import { useAutosave } from '@/hooks/useAutosave'
+import { useBrochureHistory } from '@/hooks/useBrochureHistory'
 import { useEditorLayout } from '@/hooks/useEditorLayout'
+import { useEditorShortcuts } from '@/hooks/useEditorShortcuts'
+import { labelFor } from '@/lib/sectionLabels'
 import { nanokey } from '@/lib/nanokey'
 import { sectionDefaults } from '@/lib/sectionDefaults'
 import { EditorTopbar } from './EditorTopbar'
@@ -43,7 +46,7 @@ type Props = {
  *   2F — image/SVG upload integration
  */
 export function BrochureEditor({ initialBrochure }: Props) {
-  const [brochure, setBrochure] = useState<Brochure>(initialBrochure)
+  const { brochure, setBrochure, undo, redo } = useBrochureHistory(initialBrochure)
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
   const [currentSectionKey, setCurrentSectionKey] = useState<string | null>(null)
 
@@ -92,7 +95,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
     }
   }, [brochure.pages, currentSectionKey])
 
-  const { status: saveStatus } = useAutosave(brochure)
+  const { status: saveStatus, flushNow } = useAutosave(brochure)
 
   const layout = useEditorLayout()
 
@@ -254,6 +257,103 @@ export function BrochureEditor({ initialBrochure }: Props) {
     [recolorMode, currentSectionKey, recolorSelection, handleRecolorElementClick]
   )
 
+  // ───────── Keyboard shortcut handlers ─────────
+
+  // Flat list of every section keyed by page index, for ↑/↓ navigation that
+  // wraps across page boundaries.
+  const flatSections = useMemo(() => {
+    const out: { pageIndex: number; sectionKey: string }[] = []
+    brochure.pages.forEach((page, pageIndex) => {
+      page.sections.forEach((s) => out.push({ pageIndex, sectionKey: s._key }))
+    })
+    return out
+  }, [brochure.pages])
+
+  const navigateSection = useCallback(
+    (delta: -1 | 1) => {
+      if (flatSections.length === 0) return
+      const currentIdx = currentSectionKey
+        ? flatSections.findIndex((s) => s.sectionKey === currentSectionKey)
+        : -1
+      const nextIdx =
+        currentIdx === -1
+          ? delta > 0
+            ? 0
+            : flatSections.length - 1
+          : (currentIdx + delta + flatSections.length) % flatSections.length
+      const target = flatSections[nextIdx]
+      setCurrentPageIndex(target.pageIndex)
+      setCurrentSectionKey(target.sectionKey)
+    },
+    [flatSections, currentSectionKey]
+  )
+
+  const duplicateCurrentSection = useCallback(() => {
+    if (!currentSectionKey) return
+    let newKey: string | null = null
+    setBrochure((prev) => ({
+      ...prev,
+      pages: prev.pages.map((page) => {
+        const idx = page.sections.findIndex((s) => s._key === currentSectionKey)
+        if (idx === -1) return page
+        const cloned = JSON.parse(JSON.stringify(page.sections[idx])) as Section
+        cloned._key = nanokey()
+        newKey = cloned._key
+        return {
+          ...page,
+          sections: [
+            ...page.sections.slice(0, idx + 1),
+            cloned,
+            ...page.sections.slice(idx + 1),
+          ],
+        }
+      }),
+    }))
+    if (newKey) setCurrentSectionKey(newKey)
+  }, [currentSectionKey, setBrochure])
+
+  const deleteCurrentSection = useCallback(() => {
+    if (!currentSectionKey) return
+    const section = brochure.pages
+      .flatMap((p) => p.sections)
+      .find((s) => s._key === currentSectionKey)
+    if (!section) return
+    if (!confirm(`Delete "${labelFor(section._type)}" section?`)) return
+    setBrochure((prev) => ({
+      ...prev,
+      pages: prev.pages.map((p) => ({
+        ...p,
+        sections: p.sections.filter((s) => s._key !== currentSectionKey),
+      })),
+    }))
+    setCurrentSectionKey(null)
+  }, [currentSectionKey, brochure.pages, setBrochure])
+
+  useEditorShortcuts({
+    onSave: () => void flushNow(),
+    onUndo: undo,
+    onRedo: redo,
+    onDuplicate: duplicateCurrentSection,
+    onDelete: deleteCurrentSection,
+    onDeselect: () => setCurrentSectionKey(null),
+    onPrev: () => navigateSection(-1),
+    onNext: () => navigateSection(1),
+  })
+
+  // ───────── Properties panel context ─────────
+
+  const propertiesContext = useMemo(() => {
+    if (!currentSection) return null
+    const page = brochure.pages[currentPageIndex]
+    if (!page) return null
+    const sectionIndex = page.sections.findIndex((s) => s._key === currentSectionKey)
+    return {
+      pageName: page.name,
+      sectionIndex,
+      totalSections: page.sections.length,
+    }
+  }, [currentSection, brochure.pages, currentPageIndex, currentSectionKey])
+
   return (
     <div className="editor-root">
       <EditorTopbar
@@ -319,6 +419,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
               </div>
               <PropertiesPanel
                 section={currentSection}
+                context={propertiesContext}
                 onChange={handleSectionChange}
                 accentColor={brochure.accentColor}
                 recolorMode={recolorMode}

@@ -75,6 +75,13 @@ export async function GET(req: Request, { params }: RouteContext) {
 
     await page.goto(printUrl, { waitUntil: 'networkidle0', timeout: 45_000 })
     await page.evaluateHandle(() => document.fonts?.ready)
+    // Wait for the client-side fit-to-page pass to mark itself ready.
+    await page
+      .waitForFunction(
+        () => (window as unknown as { __brochurePrintReady?: boolean }).__brochurePrintReady === true,
+        { timeout: 15_000 }
+      )
+      .catch(() => {})
 
     // Detect Next.js error UI so we don't silently produce a "server error" PDF.
     const renderedError = await page.evaluate(() => {

@@ -477,6 +477,45 @@
   height: 13px;
 }
 
+/* Drag handle for page/section reorder. Hidden until hover so the row
+   stays clean, becomes visible (and grabbable) on hover or when active. */
+.editor-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 18px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--chrome-text-muted);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  touch-action: none;
+}
+.editor-drag-handle:active {
+  cursor: grabbing;
+}
+.editor-page-group-header:hover .editor-drag-handle,
+.editor-section-item:hover .editor-drag-handle,
+.editor-page-group.active-page .editor-drag-handle,
+.editor-section-item.active-section .editor-drag-handle {
+  opacity: 1;
+}
+.editor-drag-handle:hover {
+  color: var(--chrome-text-secondary);
+}
+
+/* Visual feedback while an item is being dragged. */
+.editor-page-group.dragging,
+.editor-section-item.dragging {
+  opacity: 0.4;
+  z-index: 5;
+  position: relative;
+}
+
 .editor-section-list {
   padding: 0 0 8px 0;
 }
@@ -485,7 +524,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px 6px 40px;
+  padding: 6px 12px 6px 28px;
   cursor: pointer;
   transition: background 0.1s;
   border-left: 2px solid transparent;
@@ -865,6 +904,9 @@
   padding: 14px 16px 12px;
   border-bottom: 1px solid var(--chrome-border);
   background: var(--chrome-raised);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 6px 8px -8px rgba(0, 0, 0, 0.45);
 }
 .properties-type {
   font-family: var(--font-condensed);
@@ -874,13 +916,13 @@
   text-transform: uppercase;
   color: var(--chrome-text);
 }
-.properties-key {
+.properties-context {
   margin-top: 4px;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--chrome-text-tertiary);
-  word-break: break-all;
 }
 .properties-body {
   flex: 1;
