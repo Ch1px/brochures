@@ -35,6 +35,7 @@ type Props = {
   accentColor?: string
   recolorMode?: boolean
   onRecolorModeChange?: (next: boolean) => void
+  onPickByColor?: (color: string) => void
 }
 
 /**
@@ -49,6 +50,7 @@ export function PropertiesPanel({
   accentColor,
   recolorMode = false,
   onRecolorModeChange,
+  onPickByColor,
 }: Props) {
   if (!section) {
     return (
@@ -76,7 +78,7 @@ export function PropertiesPanel({
         ) : null}
       </div>
       <div className="properties-body">
-        {renderEditor(section, onChange, accentColor, recolorMode, onRecolorModeChange)}
+        {renderEditor(section, onChange, accentColor, recolorMode, onRecolorModeChange, onPickByColor)}
         <div className="properties-section-divider" />
         <FieldBackground
           label="Section background"
@@ -94,7 +96,8 @@ function renderEditor(
   onChange: (u: Partial<Section>) => void,
   accentColor?: string,
   recolorMode = false,
-  onRecolorModeChange?: (next: boolean) => void
+  onRecolorModeChange?: (next: boolean) => void,
+  onPickByColor?: (color: string) => void
 ) {
   // Each editor narrows to its own section type. The cast on onChange is safe
   // because the editor only passes partials valid for that narrower type.
@@ -141,6 +144,7 @@ function renderEditor(
           accentColor={accentColor}
           recolorMode={recolorMode}
           onRecolorModeChange={onRecolorModeChange}
+          onPickByColor={onPickByColor}
         />
       )
     case 'spotlight':

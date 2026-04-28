@@ -58,6 +58,9 @@ function useFitSectionsToPages() {
   useEffect(() => {
     let cancelled = false
 
+    // 4% safe-area inset (2% per side) so scaled content never touches the
+    // page edges and small measurement errors don't clip content.
+    const SAFE_INSET = 0.04
     const fit = () => {
       const pages = document.querySelectorAll<HTMLElement>('.brochure-print-page')
       pages.forEach((page) => {
@@ -65,17 +68,24 @@ function useFitSectionsToPages() {
         if (!section) return
         section.style.transform = ''
         section.style.transformOrigin = ''
+        section.style.marginTop = ''
         const ph = page.clientHeight
         const pw = page.clientWidth
         const sh = section.scrollHeight
         const sw = section.scrollWidth
         if (!ph || !pw || !sh || !sw) return
-        const scale = Math.min(1, ph / sh, pw / sw)
+        const targetH = ph * (1 - SAFE_INSET)
+        const targetW = pw * (1 - SAFE_INSET)
+        const scale = Math.min(1, targetH / sh, targetW / sw)
         if (scale < 1) {
-          // Anchor at the page's top edge so scaled content fills from the top
-          // rather than centering and clipping symmetrically top/bottom.
+          // Scale from the top edge, then nudge down with marginTop so the
+          // scaled output is vertically centred within the page (the unscaled
+          // section box still flows from y=0; margin lives in pre-transform
+          // coords and isn't affected by scale).
+          const visibleH = sh * scale
           section.style.transformOrigin = 'center top'
           section.style.transform = `scale(${scale})`
+          section.style.marginTop = `${Math.max(0, (ph - visibleH) / 2)}px`
         }
       })
     }

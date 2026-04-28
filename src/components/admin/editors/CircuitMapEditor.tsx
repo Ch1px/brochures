@@ -12,6 +12,8 @@ type Props = {
   accentColor?: string
   recolorMode?: boolean
   onRecolorModeChange?: (next: boolean) => void
+  /** Select all elements currently using this colour and open the popover. */
+  onPickByColor?: (color: string) => void
 }
 
 export function CircuitMapEditor({
@@ -20,6 +22,7 @@ export function CircuitMapEditor({
   accentColor,
   recolorMode = false,
   onRecolorModeChange,
+  onPickByColor,
 }: Props) {
   const svgInputRef = useRef<HTMLInputElement>(null)
   const [svgError, setSvgError] = useState<string | null>(null)
@@ -142,21 +145,32 @@ export function CircuitMapEditor({
         </div>
         {overrides.length > 0 ? (
           <ul className="recolor-overrides-list">
-            {overrides.map((o) => (
-              <li key={o._key} className="recolor-overrides-item">
-                <span
-                  className="recolor-overrides-swatch"
-                  style={{ background: o.color }}
-                  aria-hidden
+            {groupOverridesByColor(overrides).map((group) => (
+              <li key={group.color} className="recolor-overrides-item">
+                <button
+                  type="button"
+                  className="recolor-overrides-swatch is-button"
+                  style={{ background: group.color }}
+                  onClick={() => onPickByColor?.(group.color)}
+                  title={
+                    group.count > 1
+                      ? `Select ${group.count} elements using ${group.color}`
+                      : `Select element using ${group.color}`
+                  }
+                  aria-label={`Select elements using ${group.color}`}
                 />
-                <span className="recolor-overrides-id">{o.elementId}</span>
-                <span className="recolor-overrides-hex">{o.color}</span>
+                <span className="recolor-overrides-hex">{group.color}</span>
+                <span className="recolor-overrides-count">
+                  {group.count} {group.count === 1 ? 'element' : 'elements'}
+                </span>
                 <button
                   type="button"
                   className="field-btn field-btn-ghost"
                   onClick={() =>
                     onChange({
-                      colorOverrides: overrides.filter((x) => x.elementId !== o.elementId),
+                      colorOverrides: overrides.filter(
+                        (x) => x.color?.toLowerCase() !== group.color,
+                      ),
                     })
                   }
                 >
@@ -208,4 +222,21 @@ export function CircuitMapEditor({
       />
     </>
   )
+}
+
+/**
+ * Collapse the per-element overrides list to one row per unique colour, so
+ * the panel scales when an admin has recoloured 20+ elements with the same
+ * 3 brand colours. Order follows first-appearance in the original array.
+ */
+function groupOverridesByColor(
+  overrides: NonNullable<SectionCircuitMap['colorOverrides']>,
+): { color: string; count: number }[] {
+  const buckets = new Map<string, number>()
+  overrides.forEach((o) => {
+    const c = o.color?.toLowerCase()
+    if (!c) return
+    buckets.set(c, (buckets.get(c) ?? 0) + 1)
+  })
+  return Array.from(buckets.entries()).map(([color, count]) => ({ color, count }))
 }

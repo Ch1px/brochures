@@ -257,6 +257,51 @@ export function BrochureEditor({ initialBrochure }: Props) {
     [recolorMode, currentSectionKey, recolorSelection, handleRecolorElementClick]
   )
 
+  // Recent colours used in the active circuit-map section, most-recent-first
+  // and deduped. Powers the quick-pick swatches in the popover so admins can
+  // re-apply a colour without dialling the picker each time.
+  const recentColors = useMemo(() => {
+    if (!currentSection || currentSection._type !== 'circuitMap') return []
+    const cm = currentSection as SectionCircuitMap
+    const seen = new Set<string>()
+    const out: string[] = []
+    const overrides = cm.colorOverrides ?? []
+    for (let i = overrides.length - 1; i >= 0; i--) {
+      const c = overrides[i]?.color?.toLowerCase()
+      if (!c) continue
+      if (seen.has(c)) continue
+      seen.add(c)
+      out.push(c)
+      if (out.length >= 8) break
+    }
+    return out
+  }, [currentSection])
+
+  // Triggered from the CircuitMap editor's overrides list when the admin
+  // clicks a swatch — selects every element currently using that colour and
+  // opens the popover (centred) so they can re-recolour the whole group.
+  const handlePickByColor = useCallback(
+    (color: string) => {
+      if (!currentSection || currentSection._type !== 'circuitMap') return
+      const cm = currentSection as SectionCircuitMap
+      const target = color.toLowerCase()
+      const ids = (cm.colorOverrides ?? [])
+        .filter((o) => o.color?.toLowerCase() === target)
+        .map((o) => o.elementId)
+      if (ids.length === 0) return
+      setRecolorMode(true)
+      const x = window.innerWidth / 2 - 140
+      const y = window.innerHeight / 2 - 120
+      setRecolorSelection({
+        sectionKey: currentSection._key,
+        elementIds: ids,
+        x,
+        y,
+      })
+    },
+    [currentSection]
+  )
+
   // ───────── Keyboard shortcut handlers ─────────
 
   // Flat list of every section keyed by page index, for ↑/↓ navigation that
@@ -424,6 +469,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
                 accentColor={brochure.accentColor}
                 recolorMode={recolorMode}
                 onRecolorModeChange={setRecolorMode}
+                onPickByColor={handlePickByColor}
               />
             </aside>
           </>
@@ -437,6 +483,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
           elementIds={recolorSelection.elementIds}
           value={recolorPopoverValue}
           fallback={brochure.accentColor}
+          recentColors={recentColors}
           onChange={(color) =>
             updateOverrides(recolorSelection.sectionKey, recolorSelection.elementIds, color)
           }

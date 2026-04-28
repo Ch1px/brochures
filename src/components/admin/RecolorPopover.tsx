@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type Props = {
   /** Click coords used as the anchor (clamped to viewport on render). */
@@ -13,6 +13,9 @@ type Props = {
   value: string | undefined
   /** Default shown when no override exists yet — usually the brochure accent. */
   fallback?: string
+  /** Recently-used colours from this circuit's overrides, most-recent first.
+   *  Click a swatch to apply it without dialling the picker. */
+  recentColors?: string[]
   /** Live colour change. Fires on every drag of the native picker. */
   onChange: (color: string) => void
   /** Remove the override for the selected elements entirely. */
@@ -34,7 +37,8 @@ const HEX_RE = /^#[0-9a-fA-F]{6}$/
  *
  * Picker is a controlled `<input type="color">` reading directly from the
  * `value` prop — no internal draft state — so live drags commit straight
- * through to Brochure state without sync races.
+ * through to Brochure state without sync races. Hex text input has its own
+ * draft state so partial typing doesn't fire colour updates.
  */
 export function RecolorPopover({
   x,
@@ -42,6 +46,7 @@ export function RecolorPopover({
   elementIds,
   value,
   fallback,
+  recentColors = [],
   onChange,
   onReset,
   onClose,
@@ -60,8 +65,10 @@ export function RecolorPopover({
   }, [onClose])
 
   // Clamp to viewport so the popover doesn't overflow the screen edges.
+  // Height grew with the recents strip + hex input; tune the estimate so
+  // bottom-anchored clicks still get pushed up.
   const POPOVER_WIDTH = 280
-  const POPOVER_HEIGHT = 180
+  const POPOVER_HEIGHT = 240
   const margin = 12
   const vw = typeof window !== 'undefined' ? window.innerWidth : POPOVER_WIDTH * 4
   const vh = typeof window !== 'undefined' ? window.innerHeight : POPOVER_HEIGHT * 4
@@ -73,6 +80,25 @@ export function RecolorPopover({
 
   const commit = (next: string) => {
     if (HEX_RE.test(next)) onChange(next.toLowerCase())
+  }
+
+  // Hex input has its own draft so partial typing ("#1a") doesn't fire the
+  // change handler. We sync the draft when `value` changes externally.
+  const [hexDraft, setHexDraft] = useState<string>(swatchValue)
+  useEffect(() => {
+    setHexDraft(swatchValue)
+  }, [swatchValue])
+
+  const commitHex = () => {
+    const trimmed = hexDraft.trim()
+    const withHash = trimmed.startsWith('#') ? trimmed : `#${trimmed}`
+    if (HEX_RE.test(withHash)) {
+      onChange(withHash.toLowerCase())
+    } else {
+      // Invalid input — revert draft to the current value so the field
+      // shows something usable.
+      setHexDraft(swatchValue)
+    }
   }
 
   return (
@@ -116,8 +142,47 @@ export function RecolorPopover({
             aria-label="Element colour picker"
           />
         </label>
-        <span className="recolor-popover-hex">{value ?? fallback ?? FALLBACK_DEFAULT}</span>
+        <input
+          type="text"
+          className="recolor-popover-hex-input"
+          value={hexDraft}
+          onChange={(e) => setHexDraft(e.target.value)}
+          onBlur={commitHex}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              commitHex()
+            } else if (e.key === 'Escape') {
+              setHexDraft(swatchValue)
+              ;(e.target as HTMLInputElement).blur()
+            }
+          }}
+          spellCheck={false}
+          aria-label="Hex colour value"
+          placeholder="#000000"
+        />
       </div>
+
+      {recentColors.length > 0 ? (
+        <div className="recolor-popover-recents">
+          <div className="recolor-popover-recents-label">Recent</div>
+          <div className="recolor-popover-recents-grid">
+            {recentColors.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`recolor-popover-recent-swatch${
+                  c.toLowerCase() === swatchValue.toLowerCase() ? ' active' : ''
+                }`}
+                style={{ background: c }}
+                title={c}
+                onClick={() => onChange(c.toLowerCase())}
+                aria-label={`Apply ${c}`}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="recolor-popover-hint">
         Cmd/Ctrl-click another element to add it to the selection. Esc to close.
