@@ -2172,9 +2172,11 @@
   .circuit-map-annotation-text-label {
     font-family: var(--font-body);
     font-size: 2cqi;
-    white-space: nowrap;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     color: inherit;
+    display: inline-block;
   }
 
   /* Image annotations */
@@ -2240,9 +2242,14 @@
     height: auto;
     display: block;
   }
-  .circuit-map-annotation-svg-wrap svg,
-  .circuit-map-annotation-svg-wrap svg * {
+  .circuit-map-annotation-svg-wrap:not(.stroke-mode) svg,
+  .circuit-map-annotation-svg-wrap:not(.stroke-mode) svg * {
     fill: currentColor !important;
+  }
+  .circuit-map-annotation-svg-wrap.stroke-mode svg,
+  .circuit-map-annotation-svg-wrap.stroke-mode svg * {
+    stroke: currentColor !important;
+    fill: none !important;
   }
 
   /* Editor affordances — only inside editor */
@@ -2259,6 +2266,25 @@
   .editor-root .circuit-map-annotation:hover:not([data-selected]) {
     outline: 1px dashed rgba(225, 6, 0, 0.4);
     outline-offset: 2px;
+  }
+
+  /* Drawing canvas — positioned within the stage, overflow visible so strokes aren't clipped */
+  .drawing-canvas-hitarea {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  .drawing-canvas-render {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: visible;
   }
 
   /* Drag position tooltip */
@@ -2399,6 +2425,21 @@
     text-transform: uppercase;
     color: var(--chrome-text-tertiary);
     margin-bottom: 4px;
+  }
+
+  .annotation-handle-width {
+    position: absolute;
+    top: 50%;
+    right: -6px;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 24px;
+    background: var(--brand-red);
+    border: 2px solid #fff;
+    border-radius: 3px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    cursor: ew-resize;
+    pointer-events: auto;
   }
 
   /* Annotation editor panel */

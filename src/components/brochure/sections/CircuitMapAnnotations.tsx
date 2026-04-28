@@ -38,7 +38,7 @@ export function AnnotationOverlay({
   return (
     <div
       ref={overlayRef}
-      className={`circuit-map-annotation-overlay${pendingKind ? ' placing' : ''}`}
+      className={`circuit-map-annotation-overlay${pendingKind && pendingKind !== 'draw' ? ' placing' : ''}`}
       onClick={(e) => {
         if (!editorMode) return
         // If click was directly on the overlay (not on an annotation), deselect or place
@@ -120,10 +120,14 @@ function AnnotationElement({ annotation, editorMode, isSelected, onSelect, handl
       {editorMode && isSelected && onTransform ? (
         <TransformHandles
           annotationKey={a._key}
+          annotationKind={a.kind}
           elRef={elRef}
+          overlayEl={typeof document !== 'undefined' ? elRef.current?.closest('.circuit-map-annotation-overlay') as HTMLElement | null : null}
           currentRotation={a.rotation ?? 0}
           currentScale={a.scale ?? 1}
+          currentWidth={a.kind === 'text' ? (a as any).width : undefined}
           onTransform={onTransform}
+          onUpdate={onUpdate}
         />
       ) : null}
     </div>
@@ -131,25 +135,34 @@ function AnnotationElement({ annotation, editorMode, isSelected, onSelect, handl
 }
 
 /**
- * Rotation + resize handles shown on the selected annotation in editor mode.
- * - Rotate handle: circular dot above the annotation, drag to rotate
- * - Resize handle: square at bottom-right corner, drag to scale
+ * Rotation + resize + width handles shown on the selected annotation in editor mode.
+ * - Rotate handle: circular dot above the annotation
+ * - Resize handle: square at bottom-right corner (scale)
+ * - Width handle: vertical bar on the right edge (text annotations only)
  */
 function TransformHandles({
   annotationKey,
+  annotationKind,
   elRef,
+  overlayEl,
   currentRotation,
   currentScale,
+  currentWidth,
   onTransform,
+  onUpdate,
 }: {
   annotationKey: string
+  annotationKind: string
   elRef: React.RefObject<HTMLDivElement | null>
+  overlayEl: HTMLElement | null
   currentRotation: number
   currentScale: number
+  currentWidth?: number
   onTransform: (key: string, update: { rotation?: number; scale?: number }) => void
+  onUpdate?: (key: string, update: Record<string, unknown>) => void
 }) {
-  const stateRef = useRef({ rotation: currentRotation, scale: currentScale })
-  stateRef.current = { rotation: currentRotation, scale: currentScale }
+  const stateRef = useRef({ rotation: currentRotation, scale: currentScale, width: currentWidth })
+  stateRef.current = { rotation: currentRotation, scale: currentScale, width: currentWidth }
 
   function startRotate(e: React.MouseEvent) {
     e.preventDefault()
@@ -160,7 +173,6 @@ function TransformHandles({
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
 
-    // Initial angle from center to mouse
     const startAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI)
     const startRotation = stateRef.current.rotation
 
@@ -168,7 +180,6 @@ function TransformHandles({
       const angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI)
       const delta = angle - startAngle
       let newRotation = Math.round(startRotation + delta)
-      // Normalize to 0-360
       newRotation = ((newRotation % 360) + 360) % 360
       onTransform(annotationKey, { rotation: newRotation })
     }
@@ -210,15 +221,45 @@ function TransformHandles({
     document.addEventListener('mouseup', onUp)
   }
 
+  function startWidthResize(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!overlayEl || !onUpdate) return
+    const overlayRect = overlayEl.getBoundingClientRect()
+    const overlayWidth = overlayRect.width
+    const startX = e.clientX
+    const el = elRef.current
+    if (!el) return
+    const elRect = el.getBoundingClientRect()
+    const startWidthPx = elRect.width
+
+    const onMove = (ev: MouseEvent) => {
+      const dx = ev.clientX - startX
+      const newWidthPx = Math.max(20, startWidthPx + dx * 2) // *2 because element is centered
+      // Convert px to cqi (percentage of container inline size)
+      const newWidthCqi = Math.round((newWidthPx / overlayWidth) * 100 * 100) / 100
+      onUpdate(annotationKey, { width: Math.max(2, newWidthCqi) })
+    }
+    const onUp = () => {
+      document.body.style.cursor = ''
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.body.style.cursor = 'ew-resize'
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }
+
   return (
     <>
-      {/* Rotate handle — above the annotation */}
       <div className="annotation-handle-rotate" onMouseDown={startRotate} title="Drag to rotate">
         <div className="annotation-handle-rotate-line" />
         <div className="annotation-handle-rotate-dot" />
       </div>
-      {/* Resize handle — bottom-right corner */}
       <div className="annotation-handle-resize" onMouseDown={startResize} title="Drag to resize" />
+      {annotationKind === 'text' ? (
+        <div className="annotation-handle-width" onMouseDown={startWidthResize} title="Drag to set width" />
+      ) : null}
     </>
   )
 }
@@ -260,23 +301,21 @@ function AnnotationTextContent({
     const el = spanRef.current
     if (!el) return
     el.contentEditable = 'false'
-    const text = el.textContent?.trim() || 'Text'
+    const text = el.innerText?.trim() || 'Text'
     onUpdate?.(a._key, { label: text })
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    // Enter inserts a newline; stop propagation so it doesn't bubble
     if (e.key === 'Enter') {
-      e.preventDefault()
-      spanRef.current?.blur()
+      e.stopPropagation()
+      // Let the default contentEditable behavior insert the newline
+      return
     }
     if (e.key === 'Escape') {
       e.preventDefault()
-      const el = spanRef.current
-      if (el) {
-        el.textContent = a.label || 'Text'
-        el.contentEditable = 'false'
-        el.blur()
-      }
+      // Commit on Escape (blur triggers save)
+      spanRef.current?.blur()
     }
   }
 
@@ -288,6 +327,7 @@ function AnnotationTextContent({
         fontSize: a.fontSize ? `${a.fontSize}cqi` : undefined,
         fontFamily: resolveFontFamily(a.fontFamily),
         fontWeight: a.fontWeight || 400,
+        width: a.width ? `${a.width}cqi` : undefined,
       }}
       onDoubleClick={editorMode ? handleDoubleClick : undefined}
       onBlur={editorMode ? handleBlur : undefined}
@@ -347,7 +387,7 @@ function AnnotationSvgContent({ annotation: a }: { annotation: Annotation & { ki
   }
   return (
     <div
-      className="circuit-map-annotation-svg-wrap"
+      className={`circuit-map-annotation-svg-wrap${a.strokeMode ? ' stroke-mode' : ''}`}
       style={{ width: a.width ? `${a.width}cqi` : '6cqi' }}
       dangerouslySetInnerHTML={{ __html: a.svgText }}
     />

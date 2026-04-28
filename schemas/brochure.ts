@@ -232,6 +232,28 @@ export default defineType({
       group: 'branding',
     }),
     defineField({
+      name: 'customColors',
+      type: 'array',
+      title: 'Custom colour palette',
+      description:
+        'Named colours available as variables when recolouring circuit SVGs and annotations. Changing a colour here updates every element using it.',
+      group: 'branding',
+      of: [
+        {
+          type: 'object',
+          name: 'customColor',
+          fields: [
+            { name: 'name', type: 'string', title: 'Name', validation: (Rule: any) => Rule.required() },
+            { name: 'hex', type: 'string', title: 'Hex colour', validation: (Rule: any) => Rule.required() },
+          ],
+          preview: {
+            select: { name: 'name', hex: 'hex' },
+            prepare: ({ name, hex }: any) => ({ title: name || 'Untitled', subtitle: hex }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'textureImage',
       type: 'image',
       title: 'Background texture',

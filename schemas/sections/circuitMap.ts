@@ -96,6 +96,7 @@ export default defineType({
             { name: 'fontFamily', type: 'string', title: 'Font family' },
             { name: 'fontWeight', type: 'string', title: 'Font weight' },
             { name: 'svgText', type: 'text', title: 'SVG markup', rows: 3 },
+            { name: 'strokeMode', type: 'boolean', title: 'Stroke mode (for drawings)' },
             { name: 'color', type: 'string', title: 'Colour' },
             { name: 'scale', type: 'number', title: 'Scale' },
             { name: 'rotation', type: 'number', title: 'Rotation' },

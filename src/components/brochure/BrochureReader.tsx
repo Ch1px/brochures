@@ -77,7 +77,7 @@ export function BrochureReader({ brochure }: Props) {
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
     <GoogleFontsLink url={fontsUrl} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div

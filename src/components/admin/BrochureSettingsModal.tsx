@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import type { Brochure, FontOverrides, SanityImage } from '@/types/brochure'
+import type { Brochure, CustomColor, FontOverrides, SanityImage } from '@/types/brochure'
 import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
+import { nanokey } from '@/lib/nanokey'
 import { fontOptionsForRole, weightOptionsForRole } from '@/lib/fontPalette'
 import { FieldInput } from './fields/FieldInput'
 import { FieldTextarea } from './fields/FieldTextarea'
@@ -25,6 +26,7 @@ type Props = {
     backgroundColor: string | undefined
     textColor: string | undefined
     fontOverrides: FontOverrides | undefined
+    customColors: CustomColor[] | undefined
     navColor: string | undefined
     textureImage: SanityImage | undefined
     hideTexture: boolean
@@ -59,6 +61,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   const [fontBodyWeight, setFontBodyWeight] = useState<string | undefined>(brochure.fontOverrides?.bodyWeight)
   const [fontMono, setFontMono] = useState<string | undefined>(brochure.fontOverrides?.mono)
   const [fontMonoWeight, setFontMonoWeight] = useState<string | undefined>(brochure.fontOverrides?.monoWeight)
+  const [customColors, setCustomColors] = useState<CustomColor[]>(brochure.customColors ?? [])
   const [navColor, setNavColor] = useState<string | undefined>(brochure.navColor)
   const [textureImage, setTextureImage] = useState<SanityImage | undefined>(brochure.textureImage)
   const [hideTexture, setHideTexture] = useState(Boolean(brochure.hideTexture))
@@ -90,6 +93,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     setFontBodyWeight(brochure.fontOverrides?.bodyWeight)
     setFontMono(brochure.fontOverrides?.mono)
     setFontMonoWeight(brochure.fontOverrides?.monoWeight)
+    setCustomColors(brochure.customColors ?? [])
     setNavColor(brochure.navColor)
     setTextureImage(brochure.textureImage)
     setHideTexture(Boolean(brochure.hideTexture))
@@ -161,6 +165,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                 monoWeight: fontMonoWeight || undefined,
               }
             : null,
+          customColors: customColors.length > 0 ? customColors : null,
           navColor: navColor ?? null,
           textureImage: textureImage ?? null,
           hideTexture: hideTexture || null,
@@ -184,6 +189,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
           ? { display: fontDisplay, displayWeight: fontDisplayWeight, script: fontScript, scriptWeight: fontScriptWeight, body: fontBody, bodyWeight: fontBodyWeight, mono: fontMono, monoWeight: fontMonoWeight }
           : undefined,
+        customColors: customColors.length > 0 ? customColors : undefined,
         navColor,
         textureImage,
         hideTexture,
@@ -299,6 +305,39 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             onChange={setLogo}
             previewWidth={400}
           />
+
+          <SectionHeader label="Custom colours" />
+
+          {customColors.map((c, i) => (
+            <div key={c._key} className="custom-color-row">
+              <FieldInput
+                label={`Name ${i + 1}`}
+                value={c.name}
+                onChange={(name) => setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, name } : p))}
+                placeholder="e.g. Sponsor Blue"
+              />
+              <FieldColor
+                label=""
+                value={c.hex}
+                onChange={(hex) => setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, hex: hex ?? '' } : p))}
+              />
+              <button
+                type="button"
+                className="field-btn field-btn-ghost"
+                style={{ marginTop: 4 }}
+                onClick={() => setCustomColors((prev) => prev.filter((p) => p._key !== c._key))}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="field-btn"
+            onClick={() => setCustomColors((prev) => [...prev, { _key: nanokey(), name: '', hex: '#e10600' }])}
+          >
+            + Add colour
+          </button>
 
           <SectionHeader label="Background texture" />
 

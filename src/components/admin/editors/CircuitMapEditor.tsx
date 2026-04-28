@@ -158,32 +158,12 @@ export function CircuitMapEditor({
           <span className="field-label-description">
             {pendingAnnotationKind
               ? `Click the map to place a ${pendingAnnotationKind}`
-              : recolorMode
-                ? 'Click any element on the circuit to recolour it'
-                : 'Select a tool below, then interact with the map'}
+              : 'Click circuit elements to recolour, or add annotations below'}
           </span>
         </div>
 
-        {/* Tool bar */}
+        {/* Tool bar — annotation placement tools */}
         <div className="map-editor-toolbar">
-          <button
-            type="button"
-            className={`map-editor-tool${!pendingAnnotationKind && !recolorMode ? ' active' : ''}`}
-            onClick={() => { onRecolorModeChange?.(false); onSetPendingAnnotation?.(null) }}
-            title="Select and drag annotations"
-          >
-            Select
-          </button>
-          <button
-            type="button"
-            className={`map-editor-tool${recolorMode ? ' active' : ''}`}
-            onClick={() => { onRecolorModeChange?.(!recolorMode); onSetPendingAnnotation?.(null); onSelectAnnotation?.(null) }}
-            disabled={!hasOriginal}
-            title="Click circuit elements to recolour"
-          >
-            Recolour
-          </button>
-          <div className="map-editor-tool-divider" />
           <button
             type="button"
             className={`map-editor-tool${pendingAnnotationKind === 'text' ? ' active' : ''}`}
@@ -216,7 +196,22 @@ export function CircuitMapEditor({
           >
             + SVG
           </button>
+          <div className="map-editor-tool-divider" />
+          <button
+            type="button"
+            className={`map-editor-tool${pendingAnnotationKind === 'draw' ? ' active' : ''}`}
+            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'draw' ? null : 'draw'); onRecolorModeChange?.(false) }}
+            title="Freehand draw on the map"
+          >
+            Draw
+          </button>
         </div>
+
+        {pendingAnnotationKind === 'draw' ? (
+          <div className="map-editor-draw-settings">
+            <span className="field-label-description">Draw on the map. Release to finish.</span>
+          </div>
+        ) : null}
 
         {/* Colour overrides list */}
         {overrides.length > 0 ? (

@@ -12,6 +12,7 @@ import { useAnnotationDrag } from '@/hooks/useAnnotationDrag'
 import { nanokey } from '@/lib/nanokey'
 import { FONT_PALETTE } from '@/lib/fontPalette'
 import { resolveColor, type BrandContext } from '@/lib/brandColorTokens'
+import { DrawingCanvas } from '../../admin/DrawingCanvas'
 
 type Props = {
   data: SectionCircuitMap
@@ -42,11 +43,11 @@ type Props = {
  * up via the BrochureBranding context.
  */
 export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
-  const { accentColor, backgroundColor, textColor, theme, editorMode, recolor, annotations: annotationCtx } = useBrochureBranding()
+  const { accentColor, backgroundColor, textColor, customColors, theme, editorMode, recolor, annotations: annotationCtx } = useBrochureBranding()
 
   const brandCtx: BrandContext = useMemo(
-    () => ({ accentColor, backgroundColor, textColor, theme }),
-    [accentColor, backgroundColor, textColor, theme],
+    () => ({ accentColor, backgroundColor, textColor, theme, customColors }),
+    [accentColor, backgroundColor, textColor, theme, customColors],
   )
 
   // The fully-prepared SVG string: themed → ids stamped → overrides injected.
@@ -107,6 +108,8 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
 
   const handleOverlayClick = useCallback(
     (e: React.MouseEvent) => {
+      // Draw mode is handled by the DrawingCanvas, not by overlay clicks
+      if (annotationCtx?.pendingKind === 'draw') return
       if (!annotationCtx?.pendingKind) {
         annotationCtx?.onSelect(null)
         return
@@ -124,6 +127,24 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
   const handleAnnotationTransform = useCallback(
     (key: string, update: { rotation?: number; scale?: number }) => {
       annotationCtx?.onTransform(sectionKey, key, update)
+    },
+    [annotationCtx, sectionKey],
+  )
+
+  const handleDrawingComplete = useCallback(
+    (svgText: string, x: number, y: number, width: number) => {
+      if (!annotationCtx) return
+      const newAnnotation: Annotation = {
+        _key: nanokey(),
+        kind: 'svg',
+        x,
+        y,
+        svgText,
+        width,
+        strokeMode: true,
+        color: 'var:accent',
+      }
+      annotationCtx.onAddAnnotation(sectionKey, newAnnotation)
     },
     [annotationCtx, sectionKey],
   )
@@ -253,6 +274,14 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
               } : undefined}
               dragInfo={dragInfo}
               pendingKind={annotationCtx?.pendingKind}
+            />
+          ) : null}
+          {annotationCtx?.pendingKind === 'draw' ? (
+            <DrawingCanvas
+              overlayRef={overlayRef}
+              strokeWidth={3}
+              onComplete={handleDrawingComplete}
+              onCancel={() => {}}
             />
           ) : null}
         </div>

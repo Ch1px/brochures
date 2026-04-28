@@ -24,6 +24,7 @@ const KIND_LABELS: Record<AnnotationKind, string> = {
   image: 'Image',
   pin: 'Pin',
   svg: 'SVG',
+  draw: 'Drawing',
 }
 
 const FONT_OPTIONS = [
@@ -216,6 +217,12 @@ export function AnnotationEditor({
                           value={String((selected as Annotation & { kind: 'text' }).fontSize ?? '')}
                           onChange={(v) => updateAnnotation(a._key, { fontSize: v ? Number(v) : undefined } as Partial<Annotation>)}
                         />
+                        <FieldInput
+                          label="Width (cqi)"
+                          description="Set a fixed width for text wrapping. Leave empty for auto-width."
+                          value={String((selected as Annotation & { kind: 'text' }).width ?? '')}
+                          onChange={(v) => updateAnnotation(a._key, { width: v ? Number(v) : undefined } as Partial<Annotation>)}
+                        />
                       </>
                     ) : null}
                     {a.kind === 'image' ? (
@@ -379,8 +386,8 @@ function AnnotationColorField({
   value: string | undefined
   onChange: (color: string | undefined) => void
 }) {
-  const { accentColor, backgroundColor, textColor, theme } = useBrochureBranding()
-  const brandCtx: BrandContext = { accentColor, backgroundColor, textColor, theme }
+  const { accentColor, backgroundColor, textColor, customColors, theme } = useBrochureBranding()
+  const brandCtx: BrandContext = { accentColor, backgroundColor, textColor, theme, customColors }
   const isToken = value ? isBrandToken(value) : false
   const resolved = value && isToken ? resolveColor(value, brandCtx) : value
 
@@ -389,7 +396,7 @@ function AnnotationColorField({
       <div className="annotation-color-field-label">
         <span className="field-label-text">Colour</span>
         {isToken ? (
-          <span className="annotation-color-token-badge">{tokenLabel(value!) ?? value}</span>
+          <span className="annotation-color-token-badge">{tokenLabel(value!, brandCtx) ?? value}</span>
         ) : null}
       </div>
       <div className="annotation-brand-swatches">
@@ -404,6 +411,20 @@ function AnnotationColorField({
               style={{ background: hex }}
               title={`${t.label} (${hex})`}
               onClick={() => onChange(t.token)}
+            />
+          )
+        })}
+        {(customColors ?? []).map((c) => {
+          const token = `custom:${c._key}`
+          const isActive = value === token
+          return (
+            <button
+              key={c._key}
+              type="button"
+              className={`annotation-brand-swatch${isActive ? ' active' : ''}`}
+              style={{ background: c.hex }}
+              title={`${c.name} (${c.hex})`}
+              onClick={() => onChange(token)}
             />
           )
         })}

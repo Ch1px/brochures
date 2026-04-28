@@ -20,6 +20,7 @@ export type BrandContext = {
   backgroundColor?: string
   textColor?: string
   theme?: 'dark' | 'light'
+  customColors?: { _key: string; name: string; hex: string }[]
 }
 
 const DEFAULT_ACCENT = '#e10600'
@@ -72,20 +73,34 @@ export const BRAND_TOKENS: BrandToken[] = [
 
 const TOKEN_MAP = new Map(BRAND_TOKENS.map((t) => [t.token, t]))
 
-/** Returns true if the colour string is a brand variable token. */
+/** Returns true if the colour string is a brand or custom variable token. */
 export function isBrandToken(color: string): boolean {
-  return color.startsWith('var:')
+  return color.startsWith('var:') || color.startsWith('custom:')
 }
 
-/** Resolves a colour — if it's a brand token, resolves to the current hex;
+/** Resolves a colour — if it's a brand/custom token, resolves to the current hex;
  *  otherwise returns it as-is. */
 export function resolveColor(color: string, ctx: BrandContext): string {
+  // Built-in brand token
   const entry = TOKEN_MAP.get(color)
   if (entry) return entry.resolve(ctx)
+  // Custom colour token: `custom:<_key>`
+  if (color.startsWith('custom:') && ctx.customColors) {
+    const key = color.slice(7)
+    const custom = ctx.customColors.find((c) => c._key === key)
+    if (custom) return custom.hex
+  }
   return color
 }
 
-/** Returns the label for a brand token, or null if it's not a token. */
-export function tokenLabel(color: string): string | null {
-  return TOKEN_MAP.get(color)?.label ?? null
+/** Returns the label for a brand/custom token, or null if it's not a token. */
+export function tokenLabel(color: string, ctx?: BrandContext): string | null {
+  const entry = TOKEN_MAP.get(color)
+  if (entry) return entry.label
+  if (color.startsWith('custom:') && ctx?.customColors) {
+    const key = color.slice(7)
+    const custom = ctx.customColors.find((c) => c._key === key)
+    if (custom) return custom.name
+  }
+  return null
 }

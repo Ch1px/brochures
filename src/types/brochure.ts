@@ -234,7 +234,7 @@ export type ColorOverride = {
   color: string
 }
 
-export type AnnotationKind = 'text' | 'image' | 'pin' | 'svg'
+export type AnnotationKind = 'text' | 'image' | 'pin' | 'svg' | 'draw'
 
 type AnnotationBase = {
   _key: string
@@ -253,6 +253,7 @@ export type AnnotationText = AnnotationBase & {
   fontSize?: number
   fontFamily?: string
   fontWeight?: string
+  width?: number
 }
 
 export type AnnotationImage = AnnotationBase & {
@@ -272,6 +273,7 @@ export type AnnotationSvg = AnnotationBase & {
   kind: 'svg'
   svgText?: string
   width?: number
+  strokeMode?: boolean
 }
 
 export type Annotation = AnnotationText | AnnotationImage | AnnotationPin | AnnotationSvg
@@ -385,6 +387,12 @@ export type Page = {
   sections: Section[]
 }
 
+export type CustomColor = {
+  _key: string
+  name: string
+  hex: string
+}
+
 export type Brochure = {
   _id: string
   title: string
@@ -400,6 +408,7 @@ export type Brochure = {
   navColor?: string
   textureImage?: SanityImage
   hideTexture?: boolean
+  customColors?: CustomColor[]
   logo?: SanityImage
   publishedAt?: string
   featured?: boolean

@@ -35,6 +35,7 @@ type Props = {
     onUpdate: (sectionKey: string, annotationKey: string, update: Record<string, unknown>) => void
     pendingKind: AnnotationKind | null
     onPlaceNew: (sectionKey: string, x: number, y: number) => void
+    onAddAnnotation: (sectionKey: string, annotation: import('@/types/brochure').Annotation) => void
   }
 }
 
@@ -107,7 +108,7 @@ export function PreviewStage({
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, logo: brochure.logo, theme, editorMode: true, recolor, annotations: annotationsProp }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme, editorMode: true, recolor, annotations: annotationsProp }}>
     <GoogleFontsLink url={fontsUrl} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div className="preview-stage-wrap">
@@ -136,6 +137,8 @@ export function PreviewStage({
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
+                  // Don't intercept when typing in a contentEditable element
+                  if ((e.target as HTMLElement)?.isContentEditable) return
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault()
                     setCurrentSectionKey(section._key)

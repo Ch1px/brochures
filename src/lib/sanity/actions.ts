@@ -53,6 +53,7 @@ export async function saveBrochureAction(
       | 'backgroundColor'
       | 'textColor'
       | 'fontOverrides'
+      | 'customColors'
       | 'navColor'
       | 'textureImage'
       | 'hideTexture'

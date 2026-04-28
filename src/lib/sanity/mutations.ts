@@ -61,6 +61,7 @@ export async function saveBrochure(
       | 'backgroundColor'
       | 'textColor'
       | 'fontOverrides'
+      | 'customColors'
       | 'navColor'
       | 'textureImage'
       | 'hideTexture'
@@ -93,6 +94,7 @@ export type BrochureSettingsUpdate = {
   backgroundColor?: string | null
   textColor?: string | null
   fontOverrides?: FontOverrides | null
+  customColors?: { _key: string; name: string; hex: string }[] | null
   navColor?: string | null
   textureImage?: SanityImage | null
   hideTexture?: boolean | null
@@ -156,6 +158,10 @@ export async function updateBrochureSettings(
     if (updates.fontOverrides !== undefined) {
       if (updates.fontOverrides === null) unset.push('fontOverrides')
       else patch.fontOverrides = updates.fontOverrides
+    }
+    if (updates.customColors !== undefined) {
+      if (updates.customColors === null || updates.customColors.length === 0) unset.push('customColors')
+      else patch.customColors = updates.customColors
     }
     if (updates.navColor !== undefined) {
       const trimmed = updates.navColor?.trim() ?? ''
@@ -272,6 +278,7 @@ export async function duplicateBrochure(
       backgroundColor: src.backgroundColor,
       textColor: src.textColor,
       fontOverrides: src.fontOverrides,
+      customColors: src.customColors,
       navColor: src.navColor,
       textureImage: src.textureImage,
       hideTexture: src.hideTexture,

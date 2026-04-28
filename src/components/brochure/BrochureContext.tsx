@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, type ReactNode } from 'react'
-import type { Annotation, AnnotationKind, BrochureTheme, FontOverrides, SanityImage } from '@/types/brochure'
+import type { Annotation, AnnotationKind, BrochureTheme, CustomColor, FontOverrides, SanityImage } from '@/types/brochure'
 
 /**
  * Lightweight context for brochure-wide branding values that descendant
@@ -19,6 +19,7 @@ export type BrochureBranding = {
   backgroundColor?: string
   textColor?: string
   fontOverrides?: FontOverrides
+  customColors?: CustomColor[]
   logo?: SanityImage
   theme: BrochureTheme
   /** True when rendered inside the admin editor preview. Section components
@@ -54,6 +55,7 @@ export type BrochureBranding = {
     onUpdate: (sectionKey: string, annotationKey: string, update: Record<string, unknown>) => void
     pendingKind: AnnotationKind | null
     onPlaceNew: (sectionKey: string, x: number, y: number) => void
+    onAddAnnotation: (sectionKey: string, annotation: Annotation) => void
   }
 }
 

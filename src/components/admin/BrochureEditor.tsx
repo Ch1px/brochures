@@ -117,20 +117,21 @@ export function BrochureEditor({ initialBrochure }: Props) {
       setRecolorSelection(null)
       setSelectedAnnotationKey(null)
       setPendingAnnotationKind(null)
+    } else {
+      // Recolor is always on in map edit mode
+      setRecolorMode(true)
     }
   }, [mapEditMode])
 
-  // Mutual exclusion: recolor ↔ annotation selection
+  // When placing an annotation, temporarily suppress recolor so clicks go
+  // to the overlay instead of the SVG. Once placed, recolor resumes.
   useEffect(() => {
-    if (selectedAnnotationKey || pendingAnnotationKind) setRecolorMode(false)
-  }, [selectedAnnotationKey, pendingAnnotationKind])
-
-  useEffect(() => {
-    if (recolorMode) {
-      setSelectedAnnotationKey(null)
-      setPendingAnnotationKind(null)
+    if (pendingAnnotationKind) {
+      setRecolorMode(false)
+    } else if (mapEditMode) {
+      setRecolorMode(true)
     }
-  }, [recolorMode])
+  }, [pendingAnnotationKind, mapEditMode])
 
   // Move an annotation (called from drag handler)
   const handleAnnotationMove = useCallback(
@@ -204,7 +205,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
   const handlePlaceNewAnnotation = useCallback(
     (sectionKey: string, x: number, y: number) => {
       const kind = pendingAnnotationKind
-      if (!kind) return
+      if (!kind || kind === 'draw') return
       const key = nanokey()
       let newAnnotation: Annotation
       if (kind === 'text') {
@@ -231,6 +232,25 @@ export function BrochureEditor({ initialBrochure }: Props) {
       setPendingAnnotationKind(null)
     },
     [pendingAnnotationKind],
+  )
+
+  // Insert a fully-formed annotation (used by drawing tool)
+  const handleAddAnnotation = useCallback(
+    (sectionKey: string, annotation: Annotation) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return { ...cm, annotations: [...(cm.annotations ?? []), annotation] } as Section
+          }),
+        })),
+      }))
+      setSelectedAnnotationKey(annotation._key)
+    },
+    [],
   )
 
   const { status: saveStatus, flushNow } = useAutosave(brochure)
@@ -404,8 +424,9 @@ export function BrochureEditor({ initialBrochure }: Props) {
       onUpdate: handleAnnotationUpdate,
       pendingKind: pendingAnnotationKind,
       onPlaceNew: handlePlaceNewAnnotation,
+      onAddAnnotation: handleAddAnnotation,
     } : undefined,
-    [mapEditMode, selectedAnnotationKey, handleAnnotationMove, handleAnnotationTransform, handleAnnotationUpdate, pendingAnnotationKind, handlePlaceNewAnnotation]
+    [mapEditMode, selectedAnnotationKey, handleAnnotationMove, handleAnnotationTransform, handleAnnotationUpdate, pendingAnnotationKind, handlePlaceNewAnnotation, handleAddAnnotation]
   )
 
   // Recent colours used in the active circuit-map section, most-recent-first
@@ -529,9 +550,11 @@ export function BrochureEditor({ initialBrochure }: Props) {
   useEffect(() => {
     if (!selectedAnnotationKey) return
     const onKey = (e: KeyboardEvent) => {
-      // Don't intercept when typing in an input/textarea
-      const tag = (e.target as HTMLElement)?.tagName
+      // Don't intercept when typing in an input/textarea/contentEditable
+      const el = e.target as HTMLElement
+      const tag = el?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (el?.isContentEditable) return
 
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault()
@@ -715,6 +738,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
             backgroundColor: brochure.backgroundColor,
             textColor: brochure.textColor,
             theme: brochure.theme,
+            customColors: brochure.customColors,
           }}
           onChange={(color) =>
             updateOverrides(recolorSelection.sectionKey, recolorSelection.elementIds, color)
@@ -748,6 +772,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
             backgroundColor: updates.backgroundColor,
             textColor: updates.textColor,
             fontOverrides: updates.fontOverrides,
+            customColors: updates.customColors,
             navColor: updates.navColor,
             textureImage: updates.textureImage,
             hideTexture: updates.hideTexture,

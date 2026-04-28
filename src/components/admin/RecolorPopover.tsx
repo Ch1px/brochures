@@ -210,9 +210,31 @@ export function RecolorPopover({
               )
             })}
           </div>
+          {brandContext.customColors && brandContext.customColors.length > 0 ? (
+            <>
+              <div className="recolor-popover-recents-label" style={{ marginTop: 6 }}>Custom</div>
+              <div className="recolor-popover-recents-grid">
+                {brandContext.customColors.map((c) => {
+                  const token = `custom:${c._key}`
+                  const isActive = value === token
+                  return (
+                    <button
+                      key={c._key}
+                      type="button"
+                      className={`recolor-popover-recent-swatch${isActive ? ' active' : ''}`}
+                      style={{ background: c.hex }}
+                      title={`${c.name} (${c.hex})`}
+                      onClick={() => onChange(token)}
+                      aria-label={`Apply ${c.name}`}
+                    />
+                  )
+                })}
+              </div>
+            </>
+          ) : null}
           {isToken ? (
             <div className="recolor-popover-token-label">
-              Using: {tokenLabel(value!) ?? value}
+              Using: {tokenLabel(value!, brandContext) ?? value}
             </div>
           ) : null}
         </div>
