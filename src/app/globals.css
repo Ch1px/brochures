@@ -919,7 +919,14 @@
   .page-spotlight.overlay-strong { --overlay-top: 0.92; --overlay-mid: 0.86; --overlay-bot: 0.96; }
   /* When the foreground image is hidden, collapse the inner grid to a
      single text column with a comfortable max-width so the body doesn't
-     run too wide on large screens. */
+     run too wide on large screens. The section also fills the full slide
+     so the bg image isn't cropped to a thin band by short text. */
+  .page-spotlight.no-foreground {
+    min-height: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .page-spotlight.no-foreground .page-spotlight-inner {
     grid-template-columns: 1fr;
     max-width: 720px;
@@ -954,7 +961,7 @@
     display: grid;
     grid-template-columns: 50% 50%;
     gap: clamp(18px, 3cqi, 40px);
-    padding: 8% 8%;
+    padding: 4% 8%;
     align-items: center;
   }
   .page-spotlight-image {
