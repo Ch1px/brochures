@@ -2,6 +2,7 @@ import type { SectionImageHero } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -55,22 +56,24 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
         </svg>
       ) : null}
 
-      <div
-        className="page-image-hero-bg"
-        style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-      >
-        {videoUrl ? (
-          <video
-            className="media-video"
-            src={videoUrl}
-            poster={imageUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-          />
-        ) : null}
-      </div>
+      <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
+        <div
+          className="page-image-hero-bg"
+          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+        >
+          {videoUrl ? (
+            <video
+              className="media-video"
+              src={videoUrl}
+              poster={imageUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : null}
+        </div>
+      </InlineMedia>
 
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
 

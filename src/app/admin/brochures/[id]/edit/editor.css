@@ -1020,6 +1020,63 @@
   min-height: 1em;
 }
 
+/* ── Inline media (image replace/remove) ─── */
+/* Overlay is injected as a child of the image container via cloneElement.
+   The host class is added to the image container for hover targeting. */
+.inline-media-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.0);
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+  z-index: 3;
+  pointer-events: none;
+}
+.inline-media-host:hover > .inline-media-overlay,
+.inline-media-overlay.uploading {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+.inline-media-actions {
+  display: flex;
+  gap: 6px;
+}
+.inline-media-btn {
+  padding: 7px 14px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #fff;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.inline-media-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.inline-media-btn.danger:hover {
+  background: rgba(225, 6, 0, 0.4);
+  border-color: var(--brand-red);
+  color: #ff8a8a;
+}
+.inline-media-status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--brand-red);
+  animation: pulse 1s ease-in-out infinite;
+}
+
 /* Field layout utilities */
 /* Save toast */
 .save-toast {

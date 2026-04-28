@@ -1,6 +1,7 @@
 import type { SectionGalleryGrid } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { GalleryHeader } from './GalleryHeader'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -39,15 +40,18 @@ export function GalleryGrid({ data, pageNum, total, showFolio }: Props) {
         <div className="gallery-grid-6" data-rows={rows}>
           {tiles.map(({ url, index }) =>
             url ? (
+              <InlineMedia key={index} sectionKey={data._key} field={`images.${index}`} hasImage={Boolean(url)}>
               <div
-                key={index}
                 className="gallery-item"
                 style={{ backgroundImage: `url('${url}')` }}
               />
+              </InlineMedia>
             ) : (
-              <div key={index} className="gallery-item gallery-placeholder">
+              <InlineMedia key={index} sectionKey={data._key} field={`images.${index}`} hasImage={false}>
+              <div className="gallery-item gallery-placeholder">
                 {String(index + 1).padStart(2, '0')}
               </div>
+              </InlineMedia>
             ),
           )}
         </div>

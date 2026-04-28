@@ -2,6 +2,7 @@ import type { SectionGalleryDuo } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { GalleryHeader } from './GalleryHeader'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -32,8 +33,8 @@ export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
             const url = urlForSection(img, 1600)
             const caption = captions[i] ?? ''
             return (
+              <InlineMedia key={i} sectionKey={data._key} field={`images.${i}`} hasImage={Boolean(url)}>
               <div
-                key={i}
                 className={`gallery-duo-item ${!url ? 'gallery-placeholder' : ''}`.trim()}
                 style={url ? { backgroundImage: `url('${url}')` } : undefined}
               >
@@ -53,6 +54,7 @@ export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
                 ) : null}
                 {(caption || editorMode) ? <InlineEditable sectionKey={data._key} field={`captions.${i}`}><div className="gallery-duo-caption">{caption}</div></InlineEditable> : null}
               </div>
+              </InlineMedia>
             )
           })}
         </div>

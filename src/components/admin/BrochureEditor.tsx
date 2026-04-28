@@ -343,6 +343,22 @@ export function BrochureEditor({ initialBrochure }: Props) {
     [],
   )
 
+  // Inline media edit (image/video replace/remove) from the preview stage
+  const handleInlineMediaEdit = useCallback(
+    (sectionKey: string, fieldPath: string, value: unknown) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) =>
+            s._key === sectionKey ? applyFieldPath(s, fieldPath, value) : s
+          ),
+        })),
+      }))
+    },
+    [],
+  )
+
   // Click handler reported up from CircuitMap when the admin clicks a
   // recolourable element. Plain click → replaces selection with [id]. Click
   // with modifier (Cmd / Ctrl / Shift) → toggles id in the current selection,
@@ -707,6 +723,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
             recolor={recolorContext}
             annotations={annotationContext}
             onInlineEdit={handleInlineEdit}
+            onInlineMediaEdit={handleInlineMediaEdit}
             onRequestMapEdit={() => setMapEditMode(true)}
           />
         </main>

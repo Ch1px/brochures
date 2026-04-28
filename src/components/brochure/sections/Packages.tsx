@@ -1,6 +1,7 @@
 import type { SectionPackages } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -32,10 +33,14 @@ export function Packages({ data, pageNum, total, showFolio }: Props) {
             const imgUrl = urlForSection(p.image, 900)
             return (
             <div key={p._key} className={`package-card ${p.featured ? 'featured' : ''}`.trim()}>
-              {imgUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="package-image" src={imgUrl} alt={p.name ?? ''} />
-              ) : null}
+              <InlineMedia sectionKey={data._key} field={`packages.${i}.image`} hasImage={Boolean(imgUrl)}>
+                <div className="package-image-wrap">
+                  {imgUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="package-image" src={imgUrl} alt={p.name ?? ''} />
+                  ) : null}
+                </div>
+              </InlineMedia>
               {(p.tier || editorMode) ? <InlineEditable sectionKey={data._key} field={`packages.${i}.tier`}><div className="package-tier">{p.tier}</div></InlineEditable> : null}
               <InlineEditable sectionKey={data._key} field={`packages.${i}.name`}><h3 className="package-name">{p.name ?? ''}</h3></InlineEditable>
               <div className="package-price">

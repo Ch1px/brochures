@@ -1,6 +1,7 @@
 import type { SectionGalleryEditorial } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -33,17 +34,20 @@ export function GalleryEditorial({ data, pageNum, total, showFolio }: Props) {
             const url = urlForSection(img, 1400)
             if (url) {
               return (
+                <InlineMedia key={i} sectionKey={data._key} field={`images.${i}`} hasImage={Boolean(url)}>
                 <div
-                  key={i}
                   className="gallery-item"
                   style={{ backgroundImage: `url('${url}')` }}
                 />
+                </InlineMedia>
               )
             }
             return (
-              <div key={i} className="gallery-item gallery-placeholder">
+              <InlineMedia key={i} sectionKey={data._key} field={`images.${i}`} hasImage={false}>
+              <div className="gallery-item gallery-placeholder">
                 {String(i + 1).padStart(2, '0')}
               </div>
+              </InlineMedia>
             )
           })}
         </div>

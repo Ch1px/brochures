@@ -3,6 +3,7 @@ import { urlForSection } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -36,12 +37,14 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
             const imageUrl = urlForSection(card.image, 900)
             return (
               <div key={card._key} className="feature-card">
+                <InlineMedia sectionKey={data._key} field={`cards.${i}.image`} hasImage={Boolean(imageUrl)}>
                 <div
                   className="feature-card-media"
                   style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
                 >
                   {!imageUrl ? <ImagePlaceholderSVG /> : null}
                 </div>
+                </InlineMedia>
                 <div className="feature-card-body">
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="feature-card-title">{card.title ?? ''}</div></InlineEditable>
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.text`} richBody><RichBody className="feature-card-text" text={card.text} /></InlineEditable>

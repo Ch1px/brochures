@@ -2,6 +2,7 @@ import type { SectionQuoteProfile } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -29,10 +30,12 @@ export function QuoteProfile({ data, pageNum, total, showFolio }: Props) {
             {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="quote-profile-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
             {(data.name || editorMode) ? <InlineEditable sectionKey={data._key} field="name"><div className="quote-profile-name">{data.name || ''}</div></InlineEditable> : null}
           </div>
+          <InlineMedia sectionKey={data._key} field="photo" hasImage={Boolean(photoUrl)}>
           <div
             className="quote-profile-photo"
             style={photoUrl ? { backgroundImage: `url('${photoUrl}')` } : undefined}
           />
+          </InlineMedia>
         </div>
         <div className="quote-profile-right">
           {(data.quote || editorMode) ? <InlineEditable sectionKey={data._key} field="quote"><p className="quote-profile-quote">{data.quote || ''}</p></InlineEditable> : null}

@@ -2,6 +2,7 @@ import type { SectionSectionHeading } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -28,6 +29,9 @@ export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
       data-section-id={data._key}
       style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
     >
+      <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
+      </InlineMedia>
       {videoUrl ? (
         <video
           className="media-video"

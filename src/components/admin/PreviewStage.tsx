@@ -38,6 +38,7 @@ type Props = {
     onAddAnnotation: (sectionKey: string, annotation: import('@/types/brochure').Annotation) => void
   }
   onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void
+  onInlineMediaEdit?: (sectionKey: string, fieldPath: string, value: unknown) => void
   onRequestMapEdit?: () => void
 }
 
@@ -61,6 +62,7 @@ export function PreviewStage({
   recolor,
   annotations: annotationsProp,
   onInlineEdit,
+  onInlineMediaEdit,
   onRequestMapEdit,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null)
@@ -112,7 +114,7 @@ export function PreviewStage({
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme, editorMode: true, onInlineEdit, onRequestMapEdit, recolor, annotations: annotationsProp }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme, editorMode: true, onInlineEdit, onInlineMediaEdit, onRequestMapEdit, recolor, annotations: annotationsProp }}>
     <GoogleFontsLink url={fontsUrl} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div className="preview-stage-wrap">

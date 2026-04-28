@@ -1,6 +1,7 @@
 import type { SectionCover } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -23,22 +24,24 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
 
   return (
     <section className={`section page-cover ${variantClass} cover-overlay-${data.overlayStrength ?? 'medium'}`} data-section-id={data._key}>
-      <div
-        className="page-cover-bg"
-        style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-      >
-        {videoUrl ? (
-          <video
-            className="media-video"
-            src={videoUrl}
-            poster={imageUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-          />
-        ) : null}
-      </div>
+      <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
+        <div
+          className="page-cover-bg"
+          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+        >
+          {videoUrl ? (
+            <video
+              className="media-video"
+              src={videoUrl}
+              poster={imageUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : null}
+        </div>
+      </InlineMedia>
 
       {/* Decorative SVG — gradient wash + racing lines. Same as builder.
           Uses currentColor so a parent override of --brand-red retints. */}

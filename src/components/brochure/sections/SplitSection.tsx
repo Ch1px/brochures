@@ -3,6 +3,7 @@ import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -37,25 +38,27 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
   const imageDiv = (
     <div className={`page-intro-right-wrap${reversed ? ' reversed' : ''}`}>
       <div className="image-offset-frame" aria-hidden="true" />
-      <div
-        className="page-intro-right"
-        style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-      >
-        {videoUrl ? (
-          <video
-            className="media-video"
-            src={videoUrl}
-            poster={imageUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-          />
-        ) : null}
-        <div className="page-intro-right-frame" />
-        {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
-        {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption"><div className="page-intro-right-caption">{data.caption || ''}</div></InlineEditable> : null}
-      </div>
+      <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
+        <div
+          className="page-intro-right"
+          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+        >
+          {videoUrl ? (
+            <video
+              className="media-video"
+              src={videoUrl}
+              poster={imageUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : null}
+          <div className="page-intro-right-frame" />
+          {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
+          {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption"><div className="page-intro-right-caption">{data.caption || ''}</div></InlineEditable> : null}
+        </div>
+      </InlineMedia>
     </div>
   )
 
