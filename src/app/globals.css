@@ -4051,6 +4051,21 @@
     flex-direction: column;
     justify-content: center;
   }
+  /* Public-reader sizing assumes each section fills the slide height: inners
+     get min-height: 100% and child blocks (itinerary-list, circuit-map-stage)
+     get flex: 1 to absorb free space. In the print view that fill swallows
+     the room our parent's justify-content: center needs to actually position
+     content, so we drop both for the affected inners and let the section
+     centre a content-sized inner within the A4 sheet. */
+  .brochure-print-page > .section > .page-itinerary-inner,
+  .brochure-print-page > .section > .page-circuit-map-inner,
+  .brochure-print-page > .section > .page-gallery-inner {
+    min-height: auto;
+  }
+  .brochure-print-page > .section > .page-itinerary-inner > .itinerary-list,
+  .brochure-print-page > .section > .page-circuit-map-inner > .circuit-map-stage {
+    flex: 0 1 auto;
+  }
   .brochure-print-page > .section.page-cover > .page-cover-inner,
   .brochure-print-page > .section.page-image-hero > .page-image-hero-inner,
   .brochure-print-page > .section.page-closing > .page-closing-inner {
