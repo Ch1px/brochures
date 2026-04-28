@@ -2809,6 +2809,17 @@
      rendered at 1100px stage or 375px mobile viewport.
      ============================================================ */
 
+  /* --- Circuit-map: collapse two-column grid to stacked at 900px --- */
+  @container (max-width: 900px) {
+    .page-circuit-map-inner {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "header"
+        "stage"
+        "stats";
+    }
+  }
+
   /* --- < 720px section width --- */
   @container (max-width: 768px) {
     .page-cover-inner,
@@ -2825,16 +2836,6 @@
       padding: 8% 7%;
     }
     .page-image-hero-content { padding: 8% 7%; max-width: 80%; }
-
-    /* Circuit-map: collapse two-column layout to single column at narrow
-       widths so header stacks above the map again. */
-    .page-circuit-map-inner {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "header"
-        "stage"
-        "stats";
-    }
 
     /* Circuit-map stats wrap to 2 columns at tablet/mobile widths so 4 stats
        don't squash. Right-borders are dropped on the rightmost cell of each
