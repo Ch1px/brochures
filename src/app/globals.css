@@ -2135,7 +2135,7 @@
     font-size: clamp(9px, 1cqi, 11px);
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--page-text-subtle);
+    color: var(--page-text-muted);
   }
 
   /* Mini preview for add-section modal */
