@@ -2,6 +2,7 @@ import type { SectionSpotlight } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
+import { SpotlightBackground } from './SpotlightBackground'
 
 type Props = {
   data: SectionSpotlight
@@ -18,21 +19,16 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
 
   return (
     <section
-      className="section page-spotlight"
+      className={`section page-spotlight overlay-${data.overlayStrength ?? 'medium'}${
+        data.showForegroundImage === false ? ' no-foreground' : ''
+      }`}
       data-section-id={data._key}
-      style={backgroundUrl ? { backgroundImage: `url('${backgroundUrl}')` } : undefined}
     >
-      {backgroundVideoUrl ? (
-        <video
-          className="media-video"
-          src={backgroundVideoUrl}
-          poster={backgroundUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      ) : null}
+      <SpotlightBackground
+        imageUrl={backgroundUrl ?? undefined}
+        videoUrl={backgroundVideoUrl ?? undefined}
+        parallax={Boolean(data.backgroundParallax)}
+      />
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-spotlight-overlay" aria-hidden="true" />
 
@@ -73,25 +69,27 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
       <div className="page-spotlight-frame" />
 
       <div className="page-spotlight-inner">
-        <div
-          className="page-spotlight-image"
-          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-        >
-          {videoUrl ? (
-            <video
-              className="media-video"
-              src={videoUrl}
-              poster={imageUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-          ) : null}
-          <div className="page-spotlight-image-frame" />
-          {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
-          {data.caption ? <div className="page-spotlight-caption">{data.caption}</div> : null}
-        </div>
+        {data.showForegroundImage !== false ? (
+          <div
+            className="page-spotlight-image"
+            style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+          >
+            {videoUrl ? (
+              <video
+                className="media-video"
+                src={videoUrl}
+                poster={imageUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : null}
+            <div className="page-spotlight-image-frame" />
+            {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
+            {data.caption ? <div className="page-spotlight-caption">{data.caption}</div> : null}
+          </div>
+        ) : null}
         <div className="page-spotlight-text">
           {data.eyebrow ? <div className="intro-eyebrow">{data.eyebrow}</div> : null}
           <h2 className="intro-title">{data.title ?? ''}</h2>

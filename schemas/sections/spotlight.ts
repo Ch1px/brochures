@@ -11,6 +11,13 @@ export default defineType({
     defineField({ name: 'title', type: 'text', rows: 2, validation: (Rule) => Rule.required() }),
     defineField({ name: 'body', type: 'text', rows: 6 }),
     defineField({
+      name: 'showForegroundImage',
+      title: 'Show foreground image',
+      type: 'boolean',
+      description: 'When off, the framed image is hidden and the text fills the section.',
+      initialValue: true,
+    }),
+    defineField({
       name: 'image',
       title: 'Foreground image',
       type: 'image',
@@ -38,6 +45,29 @@ export default defineType({
       type: 'file',
       description: 'Optional looping background video. If set, plays in place of the background image; the image is used as the poster.',
       options: { accept: 'video/*' },
+    }),
+    defineField({
+      name: 'backgroundParallax',
+      title: 'Parallax background',
+      type: 'boolean',
+      description: 'When enabled, the background image/video moves slower than the content as the page scrolls.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'overlayStrength',
+      title: 'Overlay strength',
+      type: 'string',
+      description: 'How much the dark gradient dims the background image.',
+      initialValue: 'medium',
+      options: {
+        list: [
+          { title: 'None', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+        layout: 'radio',
+      },
     }),
     backgroundField,
   ],

@@ -241,11 +241,14 @@ export type SectionSpotlight = {
   eyebrow?: string
   title: string
   body?: string
+  showForegroundImage?: boolean
   image?: SanityImage
   video?: SanityFile
   caption?: string
   backgroundImage?: SanityImage
   backgroundVideo?: SanityFile
+  backgroundParallax?: boolean
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   background?: string
 }
 

@@ -880,23 +880,50 @@
     position: relative;
     min-height: auto;
     background: #0b0b0d;
+    color: #fff;
+    overflow: hidden;
+  }
+  /* Background layer — extracted from the <section> so it can be translated
+     independently when parallax is enabled. The section's vertical scroll
+     offset is written to --spotlight-parallax (px) by SpotlightBackground.tsx
+     and zeroed out otherwise. The parallax variant is overflowed -10% top/
+     bottom so the translated image still covers the section frame. */
+  .page-spotlight-bg {
+    position: absolute;
+    inset: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: #fff;
-    overflow: hidden;
+    z-index: 0;
+  }
+  .page-spotlight-bg.parallax {
+    inset: -10% 0;
+    transform: translate3d(0, var(--spotlight-parallax, 0px), 0);
+    will-change: transform;
   }
   .page-spotlight-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(8, 8, 10, 0.72) 0%,
-      rgba(8, 8, 10, 0.62) 50%,
-      rgba(8, 8, 10, 0.82) 100%
+      rgba(8, 8, 10, var(--overlay-top, 0.72)) 0%,
+      rgba(8, 8, 10, var(--overlay-mid, 0.62)) 50%,
+      rgba(8, 8, 10, var(--overlay-bot, 0.82)) 100%
     );
     pointer-events: none;
     z-index: 1;
+  }
+  .page-spotlight.overlay-none { --overlay-top: 0; --overlay-mid: 0; --overlay-bot: 0; }
+  .page-spotlight.overlay-light { --overlay-top: 0.35; --overlay-mid: 0.25; --overlay-bot: 0.4; }
+  .page-spotlight.overlay-medium { --overlay-top: 0.72; --overlay-mid: 0.62; --overlay-bot: 0.82; }
+  .page-spotlight.overlay-strong { --overlay-top: 0.92; --overlay-mid: 0.86; --overlay-bot: 0.96; }
+  /* When the foreground image is hidden, collapse the inner grid to a
+     single text column with a comfortable max-width so the body doesn't
+     run too wide on large screens. */
+  .page-spotlight.no-foreground .page-spotlight-inner {
+    grid-template-columns: 1fr;
+    max-width: 720px;
+    margin: 0 auto;
   }
   .page-spotlight-svg-decor {
     position: absolute;
@@ -927,7 +954,7 @@
     display: grid;
     grid-template-columns: 50% 50%;
     gap: clamp(18px, 3cqi, 40px);
-    padding: 4.5% 8%;
+    padding: 8% 8%;
     align-items: center;
   }
   .page-spotlight-image {
@@ -973,11 +1000,12 @@
     .page-spotlight-inner {
       grid-template-columns: 1fr;
       gap: clamp(18px, 4cqi, 32px);
-      padding: 10% 8%;
+      padding: 20% 8%;
     }
     .page-spotlight-image {
       aspect-ratio: 4 / 5;
       max-width: 70%;
+      margin-left: auto;
     }
   }
 

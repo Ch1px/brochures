@@ -19,7 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import type { Brochure, Page, Section } from '@/types/brochure'
 import { labelFor } from '@/lib/sectionLabels'
-import { nanokey } from '@/lib/nanokey'
+import { cloneWithNewKeys, nanokey } from '@/lib/nanokey'
 
 type Props = {
   brochure: Brochure
@@ -82,6 +82,22 @@ export function PagesPanel({
     }))
   }
 
+  function duplicatePage(pageIndex: number) {
+    const source = brochure.pages[pageIndex]
+    if (!source) return
+    const copy: Page = {
+      ...cloneWithNewKeys(source),
+      _key: nanokey(),
+      name: `${source.name} (copy)`,
+    }
+    setBrochure((prev) => ({
+      ...prev,
+      pages: [...prev.pages.slice(0, pageIndex + 1), copy, ...prev.pages.slice(pageIndex + 1)],
+    }))
+    setCurrentPageIndex(pageIndex + 1)
+    setCurrentSectionKey(null)
+  }
+
   function deletePage(pageIndex: number) {
     if (brochure.pages.length <= 1) {
       if (!confirm('Delete the only page? The brochure will have no content.')) return
@@ -102,6 +118,32 @@ export function PagesPanel({
 
   function addSection(pageIndex: number) {
     onRequestAddSection(pageIndex)
+  }
+
+  function duplicateSection(pageIndex: number, sectionKey: string) {
+    const page = brochure.pages[pageIndex]
+    if (!page) return
+    const sectionIndex = page.sections.findIndex((s) => s._key === sectionKey)
+    if (sectionIndex === -1) return
+    const source = page.sections[sectionIndex]
+    const copy: Section = { ...cloneWithNewKeys(source), _key: nanokey() }
+    setBrochure((prev) => ({
+      ...prev,
+      pages: prev.pages.map((p, i) =>
+        i === pageIndex
+          ? {
+              ...p,
+              sections: [
+                ...p.sections.slice(0, sectionIndex + 1),
+                copy,
+                ...p.sections.slice(sectionIndex + 1),
+              ],
+            }
+          : p
+      ),
+    }))
+    setCurrentPageIndex(pageIndex)
+    setCurrentSectionKey(copy._key)
   }
 
   function deleteSection(pageIndex: number, sectionKey: string) {
@@ -202,8 +244,10 @@ export function PagesPanel({
               }}
               onCancelRename={() => setRenamingPageKey(null)}
               onDeletePage={() => deletePage(pageIndex)}
+              onDuplicatePage={() => duplicatePage(pageIndex)}
               onAddSection={() => addSection(pageIndex)}
               onDeleteSection={(sectionKey) => deleteSection(pageIndex, sectionKey)}
+              onDuplicateSection={(sectionKey) => duplicateSection(pageIndex, sectionKey)}
             />
           ))}
         </SortableContext>
@@ -234,8 +278,10 @@ type SortablePageProps = {
   onFinishRename: (name: string) => void
   onCancelRename: () => void
   onDeletePage: () => void
+  onDuplicatePage: () => void
   onAddSection: () => void
   onDeleteSection: (sectionKey: string) => void
+  onDuplicateSection: (sectionKey: string) => void
 }
 
 function SortablePage({
@@ -250,8 +296,10 @@ function SortablePage({
   onFinishRename,
   onCancelRename,
   onDeletePage,
+  onDuplicatePage,
   onAddSection,
   onDeleteSection,
+  onDuplicateSection,
 }: SortablePageProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: pageId(page._key),
@@ -305,6 +353,12 @@ function SortablePage({
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
             </svg>
           </IconBtn>
+          <IconBtn label="Duplicate" onClick={onDuplicatePage}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="9" y="9" width="11" height="11" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </IconBtn>
           <IconBtn label="Delete" danger onClick={onDeletePage}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" />
@@ -329,6 +383,7 @@ function SortablePage({
               isActive={currentSectionKey === section._key}
               onSelect={() => onSelectSection(section._key)}
               onDelete={() => onDeleteSection(section._key)}
+              onDuplicate={() => onDuplicateSection(section._key)}
             />
           ))}
         </SortableContext>
@@ -351,6 +406,7 @@ type SortableSectionProps = {
   isActive: boolean
   onSelect: () => void
   onDelete: () => void
+  onDuplicate: () => void
 }
 
 function SortableSection({
@@ -360,6 +416,7 @@ function SortableSection({
   isActive,
   onSelect,
   onDelete,
+  onDuplicate,
 }: SortableSectionProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: sectionId(section._key),
@@ -382,6 +439,12 @@ function SortableSection({
       <span className="editor-section-num">{String(sectionIndex + 1).padStart(2, '0')}</span>
       <span className="editor-section-type">{labelFor(section._type)}</span>
       <div className="editor-section-item-actions" onClick={(e) => e.stopPropagation()}>
+        <IconBtn label="Duplicate" onClick={onDuplicate}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+        </IconBtn>
         <IconBtn label="Delete" danger onClick={onDelete}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6" />
