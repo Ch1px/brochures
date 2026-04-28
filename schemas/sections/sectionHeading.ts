@@ -36,6 +36,20 @@ export default defineType({
       description: 'Optional looping background video. If set, plays in place of the image; the image is used as the poster.',
       options: { accept: 'video/*' },
     }),
+    defineField({
+      name: 'overlayStrength',
+      type: 'string',
+      title: 'Overlay strength',
+      description: 'Controls the dark overlay over the background image. Default: medium.',
+      options: {
+        list: [
+          { title: 'None', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium (default)', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+      },
+    }),
     backgroundField,
   ],
   preview: {

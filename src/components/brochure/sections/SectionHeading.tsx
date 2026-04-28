@@ -1,6 +1,8 @@
 import type { SectionSectionHeading } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionSectionHeading
@@ -15,13 +17,14 @@ type Props = {
  * The decorative SVG (gradient wash + racing lines) matches the Cover section.
  */
 export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
   const variantClass = data._type === 'sectionHeadingCentered' ? 'page-section-heading-centered' : ''
 
   return (
     <section
-      className={`section page-section-heading ${variantClass}`.trim()}
+      className={`section page-section-heading ${variantClass} sh-overlay-${data.overlayStrength ?? 'medium'}`.trim()}
       data-section-id={data._key}
       style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
     >
@@ -75,9 +78,9 @@ export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
       <div className="page-section-heading-frame" />
 
       <div className="page-section-heading-inner">
-        {data.eyebrow ? <div className="section-heading-eyebrow">{data.eyebrow}</div> : null}
-        {data.title ? <div className="section-heading-title">{data.title}</div> : null}
-        {data.text ? <RichBody className="section-heading-text" text={data.text} /> : null}
+        {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="section-heading-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
+        {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><div className="section-heading-title">{data.title || ''}</div></InlineEditable> : null}
+        {(data.text || editorMode) ? <InlineEditable sectionKey={data._key} field="text" richBody><RichBody className="section-heading-text" text={data.text} /></InlineEditable> : null}
       </div>
       {showFolio ? (
         <div className="page-folio">

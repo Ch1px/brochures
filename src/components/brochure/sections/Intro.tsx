@@ -2,6 +2,8 @@ import type { SectionIntro } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionIntro
@@ -10,24 +12,32 @@ type Props = {
   showFolio: boolean
 }
 
-/**
- * Introduction — ported from the builder's renderIntro().
- * Accent letter in the left column, eyebrow + title + body text,
- * right column is an image with optional caption overlay.
- */
 export function Intro({ data, pageNum, total, showFolio }: Props) {
   const imageUrl = urlForSection(data.image, 1400)
   const videoUrl = urlForFile(data.video)
+  const { editorMode } = useBrochureBranding()
 
   return (
     <section className="section page-intro" data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-intro-inner">
         <div className="page-intro-left">
-          {data.letter ? <div className="intro-mark-letter">{data.letter}</div> : null}
-          {data.eyebrow ? <div className="intro-eyebrow">{data.eyebrow}</div> : null}
-          <h2 className="intro-title">{data.title ?? ''}</h2>
-          <RichBody className="intro-body" text={data.body} />
+          {(data.letter || editorMode) ? (
+            <InlineEditable sectionKey={data._key} field="letter">
+              <div className="intro-mark-letter">{data.letter || ''}</div>
+            </InlineEditable>
+          ) : null}
+          {(data.eyebrow || editorMode) ? (
+            <InlineEditable sectionKey={data._key} field="eyebrow">
+              <div className="intro-eyebrow">{data.eyebrow || ''}</div>
+            </InlineEditable>
+          ) : null}
+          <InlineEditable sectionKey={data._key} field="title">
+            <h2 className="intro-title">{data.title ?? ''}</h2>
+          </InlineEditable>
+          <InlineEditable sectionKey={data._key} field="body" richBody>
+            <RichBody className="intro-body" text={data.body} />
+          </InlineEditable>
         </div>
         <div className="page-intro-right-wrap">
           <div className="image-offset-frame" aria-hidden="true" />
@@ -48,7 +58,11 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
             ) : null}
             <div className="page-intro-right-frame" />
             {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
-            {data.caption ? <div className="page-intro-right-caption">{data.caption}</div> : null}
+            {(data.caption || editorMode) ? (
+              <InlineEditable sectionKey={data._key} field="caption">
+                <div className="page-intro-right-caption">{data.caption || ''}</div>
+              </InlineEditable>
+            ) : null}
           </div>
         </div>
       </div>

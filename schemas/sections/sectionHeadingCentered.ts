@@ -11,6 +11,20 @@ export default defineType({
     defineField({ name: 'title', type: 'string', validation: (Rule) => Rule.required() }),
     defineField({ name: 'text', type: 'text', rows: 3 }),
     defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
+    defineField({
+      name: 'overlayStrength',
+      type: 'string',
+      title: 'Overlay strength',
+      description: 'Controls the dark overlay over the background image. Default: medium.',
+      options: {
+        list: [
+          { title: 'None', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium (default)', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+      },
+    }),
     backgroundField,
   ],
   preview: {

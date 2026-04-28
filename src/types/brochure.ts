@@ -89,6 +89,7 @@ export type SectionSectionHeading = {
   text?: string
   image?: SanityImage
   video?: SanityFile
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   background?: string
 }
 

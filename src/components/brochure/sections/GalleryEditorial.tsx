@@ -1,5 +1,7 @@
 import type { SectionGalleryEditorial } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionGalleryEditorial
@@ -15,6 +17,7 @@ type Props = {
  * show numbered placeholders.
  */
 export function GalleryEditorial({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const images = (data.images ?? []).slice(0, 4)
 
   return (
@@ -22,7 +25,7 @@ export function GalleryEditorial({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-inner">
         <div className="gallery-header">
-          <h2 className="gallery-title">{data.title ?? ''}</h2>
+          <InlineEditable sectionKey={data._key} field="title"><h2 className="gallery-title">{data.title ?? ''}</h2></InlineEditable>
         </div>
         <div className="gallery-grid">
           {Array.from({ length: 4 }).map((_, i) => {

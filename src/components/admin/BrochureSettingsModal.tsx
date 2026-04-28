@@ -279,7 +279,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             description="Overrides the page background. Leave default to use the theme colour."
             value={backgroundColor}
             onChange={setBackgroundColor}
-            fallback={brochure.theme === 'light' ? '#f6f5f1' : '#0b0b0d'}
+            fallback={brochure.theme === 'light' ? '#f6f5f1' : '#161618'}
           />
 
           <FieldColor
@@ -287,15 +287,15 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             description="Overrides the page text colour. Derives muted, subtle, and border variants automatically."
             value={textColor}
             onChange={setTextColor}
-            fallback={brochure.theme === 'light' ? '#0b0b0d' : '#ffffff'}
+            fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
           />
 
           <FieldColor
             label="Navigation background"
-            description="Override the nav bar background. Should always be a dark colour. Default: #080809."
+            description="Override the nav bar background. Should always be a dark colour. Default: #161618."
             value={navColor}
             onChange={setNavColor}
-            fallback="#080809"
+            fallback="#161618"
           />
 
           <FieldImage

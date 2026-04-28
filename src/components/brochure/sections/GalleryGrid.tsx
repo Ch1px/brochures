@@ -35,7 +35,7 @@ export function GalleryGrid({ data, pageNum, total, showFolio }: Props) {
     <section className="section page-gallery-grid" data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-grid-inner">
-        <GalleryHeader eyebrow={data.eyebrow} title={data.title} />
+        <GalleryHeader eyebrow={data.eyebrow} title={data.title} sectionKey={data._key} />
         <div className="gallery-grid-6" data-rows={rows}>
           {tiles.map(({ url, index }) =>
             url ? (

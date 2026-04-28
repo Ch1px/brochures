@@ -1,6 +1,8 @@
 import type { SectionGalleryHero } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { GalleryHeader } from './GalleryHeader'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionGalleryHero
@@ -15,6 +17,7 @@ type Props = {
  * below (indexes 1–3). Empty slots show numbered placeholders.
  */
 export function GalleryHero({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const images = data.images ?? []
   const leadImg = images[0]
   const leadUrl = urlForSection(leadImg, 2000)
@@ -23,7 +26,7 @@ export function GalleryHero({ data, pageNum, total, showFolio }: Props) {
     <section className="section page-gallery-hero" data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-hero-inner">
-        <GalleryHeader eyebrow={data.eyebrow} title={data.title} />
+        <GalleryHeader eyebrow={data.eyebrow} title={data.title} sectionKey={data._key} />
         <div
           className={`gallery-hero-lead ${!leadUrl ? 'gallery-placeholder' : ''}`.trim()}
           style={leadUrl ? { backgroundImage: `url('${leadUrl}')` } : undefined}
@@ -43,7 +46,7 @@ export function GalleryHero({ data, pageNum, total, showFolio }: Props) {
               01
             </span>
           ) : null}
-          {data.caption ? <div className="gallery-hero-caption">{data.caption}</div> : null}
+          {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption"><div className="gallery-hero-caption">{data.caption}</div></InlineEditable> : null}
         </div>
         <div className="gallery-hero-strip">
           {Array.from({ length: 3 }).map((_, i) => {

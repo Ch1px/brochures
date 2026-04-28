@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSectionHeading } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldSelect } from '../fields'
 
 type Props = {
   section: SectionSectionHeading
@@ -48,6 +48,18 @@ export function SectionHeadingEditor({ section, onChange }: Props) {
         description="Looping video replaces the image. Best as a short MP4/WebM under 10MB."
         value={section.video}
         onChange={(video) => onChange({ video })}
+      />
+      <FieldSelect
+        label="Overlay strength"
+        description="Controls the dark overlay. Stronger = more readable text, but dims the image."
+        value={section.overlayStrength ?? 'medium'}
+        onChange={(overlayStrength) => onChange({ overlayStrength: overlayStrength as SectionSectionHeading['overlayStrength'] })}
+        options={[
+          { value: 'none', label: 'None' },
+          { value: 'light', label: 'Light' },
+          { value: 'medium', label: 'Medium (default)' },
+          { value: 'strong', label: 'Strong' },
+        ]}
       />
     </>
   )

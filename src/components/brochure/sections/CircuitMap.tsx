@@ -5,6 +5,7 @@ import type { Annotation, SectionCircuitMap } from '@/types/brochure'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { bakeOverridesIntoSvg, bakeRecolorIds } from '@/lib/svgRecolor'
 import { useBrochureBranding } from '../BrochureContext'
+import { InlineEditable } from '../InlineEditable'
 import { RichBody } from '../RichBody'
 import { AnnotationOverlay } from './CircuitMapAnnotations'
 import { GoogleFontsLink } from '../GoogleFontsLink'
@@ -242,9 +243,9 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-circuit-map-inner">
         <div className="circuit-map-header">
-          {data.eyebrow ? <div className="circuit-map-eyebrow">{data.eyebrow}</div> : null}
-          {data.title ? <h2 className="circuit-map-title">{data.title}</h2> : null}
-          {data.caption ? <RichBody className="circuit-map-caption" text={data.caption} /> : null}
+          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="circuit-map-eyebrow">{data.eyebrow}</div></InlineEditable> : null}
+          {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="circuit-map-title">{data.title}</h2></InlineEditable> : null}
+          {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption" richBody><RichBody className="circuit-map-caption" text={data.caption} /></InlineEditable> : null}
         </div>
         <div className="circuit-map-stage">
           {hasSvg ? (
@@ -305,13 +306,13 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
             className="circuit-map-stats"
             style={{ ['--stat-count' as string]: stats.length }}
           >
-            {stats.map((s) => (
+            {stats.map((s, i) => (
               <div key={s._key} className="circuit-map-stat">
                 <div className="circuit-map-stat-value">
-                  {s.value}
+                  <InlineEditable sectionKey={data._key} field={`stats.${i}.value`}><span>{s.value}</span></InlineEditable>
                   {s.unit ? <span className="circuit-map-stat-unit">{s.unit}</span> : null}
                 </div>
-                <div className="circuit-map-stat-label">{s.label}</div>
+                <InlineEditable sectionKey={data._key} field={`stats.${i}.label`}><div className="circuit-map-stat-label">{s.label}</div></InlineEditable>
               </div>
             ))}
           </div>

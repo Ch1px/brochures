@@ -24,10 +24,10 @@ export type BrandContext = {
 }
 
 const DEFAULT_ACCENT = '#e10600'
-const DEFAULT_BG_DARK = '#0b0b0d'
+const DEFAULT_BG_DARK = '#161618'
 const DEFAULT_BG_LIGHT = '#f6f5f1'
 const DEFAULT_TEXT_DARK = '#ffffff'
-const DEFAULT_TEXT_LIGHT = '#0b0b0d'
+const DEFAULT_TEXT_LIGHT = '#161618'
 
 export const BRAND_TOKENS: BrandToken[] = [
   {

@@ -2,6 +2,8 @@ import type { SectionFeatures } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionFeatures
@@ -15,6 +17,7 @@ type Props = {
  * Header has an optional red accent suffix on the title, then three image/text cards below.
  */
 export function Features({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const cards = (data.cards ?? []).slice(0, 3)
 
   return (
@@ -23,18 +26,13 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
       <div className="page-features-inner">
         <div className="features-header">
           <h2 className="features-title">
-            {data.title ?? ''}
-            {data.titleAccent ? (
-              <>
-                {' '}
-                <span className="features-title-accent">{data.titleAccent}</span>
-              </>
-            ) : null}
+            <InlineEditable sectionKey={data._key} field="title"><span>{data.title ?? ''}</span></InlineEditable>
+            {(data.titleAccent || editorMode) ? <InlineEditable sectionKey={data._key} field="titleAccent"><span className="features-title-accent">{data.titleAccent || ''}</span></InlineEditable> : null}
           </h2>
-          {data.subtitle ? <RichBody className="features-subtitle" text={data.subtitle} /> : null}
+          {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="features-subtitle" text={data.subtitle} /></InlineEditable> : null}
         </div>
         <div className="features-grid">
-          {cards.map((card) => {
+          {cards.map((card, i) => {
             const imageUrl = urlForSection(card.image, 900)
             return (
               <div key={card._key} className="feature-card">
@@ -45,8 +43,8 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
                   {!imageUrl ? <ImagePlaceholderSVG /> : null}
                 </div>
                 <div className="feature-card-body">
-                  <div className="feature-card-title">{card.title ?? ''}</div>
-                  <RichBody className="feature-card-text" text={card.text} />
+                  <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="feature-card-title">{card.title ?? ''}</div></InlineEditable>
+                  <InlineEditable sectionKey={data._key} field={`cards.${i}.text`} richBody><RichBody className="feature-card-text" text={card.text} /></InlineEditable>
                 </div>
               </div>
             )

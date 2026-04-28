@@ -1,5 +1,7 @@
 import type { SectionCover } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionCover
@@ -14,6 +16,7 @@ type Props = {
  * a CSS class that the globals stylesheet uses to centre the layout.
  */
 export function Cover({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const variantClass = data._type === 'coverCentered' ? 'page-cover-centered' : ''
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
@@ -78,34 +81,34 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
       <div className="page-cover-inner">
         <div className="page-cover-top">
           <div className="cover-brand-lockup">
-            {data.brandMark ? <div className="lockup-mark">{data.brandMark}</div> : null}
+            {(data.brandMark || editorMode) ? <InlineEditable sectionKey={data._key} field="brandMark"><div className="lockup-mark">{data.brandMark}</div></InlineEditable> : null}
           </div>
-          {data.edition ? <div className="cover-edition">{data.edition}</div> : null}
+          {(data.edition || editorMode) ? <InlineEditable sectionKey={data._key} field="edition"><div className="cover-edition">{data.edition}</div></InlineEditable> : null}
         </div>
 
         <div className="page-cover-center">
-          {data.sup ? <div className="cover-sup">{data.sup}</div> : null}
+          {(data.sup || editorMode) ? <InlineEditable sectionKey={data._key} field="sup"><div className="cover-sup">{data.sup}</div></InlineEditable> : null}
           <h1 className="cover-title">
-            {data.title}
-            {data.titleAccent ? (
+            <InlineEditable sectionKey={data._key} field="title"><span>{data.title}</span></InlineEditable>
+            {(data.titleAccent || editorMode) ? (
               <>
                 <br />
-                <span className="cover-title-accent">{data.titleAccent}</span>
+                <InlineEditable sectionKey={data._key} field="titleAccent"><span className="cover-title-accent">{data.titleAccent || ''}</span></InlineEditable>
               </>
             ) : null}
           </h1>
-          {data.tag ? <p className="cover-tag">{data.tag}</p> : null}
+          {(data.tag || editorMode) ? <InlineEditable sectionKey={data._key} field="tag"><p className="cover-tag">{data.tag}</p></InlineEditable> : null}
         </div>
 
         <div className="page-cover-bottom">
-          {data.cta ? (
+          {(data.cta || editorMode) ? (
             <a className="cover-cta" href="#enquire">
-              {data.cta} <span className="arrow">→</span>
+              <InlineEditable sectionKey={data._key} field="cta"><span>{data.cta}</span></InlineEditable> <span className="arrow">→</span>
             </a>
           ) : (
             <div />
           )}
-          {data.ref ? <div className="cover-ref">{data.ref}</div> : null}
+          {(data.ref || editorMode) ? <InlineEditable sectionKey={data._key} field="ref"><div className="cover-ref">{data.ref}</div></InlineEditable> : null}
         </div>
       </div>
 

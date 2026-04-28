@@ -10,5 +10,5 @@ export const backgroundField = defineField({
   title: 'Section background',
   type: 'string',
   description:
-    'Override the section background. A hex colour (e.g. #0b0b0d), an rgba() value, or "transparent". Leave empty to use the brochure theme default.',
+    'Override the section background. A hex colour (e.g. #161618), an rgba() value, or "transparent". Leave empty to use the brochure theme default.',
 })

@@ -142,7 +142,7 @@ export default defineType({
         Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
           value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
             ? true
-            : 'Must be a 6-digit hex colour like #0b0b0d'
+            : 'Must be a 6-digit hex colour like #161618'
         ),
       group: 'branding',
     }),
@@ -222,12 +222,12 @@ export default defineType({
       type: 'string',
       title: 'Navigation background',
       description:
-        'Override the navigation bar background. Must be a dark colour. Hex format (e.g. #1a1a2e). Default: #080809.',
+        'Override the navigation bar background. Must be a dark colour. Hex format (e.g. #1a1a2e). Default: #161618.',
       validation: (Rule) =>
         Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
           value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
             ? true
-            : 'Must be a 6-digit hex colour like #080809'
+            : 'Must be a 6-digit hex colour like #161618'
         ),
       group: 'branding',
     }),

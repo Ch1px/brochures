@@ -1,6 +1,8 @@
 import type { SectionImageHero } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionImageHero
@@ -15,6 +17,7 @@ type Props = {
  * When no image is set, renders the same fallback gradient + racing line SVG.
  */
 export function ImageHero({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
   const gradId = `imhg1-${data._key}`
@@ -32,7 +35,7 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
           <defs>
             <radialGradient id={gradId} cx="70%" cy="50%" r="60%">
               <stop offset="0%" stopColor="#1a1a20" stopOpacity={1} />
-              <stop offset="100%" stopColor="#0b0b0d" stopOpacity={1} />
+              <stop offset="100%" stopColor="#161618" stopOpacity={1} />
             </radialGradient>
           </defs>
           <rect width="1600" height="1000" fill={`url(#${gradId})`} />
@@ -72,9 +75,9 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
 
       <div className="page-image-hero-content">
-        {data.eyebrow ? <div className="image-hero-eyebrow">{data.eyebrow}</div> : null}
-        <h2 className="image-hero-title">{data.title ?? ''}</h2>
-        {data.text ? <RichBody className="image-hero-text" text={data.text} /> : null}
+        {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="image-hero-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
+        <InlineEditable sectionKey={data._key} field="title"><h2 className="image-hero-title">{data.title ?? ''}</h2></InlineEditable>
+        {(data.text || editorMode) ? <InlineEditable sectionKey={data._key} field="text" richBody><RichBody className="image-hero-text" text={data.text} /></InlineEditable> : null}
       </div>
 
       {showFolio ? (

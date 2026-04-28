@@ -30,7 +30,7 @@
   }
   :root {
   --nav-safe-top: 52px;  /* matches nav height — no extra breathing */
-    --chrome-bg: #0a0a0b;
+    --chrome-bg: #161618;
     --chrome-surface: #121214;
     --chrome-elevated: #1a1a1e;
     --chrome-raised: #1f1f24;
@@ -48,7 +48,7 @@
     --brand-on-accent: #fff;
     --success: #00d9a3;
 
-    --page-bg: #0b0b0d;
+    --page-bg: #161618;
     --page-bg-alt: #131316;
     --page-text: #ffffff;
     --page-text-muted: rgba(255, 255, 255, 0.6);
@@ -888,7 +888,7 @@
   .page-spotlight {
     position: relative;
     min-height: auto;
-    background: #0b0b0d;
+    background: #161618;
     color: #fff;
     overflow: hidden;
   }
@@ -1603,11 +1603,15 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.25) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.55) 100%);
+      linear-gradient(90deg, rgba(0,0,0,var(--sh-grad-left, 0.75)) 0%, rgba(0,0,0,var(--sh-grad-mid, 0.45)) 45%, rgba(0,0,0,var(--sh-grad-right, 0.25)) 100%),
+      linear-gradient(180deg, rgba(0,0,0,var(--sh-grad-top, 0.25)) 0%, rgba(0,0,0,var(--sh-grad-center, 0.1)) 40%, rgba(0,0,0,var(--sh-grad-bot, 0.55)) 100%);
     z-index: 1;
     pointer-events: none;
   }
+  .page-section-heading.sh-overlay-none   { --sh-grad-left: 0.05; --sh-grad-mid: 0;    --sh-grad-right: 0;    --sh-grad-top: 0;    --sh-grad-center: 0;    --sh-grad-bot: 0.1; }
+  .page-section-heading.sh-overlay-light  { --sh-grad-left: 0.45; --sh-grad-mid: 0.25; --sh-grad-right: 0.12; --sh-grad-top: 0.12; --sh-grad-center: 0.05; --sh-grad-bot: 0.35; }
+  .page-section-heading.sh-overlay-medium { --sh-grad-left: 0.75; --sh-grad-mid: 0.45; --sh-grad-right: 0.25; --sh-grad-top: 0.25; --sh-grad-center: 0.1;  --sh-grad-bot: 0.55; }
+  .page-section-heading.sh-overlay-strong { --sh-grad-left: 0.92; --sh-grad-mid: 0.7;  --sh-grad-right: 0.5;  --sh-grad-top: 0.5;  --sh-grad-center: 0.35; --sh-grad-bot: 0.8;  }
   .page-section-heading-inner {
     position: relative;
     z-index: 4;
@@ -3045,7 +3049,7 @@
   .library-card:hover { border-color: var(--brand-red); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
   .library-card-thumb {
     aspect-ratio: 16/10;
-    background: var(--page-bg);
+    background: #0f0f0f;
     display: flex; align-items: center; justify-content: center;
     position: relative; overflow: hidden;
     padding: 20px;
@@ -3254,7 +3258,7 @@
 
   .mini-hero {
     position: absolute; inset: 0;
-    background: linear-gradient(135deg, #333 0%, #0b0b0d 100%);
+    background: linear-gradient(135deg, #333 0%, #161618 100%);
     padding: 10%;
   }
   .mini-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, transparent 60%); }
@@ -3827,7 +3831,7 @@
     align-items: center;
     gap: 16px;
     padding: 0 20px;
-    background: var(--nav-bg, #080809);
+    background: var(--nav-bg, #161618);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     color: #fff;
     pointer-events: auto;
@@ -4347,7 +4351,7 @@
   [data-theme="light"] {
     --page-bg: #f6f5f1;
     --page-bg-alt: #ffffff;
-    --page-text: #0b0b0d;
+    --page-text: #161618;
     --page-text-muted: rgba(11, 11, 13, 0.66);
     --page-text-subtle: rgba(11, 11, 13, 0.42);
     --page-border: rgba(11, 11, 13, 0.12);
@@ -4362,7 +4366,7 @@
   [data-theme="light"] .page-section-heading,
   [data-theme="light"] .page-closing,
   [data-theme="light"] .page-spotlight {
-    --page-bg: #0b0b0d;
+    --page-bg: #161618;
     --page-bg-alt: #131316;
     --page-text: #ffffff;
     --page-text-muted: rgba(255, 255, 255, 0.6);
@@ -4522,7 +4526,7 @@
     height: 100%;
     display: flex;
     align-items: flex-end;
-    background: linear-gradient(180deg, #1a1a1d 0%, #0b0b0d 100%);
+    background: linear-gradient(180deg, #1a1a1d 0%, #161618 100%);
     padding: 6px;
   }
   .mini-footer-bar {
@@ -4706,7 +4710,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    background: linear-gradient(180deg, #1a1a1d 0%, #0b0b0d 100%);
+    background: linear-gradient(180deg, #1a1a1d 0%, #161618 100%);
     padding: 6px;
   }
   .mini-logos-head {

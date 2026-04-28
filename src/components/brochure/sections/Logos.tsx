@@ -2,6 +2,7 @@ import type { SectionLogos } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { useBrochureBranding } from '../BrochureContext'
 import { RichBody } from '../RichBody'
+import { InlineEditable } from '../InlineEditable'
 
 type Props = {
   data: SectionLogos
@@ -30,7 +31,7 @@ export function Logos({ data, pageNum, total, showFolio }: Props) {
   const variantClass = isStrip ? 'page-logos-strip' : 'page-logos-wall'
   const allLogos = data.logos ?? []
   const logos = editorMode ? allLogos : allLogos.filter((l) => Boolean(l.image))
-  const hasHeader = Boolean(data.eyebrow || data.title || data.subtitle)
+  const hasHeader = Boolean(data.eyebrow || data.title || data.subtitle || editorMode)
 
   return (
     <section
@@ -41,9 +42,9 @@ export function Logos({ data, pageNum, total, showFolio }: Props) {
       <div className="page-logos-inner">
         {hasHeader ? (
           <div className="logos-header">
-            {data.eyebrow ? <div className="logos-eyebrow">{data.eyebrow}</div> : null}
-            {data.title ? <h2 className="logos-title">{data.title}</h2> : null}
-            {data.subtitle ? <RichBody className="logos-subtitle" text={data.subtitle} /> : null}
+            {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="logos-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
+            {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="logos-title">{data.title || ''}</h2></InlineEditable> : null}
+            {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="logos-subtitle" text={data.subtitle} /></InlineEditable> : null}
           </div>
         ) : null}
 

@@ -1,5 +1,7 @@
 import type { SectionClosing } from '@/types/brochure'
 import { RichBody } from '../RichBody'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionClosing
@@ -18,6 +20,7 @@ type Props = {
  * (wire this up in BrochureReader or a global handler when the modal ships).
  */
 export function Closing({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const ctaHref = data.ctaHref || '#'
   const gradId1 = `clg1-${data._key}`
   const gradId2 = `clg2-${data._key}`
@@ -56,18 +59,18 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
         Grand Prix Grand Tours
       </div>
       <div className="page-closing-inner">
-        {data.eyebrow ? <div className="closing-eyebrow">{data.eyebrow}</div> : null}
-        <h2 className="closing-title">{data.title ?? ''}</h2>
-        {data.subtitle ? <RichBody className="closing-subtitle" text={data.subtitle} /> : null}
+        {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="closing-eyebrow">{data.eyebrow}</div></InlineEditable> : null}
+        <InlineEditable sectionKey={data._key} field="title"><h2 className="closing-title">{data.title ?? ''}</h2></InlineEditable>
+        {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="closing-subtitle" text={data.subtitle} /></InlineEditable> : null}
         <div className="closing-actions">
-          {data.ctaText ? (
+          {(data.ctaText || editorMode) ? (
             <a className="closing-cta" href={ctaHref}>
-              {data.ctaText} →
+              <InlineEditable sectionKey={data._key} field="ctaText"><span>{data.ctaText}</span></InlineEditable> →
             </a>
           ) : null}
           <div className="closing-contact">
-            {data.email ? <div>✉ {data.email}</div> : null}
-            {data.phone ? <div>☏ {data.phone}</div> : null}
+            {(data.email || editorMode) ? <div>✉ <InlineEditable sectionKey={data._key} field="email"><span>{data.email}</span></InlineEditable></div> : null}
+            {(data.phone || editorMode) ? <div>☏ <InlineEditable sectionKey={data._key} field="phone"><span>{data.phone}</span></InlineEditable></div> : null}
           </div>
         </div>
       </div>

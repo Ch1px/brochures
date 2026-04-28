@@ -986,6 +986,40 @@
 }
 
 /* ----- FIELDS ----- */
+/* ── Inline text editing affordances ─── */
+.preview-stage-frame .inline-editable {
+  transition: outline-color 0.12s;
+  outline: 1px solid transparent;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.preview-stage-frame .inline-editable:hover {
+  outline-color: rgba(255, 255, 255, 0.12);
+  cursor: text;
+}
+.preview-stage-frame .inline-editing {
+  outline: 2px solid var(--brand-red) !important;
+  outline-offset: 2px;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.preview-section-hitbox:has(.inline-editing) {
+  cursor: text;
+}
+/* RichBody wrapper uses display:contents so it doesn't break parent flex/grid.
+   contentEditable is set on the actual child element, not this wrapper. */
+.preview-stage-frame .inline-editable-richbody {
+  display: contents;
+}
+.preview-stage-frame .inline-editable-placeholder {
+  opacity: 0.25;
+  font-style: italic;
+  font-size: 12px;
+  padding: 2px 4px;
+  min-height: 1em;
+}
+
 /* Field layout utilities */
 /* Save toast */
 .save-toast {

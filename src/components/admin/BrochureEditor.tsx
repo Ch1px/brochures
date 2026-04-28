@@ -17,6 +17,7 @@ import { useEditorLayout } from '@/hooks/useEditorLayout'
 import { useEditorShortcuts } from '@/hooks/useEditorShortcuts'
 import { labelFor } from '@/lib/sectionLabels'
 import { nanokey } from '@/lib/nanokey'
+import { applyFieldPath } from '@/lib/applyFieldPath'
 import { sectionDefaults } from '@/lib/sectionDefaults'
 import { EditorTopbar } from './EditorTopbar'
 import { PagesPanel } from './PagesPanel'
@@ -324,6 +325,22 @@ export function BrochureEditor({ initialBrochure }: Props) {
       }))
     },
     [currentSectionKey]
+  )
+
+  // Inline text edit from the preview stage — applies a field path update
+  const handleInlineEdit = useCallback(
+    (sectionKey: string, fieldPath: string, value: string) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) =>
+            s._key === sectionKey ? applyFieldPath(s, fieldPath, value) : s
+          ),
+        })),
+      }))
+    },
+    [],
   )
 
   // Click handler reported up from CircuitMap when the admin clicks a
@@ -689,6 +706,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
             setCurrentSectionKey={setCurrentSectionKey}
             recolor={recolorContext}
             annotations={annotationContext}
+            onInlineEdit={handleInlineEdit}
             onRequestMapEdit={() => setMapEditMode(true)}
           />
         </main>

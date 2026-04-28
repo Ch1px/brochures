@@ -26,6 +26,9 @@ export type BrochureBranding = {
    *  use this to keep authoring affordances (numbered placeholders for empty
    *  gallery slots, etc.) that should not appear on the public site. */
   editorMode?: boolean
+  /** Editor-only: inline text edit from the preview. Called when the user
+   *  commits an inline edit (blur or Escape). */
+  onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void
   /** Editor-only: request to enter map edit mode. Called when the circuit
    *  SVG is clicked while not yet in map edit mode. */
   onRequestMapEdit?: () => void

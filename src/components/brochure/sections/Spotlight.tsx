@@ -3,6 +3,8 @@ import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
 import { SpotlightBackground } from './SpotlightBackground'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionSpotlight
@@ -12,6 +14,7 @@ type Props = {
 }
 
 export function Spotlight({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const imageUrl = urlForSection(data.image, 1400)
   const videoUrl = urlForFile(data.video)
   const backgroundUrl = urlForSection(data.backgroundImage, 2000)
@@ -87,13 +90,13 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
             ) : null}
             <div className="page-spotlight-image-frame" />
             {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
-            {data.caption ? <div className="page-spotlight-caption">{data.caption}</div> : null}
+            {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption"><div className="page-spotlight-caption">{data.caption || ''}</div></InlineEditable> : null}
           </div>
         ) : null}
         <div className="page-spotlight-text">
-          {data.eyebrow ? <div className="intro-eyebrow">{data.eyebrow}</div> : null}
-          <h2 className="intro-title">{data.title ?? ''}</h2>
-          {data.body ? <RichBody className="intro-body" text={data.body} /> : null}
+          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="intro-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
+          <InlineEditable sectionKey={data._key} field="title"><h2 className="intro-title">{data.title ?? ''}</h2></InlineEditable>
+          {(data.body || editorMode) ? <InlineEditable sectionKey={data._key} field="body" richBody><RichBody className="intro-body" text={data.body} /></InlineEditable> : null}
         </div>
       </div>
       {showFolio ? (

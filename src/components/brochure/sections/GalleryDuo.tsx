@@ -1,6 +1,8 @@
 import type { SectionGalleryDuo } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { GalleryHeader } from './GalleryHeader'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionGalleryDuo
@@ -15,6 +17,7 @@ type Props = {
  * Each slot without an image shows a centred numbered placeholder.
  */
 export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
   const images = data.images ?? []
   const captions = data.captions ?? []
 
@@ -22,7 +25,7 @@ export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
     <section className="section page-gallery-duo" data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-duo-inner">
-        <GalleryHeader eyebrow={data.eyebrow} title={data.title} />
+        <GalleryHeader eyebrow={data.eyebrow} title={data.title} sectionKey={data._key} />
         <div className="gallery-duo-grid">
           {Array.from({ length: 2 }).map((_, i) => {
             const img = images[i]
@@ -48,7 +51,7 @@ export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
                     {String(i + 1).padStart(2, '0')}
                   </span>
                 ) : null}
-                {caption ? <div className="gallery-duo-caption">{caption}</div> : null}
+                {(caption || editorMode) ? <InlineEditable sectionKey={data._key} field={`captions.${i}`}><div className="gallery-duo-caption">{caption}</div></InlineEditable> : null}
               </div>
             )
           })}

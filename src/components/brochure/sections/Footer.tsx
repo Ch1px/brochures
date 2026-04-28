@@ -1,4 +1,6 @@
 import type { SectionFooter, SocialPlatform } from '@/types/brochure'
+import { InlineEditable } from '../InlineEditable'
+import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionFooter
@@ -65,22 +67,23 @@ function SocialIcon({ platform }: { platform: SocialPlatform }) {
  * main sections share the column above. Not an overlay.
  */
 export function Footer({ data }: Props) {
+  const { editorMode } = useBrochureBranding()
   const socials = (data.socials ?? []).filter((s) => s.href)
   return (
     <section className="section page-footer" data-section-id={data._key}>
       <div className="page-footer-inner">
-        {data.legal ? <div className="page-footer-legal">{data.legal}</div> : null}
-        {data.email || data.phone ? (
+        {(data.legal || editorMode) ? <InlineEditable sectionKey={data._key} field="legal"><div className="page-footer-legal">{data.legal}</div></InlineEditable> : null}
+        {data.email || data.phone || editorMode ? (
           <div className="page-footer-contact">
-            {data.email ? (
+            {(data.email || editorMode) ? (
               <a className="page-footer-contact-link" href={`mailto:${data.email}`}>
-                {data.email}
+                <InlineEditable sectionKey={data._key} field="email"><span>{data.email}</span></InlineEditable>
               </a>
             ) : null}
             {data.email && data.phone ? <span className="page-footer-sep" aria-hidden>·</span> : null}
-            {data.phone ? (
-              <a className="page-footer-contact-link" href={`tel:${data.phone.replace(/\s+/g, '')}`}>
-                {data.phone}
+            {(data.phone || editorMode) ? (
+              <a className="page-footer-contact-link" href={`tel:${data.phone?.replace(/\s+/g, '') ?? ''}`}>
+                <InlineEditable sectionKey={data._key} field="phone"><span>{data.phone}</span></InlineEditable>
               </a>
             ) : null}
           </div>
