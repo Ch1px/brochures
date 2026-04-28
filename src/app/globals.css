@@ -3524,15 +3524,7 @@
     width: auto;
     object-fit: contain;
   }
-  .brochure-nav-brand-name {
-    font-family: var(--font-display);
-    font-weight: var(--font-display-weight);
-    font-size: 12px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: #fff;
-  }
+  .brochure-nav-brand-name { display: none; }
 
   .brochure-nav-links {
     display: flex;
@@ -3749,16 +3741,8 @@
     .brochure-nav { height: 48px; padding: 0 14px; gap: 10px; }
     .preview-mode { --brochure-nav-h: 48px; }
     .brochure-nav-brand { gap: 8px; }
-    .brochure-nav-brand-logo { height: 15px; }
-    .brochure-nav-brand-name {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 10.5px;
-      letter-spacing: 0.2em;
-      pointer-events: none;
-    }
+    .brochure-nav-brand-name { display: none; }
+    .brochure-nav-brand-logo { height: 28px; }
     .brochure-nav-links { display: none; }
     .brochure-nav-burger { display: flex; margin-left: auto; }
     .brochure-nav-close { width: 34px; height: 34px; }
