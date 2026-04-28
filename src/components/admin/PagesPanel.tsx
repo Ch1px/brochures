@@ -192,23 +192,81 @@ export function PagesPanel({
     if (
       activeData.type === 'section' &&
       overData.type === 'section' &&
-      activeData.pageIndex === overData.pageIndex &&
+      activeData.pageIndex !== undefined &&
+      overData.pageIndex !== undefined
+    ) {
+      const fromPageIndex = activeData.pageIndex
+      const toPageIndex = overData.pageIndex
+
+      if (fromPageIndex === toPageIndex) {
+        // Same page — reorder within the page
+        setBrochure((prev) => {
+          const page = prev.pages[fromPageIndex]
+          if (!page) return prev
+          const oldIdx = page.sections.findIndex((s) => sectionId(s._key) === active.id)
+          const newIdx = page.sections.findIndex((s) => sectionId(s._key) === over.id)
+          if (oldIdx === -1 || newIdx === -1) return prev
+          return {
+            ...prev,
+            pages: prev.pages.map((p, i) =>
+              i === fromPageIndex ? { ...p, sections: arrayMove(p.sections, oldIdx, newIdx) } : p
+            ),
+          }
+        })
+      } else {
+        // Cross-page — move section from one page to another
+        setBrochure((prev) => {
+          const fromPage = prev.pages[fromPageIndex]
+          if (!fromPage) return prev
+          const sectionIdx = fromPage.sections.findIndex((s) => sectionId(s._key) === active.id)
+          if (sectionIdx === -1) return prev
+          const section = fromPage.sections[sectionIdx]
+
+          const toPage = prev.pages[toPageIndex]
+          if (!toPage) return prev
+          const targetIdx = toPage.sections.findIndex((s) => sectionId(s._key) === over.id)
+          const insertAt = targetIdx === -1 ? toPage.sections.length : targetIdx
+
+          return {
+            ...prev,
+            pages: prev.pages.map((p, i) => {
+              if (i === fromPageIndex) return { ...p, sections: p.sections.filter((_, si) => si !== sectionIdx) }
+              if (i === toPageIndex) return { ...p, sections: [...p.sections.slice(0, insertAt), section, ...p.sections.slice(insertAt)] }
+              return p
+            }),
+          }
+        })
+        setCurrentPageIndex(toPageIndex)
+      }
+    }
+
+    // Section dropped on a page header (not on another section) — move to end of that page
+    if (
+      activeData.type === 'section' &&
+      overData.type === 'page' &&
       activeData.pageIndex !== undefined
     ) {
-      const pageIndex = activeData.pageIndex
+      const fromPageIndex = activeData.pageIndex
+      const toPageIndex = brochure.pages.findIndex((p) => pageId(p._key) === over.id)
+      if (toPageIndex === -1 || fromPageIndex === toPageIndex) return
+
       setBrochure((prev) => {
-        const page = prev.pages[pageIndex]
-        if (!page) return prev
-        const oldIdx = page.sections.findIndex((s) => sectionId(s._key) === active.id)
-        const newIdx = page.sections.findIndex((s) => sectionId(s._key) === over.id)
-        if (oldIdx === -1 || newIdx === -1) return prev
+        const fromPage = prev.pages[fromPageIndex]
+        if (!fromPage) return prev
+        const sectionIdx = fromPage.sections.findIndex((s) => sectionId(s._key) === active.id)
+        if (sectionIdx === -1) return prev
+        const section = fromPage.sections[sectionIdx]
+
         return {
           ...prev,
-          pages: prev.pages.map((p, i) =>
-            i === pageIndex ? { ...p, sections: arrayMove(p.sections, oldIdx, newIdx) } : p
-          ),
+          pages: prev.pages.map((p, i) => {
+            if (i === fromPageIndex) return { ...p, sections: p.sections.filter((_, si) => si !== sectionIdx) }
+            if (i === toPageIndex) return { ...p, sections: [...p.sections, section] }
+            return p
+          }),
         }
       })
+      setCurrentPageIndex(toPageIndex)
     }
   }
 
