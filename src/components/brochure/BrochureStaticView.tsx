@@ -3,8 +3,12 @@
 import type { Brochure } from '@/types/brochure'
 import { SectionRenderer } from './SectionRenderer'
 import { BrochureBrandingProvider } from './BrochureContext'
+import { GoogleFontsLink } from './GoogleFontsLink'
+import { TextureOverride } from './TextureOverride'
 import { LogoMark } from './LogoMark'
 import { accentColorVars } from '@/lib/accentColor'
+import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
+import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 
 type Props = {
   brochure: Brochure
@@ -39,6 +43,11 @@ export function BrochureStaticView({ brochure }: Props) {
   const total = pages.length
   const theme = brochure.theme ?? 'dark'
   const accentStyle = accentColorVars(brochure.accentColor)
+  const bgStyle = backgroundColorVars(brochure.backgroundColor)
+  const textStyle = textColorVars(brochure.textColor)
+  const fontStyle = fontOverrideVars(brochure.fontOverrides)
+  const navStyle = navColorVars(brochure.navColor)
+  const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   if (total === 0) {
     return (
@@ -59,11 +68,13 @@ export function BrochureStaticView({ brochure }: Props) {
   }
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, logo: brochure.logo, theme }}>
+      <GoogleFontsLink url={fontsUrl} />
+      <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
       <div
         className="preview-mode visible"
         data-theme={theme}
-        style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle }}
+        style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}
       >
         <nav className="brochure-nav" data-nav-ctx="public">
           <div className="brochure-nav-brand">

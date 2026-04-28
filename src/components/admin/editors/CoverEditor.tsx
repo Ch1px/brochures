@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionCover } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage, FieldVideo } from '../fields'
+import { FieldInput, FieldTextarea, FieldImage, FieldVideo, FieldSelect } from '../fields'
 
 type Props = {
   section: SectionCover
@@ -72,6 +72,18 @@ export function CoverEditor({ section, onChange }: Props) {
         description="If set, plays in place of the background image. The image above is used as the poster while the video loads."
         value={section.video}
         onChange={(video) => onChange({ video })}
+      />
+      <FieldSelect
+        label="Overlay strength"
+        description="Controls the dark overlay over the background image. Affects readability of text."
+        value={section.overlayStrength ?? 'medium'}
+        onChange={(overlayStrength) => onChange({ overlayStrength: overlayStrength as SectionCover['overlayStrength'] })}
+        options={[
+          { value: 'none', label: 'None' },
+          { value: 'light', label: 'Light' },
+          { value: 'medium', label: 'Medium (default)' },
+          { value: 'strong', label: 'Strong' },
+        ]}
       />
     </>
   )

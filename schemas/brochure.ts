@@ -133,6 +133,122 @@ export default defineType({
       group: 'branding',
     }),
     defineField({
+      name: 'backgroundColor',
+      type: 'string',
+      title: 'Background colour',
+      description:
+        'Overrides the page background for this brochure. Hex format (e.g. #1a1a2e). Leave blank for the theme default.',
+      validation: (Rule) =>
+        Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
+          value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
+            ? true
+            : 'Must be a 6-digit hex colour like #0b0b0d'
+        ),
+      group: 'branding',
+    }),
+    defineField({
+      name: 'textColor',
+      type: 'string',
+      title: 'Text colour',
+      description:
+        'Overrides the page text colour for this brochure. Derives muted, subtle, and border variants. Leave blank for the theme default.',
+      validation: (Rule) =>
+        Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
+          value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
+            ? true
+            : 'Must be a 6-digit hex colour like #ffffff'
+        ),
+      group: 'branding',
+    }),
+    defineField({
+      name: 'fontOverrides',
+      type: 'object',
+      title: 'Font overrides',
+      description: 'Override the default fonts for this brochure. Leave blank to use the platform defaults.',
+      group: 'branding',
+      fields: [
+        defineField({
+          name: 'display',
+          type: 'string',
+          title: 'Title font',
+          description: 'Headlines and display text. Default: Formula1.',
+        }),
+        defineField({
+          name: 'displayWeight',
+          type: 'string',
+          title: 'Title font weight',
+          description: 'Default: 900 (Black).',
+        }),
+        defineField({
+          name: 'script',
+          type: 'string',
+          title: 'Eyebrow font',
+          description: 'Eyebrow and accent text. Default: Northwell.',
+        }),
+        defineField({
+          name: 'scriptWeight',
+          type: 'string',
+          title: 'Eyebrow font weight',
+          description: 'Default: 400 (Regular).',
+        }),
+        defineField({
+          name: 'body',
+          type: 'string',
+          title: 'Body font',
+          description: 'Paragraph and body text. Default: Titillium Web.',
+        }),
+        defineField({
+          name: 'bodyWeight',
+          type: 'string',
+          title: 'Body font weight',
+          description: 'Default: 400 (Regular).',
+        }),
+        defineField({
+          name: 'mono',
+          type: 'string',
+          title: 'Label font',
+          description: 'Labels, meta text, and data. Default: JetBrains Mono.',
+        }),
+        defineField({
+          name: 'monoWeight',
+          type: 'string',
+          title: 'Label font weight',
+          description: 'Default: 400 (Regular).',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'navColor',
+      type: 'string',
+      title: 'Navigation background',
+      description:
+        'Override the navigation bar background. Must be a dark colour. Hex format (e.g. #1a1a2e). Default: #080809.',
+      validation: (Rule) =>
+        Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
+          value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
+            ? true
+            : 'Must be a 6-digit hex colour like #080809'
+        ),
+      group: 'branding',
+    }),
+    defineField({
+      name: 'textureImage',
+      type: 'image',
+      title: 'Background texture',
+      description:
+        'Replaces the default halftone texture across all sections. Leave blank for the default.',
+      options: { hotspot: false },
+      group: 'branding',
+    }),
+    defineField({
+      name: 'hideTexture',
+      type: 'boolean',
+      title: 'Hide background texture',
+      description: 'Remove the halftone texture entirely, leaving flat section backgrounds.',
+      initialValue: false,
+      group: 'branding',
+    }),
+    defineField({
       name: 'logo',
       type: 'image',
       title: 'Logo',

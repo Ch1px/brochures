@@ -13,6 +13,17 @@ export type BrochureStatus = 'draft' | 'published' | 'unpublished' | 'archived'
 
 export type BrochureTheme = 'dark' | 'light'
 
+export type FontOverrides = {
+  display?: string
+  displayWeight?: string
+  script?: string
+  scriptWeight?: string
+  body?: string
+  bodyWeight?: string
+  mono?: string
+  monoWeight?: string
+}
+
 export type SanityImage = {
   _type: 'image'
   asset: { _ref: string; _type: 'reference' }
@@ -41,6 +52,7 @@ export type SectionCover = {
   ref?: string
   image?: SanityImage
   video?: SanityFile
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   background?: string
 }
 
@@ -222,6 +234,48 @@ export type ColorOverride = {
   color: string
 }
 
+export type AnnotationKind = 'text' | 'image' | 'pin' | 'svg'
+
+type AnnotationBase = {
+  _key: string
+  kind: AnnotationKind
+  x: number
+  y: number
+  color?: string
+  scale?: number
+  rotation?: number
+  opacity?: number
+}
+
+export type AnnotationText = AnnotationBase & {
+  kind: 'text'
+  label: string
+  fontSize?: number
+  fontFamily?: string
+  fontWeight?: string
+}
+
+export type AnnotationImage = AnnotationBase & {
+  kind: 'image'
+  image?: SanityImage
+  width?: number
+}
+
+export type AnnotationPin = AnnotationBase & {
+  kind: 'pin'
+  label?: string
+  icon?: 'pin' | 'flag' | 'dot' | 'number'
+  number?: number
+}
+
+export type AnnotationSvg = AnnotationBase & {
+  kind: 'svg'
+  svgText?: string
+  width?: number
+}
+
+export type Annotation = AnnotationText | AnnotationImage | AnnotationPin | AnnotationSvg
+
 export type SectionCircuitMap = {
   _key: string
   _type: 'circuitMap'
@@ -231,6 +285,7 @@ export type SectionCircuitMap = {
   svg?: string
   svgOriginal?: string
   colorOverrides?: ColorOverride[]
+  annotations?: Annotation[]
   stats?: StatItem[]
   background?: string
 }
@@ -339,6 +394,12 @@ export type Brochure = {
   status: BrochureStatus
   theme?: BrochureTheme
   accentColor?: string
+  backgroundColor?: string
+  textColor?: string
+  fontOverrides?: FontOverrides
+  navColor?: string
+  textureImage?: SanityImage
+  hideTexture?: boolean
   logo?: SanityImage
   publishedAt?: string
   featured?: boolean

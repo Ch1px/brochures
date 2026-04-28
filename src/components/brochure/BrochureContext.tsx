@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, type ReactNode } from 'react'
-import type { BrochureTheme, SanityImage } from '@/types/brochure'
+import type { Annotation, AnnotationKind, BrochureTheme, FontOverrides, SanityImage } from '@/types/brochure'
 
 /**
  * Lightweight context for brochure-wide branding values that descendant
@@ -16,6 +16,9 @@ import type { BrochureTheme, SanityImage } from '@/types/brochure'
 
 export type BrochureBranding = {
   accentColor?: string
+  backgroundColor?: string
+  textColor?: string
+  fontOverrides?: FontOverrides
   logo?: SanityImage
   theme: BrochureTheme
   /** True when rendered inside the admin editor preview. Section components
@@ -41,6 +44,16 @@ export type BrochureBranding = {
       y: number,
       multi: boolean,
     ) => void
+  }
+  /** Editor-only: annotation editing state for circuit map sections. */
+  annotations?: {
+    selectedKey: string | null
+    onSelect: (key: string | null) => void
+    onMove: (sectionKey: string, annotationKey: string, x: number, y: number) => void
+    onTransform: (sectionKey: string, annotationKey: string, update: { rotation?: number; scale?: number }) => void
+    onUpdate: (sectionKey: string, annotationKey: string, update: Record<string, unknown>) => void
+    pendingKind: AnnotationKind | null
+    onPlaceNew: (sectionKey: string, x: number, y: number) => void
   }
 }
 

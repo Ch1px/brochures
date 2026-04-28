@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import type { Brochure, SanityImage } from '@/types/brochure'
+import type { Brochure, FontOverrides, SanityImage } from '@/types/brochure'
 import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
+import { fontOptionsForRole, weightOptionsForRole } from '@/lib/fontPalette'
 import { FieldInput } from './fields/FieldInput'
 import { FieldTextarea } from './fields/FieldTextarea'
 import { FieldBoolean } from './fields/FieldBoolean'
@@ -21,6 +22,12 @@ type Props = {
     seo: NonNullable<Brochure['seo']>
     leadCapture: NonNullable<Brochure['leadCapture']>
     accentColor: string | undefined
+    backgroundColor: string | undefined
+    textColor: string | undefined
+    fontOverrides: FontOverrides | undefined
+    navColor: string | undefined
+    textureImage: SanityImage | undefined
+    hideTexture: boolean
     logo: SanityImage | undefined
   }) => void
 }
@@ -42,6 +49,19 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   const [hubspotFormId, setHubspotFormId] = useState(brochure.leadCapture?.hubspotFormId ?? '')
   const [destinationEmail, setDestinationEmail] = useState(brochure.leadCapture?.destinationEmail ?? '')
   const [accentColor, setAccentColor] = useState<string | undefined>(brochure.accentColor)
+  const [backgroundColor, setBackgroundColor] = useState<string | undefined>(brochure.backgroundColor)
+  const [textColor, setTextColor] = useState<string | undefined>(brochure.textColor)
+  const [fontDisplay, setFontDisplay] = useState<string | undefined>(brochure.fontOverrides?.display)
+  const [fontDisplayWeight, setFontDisplayWeight] = useState<string | undefined>(brochure.fontOverrides?.displayWeight)
+  const [fontScript, setFontScript] = useState<string | undefined>(brochure.fontOverrides?.script)
+  const [fontScriptWeight, setFontScriptWeight] = useState<string | undefined>(brochure.fontOverrides?.scriptWeight)
+  const [fontBody, setFontBody] = useState<string | undefined>(brochure.fontOverrides?.body)
+  const [fontBodyWeight, setFontBodyWeight] = useState<string | undefined>(brochure.fontOverrides?.bodyWeight)
+  const [fontMono, setFontMono] = useState<string | undefined>(brochure.fontOverrides?.mono)
+  const [fontMonoWeight, setFontMonoWeight] = useState<string | undefined>(brochure.fontOverrides?.monoWeight)
+  const [navColor, setNavColor] = useState<string | undefined>(brochure.navColor)
+  const [textureImage, setTextureImage] = useState<SanityImage | undefined>(brochure.textureImage)
+  const [hideTexture, setHideTexture] = useState(Boolean(brochure.hideTexture))
   const [logo, setLogo] = useState<SanityImage | undefined>(brochure.logo)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -60,6 +80,19 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     setHubspotFormId(brochure.leadCapture?.hubspotFormId ?? '')
     setDestinationEmail(brochure.leadCapture?.destinationEmail ?? '')
     setAccentColor(brochure.accentColor)
+    setBackgroundColor(brochure.backgroundColor)
+    setTextColor(brochure.textColor)
+    setFontDisplay(brochure.fontOverrides?.display)
+    setFontDisplayWeight(brochure.fontOverrides?.displayWeight)
+    setFontScript(brochure.fontOverrides?.script)
+    setFontScriptWeight(brochure.fontOverrides?.scriptWeight)
+    setFontBody(brochure.fontOverrides?.body)
+    setFontBodyWeight(brochure.fontOverrides?.bodyWeight)
+    setFontMono(brochure.fontOverrides?.mono)
+    setFontMonoWeight(brochure.fontOverrides?.monoWeight)
+    setNavColor(brochure.navColor)
+    setTextureImage(brochure.textureImage)
+    setHideTexture(Boolean(brochure.hideTexture))
     setLogo(brochure.logo)
     setError(null)
   }, [open, brochure])
@@ -114,6 +147,23 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
           seo,
           leadCapture,
           accentColor: accentColor ?? null,
+          backgroundColor: backgroundColor ?? null,
+          textColor: textColor ?? null,
+          fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
+            ? {
+                display: fontDisplay || undefined,
+                displayWeight: fontDisplayWeight || undefined,
+                script: fontScript || undefined,
+                scriptWeight: fontScriptWeight || undefined,
+                body: fontBody || undefined,
+                bodyWeight: fontBodyWeight || undefined,
+                mono: fontMono || undefined,
+                monoWeight: fontMonoWeight || undefined,
+              }
+            : null,
+          navColor: navColor ?? null,
+          textureImage: textureImage ?? null,
+          hideTexture: hideTexture || null,
           logo: logo ?? null,
         },
         brochure.slug.current
@@ -129,6 +179,14 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         seo,
         leadCapture,
         accentColor,
+        backgroundColor,
+        textColor,
+        fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
+          ? { display: fontDisplay, displayWeight: fontDisplayWeight, script: fontScript, scriptWeight: fontScriptWeight, body: fontBody, bodyWeight: fontBodyWeight, mono: fontMono, monoWeight: fontMonoWeight }
+          : undefined,
+        navColor,
+        textureImage,
+        hideTexture,
         logo,
       })
       onClose()
@@ -210,12 +268,112 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             onChange={setAccentColor}
           />
 
+          <FieldColor
+            label="Background colour"
+            description="Overrides the page background. Leave default to use the theme colour."
+            value={backgroundColor}
+            onChange={setBackgroundColor}
+            fallback={brochure.theme === 'light' ? '#f6f5f1' : '#0b0b0d'}
+          />
+
+          <FieldColor
+            label="Text colour"
+            description="Overrides the page text colour. Derives muted, subtle, and border variants automatically."
+            value={textColor}
+            onChange={setTextColor}
+            fallback={brochure.theme === 'light' ? '#0b0b0d' : '#ffffff'}
+          />
+
+          <FieldColor
+            label="Navigation background"
+            description="Override the nav bar background. Should always be a dark colour. Default: #080809."
+            value={navColor}
+            onChange={setNavColor}
+            fallback="#080809"
+          />
+
           <FieldImage
             label="Logo"
             description="Replaces the GPGT logo in the brochure nav. Leave blank to use the default."
             value={logo}
             onChange={setLogo}
             previewWidth={400}
+          />
+
+          <SectionHeader label="Background texture" />
+
+          <FieldBoolean
+            label="Hide background texture"
+            description="Remove the halftone texture across all sections, leaving flat backgrounds."
+            value={hideTexture}
+            onChange={setHideTexture}
+          />
+
+          {!hideTexture ? (
+            <FieldImage
+              label="Custom texture image"
+              description="Replaces the default halftone texture across all textured sections. Leave blank to keep the default."
+              value={textureImage}
+              onChange={setTextureImage}
+            />
+          ) : null}
+
+          <SectionHeader label="Typography" />
+
+          <FieldSelect
+            label="Title font"
+            description="Headlines and display text. Default: Formula1."
+            value={fontDisplay ?? ''}
+            onChange={(v) => { setFontDisplay(v || undefined); setFontDisplayWeight(undefined) }}
+            options={fontOptionsForRole('display')}
+          />
+          <FieldSelect
+            label="Title font weight"
+            value={fontDisplayWeight ?? ''}
+            onChange={(v) => setFontDisplayWeight(v || undefined)}
+            options={weightOptionsForRole('display', fontDisplay)}
+          />
+
+          <FieldSelect
+            label="Eyebrow font"
+            description="Eyebrow and accent text. Default: Northwell."
+            value={fontScript ?? ''}
+            onChange={(v) => { setFontScript(v || undefined); setFontScriptWeight(undefined) }}
+            options={fontOptionsForRole('script')}
+          />
+          <FieldSelect
+            label="Eyebrow font weight"
+            value={fontScriptWeight ?? ''}
+            onChange={(v) => setFontScriptWeight(v || undefined)}
+            options={weightOptionsForRole('script', fontScript)}
+          />
+
+          <FieldSelect
+            label="Body font"
+            description="Paragraph and body text. Default: Titillium Web."
+            value={fontBody ?? ''}
+            onChange={(v) => { setFontBody(v || undefined); setFontBodyWeight(undefined) }}
+            options={fontOptionsForRole('body')}
+          />
+          <FieldSelect
+            label="Body font weight"
+            value={fontBodyWeight ?? ''}
+            onChange={(v) => setFontBodyWeight(v || undefined)}
+            options={weightOptionsForRole('body', fontBody)}
+          />
+
+          <FieldSelect
+            label="Label font"
+            description="Labels, meta text, and data. Default: JetBrains Mono."
+            value={fontMono ?? ''}
+            onChange={(v) => { setFontMono(v || undefined); setFontMonoWeight(undefined) }}
+            options={fontOptionsForRole('mono')}
+          />
+          <FieldSelect
+            label="Label font weight"
+            value={fontMonoWeight ?? ''}
+            onChange={(v) => setFontMonoWeight(v || undefined)}
+            options={weightOptionsForRole('mono', fontMono)}
           />
 
           <SectionHeader label="SEO" />

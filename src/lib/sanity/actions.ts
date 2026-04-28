@@ -50,6 +50,12 @@ export async function saveBrochureAction(
       | 'event'
       | 'theme'
       | 'accentColor'
+      | 'backgroundColor'
+      | 'textColor'
+      | 'fontOverrides'
+      | 'navColor'
+      | 'textureImage'
+      | 'hideTexture'
       | 'logo'
     >
   >

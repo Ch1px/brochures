@@ -36,6 +36,12 @@ type Props = {
   recolorMode?: boolean
   onRecolorModeChange?: (next: boolean) => void
   onPickByColor?: (color: string) => void
+  mapEditMode?: boolean
+  onMapEditModeChange?: (on: boolean) => void
+  selectedAnnotationKey?: string | null
+  onSelectAnnotation?: (key: string | null) => void
+  pendingAnnotationKind?: import('@/types/brochure').AnnotationKind | null
+  onSetPendingAnnotation?: (kind: import('@/types/brochure').AnnotationKind | null) => void
 }
 
 /**
@@ -51,6 +57,12 @@ export function PropertiesPanel({
   recolorMode = false,
   onRecolorModeChange,
   onPickByColor,
+  mapEditMode,
+  onMapEditModeChange,
+  selectedAnnotationKey,
+  onSelectAnnotation,
+  pendingAnnotationKind,
+  onSetPendingAnnotation,
 }: Props) {
   if (!section) {
     return (
@@ -78,7 +90,7 @@ export function PropertiesPanel({
         ) : null}
       </div>
       <div className="properties-body">
-        {renderEditor(section, onChange, accentColor, recolorMode, onRecolorModeChange, onPickByColor)}
+        {renderEditor(section, onChange, accentColor, mapEditMode, onMapEditModeChange, recolorMode, onRecolorModeChange, onPickByColor, selectedAnnotationKey, onSelectAnnotation, pendingAnnotationKind, onSetPendingAnnotation)}
         <div className="properties-section-divider" />
         <FieldBackground
           label="Section background"
@@ -95,9 +107,15 @@ function renderEditor(
   section: Section,
   onChange: (u: Partial<Section>) => void,
   accentColor?: string,
+  mapEditMode?: boolean,
+  onMapEditModeChange?: (on: boolean) => void,
   recolorMode = false,
   onRecolorModeChange?: (next: boolean) => void,
-  onPickByColor?: (color: string) => void
+  onPickByColor?: (color: string) => void,
+  selectedAnnotationKey?: string | null,
+  onSelectAnnotation?: (key: string | null) => void,
+  pendingAnnotationKind?: import('@/types/brochure').AnnotationKind | null,
+  onSetPendingAnnotation?: (kind: import('@/types/brochure').AnnotationKind | null) => void,
 ) {
   // Each editor narrows to its own section type. The cast on onChange is safe
   // because the editor only passes partials valid for that narrower type.
@@ -142,9 +160,15 @@ function renderEditor(
           section={section}
           onChange={anyOnChange}
           accentColor={accentColor}
+          mapEditMode={mapEditMode}
+          onMapEditModeChange={onMapEditModeChange}
           recolorMode={recolorMode}
           onRecolorModeChange={onRecolorModeChange}
           onPickByColor={onPickByColor}
+          selectedAnnotationKey={selectedAnnotationKey}
+          onSelectAnnotation={onSelectAnnotation}
+          pendingAnnotationKind={pendingAnnotationKind}
+          onSetPendingAnnotation={onSetPendingAnnotation}
         />
       )
     case 'spotlight':

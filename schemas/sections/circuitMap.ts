@@ -76,6 +76,42 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'annotations',
+      type: 'array',
+      description: 'Draggable overlays positioned on top of the circuit SVG (text, images, pin markers).',
+      of: [
+        {
+          type: 'object',
+          name: 'annotation',
+          fields: [
+            { name: 'kind', type: 'string', title: 'Type', validation: (Rule: any) => Rule.required() },
+            { name: 'x', type: 'number', title: 'X %', validation: (Rule: any) => Rule.required().min(0).max(100) },
+            { name: 'y', type: 'number', title: 'Y %', validation: (Rule: any) => Rule.required().min(0).max(100) },
+            { name: 'label', type: 'string', title: 'Label' },
+            { name: 'image', type: 'image', title: 'Image', options: { hotspot: false } },
+            { name: 'width', type: 'number', title: 'Width %' },
+            { name: 'icon', type: 'string', title: 'Pin icon' },
+            { name: 'number', type: 'number', title: 'Pin number' },
+            { name: 'fontSize', type: 'number', title: 'Font size' },
+            { name: 'fontFamily', type: 'string', title: 'Font family' },
+            { name: 'fontWeight', type: 'string', title: 'Font weight' },
+            { name: 'svgText', type: 'text', title: 'SVG markup', rows: 3 },
+            { name: 'color', type: 'string', title: 'Colour' },
+            { name: 'scale', type: 'number', title: 'Scale' },
+            { name: 'rotation', type: 'number', title: 'Rotation' },
+            { name: 'opacity', type: 'number', title: 'Opacity' },
+          ],
+          preview: {
+            select: { kind: 'kind', label: 'label' },
+            prepare: ({ kind, label }: any) => ({
+              title: label || kind || 'Annotation',
+              subtitle: kind,
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'stats',
       type: 'array',
       description: 'Up to 4 stats displayed in a strip below the map',

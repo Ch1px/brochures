@@ -15,6 +15,20 @@ export default defineType({
     defineField({ name: 'cta', type: 'string' }),
     defineField({ name: 'ref', type: 'string' }),
     defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
+    defineField({
+      name: 'overlayStrength',
+      type: 'string',
+      title: 'Overlay strength',
+      description: 'Controls the dark overlay opacity over the background image. Default: medium.',
+      options: {
+        list: [
+          { title: 'None', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium (default)', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+      },
+    }),
     backgroundField,
   ],
   preview: {

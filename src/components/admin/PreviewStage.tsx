@@ -1,10 +1,14 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import type { Brochure } from '@/types/brochure'
+import type { AnnotationKind, Brochure } from '@/types/brochure'
 import { SectionRenderer } from '../brochure/SectionRenderer'
 import { BrochureBrandingProvider } from '../brochure/BrochureContext'
+import { GoogleFontsLink } from '../brochure/GoogleFontsLink'
+import { TextureOverride } from '../brochure/TextureOverride'
 import { accentColorVars } from '@/lib/accentColor'
+import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
+import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 
 type Props = {
   brochure: Brochure
@@ -22,6 +26,15 @@ type Props = {
       y: number,
       multi: boolean,
     ) => void
+  }
+  annotations?: {
+    selectedKey: string | null
+    onSelect: (key: string | null) => void
+    onMove: (sectionKey: string, annotationKey: string, x: number, y: number) => void
+    onTransform: (sectionKey: string, annotationKey: string, update: { rotation?: number; scale?: number }) => void
+    onUpdate: (sectionKey: string, annotationKey: string, update: Record<string, unknown>) => void
+    pendingKind: AnnotationKind | null
+    onPlaceNew: (sectionKey: string, x: number, y: number) => void
   }
 }
 
@@ -43,6 +56,7 @@ export function PreviewStage({
   currentSectionKey,
   setCurrentSectionKey,
   recolor,
+  annotations: annotationsProp,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null)
   const page = brochure.pages[currentPageIndex]
@@ -86,9 +100,16 @@ export function PreviewStage({
 
   const theme = brochure.theme ?? 'dark'
   const accentStyle = accentColorVars(brochure.accentColor)
+  const bgStyle = backgroundColorVars(brochure.backgroundColor)
+  const textStyle = textColorVars(brochure.textColor)
+  const fontStyle = fontOverrideVars(brochure.fontOverrides)
+  const navStyle = navColorVars(brochure.navColor)
+  const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, logo: brochure.logo, theme, editorMode: true, recolor }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, logo: brochure.logo, theme, editorMode: true, recolor, annotations: annotationsProp }}>
+    <GoogleFontsLink url={fontsUrl} />
+    <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div className="preview-stage-wrap">
       <div className="preview-stage-label">
         <span className="preview-stage-label-num">
@@ -99,7 +120,7 @@ export function PreviewStage({
       <div
         className="preview-stage-frame"
         data-theme={theme}
-        style={accentStyle}
+        style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}
         ref={frameRef}
       >
         <div className="brochure-page" style={{ width: '100%' }}>

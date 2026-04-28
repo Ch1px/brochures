@@ -37,7 +37,7 @@ export function accentColorVars(hex?: string | null): CSSProperties | undefined 
   } as CSSProperties
 }
 
-function relativeLuminance({ r, g, b }: Rgb): number {
+export function relativeLuminance({ r, g, b }: Rgb): number {
   const channel = (c: number) => {
     const s = c / 255
     return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
@@ -45,19 +45,19 @@ function relativeLuminance({ r, g, b }: Rgb): number {
   return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
 }
 
-type Rgb = { r: number; g: number; b: number }
+export type Rgb = { r: number; g: number; b: number }
 
-function hexToRgb(hex: string): Rgb {
+export function hexToRgb(hex: string): Rgb {
   const n = parseInt(hex.slice(1), 16)
   return { r: (n >> 16) & 0xff, g: (n >> 8) & 0xff, b: n & 0xff }
 }
 
-function rgbToHex({ r, g, b }: Rgb): string {
+export function rgbToHex({ r, g, b }: Rgb): string {
   const to = (v: number) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')
   return `#${to(r)}${to(g)}${to(b)}`
 }
 
-function lighten({ r, g, b }: Rgb, amount: number): Rgb {
+export function lighten({ r, g, b }: Rgb, amount: number): Rgb {
   return {
     r: r + (255 - r) * amount,
     g: g + (255 - g) * amount,

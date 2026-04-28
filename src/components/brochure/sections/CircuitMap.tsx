@@ -1,11 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useRef } from 'react'
-import type { SectionCircuitMap } from '@/types/brochure'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import type { Annotation, SectionCircuitMap } from '@/types/brochure'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { bakeOverridesIntoSvg, bakeRecolorIds } from '@/lib/svgRecolor'
 import { useBrochureBranding } from '../BrochureContext'
 import { RichBody } from '../RichBody'
+import { AnnotationOverlay } from './CircuitMapAnnotations'
+import { GoogleFontsLink } from '../GoogleFontsLink'
+import { useAnnotationDrag } from '@/hooks/useAnnotationDrag'
+import { nanokey } from '@/lib/nanokey'
+import { FONT_PALETTE } from '@/lib/fontPalette'
 
 type Props = {
   data: SectionCircuitMap
@@ -36,7 +41,7 @@ type Props = {
  * up via the BrochureBranding context.
  */
 export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
-  const { accentColor, theme, editorMode, recolor } = useBrochureBranding()
+  const { accentColor, theme, editorMode, recolor, annotations: annotationCtx } = useBrochureBranding()
 
   // The fully-prepared SVG string: themed → ids stamped → overrides injected.
   const themedSvg = useMemo(() => {
@@ -58,8 +63,62 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
 
   const hasSvg = themedSvg.trim().length > 0
   const stats = (data.stats ?? []).slice(0, 4)
+  const annotations = data.annotations ?? []
+
+  // Build a Google Fonts URL for any non-builtin fonts used in text annotations
+  const annotationFontsUrl = useMemo(() => {
+    const families = new Map<string, string>()
+    for (const a of annotations) {
+      if (a.kind === 'text' && a.fontFamily) {
+        const entry = FONT_PALETTE.find((f) => f.slug === a.fontFamily)
+        if (entry && !entry.builtin && entry.googleFamily && !families.has(entry.googleFamily)) {
+          families.set(entry.googleFamily, entry.weights ?? '400')
+        }
+      }
+    }
+    if (families.size === 0) return null
+    const params = Array.from(families.entries())
+      .map(([family, weights]) => `family=${family}:wght@${weights}`)
+      .join('&')
+    return `https://fonts.googleapis.com/css2?${params}&display=swap`
+  }, [annotations])
 
   const sectionKey = data._key
+
+  const overlayRef = useRef<HTMLDivElement | null>(null)
+
+  const handleAnnotationMove = useCallback(
+    (key: string, x: number, y: number) => {
+      annotationCtx?.onMove(sectionKey, key, x, y)
+    },
+    [annotationCtx, sectionKey],
+  )
+
+  const { getHandleProps, dragInfo } = useAnnotationDrag(overlayRef, handleAnnotationMove)
+
+  const handleOverlayClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!annotationCtx?.pendingKind) {
+        annotationCtx?.onSelect(null)
+        return
+      }
+      const overlay = overlayRef.current
+      if (!overlay) return
+      const rect = overlay.getBoundingClientRect()
+      const x = Math.round(((e.clientX - rect.left) / rect.width) * 10000) / 100
+      const y = Math.round(((e.clientY - rect.top) / rect.height) * 10000) / 100
+      annotationCtx.onPlaceNew(sectionKey, x, y)
+    },
+    [annotationCtx, sectionKey],
+  )
+
+  const handleAnnotationTransform = useCallback(
+    (key: string, update: { rotation?: number; scale?: number }) => {
+      annotationCtx?.onTransform(sectionKey, key, update)
+    },
+    [annotationCtx, sectionKey],
+  )
+
   const isRecolorTarget =
     Boolean(editorMode) &&
     Boolean(recolor?.active) &&
@@ -134,6 +193,7 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
 
   return (
     <section className="section page-circuit-map" data-section-id={sectionKey}>
+      <GoogleFontsLink url={annotationFontsUrl} />
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-circuit-map-inner">
         <div className="circuit-map-header">
@@ -169,6 +229,23 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
               </div>
             </div>
           )}
+          {(annotations.length > 0 || annotationCtx) ? (
+            <AnnotationOverlay
+              annotations={annotations}
+              editorMode={Boolean(annotationCtx)}
+              selectedKey={annotationCtx?.selectedKey}
+              overlayRef={overlayRef}
+              onSelect={annotationCtx?.onSelect}
+              onOverlayClick={annotationCtx ? handleOverlayClick : undefined}
+              getHandleProps={annotationCtx ? getHandleProps : undefined}
+              onTransform={annotationCtx ? handleAnnotationTransform : undefined}
+              onUpdate={annotationCtx ? (key: string, update: Record<string, unknown>) => {
+                annotationCtx.onUpdate(sectionKey, key, update)
+              } : undefined}
+              dragInfo={dragInfo}
+              pendingKind={annotationCtx?.pendingKind}
+            />
+          ) : null}
         </div>
         {stats.length > 0 ? (
           <div

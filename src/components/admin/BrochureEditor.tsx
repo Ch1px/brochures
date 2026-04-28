@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type {
+  Annotation,
+  AnnotationKind,
   Brochure,
   BrochureStatus,
   BrochureTheme,
@@ -94,6 +96,142 @@ export function BrochureEditor({ initialBrochure }: Props) {
       setRecolorMode(false)
     }
   }, [brochure.pages, currentSectionKey])
+
+  // ───────── Map edit mode (recolour + annotations) ─────────
+  const [mapEditMode, setMapEditMode] = useState(false)
+  const [selectedAnnotationKey, setSelectedAnnotationKey] = useState<string | null>(null)
+  const [pendingAnnotationKind, setPendingAnnotationKind] = useState<AnnotationKind | null>(null)
+
+  // Turn off map edit mode when switching sections
+  useEffect(() => {
+    setMapEditMode(false)
+    setRecolorMode(false)
+    setSelectedAnnotationKey(null)
+    setPendingAnnotationKind(null)
+  }, [currentSectionKey])
+
+  // When map edit mode is turned off, clear all sub-states
+  useEffect(() => {
+    if (!mapEditMode) {
+      setRecolorMode(false)
+      setRecolorSelection(null)
+      setSelectedAnnotationKey(null)
+      setPendingAnnotationKind(null)
+    }
+  }, [mapEditMode])
+
+  // Mutual exclusion: recolor ↔ annotation selection
+  useEffect(() => {
+    if (selectedAnnotationKey || pendingAnnotationKind) setRecolorMode(false)
+  }, [selectedAnnotationKey, pendingAnnotationKind])
+
+  useEffect(() => {
+    if (recolorMode) {
+      setSelectedAnnotationKey(null)
+      setPendingAnnotationKind(null)
+    }
+  }, [recolorMode])
+
+  // Move an annotation (called from drag handler)
+  const handleAnnotationMove = useCallback(
+    (sectionKey: string, annotationKey: string, x: number, y: number) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return {
+              ...cm,
+              annotations: (cm.annotations ?? []).map((a) =>
+                a._key === annotationKey ? { ...a, x, y } : a,
+              ),
+            } as Section
+          }),
+        })),
+      }))
+    },
+    [],
+  )
+
+  const handleAnnotationTransform = useCallback(
+    (sectionKey: string, annotationKey: string, update: { rotation?: number; scale?: number }) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return {
+              ...cm,
+              annotations: (cm.annotations ?? []).map((a) =>
+                a._key === annotationKey ? { ...a, ...update } : a,
+              ),
+            } as Section
+          }),
+        })),
+      }))
+    },
+    [],
+  )
+
+  // Generic annotation field update (used by inline text editing etc.)
+  const handleAnnotationUpdate = useCallback(
+    (sectionKey: string, annotationKey: string, update: Record<string, unknown>) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return {
+              ...cm,
+              annotations: (cm.annotations ?? []).map((a) =>
+                a._key === annotationKey ? { ...a, ...update } : a,
+              ),
+            } as Section
+          }),
+        })),
+      }))
+    },
+    [],
+  )
+
+  // Place a new annotation at click coordinates
+  const handlePlaceNewAnnotation = useCallback(
+    (sectionKey: string, x: number, y: number) => {
+      const kind = pendingAnnotationKind
+      if (!kind) return
+      const key = nanokey()
+      let newAnnotation: Annotation
+      if (kind === 'text') {
+        newAnnotation = { _key: key, kind: 'text', x, y, label: 'Label' }
+      } else if (kind === 'image') {
+        newAnnotation = { _key: key, kind: 'image', x, y }
+      } else if (kind === 'svg') {
+        newAnnotation = { _key: key, kind: 'svg', x, y }
+      } else {
+        newAnnotation = { _key: key, kind: 'pin', x, y, icon: 'pin' }
+      }
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return { ...cm, annotations: [...(cm.annotations ?? []), newAnnotation] } as Section
+          }),
+        })),
+      }))
+      setSelectedAnnotationKey(key)
+      setPendingAnnotationKind(null)
+    },
+    [pendingAnnotationKind],
+  )
 
   const { status: saveStatus, flushNow } = useAutosave(brochure)
 
@@ -249,12 +387,25 @@ export function BrochureEditor({ initialBrochure }: Props) {
 
   const recolorContext = useMemo(
     () => ({
-      active: recolorMode,
+      active: mapEditMode && recolorMode,
       targetSectionKey: currentSectionKey,
       selectedIds: recolorSelection?.elementIds ?? [],
       onElementClick: handleRecolorElementClick,
     }),
-    [recolorMode, currentSectionKey, recolorSelection, handleRecolorElementClick]
+    [mapEditMode, recolorMode, currentSectionKey, recolorSelection, handleRecolorElementClick]
+  )
+
+  const annotationContext = useMemo(
+    () => mapEditMode ? {
+      selectedKey: selectedAnnotationKey,
+      onSelect: setSelectedAnnotationKey,
+      onMove: handleAnnotationMove,
+      onTransform: handleAnnotationTransform,
+      onUpdate: handleAnnotationUpdate,
+      pendingKind: pendingAnnotationKind,
+      onPlaceNew: handlePlaceNewAnnotation,
+    } : undefined,
+    [mapEditMode, selectedAnnotationKey, handleAnnotationMove, handleAnnotationTransform, handleAnnotationUpdate, pendingAnnotationKind, handlePlaceNewAnnotation]
   )
 
   // Recent colours used in the active circuit-map section, most-recent-first
@@ -374,6 +525,74 @@ export function BrochureEditor({ initialBrochure }: Props) {
     setCurrentSectionKey(null)
   }, [currentSectionKey, brochure.pages, setBrochure])
 
+  // ───────── Annotation keyboard shortcuts ─────────
+  useEffect(() => {
+    if (!selectedAnnotationKey) return
+    const onKey = (e: KeyboardEvent) => {
+      // Don't intercept when typing in an input/textarea
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault()
+        // Delete the selected annotation
+        setBrochure((prev) => ({
+          ...prev,
+          pages: prev.pages.map((page) => ({
+            ...page,
+            sections: page.sections.map((s) => {
+              if (s._type !== 'circuitMap') return s
+              const cm = s as SectionCircuitMap
+              if (!(cm.annotations ?? []).some((a) => a._key === selectedAnnotationKey)) return s
+              return { ...cm, annotations: (cm.annotations ?? []).filter((a) => a._key !== selectedAnnotationKey) } as Section
+            }),
+          })),
+        }))
+        setSelectedAnnotationKey(null)
+        return
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setSelectedAnnotationKey(null)
+        setPendingAnnotationKind(null)
+        return
+      }
+
+      // Arrow key nudging: 1% step, Shift for 0.1% fine-tuning
+      const step = e.shiftKey ? 0.1 : 1
+      let dx = 0, dy = 0
+      if (e.key === 'ArrowLeft') dx = -step
+      else if (e.key === 'ArrowRight') dx = step
+      else if (e.key === 'ArrowUp') dy = -step
+      else if (e.key === 'ArrowDown') dy = step
+      if (dx !== 0 || dy !== 0) {
+        e.preventDefault()
+        setBrochure((prev) => ({
+          ...prev,
+          pages: prev.pages.map((page) => ({
+            ...page,
+            sections: page.sections.map((s) => {
+              if (s._type !== 'circuitMap') return s
+              const cm = s as SectionCircuitMap
+              if (!(cm.annotations ?? []).some((a) => a._key === selectedAnnotationKey)) return s
+              return {
+                ...cm,
+                annotations: (cm.annotations ?? []).map((a) =>
+                  a._key === selectedAnnotationKey
+                    ? { ...a, x: Math.min(100, Math.max(0, Math.round((a.x + dx) * 100) / 100)), y: Math.min(100, Math.max(0, Math.round((a.y + dy) * 100) / 100)) }
+                    : a
+                ),
+              } as Section
+            }),
+          })),
+        }))
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedAnnotationKey, setBrochure])
+
   useEditorShortcuts({
     onSave: () => void flushNow(),
     onUndo: undo,
@@ -445,6 +664,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
             currentSectionKey={currentSectionKey}
             setCurrentSectionKey={setCurrentSectionKey}
             recolor={recolorContext}
+            annotations={annotationContext}
           />
         </main>
 
@@ -467,9 +687,15 @@ export function BrochureEditor({ initialBrochure }: Props) {
                 context={propertiesContext}
                 onChange={handleSectionChange}
                 accentColor={brochure.accentColor}
+                mapEditMode={mapEditMode}
+                onMapEditModeChange={setMapEditMode}
                 recolorMode={recolorMode}
                 onRecolorModeChange={setRecolorMode}
                 onPickByColor={handlePickByColor}
+                selectedAnnotationKey={selectedAnnotationKey}
+                onSelectAnnotation={setSelectedAnnotationKey}
+                pendingAnnotationKind={pendingAnnotationKind}
+                onSetPendingAnnotation={setPendingAnnotationKind}
               />
             </aside>
           </>
@@ -513,6 +739,12 @@ export function BrochureEditor({ initialBrochure }: Props) {
             seo: updates.seo,
             leadCapture: updates.leadCapture,
             accentColor: updates.accentColor,
+            backgroundColor: updates.backgroundColor,
+            textColor: updates.textColor,
+            fontOverrides: updates.fontOverrides,
+            navColor: updates.navColor,
+            textureImage: updates.textureImage,
+            hideTexture: updates.hideTexture,
             logo: updates.logo,
           }))
         }

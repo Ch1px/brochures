@@ -1,28 +1,40 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import type { SectionCircuitMap, StatItem } from '@/types/brochure'
+import type { AnnotationKind, SectionCircuitMap, StatItem } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { FieldInput, FieldTextarea, FieldRichText, FieldObjectArray, FieldLabel } from '../fields'
+import { AnnotationEditor } from './AnnotationEditor'
 
 type Props = {
   section: SectionCircuitMap
   onChange: (update: Partial<SectionCircuitMap>) => void
   accentColor?: string
+  mapEditMode?: boolean
+  onMapEditModeChange?: (on: boolean) => void
   recolorMode?: boolean
   onRecolorModeChange?: (next: boolean) => void
-  /** Select all elements currently using this colour and open the popover. */
   onPickByColor?: (color: string) => void
+  selectedAnnotationKey?: string | null
+  onSelectAnnotation?: (key: string | null) => void
+  pendingAnnotationKind?: AnnotationKind | null
+  onSetPendingAnnotation?: (kind: AnnotationKind | null) => void
 }
 
 export function CircuitMapEditor({
   section,
   onChange,
   accentColor,
+  mapEditMode = false,
+  onMapEditModeChange,
   recolorMode = false,
   onRecolorModeChange,
   onPickByColor,
+  selectedAnnotationKey,
+  onSelectAnnotation,
+  pendingAnnotationKind,
+  onSetPendingAnnotation,
 }: Props) {
   const svgInputRef = useRef<HTMLInputElement>(null)
   const [svgError, setSvgError] = useState<string | null>(null)
@@ -126,70 +138,146 @@ export function CircuitMapEditor({
         />
       </FieldLabel>
 
-      <FieldLabel
-        label="Recolour mode"
-        description="Toggle on, then click any path or shape inside the circuit on the centre preview to pick a colour for that element. Re-uploading the SVG clears all overrides."
-      >
-        <div className="recolor-toggle-row">
+      {/* ── Map Editor: unified recolour + annotations ── */}
+      <div className="map-editor">
+        <button
+          type="button"
+          className={`map-editor-toggle${mapEditMode ? ' active' : ''}`}
+          onClick={() => onMapEditModeChange?.(!mapEditMode)}
+          disabled={!hasOriginal}
+        >
+          {mapEditMode ? 'Exit map editor' : 'Edit map'}
+        </button>
+        {!hasOriginal ? (
+          <span className="field-color-hint" style={{ marginTop: 4, display: 'block' }}>Upload an SVG to enable</span>
+        ) : null}
+
+        {mapEditMode ? (
+        <>
+        <div className="map-editor-header">
+          <span className="field-label-description">
+            {pendingAnnotationKind
+              ? `Click the map to place a ${pendingAnnotationKind}`
+              : recolorMode
+                ? 'Click any element on the circuit to recolour it'
+                : 'Select a tool below, then interact with the map'}
+          </span>
+        </div>
+
+        {/* Tool bar */}
+        <div className="map-editor-toolbar">
           <button
             type="button"
-            className={`field-btn${recolorMode ? ' field-btn-active' : ''}`}
-            onClick={() => onRecolorModeChange?.(!recolorMode)}
-            disabled={!hasOriginal}
+            className={`map-editor-tool${!pendingAnnotationKind && !recolorMode ? ' active' : ''}`}
+            onClick={() => { onRecolorModeChange?.(false); onSetPendingAnnotation?.(null) }}
+            title="Select and drag annotations"
           >
-            {recolorMode ? 'Recolour mode: on' : 'Enable recolour mode'}
+            Select
           </button>
-          {!hasOriginal ? (
-            <span className="field-color-hint">Upload an SVG to enable</span>
-          ) : null}
+          <button
+            type="button"
+            className={`map-editor-tool${recolorMode ? ' active' : ''}`}
+            onClick={() => { onRecolorModeChange?.(!recolorMode); onSetPendingAnnotation?.(null); onSelectAnnotation?.(null) }}
+            disabled={!hasOriginal}
+            title="Click circuit elements to recolour"
+          >
+            Recolour
+          </button>
+          <div className="map-editor-tool-divider" />
+          <button
+            type="button"
+            className={`map-editor-tool${pendingAnnotationKind === 'text' ? ' active' : ''}`}
+            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'text' ? null : 'text'); onRecolorModeChange?.(false) }}
+            title="Click map to place text"
+          >
+            + Text
+          </button>
+          <button
+            type="button"
+            className={`map-editor-tool${pendingAnnotationKind === 'pin' ? ' active' : ''}`}
+            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'pin' ? null : 'pin'); onRecolorModeChange?.(false) }}
+            title="Click map to place pin"
+          >
+            + Pin
+          </button>
+          <button
+            type="button"
+            className={`map-editor-tool${pendingAnnotationKind === 'image' ? ' active' : ''}`}
+            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'image' ? null : 'image'); onRecolorModeChange?.(false) }}
+            title="Click map to place image"
+          >
+            + Image
+          </button>
+          <button
+            type="button"
+            className={`map-editor-tool${pendingAnnotationKind === 'svg' ? ' active' : ''}`}
+            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'svg' ? null : 'svg'); onRecolorModeChange?.(false) }}
+            title="Click map to place SVG"
+          >
+            + SVG
+          </button>
         </div>
+
+        {/* Colour overrides list */}
         {overrides.length > 0 ? (
-          <ul className="recolor-overrides-list">
-            {groupOverridesByColor(overrides).map((group) => (
-              <li key={group.color} className="recolor-overrides-item">
-                <button
-                  type="button"
-                  className="recolor-overrides-swatch is-button"
-                  style={{ background: group.color }}
-                  onClick={() => onPickByColor?.(group.color)}
-                  title={
-                    group.count > 1
-                      ? `Select ${group.count} elements using ${group.color}`
-                      : `Select element using ${group.color}`
-                  }
-                  aria-label={`Select elements using ${group.color}`}
-                />
-                <span className="recolor-overrides-hex">{group.color}</span>
-                <span className="recolor-overrides-count">
-                  {group.count} {group.count === 1 ? 'element' : 'elements'}
-                </span>
+          <div className="map-editor-section">
+            <div className="map-editor-section-label">Colour overrides</div>
+            <ul className="recolor-overrides-list">
+              {groupOverridesByColor(overrides).map((group) => (
+                <li key={group.color} className="recolor-overrides-item">
+                  <button
+                    type="button"
+                    className="recolor-overrides-swatch is-button"
+                    style={{ background: group.color }}
+                    onClick={() => onPickByColor?.(group.color)}
+                    title={`Select ${group.count} element${group.count > 1 ? 's' : ''} using ${group.color}`}
+                    aria-label={`Select elements using ${group.color}`}
+                  />
+                  <span className="recolor-overrides-hex">{group.color}</span>
+                  <span className="recolor-overrides-count">
+                    {group.count} {group.count === 1 ? 'element' : 'elements'}
+                  </span>
+                  <button
+                    type="button"
+                    className="field-btn field-btn-ghost"
+                    onClick={() =>
+                      onChange({
+                        colorOverrides: overrides.filter(
+                          (x) => x.color?.toLowerCase() !== group.color,
+                        ),
+                      })
+                    }
+                  >
+                    Reset
+                  </button>
+                </li>
+              ))}
+              <li>
                 <button
                   type="button"
                   className="field-btn field-btn-ghost"
-                  onClick={() =>
-                    onChange({
-                      colorOverrides: overrides.filter(
-                        (x) => x.color?.toLowerCase() !== group.color,
-                      ),
-                    })
-                  }
+                  onClick={() => onChange({ colorOverrides: [] })}
                 >
-                  Reset
+                  Reset all
                 </button>
               </li>
-            ))}
-            <li>
-              <button
-                type="button"
-                className="field-btn field-btn-ghost"
-                onClick={() => onChange({ colorOverrides: [] })}
-              >
-                Reset all
-              </button>
-            </li>
-          </ul>
+            </ul>
+          </div>
         ) : null}
-      </FieldLabel>
+
+        {/* Annotations list */}
+        <AnnotationEditor
+          annotations={section.annotations ?? []}
+          onChange={onChange}
+          selectedKey={selectedAnnotationKey ?? null}
+          onSelect={onSelectAnnotation ?? (() => {})}
+          pendingKind={pendingAnnotationKind ?? null}
+          onSetPending={onSetPendingAnnotation ?? (() => {})}
+          hideAddButtons
+        />
+        </>
+        ) : null}
+      </div>
 
       <FieldObjectArray<StatItem>
         label="Stats"

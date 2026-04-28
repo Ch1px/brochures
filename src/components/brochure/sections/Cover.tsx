@@ -19,7 +19,7 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
   const videoUrl = urlForFile(data.video)
 
   return (
-    <section className={`section page-cover ${variantClass}`} data-section-id={data._key}>
+    <section className={`section page-cover ${variantClass} cover-overlay-${data.overlayStrength ?? 'medium'}`} data-section-id={data._key}>
       <div
         className="page-cover-bg"
         style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}

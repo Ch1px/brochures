@@ -1,6 +1,6 @@
 import 'server-only'
 import { sanityWriteClient } from './client'
-import type { Brochure, SanityImage } from '@/types/brochure'
+import type { Brochure, FontOverrides, SanityImage } from '@/types/brochure'
 
 /**
  * Sanity mutations for brochure documents — all server-side only.
@@ -58,6 +58,12 @@ export async function saveBrochure(
       | 'event'
       | 'theme'
       | 'accentColor'
+      | 'backgroundColor'
+      | 'textColor'
+      | 'fontOverrides'
+      | 'navColor'
+      | 'textureImage'
+      | 'hideTexture'
       | 'logo'
     >
   >
@@ -84,6 +90,12 @@ export type BrochureSettingsUpdate = {
   season?: string
   event?: string
   accentColor?: string | null
+  backgroundColor?: string | null
+  textColor?: string | null
+  fontOverrides?: FontOverrides | null
+  navColor?: string | null
+  textureImage?: SanityImage | null
+  hideTexture?: boolean | null
   logo?: SanityImage | null
   seo?: {
     metaTitle?: string
@@ -130,6 +142,33 @@ export async function updateBrochureSettings(
       const trimmed = updates.accentColor?.trim() ?? ''
       if (trimmed === '' || updates.accentColor === null) unset.push('accentColor')
       else patch.accentColor = trimmed
+    }
+    if (updates.backgroundColor !== undefined) {
+      const trimmed = updates.backgroundColor?.trim() ?? ''
+      if (trimmed === '' || updates.backgroundColor === null) unset.push('backgroundColor')
+      else patch.backgroundColor = trimmed
+    }
+    if (updates.textColor !== undefined) {
+      const trimmed = updates.textColor?.trim() ?? ''
+      if (trimmed === '' || updates.textColor === null) unset.push('textColor')
+      else patch.textColor = trimmed
+    }
+    if (updates.fontOverrides !== undefined) {
+      if (updates.fontOverrides === null) unset.push('fontOverrides')
+      else patch.fontOverrides = updates.fontOverrides
+    }
+    if (updates.navColor !== undefined) {
+      const trimmed = updates.navColor?.trim() ?? ''
+      if (trimmed === '' || updates.navColor === null) unset.push('navColor')
+      else patch.navColor = trimmed
+    }
+    if (updates.textureImage !== undefined) {
+      if (updates.textureImage === null) unset.push('textureImage')
+      else patch.textureImage = updates.textureImage
+    }
+    if (updates.hideTexture !== undefined) {
+      if (updates.hideTexture === null || updates.hideTexture === false) unset.push('hideTexture')
+      else patch.hideTexture = updates.hideTexture
     }
     if (updates.logo !== undefined) {
       if (updates.logo === null) unset.push('logo')
@@ -229,6 +268,14 @@ export async function duplicateBrochure(
       status: 'draft',
       featured: false,
       theme: src.theme,
+      accentColor: src.accentColor,
+      backgroundColor: src.backgroundColor,
+      textColor: src.textColor,
+      fontOverrides: src.fontOverrides,
+      navColor: src.navColor,
+      textureImage: src.textureImage,
+      hideTexture: src.hideTexture,
+      logo: src.logo,
       pages: src.pages ?? [],
       seo: src.seo,
       leadCapture: src.leadCapture,
