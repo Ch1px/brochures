@@ -11,34 +11,41 @@ type Props = {
 export function SectionHeadingEditor({ section, onChange }: Props) {
   return (
     <>
-      <FieldInput
-        label="Eyebrow"
-        description="Script italic accent in red, e.g. “A weekend of”."
-        value={section.eyebrow}
-        onChange={(eyebrow) => onChange({ eyebrow })}
-      />
-      <FieldInput
-        label="Title"
-        description="Bold uppercase title, e.g. “Hospitality”."
-        value={section.title}
-        onChange={(title) => onChange({ title })}
-      />
+      <div className="field-section-heading">Content</div>
+      <div className="field-row-2">
+        <FieldInput
+          label="Eyebrow"
+          description="Script italic in accent colour."
+          value={section.eyebrow}
+          onChange={(eyebrow) => onChange({ eyebrow })}
+          placeholder="A weekend of"
+        />
+        <FieldInput
+          label="Title"
+          description="Bold uppercase heading."
+          value={section.title}
+          onChange={(title) => onChange({ title })}
+          placeholder="Hospitality"
+        />
+      </div>
       <FieldRichText
         label="Body text"
-        description="Optional body beneath the title."
+        description="Optional supporting text beneath the title. Keep it brief — this is a chapter divider, not a content section."
         value={section.text}
         onChange={(text) => onChange({ text })}
         rows={3}
       />
+
+      <div className="field-section-heading">Background</div>
       <FieldImage
         label="Background image"
-        description="Optional full-bleed backdrop."
+        description="Full-bleed backdrop. Ideal: 1920×1080px landscape, JPG or PNG. Gets a dark overlay for text readability."
         value={section.image}
         onChange={(image) => onChange({ image })}
       />
       <FieldVideo
         label="Background video (optional)"
-        description="If set, plays in place of the background image. The image above is used as the poster while the video loads."
+        description="Looping video replaces the image. Best as a short MP4/WebM under 10MB."
         value={section.video}
         onChange={(video) => onChange({ video })}
       />

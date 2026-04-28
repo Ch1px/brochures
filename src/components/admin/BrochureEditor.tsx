@@ -25,6 +25,7 @@ import { AddSectionModal } from './AddSectionModal'
 import { PropertiesPanel } from './PropertiesPanel'
 import { BrochureSettingsModal } from './BrochureSettingsModal'
 import { RecolorPopover } from './RecolorPopover'
+import { SaveToast } from './SaveToast'
 import { CollapseButton, CollapsedRail, ResizeHandle } from './EditorLayoutControls'
 
 type Props = {
@@ -781,6 +782,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
           }))
         }
       />
+      <SaveToast status={saveStatus} />
     </div>
   )
 }

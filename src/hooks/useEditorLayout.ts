@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'gpgt-editor-layout-v1'
 const MIN_WIDTH = 200
-const MAX_WIDTH = 560
+const MAX_WIDTH = 640
 
 type Layout = {
   leftWidth: number
@@ -15,7 +15,7 @@ type Layout = {
 
 const DEFAULT: Layout = {
   leftWidth: 240,
-  rightWidth: 360,
+  rightWidth: 420,
   leftCollapsed: false,
   rightCollapsed: false,
 }

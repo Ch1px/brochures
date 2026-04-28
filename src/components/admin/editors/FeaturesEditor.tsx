@@ -14,47 +14,60 @@ type Card = NonNullable<SectionFeatures['cards']>[number]
 export function FeaturesEditor({ section, onChange }: Props) {
   return (
     <>
-      <FieldInput
-        label="Title"
-        value={section.title}
-        onChange={(title) => onChange({ title })}
-      />
-      <FieldInput
-        label="Title accent"
-        description="Second half of the title in red, e.g. “speed” in “A weekend of speed”."
-        value={section.titleAccent}
-        onChange={(titleAccent) => onChange({ titleAccent })}
-      />
+      <div className="field-section-heading">Header</div>
+      <div className="field-row-2">
+        <FieldInput
+          label="Title"
+          description="First part of the heading."
+          value={section.title}
+          onChange={(title) => onChange({ title })}
+          placeholder="A weekend of"
+        />
+        <FieldInput
+          label="Title accent"
+          description="Second part in accent colour."
+          value={section.titleAccent}
+          onChange={(titleAccent) => onChange({ titleAccent })}
+          placeholder="speed"
+        />
+      </div>
       <FieldRichText
         label="Subtitle"
+        description="Supporting text beneath the title."
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
         rows={2}
       />
+
+      <div className="field-section-heading">Feature cards</div>
       <FieldObjectArray<Card>
         label="Cards"
-        description="Exactly three cards render in a row."
+        description="Up to 3 cards render in a row. Each card has a title, body text, and image."
         value={section.cards}
         onChange={(cards) => onChange({ cards })}
         maxItems={3}
         addLabel="+ Add card"
-        itemTitle={(i) => `Card ${String(i + 1).padStart(2, '0')}`}
+        itemTitle={(i, c) => c.title || `Card ${String(i + 1).padStart(2, '0')}`}
         createNew={() => ({ _key: nanokey(), title: '', text: '' })}
         renderItem={(card, update) => (
           <>
             <FieldInput
               label="Title"
+              description="Card heading."
               value={card.title}
               onChange={(title) => update({ title })}
+              placeholder="Paddock Club Access"
             />
             <FieldRichText
               label="Text"
+              description="Card body. Keep it concise — 2–3 sentences."
               value={card.text}
               onChange={(text) => update({ text })}
               rows={3}
             />
             <FieldImage
               label="Image"
+              description="Card image. Ideal: 600×400px landscape, JPG or PNG."
               value={card.image}
               onChange={(image) => update({ image })}
             />
