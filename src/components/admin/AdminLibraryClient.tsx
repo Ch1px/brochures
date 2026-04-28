@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
 import { AiGenerateModal } from './AiGenerateModal'
@@ -21,168 +21,231 @@ type Props = {
   brochures: BrochureRow[]
 }
 
+const STATUS_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'published', label: 'Published' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'unpublished', label: 'Unpublished' },
+  { value: 'archived', label: 'Archived' },
+]
+
 /**
- * Client wrapper for the admin library. Handles the "New brochure" modal
- * and per-card "Duplicate" action. The library page (server component)
- * passes the pre-fetched list down.
+ * Client wrapper for the admin library. Handles filtering, search,
+ * "New brochure" modal, and per-card "Duplicate" action.
  */
 export function AdminLibraryClient({ brochures }: Props) {
   const [newOpen, setNewOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
   const [duplicateSource, setDuplicateSource] = useState<DuplicateSource | null>(null)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [seasonFilter, setSeasonFilter] = useState('')
+
+  const seasons = useMemo(() => {
+    const s = new Set(brochures.map((b) => b.season).filter(Boolean))
+    return Array.from(s).sort().reverse()
+  }, [brochures])
+
+  const filtered = useMemo(() => {
+    let list = brochures
+    if (statusFilter) list = list.filter((b) => b.status === statusFilter)
+    if (seasonFilter) list = list.filter((b) => b.season === seasonFilter)
+    if (search.trim()) {
+      const q = search.trim().toLowerCase()
+      list = list.filter(
+        (b) =>
+          b.title.toLowerCase().includes(q) ||
+          b.slug.toLowerCase().includes(q) ||
+          (b.event ?? '').toLowerCase().includes(q),
+      )
+    }
+    return list
+  }, [brochures, statusFilter, seasonFilter, search])
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { all: brochures.length }
+    for (const b of brochures) c[b.status] = (c[b.status] ?? 0) + 1
+    return c
+  }, [brochures])
+
+  const PAGE_SIZE = 12
+  const [page, setPage] = useState(0)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
+  // Reset to page 0 when filters change
+  const filterKey = `${statusFilter}|${seasonFilter}|${search}`
+  const prevFilterKey = useRef(filterKey)
+  if (prevFilterKey.current !== filterKey) {
+    prevFilterKey.current = filterKey
+    if (page !== 0) setPage(0)
+  }
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+      {/* Header */}
+      <div className="library-header">
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '0.02em', margin: 0 }}>Brochures</h1>
-          <div style={{ opacity: 0.55, fontSize: 13, marginTop: 4 }}>{brochures.length} total</div>
+          <h1 className="library-title">Brochures</h1>
+          <div className="library-subtitle">{brochures.length} total</div>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <Link
-            href="/studio"
-            style={{
-              padding: '10px 16px',
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.14)',
-              borderRadius: 4,
-              color: '#fff',
-              textDecoration: 'none',
-              fontSize: 12,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Open Studio
-          </Link>
-          <button
-            onClick={() => setAiOpen(true)}
-            style={{
-              padding: '10px 16px',
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.25)',
-              borderRadius: 4,
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-            title="Generate a brochure with Claude"
-          >
-            ✦ Generate with AI
+        <div className="library-header-actions">
+
+          <button className="library-header-btn" onClick={() => setAiOpen(true)}>
+            Generate with AI
           </button>
-          <button
-            onClick={() => setNewOpen(true)}
-            style={{
-              padding: '10px 16px',
-              background: '#e10600',
-              border: '1px solid #e10600',
-              borderRadius: 4,
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}
-          >
+          <button className="library-header-btn primary" onClick={() => setNewOpen(true)}>
             + New brochure
           </button>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
-        {brochures.map((b) => (
-          <div
-            key={b._id}
-            style={{
-              position: 'relative',
-              padding: 16,
-              background: '#121214',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 4,
-            }}
-          >
-            <Link
-              href={`/admin/brochures/${b._id}/edit`}
-              style={{ display: 'block', color: '#fff', textDecoration: 'none' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <span
-                  style={{
-                    padding: '3px 8px',
-                    background: statusColor(b.status),
-                    borderRadius: 2,
-                    fontSize: 10,
-                    letterSpacing: '0.14em',
-                    textTransform: 'uppercase',
-                    fontFamily: 'ui-monospace, monospace',
-                  }}
-                >
-                  {b.status}
-                </span>
-                {b.featured ? <span style={{ color: '#e10600', fontSize: 10, letterSpacing: '0.14em' }}>★ FEATURED</span> : null}
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{b.title}</div>
-              <div style={{ opacity: 0.55, fontSize: 12 }}>
-                {b.season} · {b.event ?? '—'} · {b.pageCount} {b.pageCount === 1 ? 'page' : 'pages'}
-              </div>
-              <div style={{ opacity: 0.35, fontSize: 11, marginTop: 6, fontFamily: 'ui-monospace, monospace' }}>/{b.slug}</div>
-            </Link>
+      {/* Filters */}
+      <div className="library-filters">
+        <div className="library-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="library-search-icon">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            className="library-search-input"
+            placeholder="Search brochures..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="library-filter-pills">
+          {STATUS_OPTIONS.map((opt) => (
             <button
-              onClick={() =>
-                setDuplicateSource({
-                  id: b._id,
-                  title: b.title,
-                  slug: b.slug,
-                  season: b.season,
-                  event: b.event,
-                })
-              }
-              title="Duplicate this brochure"
-              style={{
-                position: 'absolute',
-                top: 12,
-                right: 12,
-                padding: '4px 8px',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 2,
-                color: 'rgba(255,255,255,0.55)',
-                cursor: 'pointer',
-                fontSize: 9,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                fontFamily: 'ui-monospace, monospace',
-              }}
+              key={opt.value}
+              className={`library-filter-pill${statusFilter === opt.value ? ' active' : ''}`}
+              onClick={() => setStatusFilter(opt.value)}
             >
-              Duplicate
+              {opt.label}
+              <span className="library-filter-pill-count">
+                {opt.value ? (counts[opt.value] ?? 0) : counts.all}
+              </span>
             </button>
-          </div>
-        ))}
+          ))}
+          {seasons.length > 1 ? (
+            <>
+              <span className="library-filter-divider" />
+              {seasons.map((s) => (
+                <button
+                  key={s}
+                  className={`library-filter-pill${seasonFilter === s ? ' active' : ''}`}
+                  onClick={() => setSeasonFilter(seasonFilter === s ? '' : s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </>
+          ) : null}
+        </div>
       </div>
 
-      {brochures.length === 0 ? (
-        <div style={{ padding: 32, textAlign: 'center', opacity: 0.55 }}>
-          No brochures yet.{' '}
-          <button
-            onClick={() => setNewOpen(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#e10600',
-              cursor: 'pointer',
-              padding: 0,
-              font: 'inherit',
-            }}
-          >
-            Create your first
-          </button>
-          .
+      {/* Grid */}
+      <div className="library-body">
+        <div className="library-grid">
+          {paginated.map((b) => (
+            <div key={b._id} className="library-card">
+              <div className="library-card-actions">
+                <button
+                  className="library-card-action"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setDuplicateSource({
+                      id: b._id,
+                      title: b.title,
+                      slug: b.slug,
+                      season: b.season,
+                      event: b.event,
+                    })
+                  }}
+                  title="Duplicate"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="9" width="11" height="11" rx="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                </button>
+              </div>
+              <Link href={`/admin/brochures/${b._id}/edit`} style={{ display: 'block', color: 'inherit', textDecoration: 'none' }}>
+                <div className="library-card-thumb">
+                  <div className="library-card-thumb-text">{b.title}</div>
+                </div>
+                <div className="library-card-body">
+                  <div className="library-card-title">{b.title}</div>
+                  <div className="library-card-meta">
+                    <span>
+                      <span className={`library-card-status ${b.status}`}>{b.status}</span>
+                      {b.featured ? <span className="library-card-featured">Featured</span> : null}
+                    </span>
+                    <span>{b.season} · {b.pageCount} {b.pageCount === 1 ? 'page' : 'pages'}</span>
+                  </div>
+                  {b.event ? (
+                    <div className="library-card-event">{b.event}</div>
+                  ) : null}
+                  <div className="library-card-slug">/{b.slug}</div>
+                </div>
+              </Link>
+            </div>
+          ))}
         </div>
-      ) : null}
+
+        {totalPages > 1 ? (
+          <div className="library-pagination">
+            <button
+              className="library-pagination-btn"
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+            >
+              Previous
+            </button>
+            <div className="library-pagination-pages">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  className={`library-pagination-page${page === i ? ' active' : ''}`}
+                  onClick={() => setPage(i)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            <button
+              className="library-pagination-btn"
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page === totalPages - 1}
+            >
+              Next
+            </button>
+            <span className="library-pagination-info">
+              {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
+            </span>
+          </div>
+        ) : null}
+
+        {filtered.length === 0 && brochures.length > 0 ? (
+          <div className="library-empty">
+            No brochures match your filters.{' '}
+            <button className="library-empty-reset" onClick={() => { setSearch(''); setStatusFilter(''); setSeasonFilter('') }}>
+              Clear filters
+            </button>
+          </div>
+        ) : null}
+
+        {brochures.length === 0 ? (
+          <div className="library-empty">
+            No brochures yet.{' '}
+            <button className="library-empty-reset" onClick={() => setNewOpen(true)}>
+              Create your first
+            </button>
+          </div>
+        ) : null}
+      </div>
 
       <NewBrochureModal open={newOpen} onClose={() => setNewOpen(false)} />
       <NewBrochureModal
@@ -193,17 +256,4 @@ export function AdminLibraryClient({ brochures }: Props) {
       <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} />
     </>
   )
-}
-
-function statusColor(status: BrochureRow['status']) {
-  switch (status) {
-    case 'published':
-      return 'rgba(34,197,94,0.2)'
-    case 'draft':
-      return 'rgba(255,179,64,0.2)'
-    case 'unpublished':
-      return 'rgba(148,163,184,0.18)'
-    case 'archived':
-      return 'rgba(100,116,139,0.18)'
-  }
 }

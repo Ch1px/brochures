@@ -20,7 +20,7 @@ export default async function AdminPage() {
   const brochures = await sanityWriteClient.fetch<BrochureRow[]>(ALL_BROCHURES)
 
   return (
-    <main style={{ padding: '40px 32px', background: '#0a0a0b', color: '#fff', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
+    <main className="library-page">
       <AdminLibraryClient brochures={brochures} />
     </main>
   )
