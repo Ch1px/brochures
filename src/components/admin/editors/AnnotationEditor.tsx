@@ -4,6 +4,8 @@ import { useRef } from 'react'
 import type { Annotation, AnnotationKind, SectionCircuitMap } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
 import { FONT_PALETTE, weightOptionsForRole } from '@/lib/fontPalette'
+import { BRAND_TOKENS, isBrandToken, resolveColor, tokenLabel, type BrandContext } from '@/lib/brandColorTokens'
+import { useBrochureBranding } from '../../brochure/BrochureContext'
 import { FieldInput, FieldSelect, FieldColor, FieldImage, FieldTextarea } from '../fields'
 
 type Props = {
@@ -261,8 +263,7 @@ export function AnnotationEditor({
                     ) : null}
 
                     {/* Common fields */}
-                    <FieldColor
-                      label="Colour"
+                    <AnnotationColorField
                       value={selected.color}
                       onChange={(color) => updateAnnotation(a._key, { color })}
                     />
@@ -368,5 +369,51 @@ function SvgAnnotationFields({
         onChange={(v) => onUpdate({ width: v ? Number(v) : undefined })}
       />
     </>
+  )
+}
+
+function AnnotationColorField({
+  value,
+  onChange,
+}: {
+  value: string | undefined
+  onChange: (color: string | undefined) => void
+}) {
+  const { accentColor, backgroundColor, textColor, theme } = useBrochureBranding()
+  const brandCtx: BrandContext = { accentColor, backgroundColor, textColor, theme }
+  const isToken = value ? isBrandToken(value) : false
+  const resolved = value && isToken ? resolveColor(value, brandCtx) : value
+
+  return (
+    <div className="annotation-color-field">
+      <div className="annotation-color-field-label">
+        <span className="field-label-text">Colour</span>
+        {isToken ? (
+          <span className="annotation-color-token-badge">{tokenLabel(value!) ?? value}</span>
+        ) : null}
+      </div>
+      <div className="annotation-brand-swatches">
+        {BRAND_TOKENS.map((t) => {
+          const hex = t.resolve(brandCtx)
+          const isActive = value === t.token
+          return (
+            <button
+              key={t.token}
+              type="button"
+              className={`annotation-brand-swatch${isActive ? ' active' : ''}`}
+              style={{ background: hex }}
+              title={`${t.label} (${hex})`}
+              onClick={() => onChange(t.token)}
+            />
+          )
+        })}
+      </div>
+      <FieldColor
+        label=""
+        description="Or pick a custom colour"
+        value={resolved}
+        onChange={onChange}
+      />
+    </div>
   )
 }

@@ -11,6 +11,7 @@ import { GoogleFontsLink } from '../GoogleFontsLink'
 import { useAnnotationDrag } from '@/hooks/useAnnotationDrag'
 import { nanokey } from '@/lib/nanokey'
 import { FONT_PALETTE } from '@/lib/fontPalette'
+import { resolveColor, type BrandContext } from '@/lib/brandColorTokens'
 
 type Props = {
   data: SectionCircuitMap
@@ -41,7 +42,12 @@ type Props = {
  * up via the BrochureBranding context.
  */
 export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
-  const { accentColor, theme, editorMode, recolor, annotations: annotationCtx } = useBrochureBranding()
+  const { accentColor, backgroundColor, textColor, theme, editorMode, recolor, annotations: annotationCtx } = useBrochureBranding()
+
+  const brandCtx: BrandContext = useMemo(
+    () => ({ accentColor, backgroundColor, textColor, theme }),
+    [accentColor, backgroundColor, textColor, theme],
+  )
 
   // The fully-prepared SVG string: themed → ids stamped → overrides injected.
   const themedSvg = useMemo(() => {
@@ -53,13 +59,16 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
     let svg = bakeRecolorIds(base)
     const overrideMap = new Map<string, string>()
     ;(data.colorOverrides ?? []).forEach((o) => {
-      if (o.elementId && o.color) overrideMap.set(o.elementId, o.color)
+      if (o.elementId && o.color) {
+        // Resolve brand variable tokens (e.g. "var:accent") to current hex
+        overrideMap.set(o.elementId, resolveColor(o.color, brandCtx))
+      }
     })
     if (overrideMap.size > 0) {
       svg = bakeOverridesIntoSvg(svg, overrideMap)
     }
     return svg
-  }, [data.svgOriginal, data.svg, data.colorOverrides, accentColor, theme])
+  }, [data.svgOriginal, data.svg, data.colorOverrides, accentColor, theme, brandCtx])
 
   const hasSvg = themedSvg.trim().length > 0
   const stats = (data.stats ?? []).slice(0, 4)

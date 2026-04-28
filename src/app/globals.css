@@ -2526,6 +2526,42 @@
     gap: 6px;
   }
 
+  /* Annotation colour field with brand swatches */
+  .annotation-color-field {
+    margin-bottom: 4px;
+  }
+  .annotation-color-field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .annotation-color-token-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-red);
+    background: var(--brand-red-dim);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .annotation-brand-swatches {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .annotation-brand-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid var(--chrome-border);
+    cursor: pointer;
+    transition: border-color 0.1s;
+  }
+  .annotation-brand-swatch:hover { border-color: var(--chrome-border-strong); }
+  .annotation-brand-swatch.active { border-color: var(--brand-red); }
+
   /* Mini preview for add-section modal */
   .mini-circuit {
     position: absolute; inset: 0; padding: 12%;

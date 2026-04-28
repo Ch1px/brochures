@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { BRAND_TOKENS, resolveColor, isBrandToken, tokenLabel, type BrandContext } from '@/lib/brandColorTokens'
 
 type Props = {
   /** Click coords used as the anchor (clamped to viewport on render). */
@@ -16,6 +17,8 @@ type Props = {
   /** Recently-used colours from this circuit's overrides, most-recent first.
    *  Click a swatch to apply it without dialling the picker. */
   recentColors?: string[]
+  /** Brand context for resolving variable tokens to current hex values. */
+  brandContext?: BrandContext
   /** Live colour change. Fires on every drag of the native picker. */
   onChange: (color: string) => void
   /** Remove the override for the selected elements entirely. */
@@ -47,6 +50,7 @@ export function RecolorPopover({
   value,
   fallback,
   recentColors = [],
+  brandContext,
   onChange,
   onReset,
   onClose,
@@ -75,7 +79,9 @@ export function RecolorPopover({
   const clampedX = Math.min(Math.max(margin, x), vw - POPOVER_WIDTH - margin)
   const clampedY = Math.min(Math.max(margin, y), vh - POPOVER_HEIGHT - margin)
 
-  const swatchValue = value && HEX_RE.test(value) ? value : fallback ?? FALLBACK_DEFAULT
+  const isToken = value ? isBrandToken(value) : false
+  const resolvedValue = value && isToken && brandContext ? resolveColor(value, brandContext) : value
+  const swatchValue = resolvedValue && HEX_RE.test(resolvedValue) ? resolvedValue : fallback ?? FALLBACK_DEFAULT
   const count = elementIds.length
 
   const commit = (next: string) => {
@@ -181,6 +187,34 @@ export function RecolorPopover({
               />
             ))}
           </div>
+        </div>
+      ) : null}
+
+      {brandContext ? (
+        <div className="recolor-popover-recents">
+          <div className="recolor-popover-recents-label">Brand colours</div>
+          <div className="recolor-popover-recents-grid">
+            {BRAND_TOKENS.map((t) => {
+              const resolved = t.resolve(brandContext)
+              const isActive = value === t.token
+              return (
+                <button
+                  key={t.token}
+                  type="button"
+                  className={`recolor-popover-recent-swatch${isActive ? ' active' : ''}`}
+                  style={{ background: resolved }}
+                  title={`${t.label} (${resolved})`}
+                  onClick={() => onChange(t.token)}
+                  aria-label={`Apply ${t.label}`}
+                />
+              )
+            })}
+          </div>
+          {isToken ? (
+            <div className="recolor-popover-token-label">
+              Using: {tokenLabel(value!) ?? value}
+            </div>
+          ) : null}
         </div>
       ) : null}
 

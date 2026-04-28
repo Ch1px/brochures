@@ -4,6 +4,8 @@ import { useRef, type CSSProperties } from 'react'
 import type { Annotation } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { FONT_PALETTE } from '@/lib/fontPalette'
+import { resolveColor, type BrandContext } from '@/lib/brandColorTokens'
+import { useBrochureBranding } from '../BrochureContext'
 import type { DragInfo } from '@/hooks/useAnnotationDrag'
 
 type OverlayProps = {
@@ -85,12 +87,15 @@ type ElementProps = {
 
 function AnnotationElement({ annotation, editorMode, isSelected, onSelect, handleProps, onTransform, onUpdate }: ElementProps) {
   const a = annotation
+  const { accentColor, backgroundColor, textColor, theme } = useBrochureBranding()
+  const brandCtx: BrandContext = { accentColor, backgroundColor, textColor, theme }
+  const resolvedColor = a.color ? resolveColor(a.color, brandCtx) : undefined
   const elRef = useRef<HTMLDivElement | null>(null)
   const style: CSSProperties = {
     left: `${a.x}%`,
     top: `${a.y}%`,
     transform: `translate(-50%, -50%) scale(${a.scale ?? 1}) rotate(${a.rotation ?? 0}deg)`,
-    color: a.color || undefined,
+    color: resolvedColor,
     opacity: a.opacity != null ? a.opacity : undefined,
   }
 

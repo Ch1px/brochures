@@ -1748,6 +1748,14 @@
   border-color: var(--brand-red);
   box-shadow: 0 0 0 1px var(--brand-red);
 }
+.recolor-popover-token-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-red);
+  margin-top: 4px;
+}
 .recolor-popover-hint {
   font-family: var(--font-mono);
   font-size: 10px;

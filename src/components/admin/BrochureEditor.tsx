@@ -710,6 +710,12 @@ export function BrochureEditor({ initialBrochure }: Props) {
           value={recolorPopoverValue}
           fallback={brochure.accentColor}
           recentColors={recentColors}
+          brandContext={{
+            accentColor: brochure.accentColor,
+            backgroundColor: brochure.backgroundColor,
+            textColor: brochure.textColor,
+            theme: brochure.theme,
+          }}
           onChange={(color) =>
             updateOverrides(recolorSelection.sectionKey, recolorSelection.elementIds, color)
           }
