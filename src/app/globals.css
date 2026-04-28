@@ -1989,9 +1989,14 @@
     width: 100%;
     min-height: 100%;
     padding: 6% 7%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      "header stage"
+      "stats  stats";
     gap: clamp(14px, 2cqi, 24px);
+    align-items: center;
   }
   .circuit-map-header {
     grid-area: header;
@@ -2025,7 +2030,6 @@
   }
   .circuit-map-stage {
     grid-area: stage;
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2033,10 +2037,7 @@
     position: relative;
     padding: clamp(8px, 1.5cqi, 20px) 0;
     width: 100%;
-    max-width: clamp(460px, 68cqi, 860px);
     max-height: 62cqh;
-    margin-left: auto;
-    margin-right: auto;
   }
   .circuit-map-svg-wrap {
     width: 100%;
@@ -2093,11 +2094,11 @@
     text-transform: uppercase;
   }
   .circuit-map-stats {
+    grid-area: stats;
     display: grid;
     grid-template-columns: repeat(var(--stat-count, 3), 1fr);
     border-top: 1px solid var(--page-border);
     border-bottom: 1px solid var(--page-border);
-    align-self: stretch;
   }
   .circuit-map-stat {
     padding: clamp(12px, 2cqi, 22px) clamp(10px, 1.5cqi, 22px);
@@ -2824,6 +2825,16 @@
       padding: 8% 7%;
     }
     .page-image-hero-content { padding: 8% 7%; max-width: 80%; }
+
+    /* Circuit-map: collapse two-column layout to single column at narrow
+       widths so header stacks above the map again. */
+    .page-circuit-map-inner {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "header"
+        "stage"
+        "stats";
+    }
 
     /* Circuit-map stats wrap to 2 columns at tablet/mobile widths so 4 stats
        don't squash. Right-borders are dropped on the rightmost cell of each
