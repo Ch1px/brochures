@@ -7,7 +7,7 @@ import type { Section } from '@/types/brochure'
  *   applyFieldPath(section, "stats.2.label", "Length")     → array item field
  *   applyFieldPath(section, "captions.0", "Harbor view")   → array value
  */
-export function applyFieldPath(section: Section, path: string, value: string): Section {
+export function applyFieldPath(section: Section, path: string, value: unknown): Section {
   const parts = path.split('.')
 
   // Top-level field
