@@ -19,6 +19,7 @@ export type BrandContext = {
   accentColor?: string
   backgroundColor?: string
   textColor?: string
+  titleColor?: string
   theme?: 'dark' | 'light'
   customColors?: { _key: string; name: string; hex: string }[]
 }
@@ -41,6 +42,15 @@ export const BRAND_TOKENS: BrandToken[] = [
     resolve: (ctx) => {
       const vars = accentColorVars(ctx.accentColor || DEFAULT_ACCENT)
       return (vars as Record<string, string>)?.['--brand-red-hover'] ?? '#ff1a14'
+    },
+  },
+  {
+    token: 'var:title',
+    label: 'Title',
+    resolve: (ctx) => {
+      if (ctx.titleColor) return ctx.titleColor
+      if (ctx.textColor) return ctx.textColor
+      return ctx.theme === 'light' ? DEFAULT_TEXT_LIGHT : DEFAULT_TEXT_DARK
     },
   },
   {

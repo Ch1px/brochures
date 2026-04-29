@@ -36,10 +36,10 @@ export function BrochurePrintView({ brochure }: Props) {
   useFitSectionsToPages()
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
       <GoogleFontsLink url={fontsUrl} />
       <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
-      <div className="brochure-print-root" data-theme={theme} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}>
+      <div className="brochure-print-root" data-theme={theme} data-custom-bg={brochure.backgroundColor ? '' : undefined} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}>
         {sections.map((section, i) => {
           const pageNum = i + 1
           const showFolio = i > 0

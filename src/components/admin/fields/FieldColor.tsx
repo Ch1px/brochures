@@ -74,7 +74,7 @@ export function FieldColor({ label, description, value, onChange, fallback = '#e
             Reset
           </button>
         ) : (
-          <span className="field-color-hint">Default</span>
+          <span className="field-color-default-chip">Default</span>
         )}
       </div>
       {!isValid ? (

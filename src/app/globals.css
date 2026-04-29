@@ -56,7 +56,10 @@
     --page-border: rgba(255, 255, 255, 0.09);
     --title-text: var(--page-text);
     --body-text: var(--page-text);
-    --body-text-muted: var(--page-text-muted);
+    /* Body text is the Text colour at 75% alpha. Hardcoded per theme; when
+       the user sets a custom Text colour, `textColorVars` recomputes this
+       inline so the override flows through. */
+    --body-text-muted: rgba(255, 255, 255, 0.75);
 
     --font-display: 'Formula1', 'Titillium Web', sans-serif;
     --font-condensed: 'Barlow Condensed', sans-serif;
@@ -478,7 +481,9 @@
     display: flex;
     flex-direction: column;
   }
-  /* Ensure direct content wrappers within sections clear the nav overlay */
+  /* Ensure direct content wrappers within sections clear the nav overlay.
+     The cap (min(7%, 70px)) keeps top spacing tight on big canvases but
+     never goes below the nav-safe-top minimum. */
   .page-intro-inner,
   .page-features-inner,
   .page-stats-inner,
@@ -490,7 +495,9 @@
   .page-gallery-hero-inner,
   .page-quote-profile-inner,
   .page-circuit-map-inner,
-  .page-linked-cards-inner,
+  .page-linked-cards-inner {
+    padding-top: max(min(7%, 70px), var(--nav-safe-top)) !important;
+  }
   .page-closing-inner {
     padding-top: max(6%, var(--nav-safe-top)) !important;
   }
@@ -625,7 +632,7 @@
   }
   .cover-title-accent {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     color: var(--section-accent-color, var(--brand-red));
     text-transform: var(--eyebrow-text-transform, none);
@@ -710,7 +717,7 @@
     display: grid;
     grid-template-columns: 50% 50%;
     gap: clamp(18px, 3cqi, 40px);
-    padding: 4.5% 8%;
+    padding: min(7%, 70px) 8%;
     align-items: center;
   }
   .page-intro-left {
@@ -726,7 +733,7 @@
   }
   .intro-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(34px, 5cqi, 62px));
@@ -1048,12 +1055,12 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: min(7%, 60px) 8%;
+    padding: min(7%, 70px) 8%;
     gap: clamp(10px, 1.8cqi, 22px);
   }
   .text-center-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
@@ -1085,7 +1092,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: 6% 7%;
+    padding: min(7%, 70px) 8%;
     gap: clamp(28px, 3.8cqi, 52px);
   }
   .linked-cards-header {
@@ -1097,7 +1104,7 @@
   }
   .linked-cards-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(28px, 4cqi, 48px));
@@ -1267,7 +1274,7 @@
   .page-features-inner {
     position: relative;
     width: 100%;
-    padding: 6% 7% 5% 7%;
+    padding: min(7%, 70px) 8%;
     display: flex; flex-direction: column;
     gap: clamp(16px, 2.5cqi, 32px);
   }
@@ -1282,7 +1289,7 @@
   }
   .features-title-accent {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     color: var(--section-accent-color, var(--brand-red));
     text-transform: var(--eyebrow-text-transform, none);
@@ -1369,14 +1376,14 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 7% 10%;
+    padding: min(7%, 70px) 8%;
     display: flex; flex-direction: column; justify-content: center;
     max-width: 60%;
     z-index: 2;
   }
   .image-hero-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
@@ -1405,13 +1412,13 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 7% 10%;
+    padding: min(7%, 70px) 8%;
     display: flex; flex-direction: column; justify-content: center;
   }
   .stats-header { margin-bottom: clamp(20px, 3cqi, 50px); }
   .stats-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
@@ -1468,13 +1475,13 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 6% 7%;
+    padding: min(7%, 70px) 8%;
     display: flex; flex-direction: column;
   }
   .packages-header { margin-bottom: clamp(18px, 2.5cqi, 36px); }
   .packages-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
@@ -1522,7 +1529,7 @@
     object-fit: cover;
   }
   .package-tier {
-    font-family: var(--font-script); font-size: clamp(22px, 3cqi, 34px);
+    font-family: var(--font-script); font-weight: var(--font-script-weight, 400); font-size: clamp(22px, 3cqi, 34px);
     color: var(--page-text-subtle);
     margin-bottom: clamp(8px, 1cqi, 12px);
   }
@@ -1581,7 +1588,7 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 6% 7%;
+    padding: min(7%, 70px) 8%;
     display: flex; flex-direction: column;
   }
   .itinerary-header { margin-bottom: clamp(14px, 2cqi, 28px); }
@@ -1636,7 +1643,7 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 6% 7%;
+    padding: min(7%, 70px) 8%;
     display: flex; flex-direction: column;
   }
   .gallery-header { margin-bottom: clamp(16px, 2cqi, 28px); }
@@ -1709,7 +1716,7 @@
   }
   .closing-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(36px, 5.5cqi, 64px));
@@ -1792,7 +1799,7 @@
   /* ===== COMPOUND HEADING with Northwell script ===== */
   .script-accent {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     letter-spacing: 0 !important;
@@ -1867,7 +1874,7 @@
   .page-section-heading-frame::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
   .section-heading-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(40px, 7cqi, 90px));
@@ -1912,7 +1919,7 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 7% 10%;
+    padding: min(7%, 70px) 8%;
     display: grid;
     grid-template-columns: 38% 62%;
     gap: clamp(24px, 4cqi, 60px);
@@ -1924,7 +1931,7 @@
   }
   .quote-profile-eyebrow {
     font-family: var(--font-script);
-    font-weight: 400;
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(34px, 5cqi, 62px));
@@ -1934,6 +1941,7 @@
   }
   .quote-profile-name {
     font-family: var(--font-script);
+    font-weight: var(--font-script-weight, 400);
     font-size: calc(var(--title-scale, 1) * clamp(36px, 6.8cqi, 80px));
     line-height: 0.9;
     color: var(--section-title-color, var(--brand-red));
@@ -1997,7 +2005,7 @@
   .page-gallery-hero-inner {
     position: relative;
     width: 100%;
-    padding: 6% 7% 5%;
+    padding: min(7%, 70px) 8%;
     display: flex;
     flex-direction: column;
     gap: clamp(14px, 2cqi, 26px);
@@ -2005,6 +2013,7 @@
   .gallery-variant-header { display: flex; flex-direction: column; align-items: flex-start; }
   .gallery-variant-eyebrow {
     font-family: var(--font-script);
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
@@ -2220,7 +2229,7 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 6% 7%;
+    padding: min(7%, 70px) 8%;
     display: grid;
     grid-template-columns: 2fr 3fr;
     grid-template-rows: 1fr auto;
@@ -2238,6 +2247,7 @@
   }
   .circuit-map-eyebrow {
     font-family: var(--font-script);
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
@@ -4693,6 +4703,12 @@
     --page-text-muted: rgba(11, 11, 13, 0.66);
     --page-text-subtle: rgba(11, 11, 13, 0.42);
     --page-border: rgba(11, 11, 13, 0.12);
+    /* Set title/body tokens explicitly per-theme rather than via the
+       :root `var(--page-text)` redirect, which doesn't reliably re-resolve
+       under nested theme contexts. */
+    --title-text: #161618;
+    --body-text: #161618;
+    --body-text-muted: rgba(11, 11, 13, 0.75);
   }
 
   /* Image-overlay sections (cover, section heading, image hero, closing)
@@ -4710,6 +4726,9 @@
     --page-text-muted: rgba(255, 255, 255, 0.6);
     --page-text-subtle: rgba(255, 255, 255, 0.35);
     --page-border: rgba(255, 255, 255, 0.09);
+    --title-text: #ffffff;
+    --body-text: #ffffff;
+    --body-text-muted: rgba(255, 255, 255, 0.75);
     color: var(--page-text);
   }
 
@@ -4747,21 +4766,21 @@
   /* In dark mode the white halftone is far too bright over a near-black bg.
      Stack a near-opaque dark gradient ON TOP of the texture so only ~12%
      of the texture's brightness leaks through — visible as a faint speckle. */
-  [data-theme="dark"] .page-intro,
-  [data-theme="dark"] .page-features,
-  [data-theme="dark"] .page-stats,
-  [data-theme="dark"] .page-packages,
-  [data-theme="dark"] .page-itinerary,
-  [data-theme="dark"] .page-gallery,
-  [data-theme="dark"] .page-gallery-grid,
-  [data-theme="dark"] .page-gallery-duo,
-  [data-theme="dark"] .page-gallery-hero,
-  [data-theme="dark"] .page-quote-profile,
-  [data-theme="dark"] .page-circuit-map,
-  [data-theme="dark"] .page-text-center,
-  [data-theme="dark"] .page-cta-banner,
-  [data-theme="dark"] .page-linked-cards,
-  [data-theme="dark"] .page-logos {
+  [data-theme="dark"]:not([data-custom-bg]) .page-intro,
+  [data-theme="dark"]:not([data-custom-bg]) .page-features,
+  [data-theme="dark"]:not([data-custom-bg]) .page-stats,
+  [data-theme="dark"]:not([data-custom-bg]) .page-packages,
+  [data-theme="dark"]:not([data-custom-bg]) .page-itinerary,
+  [data-theme="dark"]:not([data-custom-bg]) .page-gallery,
+  [data-theme="dark"]:not([data-custom-bg]) .page-gallery-grid,
+  [data-theme="dark"]:not([data-custom-bg]) .page-gallery-duo,
+  [data-theme="dark"]:not([data-custom-bg]) .page-gallery-hero,
+  [data-theme="dark"]:not([data-custom-bg]) .page-quote-profile,
+  [data-theme="dark"]:not([data-custom-bg]) .page-circuit-map,
+  [data-theme="dark"]:not([data-custom-bg]) .page-text-center,
+  [data-theme="dark"]:not([data-custom-bg]) .page-cta-banner,
+  [data-theme="dark"]:not([data-custom-bg]) .page-linked-cards,
+  [data-theme="dark"]:not([data-custom-bg]) .page-logos {
     background-image:
       linear-gradient(color-mix(in srgb, var(--page-bg) 88%, transparent), color-mix(in srgb, var(--page-bg) 88%, transparent)),
       url('/textures/halftone.png');
@@ -4917,7 +4936,7 @@
     position: relative;
     width: 100%;
     min-height: 100%;
-    padding: 6% 7%;
+    padding: min(7%, 70px) 8%;
     display: flex;
     flex-direction: column;
     gap: clamp(20px, 3.5cqi, 48px);
@@ -4930,6 +4949,7 @@
   }
   .logos-eyebrow {
     font-family: var(--font-script);
+    font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
     text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(28px, 4.2cqi, 52px));

@@ -208,6 +208,7 @@ export function SectionRenderer(props: Props) {
     accentColor: branding.accentColor,
     backgroundColor: branding.backgroundColor,
     textColor: branding.textColor,
+    titleColor: branding.titleColor,
     theme: branding.theme,
     customColors: branding.customColors,
   }

@@ -83,10 +83,22 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
   const s = section as Record<string, unknown>
   const anyChange = onChange as (u: Record<string, unknown>) => void
 
-  // Derive sensible fallbacks for each field from the brand context
+  // Derive sensible fallbacks for each field from the brand context.
+  // Title prefers the brochure-level Title override; both Title and Body fall
+  // back to brochure-level Text and finally the theme default.
   const accentFallback = brandContext?.accentColor || '#e10600'
-  const textFallback = brandContext?.textColor || (brandContext?.theme === 'light' ? '#161618' : '#ffffff')
-  const mutedFallback = brandContext?.textColor || (brandContext?.theme === 'light' ? '#6b6b6b' : '#a0a0a0')
+  const themeTextFallback = brandContext?.theme === 'light' ? '#161618' : '#ffffff'
+  const textFallback = brandContext?.textColor || themeTextFallback
+  const titleFallback = brandContext?.titleColor || textFallback
+  // Body renders at 75% alpha of Text, mirroring the brochure-level model.
+  const mutedFallback = (() => {
+    const hex = textFallback.replace('#', '')
+    if (hex.length !== 6) return textFallback
+    const r = parseInt(hex.slice(0, 2), 16)
+    const g = parseInt(hex.slice(2, 4), 16)
+    const b = parseInt(hex.slice(4, 6), 16)
+    return `rgba(${r}, ${g}, ${b}, 0.75)`
+  })()
 
   const hasColorFields = config.eyebrow || config.title || config.body || config.accent
 
@@ -123,15 +135,15 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
               description="Override the title / heading text colour."
               value={s.titleColor as string | undefined}
               onChange={(v) => anyChange({ titleColor: v })}
-              fallback={textFallback}
+              fallback={titleFallback}
               brandContext={brandContext}
               onAddCustomColor={onAddCustomColor}
             />
           )}
           {config.body && (
             <FieldBrandColor
-              label="Body / tagline colour"
-              description="Override the body, tagline, or subtitle text colour."
+              label="Body text colour"
+              description="Override the body, tagline, or subtitle colour. Defaults to the Text colour at 75% opacity."
               value={s.bodyColor as string | undefined}
               onChange={(v) => anyChange({ bodyColor: v })}
               fallback={mutedFallback}

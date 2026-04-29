@@ -68,12 +68,13 @@ export function BrochureStaticView({ brochure }: Props) {
   }
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
       <GoogleFontsLink url={fontsUrl} />
       <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
       <div
         className="preview-mode visible"
         data-theme={theme}
+        data-custom-bg={brochure.backgroundColor ? '' : undefined}
         style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}
       >
         <nav className="brochure-nav" data-nav-ctx="public">

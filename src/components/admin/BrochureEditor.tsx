@@ -750,6 +750,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
                   accentColor: brochure.accentColor,
                   backgroundColor: brochure.backgroundColor,
                   textColor: brochure.textColor,
+                  titleColor: brochure.titleColor,
                   theme: brochure.theme,
                   customColors: brochure.customColors,
                 }}
@@ -790,6 +791,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
             accentColor: brochure.accentColor,
             backgroundColor: brochure.backgroundColor,
             textColor: brochure.textColor,
+            titleColor: brochure.titleColor,
             theme: brochure.theme,
             customColors: brochure.customColors,
           }}

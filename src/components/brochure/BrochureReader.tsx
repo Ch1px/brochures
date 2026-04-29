@@ -9,7 +9,7 @@ import { GoogleFontsLink } from './GoogleFontsLink'
 import { TextureOverride } from './TextureOverride'
 import { CustomFontFaces } from './CustomFontFaces'
 import { accentColorVars } from '@/lib/accentColor'
-import { backgroundColorVars, textColorVars, titleColorVars, bodyColorVars, eyebrowStyleVars, navColorVars } from '@/lib/themeColorVars'
+import { backgroundColorVars, textColorVars, titleColorVars, eyebrowStyleVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
 
@@ -101,7 +101,6 @@ export function BrochureReader({ brochure }: Props) {
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
   const titleStyle = titleColorVars(brochure.titleColor)
-  const bodyStyle = bodyColorVars(brochure.bodyColor)
   const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
   const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
   const navStyle = navColorVars(brochure.navColor)
@@ -109,14 +108,15 @@ export function BrochureReader({ brochure }: Props) {
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
     <GoogleFontsLink url={fontsUrl} />
     <CustomFontFaces customFonts={brochure.customFonts} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div
       className="preview-mode visible"
       data-theme={theme}
-      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...bodyStyle, ...eyebrowStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
+      data-custom-bg={brochure.backgroundColor ? '' : undefined}
+      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...eyebrowStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
     >
       <BrochureNav
         brand={brochure.title}

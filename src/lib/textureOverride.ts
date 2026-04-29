@@ -40,7 +40,7 @@ export function textureOverrideCss(
     const url = imageUrlFn(textureImage, 1600)
     if (url) {
       const light = selectors.join(',\n')
-      const dark = selectors.map((s) => `[data-theme="dark"] ${s}`).join(',\n')
+      const dark = selectors.map((s) => `[data-theme="dark"]:not([data-custom-bg]) ${s}`).join(',\n')
       return [
         `${light} {`,
         `  background-image: url(${url}) !important;`,

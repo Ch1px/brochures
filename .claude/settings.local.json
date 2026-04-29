@@ -35,7 +35,8 @@
       "Bash(git log *)",
       "Bash(grep -nA3 \"^  \\\\.section {\" /c/brochures/src/app/globals.css)",
       "Bash(find C:\\\\brochures\\\\src *)",
-      "Bash(find *)"
+      "Bash(find *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

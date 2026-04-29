@@ -18,6 +18,7 @@ export type BrochureBranding = {
   accentColor?: string
   backgroundColor?: string
   textColor?: string
+  titleColor?: string
   fontOverrides?: FontOverrides
   customColors?: CustomColor[]
   logo?: SanityImage

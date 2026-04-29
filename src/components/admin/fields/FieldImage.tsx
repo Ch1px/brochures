@@ -15,6 +15,8 @@ type Props = {
   onChange: (value: SanityImage | undefined) => void
   /** Width hint for the preview thumbnail (defaults 500). */
   previewWidth?: number
+  /** Platform default image URL — shown in the preview when no override is set. */
+  defaultPreview?: string
 }
 
 /**
@@ -25,8 +27,9 @@ type Props = {
  *
  * Enforced limits (server-side): 20MB, image/* MIME only.
  */
-export function FieldImage({ label, description, value, onChange, previewWidth = 500 }: Props) {
+export function FieldImage({ label, description, value, onChange, previewWidth = 500, defaultPreview }: Props) {
   const url = urlForSection(value, previewWidth)
+  const showingDefault = !url && Boolean(defaultPreview)
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +67,12 @@ export function FieldImage({ label, description, value, onChange, previewWidth =
           {url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={url} alt="" />
+          ) : showingDefault ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={defaultPreview} alt="" />
+              <span className="field-image-default-badge">Default</span>
+            </>
           ) : (
             <div className="field-image-empty">No image</div>
           )}
@@ -81,7 +90,7 @@ export function FieldImage({ label, description, value, onChange, previewWidth =
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
           >
-            {uploading ? 'Uploading…' : url ? 'Replace' : 'Upload'}
+            {uploading ? 'Uploading…' : url || showingDefault ? 'Replace' : 'Upload'}
           </button>
           <button
             type="button"

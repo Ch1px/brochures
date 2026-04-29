@@ -43,6 +43,9 @@ export function textColorVars(hex?: string | null): CSSProperties | undefined {
     ['--page-text-muted' as string]: `rgba(${r}, ${g}, ${b}, 0.6)`,
     ['--page-text-subtle' as string]: `rgba(${r}, ${g}, ${b}, 0.35)`,
     ['--page-border' as string]: `rgba(${r}, ${g}, ${b}, 0.09)`,
+    // Body text is the Text colour at 75% alpha. Computed here so it follows
+    // the user's Text override without relying on relative-color CSS syntax.
+    ['--body-text-muted' as string]: `rgba(${r}, ${g}, ${b}, 0.75)`,
   } as CSSProperties
 }
 

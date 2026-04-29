@@ -376,59 +376,40 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             {activeTab === 'branding' && (
               <>
                 <SectionHeader label="Colours" />
-                <FieldColor
-                  label="Accent colour"
-                  description="Overrides the platform brand red across this brochure (buttons, eyebrows, accent rules, decorative SVG washes). Leave default for #e10600."
-                  value={accentColor}
-                  onChange={setAccentColor}
-                />
-                <FieldColor
-                  label="Background colour"
-                  description="Overrides the page background. Leave default to use the theme colour."
-                  value={backgroundColor}
-                  onChange={setBackgroundColor}
-                  fallback={brochure.theme === 'light' ? '#f6f5f1' : '#161618'}
-                />
-                <FieldColor
-                  label="Text colour"
-                  description="Overrides the page text colour. Derives muted, subtle, and border variants automatically."
-                  value={textColor}
-                  onChange={setTextColor}
-                  fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
-                />
-                <FieldColor
-                  label="Title colour"
-                  description="Independent colour for all section headings. Falls back to text colour if not set."
-                  value={titleColor}
-                  onChange={setTitleColor}
-                  fallback={textColor || (brochure.theme === 'light' ? '#161618' : '#ffffff')}
-                />
-                <FieldColor
-                  label="Body text colour"
-                  description="Independent colour for paragraphs, subtitles, and captions. Falls back to text colour if not set."
-                  value={bodyColor}
-                  onChange={setBodyColor}
-                  fallback={textColor || (brochure.theme === 'light' ? '#161618' : '#ffffff')}
-                />
+                <div className="settings-subgroup-label">Brand colours</div>
+                <div className="brand-colors-compact">
+                  <FieldColor
+                    label="Accent"
+                    value={accentColor}
+                    onChange={setAccentColor}
+                  />
+                  <FieldColor
+                    label="Title"
+                    value={titleColor}
+                    onChange={setTitleColor}
+                    fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
+                  />
+                  <FieldColor
+                    label="Text"
+                    value={textColor}
+                    onChange={setTextColor}
+                    fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
+                  />
+                  <FieldColor
+                    label="Background"
+                    value={backgroundColor}
+                    onChange={setBackgroundColor}
+                    fallback={brochure.theme === 'light' ? '#f6f5f1' : '#161618'}
+                  />
+                  <FieldColor
+                    label="Navigation"
+                    value={navColor}
+                    onChange={setNavColor}
+                    fallback="#161618"
+                  />
+                </div>
 
-                <FieldColor
-                  label="Navigation background"
-                  description="Override the nav bar background. Should always be a dark colour. Default: #161618."
-                  value={navColor}
-                  onChange={setNavColor}
-                  fallback="#161618"
-                />
-
-                <SectionHeader label="Logo" />
-                <FieldImage
-                  label="Logo"
-                  description="Replaces the GPGT logo in the brochure nav. Leave blank to use the default."
-                  value={logo}
-                  onChange={setLogo}
-                  previewWidth={400}
-                />
-
-                <SectionHeader label="Custom colours" />
+                <div className="settings-subgroup-label">Custom colours</div>
                 <div className="custom-colors-list">
                   {customColors.map((c) => (
                     <div key={c._key} className="custom-color-card">
@@ -487,71 +468,82 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   + Add colour
                 </button>
 
-                <SectionHeader label="Background texture" />
-                <FieldBoolean
-                  label="Hide background texture"
-                  description="Remove the halftone texture across all sections, leaving flat backgrounds."
-                  value={hideTexture}
-                  onChange={setHideTexture}
-                />
-                {!hideTexture ? (
+                <SectionHeader label="Logo" />
+                <div className="logo-image-field">
                   <FieldImage
-                    label="Custom texture image"
-                    description="Replaces the default halftone texture across all textured sections. Leave blank to keep the default."
-                    value={textureImage}
-                    onChange={setTextureImage}
+                    label="Logo"
+                    description="Replaces the GPGT logo in the brochure nav. Leave blank to use the default."
+                    value={logo}
+                    onChange={setLogo}
+                    previewWidth={400}
+                    defaultPreview="/textures/Grand_Prix_Logo_Vector_Editable 5.png"
                   />
-                ) : null}
+                </div>
+
+                <SectionHeader label="Background" />
+                {hideTexture ? (
+                  <div className="texture-hidden-card">
+                    <div className="texture-hidden-label">No background texture</div>
+                    <button
+                      type="button"
+                      className="field-btn"
+                      onClick={() => setHideTexture(false)}
+                    >
+                      Restore default
+                    </button>
+                  </div>
+                ) : (
+                  <div className="logo-image-field">
+                    <FieldImage
+                      label="Background texture"
+                      description="Replaces the default halftone texture across all textured sections."
+                      value={textureImage}
+                      onChange={setTextureImage}
+                      defaultPreview="/textures/halftone.png"
+                    />
+                    {!textureImage ? (
+                      <button
+                        type="button"
+                        className="field-btn field-btn-ghost texture-hide-btn"
+                        onClick={() => setHideTexture(true)}
+                      >
+                        Hide texture
+                      </button>
+                    ) : null}
+                  </div>
+                )}
               </>
             )}
 
             {activeTab === 'typography' && (
               <>
-                <SectionHeader label="Text sizes" />
+                <SectionHeader label="Type scale" />
                 <FieldSelect
-                  label="Title text size"
-                  description="Scale factor for all headline/title text across the brochure."
+                  label="Title"
+                  description="Scale factor for headline and title text across the brochure."
                   value={titleScale ?? 'm'}
                   onChange={(v) => setTitleScale(v === 'm' ? undefined : (v as TextScalePreset))}
                   options={scaleOptions}
                 />
                 <FieldSelect
-                  label="Eyebrow text size"
-                  description="Scale factor for all eyebrow/script text across the brochure."
+                  label="Eyebrow"
+                  description="Scale factor for eyebrow text across the brochure."
                   value={eyebrowScale ?? 'm'}
                   onChange={(v) => setEyebrowScale(v === 'm' ? undefined : (v as TextScalePreset))}
                   options={scaleOptions}
                 />
-                <FieldBoolean
-                  label="Italic eyebrows"
-                  description="When off, eyebrow text renders in normal (upright) style instead of italic."
-                  value={eyebrowItalic ?? true}
-                  onChange={(v) => setEyebrowItalic(v ? undefined : false)}
-                />
                 <FieldSelect
-                  label="Eyebrow text transform"
-                  description="Controls the casing of eyebrow/script text across all sections."
-                  value={eyebrowTransform ?? ''}
-                  onChange={(v) => setEyebrowTransform(v || undefined)}
-                  options={[
-                    { value: '', label: 'None (as typed)' },
-                    { value: 'uppercase', label: 'UPPERCASE' },
-                    { value: 'lowercase', label: 'lowercase' },
-                    { value: 'capitalize', label: 'Capitalize Each Word' },
-                  ]}
-                />
-                <FieldSelect
-                  label="Body / tagline text size"
-                  description="Scale factor for body text, taglines, and subtitles across the brochure."
+                  label="Body text"
+                  description="Scale factor for body, tagline, and subtitle text across the brochure."
                   value={taglineScale ?? 'm'}
                   onChange={(v) => setTaglineScale(v === 'm' ? undefined : (v as TextScalePreset))}
                   options={scaleOptions}
                 />
 
-                <SectionHeader label="Font families" />
+                <SectionHeader label="Fonts" />
                 <FontCard
                   role="display"
-                  label="Title font"
+                  label="Title"
                   description="Headlines and display text"
                   previewText="Monaco Grand Prix"
                   previewSize={28}
@@ -563,20 +555,46 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                 />
                 <FontCard
                   role="script"
-                  label="Eyebrow font"
+                  label="Eyebrow"
                   description="Eyebrow and accent text"
                   previewText="A weekend of speed"
                   previewSize={26}
-                  previewItalic
+                  previewItalic={eyebrowItalic ?? true}
+                  previewUppercase={eyebrowTransform === 'uppercase'}
+                  previewTransform={eyebrowTransform}
                   fontSlug={fontScript}
                   fontWeight={fontScriptWeight}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontScript(v || undefined); setFontScriptWeight(undefined) }}
                   onWeightChange={(v) => setFontScriptWeight(v || undefined)}
+                  extraControls={
+                    <>
+                      <FieldSelect
+                        label="Style"
+                        value={eyebrowItalic === false ? 'upright' : 'italic'}
+                        onChange={(v) => setEyebrowItalic(v === 'upright' ? false : undefined)}
+                        options={[
+                          { value: 'italic', label: 'Italic' },
+                          { value: 'upright', label: 'Upright' },
+                        ]}
+                      />
+                      <FieldSelect
+                        label="Letter case"
+                        value={eyebrowTransform ?? ''}
+                        onChange={(v) => setEyebrowTransform(v || undefined)}
+                        options={[
+                          { value: '', label: 'As typed' },
+                          { value: 'uppercase', label: 'UPPERCASE' },
+                          { value: 'lowercase', label: 'lowercase' },
+                          { value: 'capitalize', label: 'Capitalize' },
+                        ]}
+                      />
+                    </>
+                  }
                 />
                 <FontCard
                   role="body"
-                  label="Body font"
+                  label="Body"
                   description="Paragraph and body text"
                   previewText="Every trip is built around one idea: giving you a front-row seat to the world's most prestigious motorsport."
                   previewSize={14}
@@ -588,7 +606,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                 />
                 <FontCard
                   role="mono"
-                  label="Label font"
+                  label="Label"
                   description="Labels, meta text, and data"
                   previewText="3.337 KM · 78 LAPS · 19 CORNERS"
                   previewSize={11}
@@ -725,20 +743,25 @@ type FontCardProps = {
   previewSize: number
   previewItalic?: boolean
   previewUppercase?: boolean
+  previewTransform?: string | undefined
   fontSlug: string | undefined
   fontWeight: string | undefined
   customFonts?: CustomFont[] | null
   onFontChange: (slug: string) => void
   onWeightChange: (weight: string) => void
+  extraControls?: React.ReactNode
 }
 
 function FontCard({
   role, label, description, previewText, previewSize,
-  previewItalic, previewUppercase, fontSlug, fontWeight,
+  previewItalic, previewUppercase, previewTransform,
+  fontSlug, fontWeight,
   customFonts, onFontChange, onWeightChange,
+  extraControls,
 }: FontCardProps) {
   const family = fontFamilyForSlug(fontSlug, role, customFonts)
   const weight = fontWeight || undefined
+  const transform = previewTransform || (previewUppercase ? 'uppercase' : undefined)
 
   return (
     <div className="font-card">
@@ -749,8 +772,8 @@ function FontCard({
           fontWeight: weight,
           fontSize: previewSize,
           fontStyle: previewItalic ? 'italic' : undefined,
-          textTransform: previewUppercase ? 'uppercase' : undefined,
-          letterSpacing: previewUppercase ? '0.12em' : undefined,
+          textTransform: transform as React.CSSProperties['textTransform'],
+          letterSpacing: transform === 'uppercase' ? '0.12em' : undefined,
         }}
       >
         {previewText}
@@ -772,6 +795,7 @@ function FontCard({
           onChange={onWeightChange}
           options={weightOptionsForRole(role, fontSlug, customFonts)}
         />
+        {extraControls}
       </div>
     </div>
   )

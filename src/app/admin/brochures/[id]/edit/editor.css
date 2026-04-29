@@ -1643,6 +1643,67 @@
 .field-image-preview {
   position: relative; /* for loading overlay */
 }
+/* Logo field — wider/shorter preview, contained (don't crop), checker bg
+   so transparent PNG edges read as transparent rather than black. */
+.logo-image-field .field-image-preview {
+  aspect-ratio: 16 / 7;
+  background-color: #0a0a0c;
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+.logo-image-field .field-image-preview img {
+  width: auto;
+  height: auto;
+  max-width: 85%;
+  max-height: 75%;
+  object-fit: contain;
+}
+.texture-hide-btn {
+  align-self: flex-start;
+  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  padding: 5px 10px;
+}
+.texture-hidden-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--chrome-raised);
+  border: 1px dashed var(--chrome-border-strong);
+  border-radius: 5px;
+}
+.texture-hidden-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chrome-text-secondary);
+}
+
+.field-image-default-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 3px 7px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--chrome-border-strong);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chrome-text-secondary);
+  pointer-events: none;
+}
 .field-image-slot-preview {
   position: relative;
 }
@@ -1796,6 +1857,16 @@
 }
 .settings-section-header:first-child {
   margin-top: 0;
+}
+.settings-subgroup-label {
+  margin-top: 4px;
+  margin-bottom: -2px;
+  font-family: var(--font-condensed);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chrome-text);
 }
 .settings-font-row {
   display: grid;
@@ -2101,6 +2172,86 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--chrome-text-tertiary);
+}
+.field-color-default-chip {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-border-strong);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chrome-text-secondary);
+}
+
+/* Brand-colour cards — each FieldColor rendered as a card matching the
+   custom-color-card pattern: [32px swatch] [label] [hex] [Reset / Default]. */
+.brand-colors-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.brand-colors-compact .field-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-border);
+  border-radius: 5px;
+  min-width: 0;
+}
+.brand-colors-compact .field-label {
+  flex: 1;
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--chrome-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  order: 2;
+}
+.brand-colors-compact .field-description {
+  display: none;
+}
+.brand-colors-compact .field-color {
+  display: contents;
+}
+.brand-colors-compact .field-color-swatch {
+  order: 1;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  margin: 0;
+}
+.brand-colors-compact .field-color-hex {
+  order: 3;
+  width: 80px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.brand-colors-compact .field-color-default-chip {
+  order: 4;
+  flex-shrink: 0;
+  padding: 2px 6px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+.brand-colors-compact .field-color-reset {
+  order: 4;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
 }
 
 /* Brand colour swatches (FieldBrandColor) */
