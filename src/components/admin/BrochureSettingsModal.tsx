@@ -488,8 +488,8 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   options={scaleOptions}
                 />
                 <FieldSelect
-                  label="Tagline / subtitle text size"
-                  description="Scale factor for taglines, subtitles, and body text across the brochure."
+                  label="Body / tagline text size"
+                  description="Scale factor for body text, taglines, and subtitles across the brochure."
                   value={taglineScale ?? 'm'}
                   onChange={(v) => setTaglineScale(v === 'm' ? undefined : (v as TextScalePreset))}
                   options={scaleOptions}

@@ -71,7 +71,7 @@
        size so prose looks consistent regardless of which section it lives
        in. Tweak here once instead of chasing a dozen `font-size: clamp(...)`
        declarations. */
-    --body-text-size: calc(var(--tagline-scale, 1) * clamp(12px, 1.3cqi, 16px));
+    --body-text-size: clamp(12px, 1.3cqi, 16px);
     --body-text-size-mobile: clamp(15px, 3.8cqi, 16px);
     --body-text-line-height: 1.7;
     --body-text-line-height-mobile: 1.65;
@@ -736,7 +736,7 @@
     margin-bottom: clamp(14px, 2.2cqi, 28px);
   }
   .intro-body {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
   }
@@ -1062,7 +1062,7 @@
     max-width: 18ch;
   }
   .text-center-body {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
     max-width: 120ch;
@@ -1147,7 +1147,7 @@
     line-height: 0.9;
   }
   .features-subtitle {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
     max-width: 35%;
@@ -1193,7 +1193,7 @@
   }
   .feature-card-title::before { content: ''; width: 16px; height: 2px; background: var(--section-accent-color, var(--brand-red)); }
   .feature-card-text {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--page-text-muted);
   }
@@ -1236,7 +1236,7 @@
     margin-bottom: clamp(14px, 2cqi, 24px);
   }
   .image-hero-text {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
     max-width: 80%;
@@ -1406,7 +1406,7 @@
   }
   .package-feature {
     display: flex; align-items: flex-start; gap: 10px;
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     color: var(--page-text-muted);
     line-height: var(--body-text-line-height);
   }
@@ -1466,7 +1466,7 @@
     margin-bottom: clamp(4px, 0.8cqi, 8px);
   }
   .day-content p {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--page-text-muted);
   }
@@ -1681,7 +1681,7 @@
     margin-top: 0.05em;
   }
   .section-heading-text {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
     max-width: 60%;
@@ -1774,7 +1774,7 @@
     opacity: 0.3;
   }
   .quote-profile-body {
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
   }
@@ -2046,7 +2046,7 @@
   }
   .circuit-map-caption {
     font-family: var(--font-body);
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
     max-width: 1200px;
@@ -3595,7 +3595,7 @@
     .closing-subtitle,
     .gallery-hero-caption,
     .gallery-duo-caption {
-      font-size: var(--body-text-size-mobile);
+      font-size: calc(var(--tagline-scale, 1) * var(--body-text-size-mobile));
       line-height: var(--body-text-line-height-mobile);
     }
 
@@ -4616,7 +4616,7 @@
   }
   .logos-subtitle {
     font-family: var(--font-body);
-    font-size: var(--body-text-size);
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
     color: var(--section-body-color, var(--page-text-muted));
     margin-top: clamp(6px, 1cqi, 14px);

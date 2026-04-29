@@ -117,6 +117,7 @@ function sectionStyleCss(
   const bs = resolveScale(s.bodyScale)
   if (bs) vars.push(`--tagline-scale:${bs}`)
 
+
   return vars.length > 0 ? vars.join(';') : null
 }
 
