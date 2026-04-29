@@ -20,6 +20,24 @@ function escapeHtml(s: string): string {
 }
 
 /**
+ * Insert plain text at the current selection inside a contentEditable element,
+ * replacing any selected range. Bypasses the browser's default paste behaviour
+ * (which would carry styling, fonts, and block structure from the source).
+ */
+function insertPlainTextAtCaret(text: string): void {
+  const sel = window.getSelection()
+  if (!sel || sel.rangeCount === 0) return
+  const range = sel.getRangeAt(0)
+  range.deleteContents()
+  const node = document.createTextNode(text)
+  range.insertNode(node)
+  range.setStartAfter(node)
+  range.setEndAfter(node)
+  sel.removeAllRanges()
+  sel.addRange(range)
+}
+
+/**
  * Wraps a text element to make it inline-editable in the editor preview.
  *
  * In public mode (editorMode falsy): returns children unchanged.
@@ -108,6 +126,16 @@ export function InlineEditable({ sectionKey, field, richBody, placeholder, child
     [],
   )
 
+  // Strip formatting and collapse whitespace on paste — these are single-line
+  // fields, so any newlines or runs of spaces become a single space.
+  const handlePlainPaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const raw = e.clipboardData.getData('text/plain') || ''
+    const text = raw.replace(/\s+/g, ' ').trim()
+    if (text) insertPlainTextAtCaret(text)
+  }, [])
+
   // ── Rich-body edit handlers ─────────────────────────────────────────
   const handleRichDoubleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -150,6 +178,17 @@ export function InlineEditable({ sectionKey, field, richBody, placeholder, child
     }
   }, [])
 
+  // Strip formatting on paste. plaintext-only contentEditable usually does
+  // this on Chrome/Edge/Safari, but Firefox doesn't, and even where it does
+  // we still want explicit line-ending normalisation.
+  const handleRichPaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const raw = e.clipboardData.getData('text/plain') || ''
+    const text = raw.replace(/\r\n?/g, '\n')
+    if (text) insertPlainTextAtCaret(text)
+  }, [])
+
   // Stable HTML for the editor's initial content. Memoised so React doesn't
   // re-set innerHTML mid-edit (which would wipe the user's typing).
   const richEditHtml = useMemo(
@@ -170,6 +209,7 @@ export function InlineEditable({ sectionKey, field, richBody, placeholder, child
           suppressContentEditableWarning
           onBlur={handleRichBlur}
           onKeyDown={handleRichKeyDown}
+          onPaste={handleRichPaste}
           style={{ whiteSpace: 'pre-wrap' }}
           dangerouslySetInnerHTML={{ __html: richEditHtml }}
         />
@@ -203,6 +243,7 @@ export function InlineEditable({ sectionKey, field, richBody, placeholder, child
         onDoubleClick={handlePlainDoubleClick}
         onBlur={handlePlainBlur}
         onKeyDown={handlePlainKeyDown}
+        onPaste={handlePlainPaste}
         suppressContentEditableWarning
       >
         {placeholder || field}
@@ -225,6 +266,7 @@ export function InlineEditable({ sectionKey, field, richBody, placeholder, child
     onDoubleClick: handlePlainDoubleClick,
     onBlur: handlePlainBlur,
     onKeyDown: handlePlainKeyDown,
+    onPaste: handlePlainPaste,
     suppressContentEditableWarning: true,
   })
 }
