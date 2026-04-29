@@ -13,6 +13,7 @@ type Props = {
   section: StylableSection
   onChange: (update: Partial<Section>) => void
   brandContext?: BrandContext
+  onAddCustomColor?: (name: string, hex: string) => void
 }
 
 /**
@@ -71,7 +72,7 @@ const OVERLAY_OPTIONS = [
   { value: 'strong', label: 'Strong' },
 ]
 
-export function SectionStylesEditor({ section, onChange, brandContext }: Props) {
+export function SectionStylesEditor({ section, onChange, brandContext, onAddCustomColor }: Props) {
   const config = STYLE_CONFIG[section._type]
   if (!config) return null
 
@@ -100,6 +101,7 @@ export function SectionStylesEditor({ section, onChange, brandContext }: Props) 
               onChange={(v) => anyChange({ accentColor: v })}
               fallback={accentFallback}
               brandContext={brandContext}
+              onAddCustomColor={onAddCustomColor}
             />
           )}
           {config.eyebrow && (
@@ -110,6 +112,7 @@ export function SectionStylesEditor({ section, onChange, brandContext }: Props) 
               onChange={(v) => anyChange({ eyebrowColor: v })}
               fallback={accentFallback}
               brandContext={brandContext}
+              onAddCustomColor={onAddCustomColor}
             />
           )}
           {config.title && (
@@ -120,6 +123,7 @@ export function SectionStylesEditor({ section, onChange, brandContext }: Props) 
               onChange={(v) => anyChange({ titleColor: v })}
               fallback={textFallback}
               brandContext={brandContext}
+              onAddCustomColor={onAddCustomColor}
             />
           )}
           {config.body && (
@@ -130,6 +134,7 @@ export function SectionStylesEditor({ section, onChange, brandContext }: Props) 
               onChange={(v) => anyChange({ bodyColor: v })}
               fallback={mutedFallback}
               brandContext={brandContext}
+              onAddCustomColor={onAddCustomColor}
             />
           )}
         </>

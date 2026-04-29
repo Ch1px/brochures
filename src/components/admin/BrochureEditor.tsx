@@ -753,6 +753,15 @@ export function BrochureEditor({ initialBrochure }: Props) {
                   theme: brochure.theme,
                   customColors: brochure.customColors,
                 }}
+                onAddCustomColor={(name, hex) => {
+                  setBrochure((prev) => ({
+                    ...prev,
+                    customColors: [
+                      ...(prev.customColors ?? []),
+                      { _key: nanokey(), name, hex },
+                    ],
+                  }))
+                }}
                 accentColor={brochure.accentColor}
                 mapEditMode={mapEditMode}
                 onMapEditModeChange={setMapEditMode}

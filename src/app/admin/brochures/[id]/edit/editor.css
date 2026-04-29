@@ -2062,6 +2062,39 @@
   border-color: var(--brand-red);
   box-shadow: 0 0 0 1px var(--brand-red);
 }
+.field-brand-save-btn {
+  display: inline;
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-red);
+  cursor: pointer;
+  margin-left: 8px;
+  padding: 0;
+}
+.field-brand-save-btn:hover {
+  text-decoration: underline;
+}
+.field-brand-save-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.field-brand-save-row .field-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  padding: 5px 8px;
+}
+.field-brand-save-row .field-btn {
+  font-size: 10px;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
 .field-brand-swatches-active {
   font-family: var(--font-mono);
   font-size: 9px;

@@ -20,24 +20,13 @@ type Props = {
   fallback?: string
   /** Brand context for resolving brand tokens and showing custom colors. */
   brandContext?: BrandContext
+  /** Callback to save the current hex as a new custom colour variable.
+   *  When provided, a "+" button appears next to the custom swatches. */
+  onAddCustomColor?: (name: string, hex: string) => void
 }
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
-/**
- * Colour picker with brand colour swatches — used in section style overrides.
- *
- * Shows a hex picker (swatch + text input) plus a grid of brand tokens
- * (Accent, Accent hover, Background, Text, White, Black) and any custom
- * colours defined in the brochure settings.
- *
- * Clicking a brand/custom swatch stores the **token** (e.g. `var:accent`,
- * `custom:<_key>`) so the colour updates live when brochure branding changes.
- * Using the hex picker or typing a hex stores the literal hex value.
- *
- * Calls `onChange(undefined)` when cleared so the consumer can distinguish
- * "use the default" from a stored value.
- */
 export function FieldBrandColor({
   label,
   description,
@@ -45,11 +34,12 @@ export function FieldBrandColor({
   onChange,
   fallback = '#e10600',
   brandContext,
+  onAddCustomColor,
 }: Props) {
   const id = useId()
+  const [addingColor, setAddingColor] = useState(false)
+  const [newColorName, setNewColorName] = useState('')
 
-  // Resolve the stored value to a hex for display. If it's a brand/custom
-  // token, resolve via brandContext; otherwise it's already a hex (or empty).
   const isToken = value ? isBrandToken(value) : false
   const resolvedValue =
     value && isToken && brandContext ? resolveColor(value, brandContext) : value
@@ -65,7 +55,6 @@ export function FieldBrandColor({
   const swatchColour = HEX_RE.test(draft) ? draft : fallback
   const isUsingDefault = !value
 
-  /** Commit a raw hex value (from picker or text input). */
   function commitHex(next: string) {
     setDraft(next)
     if (next === '') {
@@ -75,9 +64,25 @@ export function FieldBrandColor({
     if (HEX_RE.test(next)) onChange(next.toLowerCase())
   }
 
-  /** Commit a brand or custom token. */
   function commitToken(token: string) {
     onChange(token)
+  }
+
+  // Can save to palette when we have a literal hex value (not a token, not empty)
+  const canSave = onAddCustomColor && value && HEX_RE.test(value) && !isToken
+
+  function handleSaveColor() {
+    if (!canSave) return
+    setAddingColor(true)
+    setNewColorName('')
+  }
+
+  function handleConfirmSave() {
+    if (!onAddCustomColor || !value || !HEX_RE.test(value)) return
+    const name = newColorName.trim() || value
+    onAddCustomColor(name, value)
+    setAddingColor(false)
+    setNewColorName('')
   }
 
   const hasSwatches = !!brandContext
@@ -142,27 +147,60 @@ export function FieldBrandColor({
               )
             })}
           </div>
+          <div className="field-brand-swatches-label" style={{ marginTop: 6 }}>
+            Custom
+            {canSave && !addingColor ? (
+              <button
+                type="button"
+                className="field-brand-save-btn"
+                onClick={handleSaveColor}
+                title="Save current colour to palette"
+              >
+                + Save to palette
+              </button>
+            ) : null}
+          </div>
           {customColors && customColors.length > 0 ? (
-            <>
-              <div className="field-brand-swatches-label" style={{ marginTop: 6 }}>Custom</div>
-              <div className="field-brand-swatches-grid">
-                {customColors.map((c) => {
-                  const token = `custom:${c._key}`
-                  const isActive = value === token
-                  return (
-                    <button
-                      key={c._key}
-                      type="button"
-                      className={`field-brand-swatch${isActive ? ' active' : ''}`}
-                      style={{ background: c.hex }}
-                      title={`${c.name} (${c.hex})`}
-                      onClick={() => commitToken(token)}
-                      aria-label={`Apply ${c.name}`}
-                    />
-                  )
-                })}
-              </div>
-            </>
+            <div className="field-brand-swatches-grid">
+              {customColors.map((c) => {
+                const token = `custom:${c._key}`
+                const isActive = value === token
+                return (
+                  <button
+                    key={c._key}
+                    type="button"
+                    className={`field-brand-swatch${isActive ? ' active' : ''}`}
+                    style={{ background: c.hex }}
+                    title={`${c.name} (${c.hex})`}
+                    onClick={() => commitToken(token)}
+                    aria-label={`Apply ${c.name}`}
+                  />
+                )
+              })}
+            </div>
+          ) : null}
+          {addingColor ? (
+            <div className="field-brand-save-row">
+              <span className="field-brand-swatch" style={{ background: value!, flexShrink: 0 }} />
+              <input
+                type="text"
+                className="field-input"
+                value={newColorName}
+                onChange={(e) => setNewColorName(e.target.value)}
+                placeholder="Colour name"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') { e.preventDefault(); handleConfirmSave() }
+                  if (e.key === 'Escape') setAddingColor(false)
+                }}
+              />
+              <button type="button" className="field-btn" onClick={handleConfirmSave}>
+                Save
+              </button>
+              <button type="button" className="field-btn field-btn-ghost" onClick={() => setAddingColor(false)}>
+                Cancel
+              </button>
+            </div>
           ) : null}
           {activeLabel ? (
             <div className="field-brand-swatches-active">

@@ -35,6 +35,7 @@ type Props = {
   } | null
   onChange: (update: Partial<Section>) => void
   brandContext?: BrandContext
+  onAddCustomColor?: (name: string, hex: string) => void
   accentColor?: string
   recolorMode?: boolean
   onRecolorModeChange?: (next: boolean) => void
@@ -62,6 +63,7 @@ export function PropertiesPanel({
   context,
   onChange,
   brandContext,
+  onAddCustomColor,
   accentColor,
   recolorMode = false,
   onRecolorModeChange,
@@ -131,6 +133,7 @@ export function PropertiesPanel({
             section={section as Exclude<Section, SectionFooter>}
             onChange={onChange}
             brandContext={brandContext}
+            onAddCustomColor={onAddCustomColor}
           />
         )}
       </div>
