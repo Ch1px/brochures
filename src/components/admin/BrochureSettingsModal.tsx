@@ -1,18 +1,17 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import type { Brochure, CustomColor, CustomFont, CustomFontWeight, CustomFonts, FontOverrides, SanityImage, TextScalePreset } from '@/types/brochure'
-import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
+import type { Brochure, CustomColor, CustomFont, CustomFontWeight, FontOverrides, SanityImage, TextScalePreset } from '@/types/brochure'
+import { updateBrochureSettingsAction, uploadFileAction } from '@/lib/sanity/actions'
 import { nanokey } from '@/lib/nanokey'
 import {
-  CUSTOM_FONT_SLUG,
+  customFontSlug,
   fontOptionsForRole,
   weightOptionsForRole,
   fontFamilyForSlug,
   googleFontsUrlForSlug,
   customFontFaceCss,
 } from '@/lib/fontPalette'
-import { uploadFileAction } from '@/lib/sanity/actions'
 import { FieldInput } from './fields/FieldInput'
 import { FieldTextarea } from './fields/FieldTextarea'
 import { FieldBoolean } from './fields/FieldBoolean'
@@ -34,7 +33,7 @@ type Props = {
     backgroundColor: string | undefined
     textColor: string | undefined
     fontOverrides: FontOverrides | undefined
-    customFonts: CustomFonts | undefined
+    customFonts: CustomFont[] | undefined
     titleScale: TextScalePreset | undefined
     eyebrowScale: TextScalePreset | undefined
     taglineScale: TextScalePreset | undefined
@@ -88,7 +87,9 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   const [fontBodyWeight, setFontBodyWeight] = useState<string | undefined>(brochure.fontOverrides?.bodyWeight)
   const [fontMono, setFontMono] = useState<string | undefined>(brochure.fontOverrides?.mono)
   const [fontMonoWeight, setFontMonoWeight] = useState<string | undefined>(brochure.fontOverrides?.monoWeight)
-  const [customFonts, setCustomFonts] = useState<CustomFonts | undefined>(brochure.customFonts)
+  const [customFonts, setCustomFonts] = useState<CustomFont[] | undefined>(
+    Array.isArray(brochure.customFonts) ? brochure.customFonts : undefined
+  )
   const [titleScale, setTitleScale] = useState<TextScalePreset | undefined>(brochure.titleScale)
   const [eyebrowScale, setEyebrowScale] = useState<TextScalePreset | undefined>(brochure.eyebrowScale)
   const [taglineScale, setTaglineScale] = useState<TextScalePreset | undefined>(brochure.taglineScale)
@@ -125,7 +126,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     setFontBodyWeight(brochure.fontOverrides?.bodyWeight)
     setFontMono(brochure.fontOverrides?.mono)
     setFontMonoWeight(brochure.fontOverrides?.monoWeight)
-    setCustomFonts(brochure.customFonts)
+    setCustomFonts(Array.isArray(brochure.customFonts) ? brochure.customFonts : undefined)
     setTitleScale(brochure.titleScale)
     setEyebrowScale(brochure.eyebrowScale)
     setTaglineScale(brochure.taglineScale)
@@ -145,6 +146,49 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose, pending])
+
+  // Load custom fonts via FontFace API
+  useEffect(() => {
+    if (!customFonts || customFonts.length === 0) return
+    let cancelled = false
+    const loaded: FontFace[] = []
+
+    const loadAll = async () => {
+      for (let i = 0; i < customFonts.length; i++) {
+        const font = customFonts[i]
+        if (!font || !font.weights || font.weights.length === 0) continue
+        const familyName = 'CustomFont-' + font._key
+        for (let j = 0; j < font.weights.length; j++) {
+          if (cancelled) return
+          const w = font.weights[j]
+          if (!w || !w.file || !w.file.asset || !w.file.asset._ref) continue
+          const ref = w.file.asset._ref
+          if (!/^file-[a-zA-Z0-9]+-[a-z0-9]+$/.test(ref)) continue
+          try {
+            const resp = await fetch('/api/font?ref=' + encodeURIComponent(ref))
+            if (!resp.ok || cancelled) continue
+            const buf = await resp.arrayBuffer()
+            if (cancelled) return
+            const face = new FontFace(familyName, buf, { weight: w.weight || '400' })
+            await face.load()
+            if (cancelled) return
+            document.fonts.add(face)
+            loaded.push(face)
+          } catch {
+            // Font load failed — falls back to sans-serif
+          }
+        }
+      }
+    }
+
+    loadAll()
+    return () => {
+      cancelled = true
+      for (let i = 0; i < loaded.length; i++) {
+        try { document.fonts.delete(loaded[i]) } catch {}
+      }
+    }
+  }, [customFonts])
 
   if (!open) return null
 
@@ -204,7 +248,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                 monoWeight: fontMonoWeight || undefined,
               }
             : null,
-          customFonts: customFonts ?? null,
+          customFonts: customFonts?.length ? customFonts : null,
           titleScale: titleScale ?? null,
           eyebrowScale: eyebrowScale ?? null,
           taglineScale: taglineScale ?? null,
@@ -232,7 +276,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
           ? { display: fontDisplay, displayWeight: fontDisplayWeight, script: fontScript, scriptWeight: fontScriptWeight, body: fontBody, bodyWeight: fontBodyWeight, mono: fontMono, monoWeight: fontMonoWeight }
           : undefined,
-        customFonts,
+        customFonts: customFonts?.length ? customFonts : undefined,
         titleScale,
         eyebrowScale,
         taglineScale,
@@ -256,6 +300,8 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   ]
 
   return (
+    <>
+    <FontPreviewLinks slugs={[fontDisplay, fontScript, fontBody, fontMono]} />
     <div
       className="add-section-overlay"
       onClick={pending ? undefined : onClose}
@@ -284,9 +330,6 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-          {/* Font preview links + custom @font-face — inside header to avoid flex layout interference */}
-          <FontPreviewLinks slugs={[fontDisplay, fontScript, fontBody, fontMono]} />
-          {customFonts ? <style>{customFontFaceCss(customFonts) ?? ''}</style> : null}
         </header>
 
         <div className="settings-layout">
@@ -492,11 +535,9 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   previewSize={28}
                   fontSlug={fontDisplay}
                   fontWeight={fontDisplayWeight}
-                  customFont={customFonts?.display}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontDisplay(v || undefined); setFontDisplayWeight(undefined) }}
                   onWeightChange={(v) => setFontDisplayWeight(v || undefined)}
-                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, display: f }))}
                 />
                 <FontCard
                   role="script"
@@ -507,11 +548,9 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   previewItalic
                   fontSlug={fontScript}
                   fontWeight={fontScriptWeight}
-                  customFont={customFonts?.script}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontScript(v || undefined); setFontScriptWeight(undefined) }}
                   onWeightChange={(v) => setFontScriptWeight(v || undefined)}
-                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, script: f }))}
                 />
                 <FontCard
                   role="body"
@@ -521,11 +560,9 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   previewSize={14}
                   fontSlug={fontBody}
                   fontWeight={fontBodyWeight}
-                  customFont={customFonts?.body}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontBody(v || undefined); setFontBodyWeight(undefined) }}
                   onWeightChange={(v) => setFontBodyWeight(v || undefined)}
-                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, body: f }))}
                 />
                 <FontCard
                   role="mono"
@@ -536,11 +573,15 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   previewUppercase
                   fontSlug={fontMono}
                   fontWeight={fontMonoWeight}
-                  customFont={customFonts?.mono}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontMono(v || undefined); setFontMonoWeight(undefined) }}
                   onWeightChange={(v) => setFontMonoWeight(v || undefined)}
-                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, mono: f }))}
+                />
+
+                <SectionHeader label="Custom fonts" />
+                <CustomFontsManager
+                  fonts={customFonts ?? []}
+                  onChange={setCustomFonts}
                 />
               </>
             )}
@@ -612,6 +653,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         </footer>
       </div>
     </div>
+    </>
   )
 }
 
@@ -651,6 +693,8 @@ const WEIGHT_OPTIONS = [
   { value: '900', label: '900 · Black' },
 ]
 
+// ── FontCard (simplified — no upload logic) ─────────────────────────────
+
 type FontCardProps = {
   role: string
   label: string
@@ -661,91 +705,18 @@ type FontCardProps = {
   previewUppercase?: boolean
   fontSlug: string | undefined
   fontWeight: string | undefined
-  customFont?: CustomFont
-  customFonts?: CustomFonts | null
+  customFonts?: CustomFont[] | null
   onFontChange: (slug: string) => void
   onWeightChange: (weight: string) => void
-  onCustomFontChange: (font: CustomFont | undefined) => void
 }
 
 function FontCard({
-  role,
-  label,
-  description,
-  previewText,
-  previewSize,
-  previewItalic,
-  previewUppercase,
-  fontSlug,
-  fontWeight,
-  customFont,
-  customFonts,
-  onFontChange,
-  onWeightChange,
-  onCustomFontChange,
+  role, label, description, previewText, previewSize,
+  previewItalic, previewUppercase, fontSlug, fontWeight,
+  customFonts, onFontChange, onWeightChange,
 }: FontCardProps) {
-  const [uploading, setUploading] = useState(false)
   const family = fontFamilyForSlug(fontSlug, role, customFonts)
   const weight = fontWeight || undefined
-  const isCustom = fontSlug === CUSTOM_FONT_SLUG
-  const hasCustomWeights = !!(customFont?.weights?.length)
-
-  // Build font family dropdown options
-  const options = fontOptionsForRole(role)
-  if (hasCustomWeights) {
-    options.push({ value: CUSTOM_FONT_SLUG, label: `Custom: ${customFont!.name || 'Uploaded font'}` })
-  } else {
-    options.push({ value: CUSTOM_FONT_SLUG, label: 'Upload custom font...' })
-  }
-
-  async function handleUpload(targetWeight: string) {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.woff2,font/woff2'
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return
-      setUploading(true)
-      try {
-        const fd = new FormData()
-        fd.append('file', file)
-        const res = await uploadFileAction(fd)
-        if (res.ok) {
-          const name = customFont?.name || file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
-          const existing = customFont?.weights ?? []
-          // Replace if same weight exists, otherwise append
-          const filtered = existing.filter((w) => w.weight !== targetWeight)
-          const newWeight: CustomFontWeight = {
-            _key: nanokey(),
-            weight: targetWeight,
-            file: res.file,
-          }
-          onCustomFontChange({ name, weights: [...filtered, newWeight] })
-          onFontChange(CUSTOM_FONT_SLUG)
-        }
-      } finally {
-        setUploading(false)
-      }
-    }
-    input.click()
-  }
-
-  function handleRemoveWeight(key: string) {
-    if (!customFont?.weights) return
-    const next = customFont.weights.filter((w) => w._key !== key)
-    if (next.length === 0) {
-      onCustomFontChange(undefined)
-      onFontChange('')
-    } else {
-      onCustomFontChange({ ...customFont, weights: next })
-    }
-  }
-
-  function handleRemoveAll() {
-    onCustomFontChange(undefined)
-    onFontChange('')
-    onWeightChange('')
-  }
 
   return (
     <div className="font-card">
@@ -770,15 +741,8 @@ function FontCard({
         <FieldSelect
           label="Family"
           value={fontSlug ?? ''}
-          onChange={(v) => {
-            if (v === CUSTOM_FONT_SLUG && !hasCustomWeights) {
-              // No weights uploaded yet — trigger first upload at 400
-              handleUpload('400')
-              return
-            }
-            onFontChange(v)
-          }}
-          options={options}
+          onChange={onFontChange}
+          options={fontOptionsForRole(role, customFonts)}
         />
         <FieldSelect
           label="Weight"
@@ -787,20 +751,133 @@ function FontCard({
           options={weightOptionsForRole(role, fontSlug, customFonts)}
         />
       </div>
-      {isCustom && hasCustomWeights ? (
-        <div className="font-card-custom-section">
-          <div className="font-card-custom-header">
-            <span className="font-card-custom-name">{customFont!.name || 'Custom font'}</span>
+    </div>
+  )
+}
+
+// ── CustomFontsManager (shared font library) ────────────────────────────
+
+function CustomFontsManager({
+  fonts,
+  onChange,
+}: {
+  fonts: CustomFont[]
+  onChange: (fonts: CustomFont[] | undefined) => void
+}) {
+  const [uploading, setUploading] = useState(false)
+
+  async function handleAddFont() {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.woff2,.woff,.ttf,.otf'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file) return
+      setUploading(true)
+      try {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await uploadFileAction(fd)
+        if (res.ok) {
+          const name = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
+          const newFont: CustomFont = {
+            _key: nanokey(),
+            name,
+            weights: [{ _key: nanokey(), weight: '400', file: res.file }],
+          }
+          onChange([...fonts, newFont])
+        }
+      } finally {
+        setUploading(false)
+      }
+    }
+    input.click()
+  }
+
+  async function handleAddWeight(fontKey: string, targetWeight: string) {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.woff2,.woff,.ttf,.otf'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file) return
+      setUploading(true)
+      try {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await uploadFileAction(fd)
+        if (res.ok) {
+          const newWeight: CustomFontWeight = { _key: nanokey(), weight: targetWeight, file: res.file }
+          onChange(fonts.map((f) =>
+            f._key === fontKey
+              ? { ...f, weights: [...f.weights.filter((w) => w.weight !== targetWeight), newWeight] }
+              : f
+          ))
+        }
+      } finally {
+        setUploading(false)
+      }
+    }
+    input.click()
+  }
+
+  function handleRemoveFont(fontKey: string) {
+    const next = fonts.filter((f) => f._key !== fontKey)
+    onChange(next.length > 0 ? next : undefined)
+  }
+
+  function handleRemoveWeight(fontKey: string, weightKey: string) {
+    onChange(fonts.map((f) => {
+      if (f._key !== fontKey) return f
+      const nextWeights = f.weights.filter((w) => w._key !== weightKey)
+      return { ...f, weights: nextWeights }
+    }).filter((f) => f.weights.length > 0))
+  }
+
+  function handleRename(fontKey: string, name: string) {
+    onChange(fonts.map((f) => f._key === fontKey ? { ...f, name } : f))
+  }
+
+  if (fonts.length === 0) {
+    return (
+      <div>
+        <div className="font-card-desc" style={{ marginBottom: 8 }}>
+          Upload .woff2, .ttf, .otf, or .woff files. Uploaded fonts appear in every font family dropdown above.
+        </div>
+        <button type="button" className="field-btn" onClick={handleAddFont} disabled={uploading}>
+          {uploading ? 'Uploading...' : '+ Upload font'}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {fonts.map((font) => (
+        <div key={font._key} className="custom-color-card" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input
+              type="text"
+              className="field-input"
+              value={font.name}
+              onChange={(e) => handleRename(font._key, e.target.value)}
+              placeholder="Font name"
+              style={{ flex: 1 }}
+            />
             <button
               type="button"
-              className="field-btn field-btn-ghost"
-              onClick={handleRemoveAll}
+              className="custom-color-remove"
+              onClick={() => handleRemoveFont(font._key)}
+              title="Remove font"
             >
-              Remove all
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width={14} height={14}>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
           <div className="font-card-weights">
-            {customFont!.weights
+            {font.weights
               .slice()
               .sort((a, b) => Number(a.weight) - Number(b.weight))
               .map((w) => (
@@ -811,9 +888,8 @@ function FontCard({
                   <button
                     type="button"
                     className="custom-color-remove"
-                    onClick={() => handleRemoveWeight(w._key)}
+                    onClick={() => handleRemoveWeight(font._key, w._key)}
                     title="Remove weight"
-                    aria-label={`Remove ${w.weight}`}
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width={12} height={12}>
                       <line x1="18" y1="6" x2="6" y2="18" />
@@ -823,26 +899,25 @@ function FontCard({
                 </div>
               ))}
           </div>
-          <div className="font-card-add-weight">
-            <select
-              className="field-input field-select"
-              value=""
-              onChange={(e) => {
-                if (e.target.value) handleUpload(e.target.value)
-              }}
-              disabled={uploading}
-            >
-              <option value="">+ Add weight...</option>
-              {WEIGHT_OPTIONS
-                .filter((o) => !customFont!.weights.some((w) => w.weight === o.value))
-                .map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-            </select>
-          </div>
+          <select
+            className="field-input field-select"
+            value=""
+            onChange={(e) => { if (e.target.value) handleAddWeight(font._key, e.target.value) }}
+            disabled={uploading}
+            style={{ fontSize: 11 }}
+          >
+            <option value="">+ Add weight...</option>
+            {WEIGHT_OPTIONS
+              .filter((o) => !font.weights.some((w) => w.weight === o.value))
+              .map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+          </select>
         </div>
-      ) : null}
-      {uploading ? <div className="font-card-uploading">Uploading...</div> : null}
+      ))}
+      <button type="button" className="field-btn" onClick={handleAddFont} disabled={uploading}>
+        {uploading ? 'Uploading...' : '+ Upload another font'}
+      </button>
     </div>
   )
 }

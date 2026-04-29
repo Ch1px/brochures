@@ -1,6 +1,6 @@
 import 'server-only'
 import { sanityWriteClient } from './client'
-import type { Brochure, CustomFonts, FontOverrides, SanityImage } from '@/types/brochure'
+import type { Brochure, CustomFont, FontOverrides, SanityImage } from '@/types/brochure'
 
 /**
  * Sanity mutations for brochure documents — all server-side only.
@@ -94,7 +94,7 @@ export type BrochureSettingsUpdate = {
   backgroundColor?: string | null
   textColor?: string | null
   fontOverrides?: FontOverrides | null
-  customFonts?: CustomFonts | null
+  customFonts?: CustomFont[] | null
   titleScale?: string | null
   eyebrowScale?: string | null
   taglineScale?: string | null
@@ -164,7 +164,7 @@ export async function updateBrochureSettings(
       else patch.fontOverrides = updates.fontOverrides
     }
     if (updates.customFonts !== undefined) {
-      if (updates.customFonts === null) unset.push('customFonts')
+      if (updates.customFonts === null || (Array.isArray(updates.customFonts) && updates.customFonts.length === 0)) unset.push('customFonts')
       else patch.customFonts = updates.customFonts
     }
     if (updates.titleScale !== undefined) {

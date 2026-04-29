@@ -22,15 +22,9 @@ export type CustomFontWeight = {
 }
 
 export type CustomFont = {
+  _key: string
   name: string
   weights: CustomFontWeight[]
-}
-
-export type CustomFonts = {
-  display?: CustomFont
-  script?: CustomFont
-  body?: CustomFont
-  mono?: CustomFont
 }
 
 export type FontOverrides = {
@@ -547,7 +541,7 @@ export type Brochure = {
   backgroundColor?: string
   textColor?: string
   fontOverrides?: FontOverrides
-  customFonts?: CustomFonts
+  customFonts?: CustomFont[]
   titleScale?: TextScalePreset
   eyebrowScale?: TextScalePreset
   taglineScale?: TextScalePreset

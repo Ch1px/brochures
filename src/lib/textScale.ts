@@ -1,18 +1,9 @@
 import type { CSSProperties } from 'react'
 import type { TextScalePreset } from '@/types/brochure'
+import { SCALE_MAP } from './fontPalette'
 
-/**
- * Multipliers for each text-size preset. Applied via CSS custom properties
- * that wrap existing `clamp()` font-size values:
- *   font-size: calc(var(--title-scale, 1) * clamp(…))
- */
-export const SCALE_MAP: Record<TextScalePreset, number> = {
-  xs: 0.7,
-  s: 0.85,
-  m: 1,
-  l: 1.15,
-  xl: 1.3,
-}
+// Re-export for consumers that import from here
+export { SCALE_MAP }
 
 /**
  * Returns CSS custom properties for brochure-wide text scaling.

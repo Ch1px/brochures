@@ -219,54 +219,59 @@ export default defineType({
     }),
     defineField({
       name: 'customFonts',
-      type: 'object',
-      title: 'Custom font uploads',
-      description: 'Upload .woff2 font files to override the font for each role. Multiple weights per role supported.',
+      type: 'array',
+      title: 'Custom fonts',
+      description: 'Uploaded fonts available in all font dropdowns. Each font can have multiple weight files.',
       group: 'branding',
-      fields: (['display', 'script', 'body', 'mono'] as const).map((role) =>
-        defineField({
-          name: role,
-          type: 'object',
-          title: role === 'display' ? 'Title font' : role === 'script' ? 'Eyebrow font' : role === 'body' ? 'Body font' : 'Label font',
-          fields: [
-            defineField({ name: 'name', type: 'string', title: 'Font name' }),
-            defineField({
-              name: 'weights',
-              type: 'array',
-              title: 'Font weights',
-              of: [{
-                type: 'object',
-                name: 'fontWeight',
-                fields: [
-                  defineField({
-                    name: 'weight',
-                    type: 'string',
-                    title: 'Weight',
-                    options: {
-                      list: [
-                        { title: '100 · Thin', value: '100' },
-                        { title: '200 · Extra Light', value: '200' },
-                        { title: '300 · Light', value: '300' },
-                        { title: '400 · Regular', value: '400' },
-                        { title: '500 · Medium', value: '500' },
-                        { title: '600 · Semi Bold', value: '600' },
-                        { title: '700 · Bold', value: '700' },
-                        { title: '800 · Extra Bold', value: '800' },
-                        { title: '900 · Black', value: '900' },
-                      ],
-                    },
-                  }),
-                  defineField({ name: 'file', type: 'file', title: 'Font file (.woff2)', options: { accept: '.woff2,font/woff2' } }),
-                ],
-                preview: {
-                  select: { weight: 'weight' },
-                  prepare: ({ weight }: { weight?: string }) => ({ title: weight ?? 'Unknown weight' }),
-                },
-              }],
-            }),
-          ],
-        }),
-      ),
+      of: [{
+        type: 'object',
+        name: 'customFont',
+        fields: [
+          defineField({ name: 'name', type: 'string', title: 'Font name', validation: (Rule: any) => Rule.required() }),
+          defineField({
+            name: 'weights',
+            type: 'array',
+            title: 'Font weights',
+            of: [{
+              type: 'object',
+              name: 'fontWeight',
+              fields: [
+                defineField({
+                  name: 'weight',
+                  type: 'string',
+                  title: 'Weight',
+                  validation: (Rule: any) => Rule.required(),
+                  options: {
+                    list: [
+                      { title: '100 · Thin', value: '100' },
+                      { title: '200 · Extra Light', value: '200' },
+                      { title: '300 · Light', value: '300' },
+                      { title: '400 · Regular', value: '400' },
+                      { title: '500 · Medium', value: '500' },
+                      { title: '600 · Semi Bold', value: '600' },
+                      { title: '700 · Bold', value: '700' },
+                      { title: '800 · Extra Bold', value: '800' },
+                      { title: '900 · Black', value: '900' },
+                    ],
+                  },
+                }),
+                defineField({ name: 'file', type: 'file', title: 'Font file', options: { accept: '.woff2,.woff,.ttf,.otf' } }),
+              ],
+              preview: {
+                select: { weight: 'weight' },
+                prepare: ({ weight }: { weight?: string }) => ({ title: weight ?? 'Unknown weight' }),
+              },
+            }],
+          }),
+        ],
+        preview: {
+          select: { name: 'name', weights: 'weights' },
+          prepare: ({ name, weights }: any) => ({
+            title: name || 'Untitled font',
+            subtitle: `${weights?.length ?? 0} weight(s)`,
+          }),
+        },
+      }],
     }),
     defineField({
       name: 'titleScale',

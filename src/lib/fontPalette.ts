@@ -1,11 +1,8 @@
 import type { CSSProperties } from 'react'
-import type { CustomFonts, FontOverrides } from '@/types/brochure'
+import type { CustomFont, FontOverrides } from '@/types/brochure'
 
-const SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? ''
-const SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production'
-
-/** Special slug used when a custom uploaded font is selected. */
-export const CUSTOM_FONT_SLUG = '__custom'
+/** Prefix for custom font slugs stored in fontOverrides. */
+const CUSTOM_PREFIX = 'custom:'
 
 export type FontEntry = {
   slug: string
@@ -110,35 +107,112 @@ const WEIGHT_LABELS: Record<string, string> = {
   '900': '900 · Black',
 }
 
+// ── Custom font helpers ─────────────────────────────────────────────────
+
+/** Returns true if a font slug references a custom uploaded font. */
+export function isCustomFontSlug(slug: string): boolean {
+  return slug.startsWith(CUSTOM_PREFIX)
+}
+
+/** Extract the _key from a custom font slug. */
+function customFontKey(slug: string): string {
+  return slug.slice(CUSTOM_PREFIX.length)
+}
+
+/** Build a slug for a custom font from its _key. */
+export function customFontSlug(key: string): string {
+  return `${CUSTOM_PREFIX}${key}`
+}
+
+/** Find a custom font by its _key in the array. */
+function findCustomFont(key: string, customFonts?: CustomFont[] | null): CustomFont | undefined {
+  return customFonts?.find((f) => f._key === key)
+}
+
+/** Deterministic font-family name for a custom uploaded font. */
+export function customFontFamilyName(key: string): string {
+  return `CustomFont-${key}`
+}
+
+/**
+ * Resolve a Sanity file asset _ref to a CDN URL.
+ * Ref format: `file-{hash}-{ext}` → `https://cdn.sanity.io/files/{project}/{dataset}/{hash}.{ext}`
+ */
+/**
+ * Returns a URL for a Sanity file asset that works with @font-face.
+ * Uses our own /api/font proxy to avoid CORS issues (Sanity CDN doesn't
+ * send CORS headers for font files requested from non-whitelisted origins).
+ */
+export function sanityFileUrl(ref: string): string | null {
+  const match = ref.match(/^file-([a-zA-Z0-9]+)-([a-z0-9]+)$/)
+  if (!match) return null
+  return `/api/font?ref=${encodeURIComponent(ref)}`
+}
+
+/** Map file extension to CSS @font-face format string. */
+const FORMAT_MAP: Record<string, string> = {
+  woff2: 'woff2',
+  woff: 'woff',
+  ttf: 'truetype',
+  otf: 'opentype',
+}
+
+/**
+ * Generates `@font-face` CSS rules for ALL custom uploaded fonts.
+ * One rule per weight per font. Returns null when no custom fonts exist.
+ */
+/** Extract file extension from a Sanity file asset ref (e.g. `file-abc123-ttf` → `ttf`). */
+function extFromRef(ref: string): string {
+  const match = ref.match(/^file-[a-zA-Z0-9]+-([a-z0-9]+)$/)
+  return match?.[1] ?? 'woff2'
+}
+
+export function customFontFaceCss(customFonts?: CustomFont[] | null): string | null {
+  if (!customFonts?.length) return null
+  const rules: string[] = []
+  for (const font of customFonts) {
+    if (!font.weights?.length) continue
+    const familyName = customFontFamilyName(font._key)
+    for (const w of font.weights) {
+      if (!w.file?.asset?._ref) continue
+      const url = sanityFileUrl(w.file.asset._ref)
+      if (!url) continue
+      const ext = extFromRef(w.file.asset._ref)
+      const format = FORMAT_MAP[ext] ?? 'woff2'
+      rules.push(
+        `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url('${url}') format('${format}');font-display:swap;}`
+      )
+    }
+  }
+  return rules.length > 0 ? rules.join('\n') : null
+}
+
 // ── Public API ──────────────────────────────────────────────────────────
 
 /**
  * Returns CSS variable overrides for the given font selections.
- * Includes both font-family and font-weight variables.
- * Supports custom uploaded fonts via the `__custom` slug.
+ * Supports both palette fonts and custom uploaded fonts (slug: `custom:<_key>`).
  */
 export function fontOverrideVars(
   overrides?: FontOverrides | null,
-  customFonts?: CustomFonts | null,
+  customFonts?: CustomFont[] | null,
 ): CSSProperties | undefined {
-  if (!overrides && !customFonts) return undefined
+  if (!overrides) return undefined
 
   const vars: Record<string, string> = {}
 
-  // Font family overrides
   const familyRoles = ['display', 'script', 'body', 'mono'] as const
   for (const role of familyRoles) {
-    const slug = overrides?.[role]
+    const slug = overrides[role]
     if (!slug) continue
     if (slug === ROLE_DEFAULTS[role]) continue
 
     // Custom uploaded font
-    if (slug === CUSTOM_FONT_SLUG) {
-      const custom = customFonts?.[role]
-      if (custom?.weights?.length) {
-        const familyName = customFontFamilyName(role)
+    if (isCustomFontSlug(slug)) {
+      const font = findCustomFont(customFontKey(slug), customFonts)
+      if (font?.weights?.length) {
         const cssVar = CSS_VAR_FOR_ROLE[role]
-        if (cssVar) vars[cssVar] = `'${familyName}', sans-serif`
+        if (cssVar) vars[cssVar] = `'${customFontFamilyName(font._key)}', sans-serif`
       }
       continue
     }
@@ -163,7 +237,7 @@ export function fontOverrideVars(
 }
 
 /**
- * Builds a Google Fonts CSS v2 URL for all non-builtin fonts selected.
+ * Builds a Google Fonts CSS v2 URL for all non-builtin palette fonts selected.
  * Returns null when no external fonts need loading.
  */
 export function googleFontsUrl(overrides?: FontOverrides | null): string | null {
@@ -172,6 +246,7 @@ export function googleFontsUrl(overrides?: FontOverrides | null): string | null 
   const families = new Map<string, string>()
   for (const slug of Object.values(overrides)) {
     if (!slug) continue
+    if (isCustomFontSlug(slug)) continue // custom fonts loaded via @font-face
     const entry = PALETTE_MAP.get(slug)
     if (!entry || entry.builtin || !entry.googleFamily) continue
     if (!families.has(entry.googleFamily)) {
@@ -189,18 +264,17 @@ export function googleFontsUrl(overrides?: FontOverrides | null): string | null 
 }
 
 /**
- * Returns the CSS font-family string for a font slug, or the role default
- * if the slug is empty/missing. Used for live previews.
- * Supports `__custom` slug for uploaded fonts.
+ * Returns the CSS font-family string for a font slug.
+ * Supports palette fonts and custom uploaded fonts.
  */
 export function fontFamilyForSlug(
   slug: string | undefined,
   role: string,
-  customFonts?: CustomFonts | null,
+  customFonts?: CustomFont[] | null,
 ): string {
-  if (slug === CUSTOM_FONT_SLUG && customFonts) {
-    const custom = customFonts[role as keyof CustomFonts]
-    if (custom?.weights?.length) return `'${customFontFamilyName(role)}', sans-serif`
+  if (slug && isCustomFontSlug(slug)) {
+    const font = findCustomFont(customFontKey(slug), customFonts)
+    if (font?.weights?.length) return `'${customFontFamilyName(font._key)}', sans-serif`
   }
   if (slug) {
     const entry = PALETTE_MAP.get(slug)
@@ -216,11 +290,10 @@ export function fontFamilyForSlug(
 
 /**
  * Returns a single Google Fonts CSS URL for a specific font slug.
- * Used by the settings modal to load a preview font on demand.
- * Returns null for built-in fonts or unknown slugs.
+ * Returns null for built-in, custom, or unknown fonts.
  */
 export function googleFontsUrlForSlug(slug: string | undefined): string | null {
-  if (!slug) return null
+  if (!slug || isCustomFontSlug(slug)) return null
   const entry = PALETTE_MAP.get(slug)
   if (!entry || entry.builtin || !entry.googleFamily) return null
   return `https://fonts.googleapis.com/css2?family=${entry.googleFamily}:wght@${entry.weights ?? '400'}&display=swap`
@@ -228,15 +301,29 @@ export function googleFontsUrlForSlug(slug: string | undefined): string | null {
 
 /**
  * Returns FieldSelect options for a given font role.
- * First option is always the default for that role.
+ * Includes palette fonts + any custom uploaded fonts from the brochure.
  */
-export function fontOptionsForRole(role: string): { value: string; label: string }[] {
+export function fontOptionsForRole(
+  role: string,
+  customFonts?: CustomFont[] | null,
+): { value: string; label: string }[] {
   const defaultLabel = ROLE_DEFAULT_LABELS[role] ?? 'Default'
   const defaultSlug = ROLE_DEFAULTS[role] ?? ''
 
   const options: { value: string; label: string }[] = [
     { value: '', label: `Default (${defaultLabel})` },
   ]
+
+  // Custom uploaded fonts first
+  if (customFonts?.length) {
+    for (const font of customFonts) {
+      if (!font.weights?.length) continue
+      options.push({
+        value: customFontSlug(font._key),
+        label: font.name || 'Untitled font',
+      })
+    }
+  }
 
   for (const entry of FONT_PALETTE) {
     if (entry.slug === defaultSlug) continue
@@ -247,13 +334,13 @@ export function fontOptionsForRole(role: string): { value: string; label: string
 }
 
 /**
- * Returns FieldSelect weight options for a given role and currently selected font.
- * Shows available weights for the selected font, or a standard set for builtins.
+ * Returns FieldSelect weight options for a given font slug.
+ * Supports both palette fonts and custom uploaded fonts.
  */
 export function weightOptionsForRole(
   role: string,
   fontSlug?: string,
-  customFonts?: CustomFonts | null,
+  customFonts?: CustomFont[] | null,
 ): { value: string; label: string }[] {
   const defaultWeight = ROLE_DEFAULT_WEIGHTS[role] ?? '400'
   const options: { value: string; label: string }[] = [
@@ -261,10 +348,10 @@ export function weightOptionsForRole(
   ]
 
   // Custom uploaded font — derive weights from uploaded files
-  if (fontSlug === CUSTOM_FONT_SLUG && customFonts) {
-    const custom = customFonts[role as keyof CustomFonts]
-    if (custom?.weights?.length) {
-      for (const w of custom.weights) {
+  if (fontSlug && isCustomFontSlug(fontSlug)) {
+    const font = findCustomFont(customFontKey(fontSlug), customFonts)
+    if (font?.weights?.length) {
+      for (const w of font.weights) {
         if (!w.weight || w.weight === defaultWeight) continue
         options.push({ value: w.weight, label: WEIGHT_LABELS[w.weight] ?? w.weight })
       }
@@ -285,44 +372,14 @@ export function weightOptionsForRole(
   return options
 }
 
-// ── Custom font helpers ─────────────────────────────────────────────────
+// ── Text scale (re-exported for SectionRenderer) ────────────────────────
 
-/** Deterministic font-family name for a custom uploaded font role. */
-export function customFontFamilyName(role: string): string {
-  return `CustomFont-${role}`
-}
+import type { TextScalePreset } from '@/types/brochure'
 
-/**
- * Resolve a Sanity file asset _ref to a CDN URL.
- * Ref format: `file-{hash}-{ext}` → `https://cdn.sanity.io/files/{project}/{dataset}/{hash}.{ext}`
- */
-export function sanityFileUrl(ref: string): string | null {
-  const match = ref.match(/^file-([a-zA-Z0-9]+)-([a-z0-9]+)$/)
-  if (!match) return null
-  const [, hash, ext] = match
-  return `https://cdn.sanity.io/files/${SANITY_PROJECT_ID}/${SANITY_DATASET}/${hash}.${ext}`
-}
-
-/**
- * Generates `@font-face` CSS rules for any custom uploaded fonts.
- * One rule per weight per role. Returns null when no custom fonts are configured.
- */
-export function customFontFaceCss(customFonts?: CustomFonts | null): string | null {
-  if (!customFonts) return null
-  const rules: string[] = []
-  const roles = ['display', 'script', 'body', 'mono'] as const
-  for (const role of roles) {
-    const custom = customFonts[role]
-    if (!custom?.weights?.length) continue
-    const familyName = customFontFamilyName(role)
-    for (const w of custom.weights) {
-      if (!w.file?.asset?._ref) continue
-      const url = sanityFileUrl(w.file.asset._ref)
-      if (!url) continue
-      rules.push(
-        `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url('${url}') format('woff2');font-display:swap;}`
-      )
-    }
-  }
-  return rules.length > 0 ? rules.join('\n') : null
+export const SCALE_MAP: Record<TextScalePreset, number> = {
+  xs: 0.7,
+  s: 0.85,
+  m: 1,
+  l: 1.15,
+  xl: 1.3,
 }
