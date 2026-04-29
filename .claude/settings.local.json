@@ -34,7 +34,8 @@
       "Bash(awk 'BEGIN{depth=0} {n=gsub\\(/{/,\"&\"\\); m=gsub\\(/}/,\"&\"\\); old=depth; depth+=n-m; if \\(old==0 && depth>0\\) print \"OPEN \"NR\": \"$0}' C:/gpgt-brochures/src/app/globals.css)",
       "Bash(git log *)",
       "Bash(grep -nA3 \"^  \\\\.section {\" /c/brochures/src/app/globals.css)",
-      "Bash(find C:\\\\brochures\\\\src *)"
+      "Bash(find C:\\\\brochures\\\\src *)",
+      "Bash(find *)"
     ]
   }
 }

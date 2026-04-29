@@ -132,41 +132,31 @@ export function BrochureReader({ brochure }: Props) {
         </div>
       </div>
 
-      {/* Bottom pill — prev / counter / dots / next */}
+      {/* Page turner — counter + prev/next arrows, bottom right */}
       <div className="preview-mode-nav">
+        <div className="preview-mode-counter">
+          <span className="current">{String(pageIndex + 1).padStart(2, '0')}</span>
+          <span className="preview-mode-counter-sep">/</span>
+          <span>{String(total).padStart(2, '0')}</span>
+        </div>
         <button
           className="preview-mode-nav-btn"
           onClick={prev}
           disabled={pageIndex <= 0}
           aria-label="Previous page"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
+          <svg viewBox="0 0 40 40" fill="currentColor" width="24" height="24" aria-hidden>
+            <path d="m20 33.4l-13.4-13.4 13.4-13.4 2.3 2.4-9.3 9.4h20.4v3.2h-20.4l9.3 9.4z" />
           </svg>
         </button>
-        <div className="preview-mode-counter">
-          <span className="current">{String(pageIndex + 1).padStart(2, '0')}</span>
-          <span style={{ opacity: 0.4 }}>/</span>
-          <span>{String(total).padStart(2, '0')}</span>
-        </div>
-        <div className="preview-mode-dots">
-          {pages.map((p, i) => (
-            <button
-              key={p._key}
-              className={`preview-mode-dot ${i === pageIndex ? 'active' : ''}`}
-              onClick={() => goTo(i)}
-              aria-label={`Go to page ${i + 1}`}
-            />
-          ))}
-        </div>
         <button
           className="preview-mode-nav-btn"
           onClick={next}
           disabled={pageIndex >= total - 1}
           aria-label="Next page"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
+          <svg viewBox="0 0 40 40" fill="currentColor" width="24" height="24" aria-hidden>
+            <path d="m20 6.6l13.4 13.4-13.4 13.4-2.3-2.4 9.3-9.4h-20.4v-3.2h20.4l-9.3-9.4z" />
           </svg>
         </button>
       </div>

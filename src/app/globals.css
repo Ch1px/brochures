@@ -3142,42 +3142,49 @@
 
 
   .preview-mode-nav {
-    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 20px;
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     z-index: 210;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(12px);
-    padding: 10px 16px;
-    border-radius: 100px;
-    border: 1px solid rgba(255,255,255,0.08);
   }
   .preview-mode-nav-btn {
-    width: 36px; height: 36px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; border-radius: 50%;
-    transition: all 0.2s;
-  }
-  .preview-mode-nav-btn:hover:not(:disabled) { background: var(--brand-red); color: var(--brand-on-accent); }
-  .preview-mode-nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .preview-mode-nav-btn svg { width: 16px; height: 16px; }
-
-  .preview-mode-dots { display: flex; gap: 6px; }
-  .preview-mode-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: rgba(255,255,255,0.25);
-    transition: all 0.2s;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--brand-on-accent);
+    background: var(--brand-red);
+    border: none;
+    border-radius: 50%;
     cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
   }
-  .preview-mode-dot.active { background: var(--brand-red); width: 24px; border-radius: 4px; }
-
+  .preview-mode-nav-btn:hover:not(:disabled) {
+    background: var(--brand-red-hover);
+  }
+  .preview-mode-nav-btn:disabled {
+    opacity: 0.2;
+    cursor: default;
+  }
+  .preview-mode-nav-btn svg {
+    width: 18px;
+    height: 18px;
+  }
   .preview-mode-counter {
-    font-family: var(--font-mono); font-size: 11px;
-    letter-spacing: 0.2em; text-transform: uppercase;
-    color: rgba(255,255,255,0.6);
-    padding: 0 12px;
-    min-width: 60px; text-align: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    user-select: none;
   }
-  .preview-mode-counter .current { color: #fff; }
+  .preview-mode-counter .current { color: rgba(255, 255, 255, 0.8); }
+  .preview-mode-counter-sep { opacity: 0.3; margin: 0 2px; }
 
   /* MODAL */
   .modal-overlay {
@@ -4154,27 +4161,20 @@
     }
   }
 
-  /* Preview-mode nav pill on phones */
+  /* Preview-mode nav on phones */
   @media (max-width: 560px) {
     .preview-mode-nav {
-      bottom: max(10px, env(safe-area-inset-bottom));
-      /* Anchor to the right edge instead of centred — leaves the middle
-         of the screen clear for reading on phone-sized viewports. */
-      left: auto;
-      right: 12px;
-      transform: none;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      right: 16px;
       gap: 4px;
-      padding: 4px 6px;
     }
-    .preview-mode-nav-btn { width: 38px; height: 38px; }
-    .preview-mode-nav-btn svg { width: 18px; height: 18px; }
-    /* Dots aren't useful on a phone — with anything more than ~6 pages
-       they get clipped, and the counter already conveys position. */
-    .preview-mode-dots { display: none; }
+    .preview-mode-nav-btn {
+      width: 38px;
+      height: 38px;
+    }
+    .preview-mode-nav-btn svg { width: 15px; height: 15px; }
     .preview-mode-counter {
-      font-size: 9.5px;
-      min-width: 0;
-      padding: 0 4px;
+      font-size: 9px;
       letter-spacing: 0.16em;
     }
   }
