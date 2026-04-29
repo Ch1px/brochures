@@ -105,7 +105,11 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
 
         <div className="page-cover-bottom">
           {(data.cta || editorMode) ? (
-            <a className="cover-cta" href={data.ctaHref || '#enquire'}>
+            <a
+              className="cover-cta"
+              href={data.ctaHref || '#enquire'}
+              {...((data.ctaHref?.startsWith('http')) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
               <InlineEditable sectionKey={data._key} field="cta"><span>{data.cta}</span></InlineEditable> <span className="arrow">→</span>
             </a>
           ) : (

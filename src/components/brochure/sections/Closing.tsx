@@ -64,7 +64,11 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
         {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="closing-subtitle" text={data.subtitle} /></InlineEditable> : null}
         <div className="closing-actions">
           {(data.ctaText || editorMode) ? (
-            <a className="closing-cta" href={ctaHref}>
+            <a
+              className="closing-cta"
+              href={ctaHref}
+              {...(ctaHref.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
               <InlineEditable sectionKey={data._key} field="ctaText"><span>{data.ctaText}</span></InlineEditable> →
             </a>
           ) : null}
