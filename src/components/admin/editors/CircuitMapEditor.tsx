@@ -1,33 +1,22 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import type { AnnotationKind, CircuitDrawing, SectionCircuitMap, StatItem } from '@/types/brochure'
+import type { CircuitDrawing, SectionCircuitMap, StatItem } from '@/types/brochure'
 import { isBrandToken, type BrandContext } from '@/lib/brandColorTokens'
 import { nanokey } from '@/lib/nanokey'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { FieldInput, FieldRichText, FieldObjectArray, FieldLabel } from '../fields'
 import { AnnotationEditor, AnnotationColorField, OpacitySlider } from './AnnotationEditor'
 
-type DrawTool = 'freehand' | 'line'
-type DrawStyle = 'solid' | 'dashed' | 'dotted'
-
 type Props = {
   section: SectionCircuitMap
   onChange: (update: Partial<SectionCircuitMap>) => void
   accentColor?: string
-  mapEditMode?: boolean
-  onMapEditModeChange?: (on: boolean) => void
-  recolorMode?: boolean
-  onRecolorModeChange?: (next: boolean) => void
   onPickByColor?: (color: string) => void
   selectedAnnotationKey?: string | null
   onSelectAnnotation?: (key: string | null) => void
-  pendingAnnotationKind?: AnnotationKind | null
-  onSetPendingAnnotation?: (kind: AnnotationKind | null) => void
-  drawTool?: DrawTool
-  onDrawToolChange?: (tool: DrawTool) => void
-  drawStyle?: DrawStyle
-  onDrawStyleChange?: (style: DrawStyle) => void
+  selectedDrawingKey?: string | null
+  onSelectDrawing?: (key: string | null) => void
   brandContext?: BrandContext
 }
 
@@ -35,19 +24,11 @@ export function CircuitMapEditor({
   section,
   onChange,
   accentColor,
-  mapEditMode = false,
-  onMapEditModeChange,
-  recolorMode = false,
-  onRecolorModeChange,
   onPickByColor,
   selectedAnnotationKey,
   onSelectAnnotation,
-  pendingAnnotationKind,
-  onSetPendingAnnotation,
-  drawTool = 'freehand',
-  onDrawToolChange,
-  drawStyle = 'solid',
-  onDrawStyleChange,
+  selectedDrawingKey,
+  onSelectDrawing,
   brandContext,
 }: Props) {
   const svgInputRef = useRef<HTMLInputElement>(null)
@@ -160,125 +141,17 @@ export function CircuitMapEditor({
         />
       </FieldLabel>
 
-      {/* ── Map Editor: unified recolour + annotations ── */}
+      {/* ── Map Editor sections (toolbar lives on the preview stage) ── */}
       <div className="map-editor">
-        <button
-          type="button"
-          className={`map-editor-toggle${mapEditMode ? ' active' : ''}`}
-          onClick={() => onMapEditModeChange?.(!mapEditMode)}
-          disabled={!hasOriginal}
-        >
-          {mapEditMode ? 'Exit map editor' : 'Edit map'}
-        </button>
         {!hasOriginal ? (
-          <span className="field-color-hint" style={{ marginTop: 4, display: 'block' }}>Upload an SVG to enable</span>
-        ) : null}
-
-        {mapEditMode ? (
+          <span className="field-color-hint">Upload an SVG to start editing the map.</span>
+        ) : (
         <>
         <div className="map-editor-header">
           <span className="field-label-description">
-            {pendingAnnotationKind
-              ? `Click the map to place a ${pendingAnnotationKind}`
-              : 'Click circuit elements to recolour, or add annotations below'}
+            Use the toolbar on the preview to add annotations or draw. Click a circuit element to recolour it.
           </span>
         </div>
-
-        {/* Tool bar — annotation placement tools */}
-        <div className="map-editor-toolbar">
-          <button
-            type="button"
-            className={`map-editor-tool${pendingAnnotationKind === 'text' ? ' active' : ''}`}
-            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'text' ? null : 'text'); onRecolorModeChange?.(false) }}
-            title="Click map to place text"
-          >
-            + Text
-          </button>
-          <button
-            type="button"
-            className={`map-editor-tool${pendingAnnotationKind === 'pin' ? ' active' : ''}`}
-            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'pin' ? null : 'pin'); onRecolorModeChange?.(false) }}
-            title="Click map to place pin"
-          >
-            + Pin
-          </button>
-          <button
-            type="button"
-            className={`map-editor-tool${pendingAnnotationKind === 'image' ? ' active' : ''}`}
-            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'image' ? null : 'image'); onRecolorModeChange?.(false) }}
-            title="Click map to place image"
-          >
-            + Image
-          </button>
-          <button
-            type="button"
-            className={`map-editor-tool${pendingAnnotationKind === 'svg' ? ' active' : ''}`}
-            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'svg' ? null : 'svg'); onRecolorModeChange?.(false) }}
-            title="Click map to place SVG"
-          >
-            + SVG
-          </button>
-          <div className="map-editor-tool-divider" />
-          <button
-            type="button"
-            className={`map-editor-tool${pendingAnnotationKind === 'draw' ? ' active' : ''}`}
-            onClick={() => { onSetPendingAnnotation?.(pendingAnnotationKind === 'draw' ? null : 'draw'); onRecolorModeChange?.(false) }}
-            title="Freehand draw on the map"
-          >
-            Draw
-          </button>
-        </div>
-
-        {pendingAnnotationKind === 'draw' ? (
-          <div className="map-editor-draw-settings">
-            <div className="map-editor-toolbar">
-              <button
-                type="button"
-                className={`map-editor-tool${drawTool === 'freehand' ? ' active' : ''}`}
-                onClick={() => onDrawToolChange?.('freehand')}
-                title="Freehand stroke"
-              >
-                Freehand
-              </button>
-              <button
-                type="button"
-                className={`map-editor-tool${drawTool === 'line' ? ' active' : ''}`}
-                onClick={() => onDrawToolChange?.('line')}
-                title="Straight line"
-              >
-                Line
-              </button>
-              <div className="map-editor-tool-divider" />
-              <button
-                type="button"
-                className={`map-editor-tool${drawStyle === 'solid' ? ' active' : ''}`}
-                onClick={() => onDrawStyleChange?.('solid')}
-                title="Solid stroke"
-              >
-                Solid
-              </button>
-              <button
-                type="button"
-                className={`map-editor-tool${drawStyle === 'dashed' ? ' active' : ''}`}
-                onClick={() => onDrawStyleChange?.('dashed')}
-                title="Dashed stroke"
-              >
-                Dashed
-              </button>
-              <button
-                type="button"
-                className={`map-editor-tool${drawStyle === 'dotted' ? ' active' : ''}`}
-                onClick={() => onDrawStyleChange?.('dotted')}
-                title="Dotted stroke"
-              >
-                Dotted
-              </button>
-            </div>
-            <span className="field-label-description">
-              Draw on the map. Release to finish.
-            </span>
-          </div>
-        ) : null}
 
         {/* Colour overrides list */}
         {overrides.length > 0 ? (
@@ -333,8 +206,8 @@ export function CircuitMapEditor({
           onChange={onChange}
           selectedKey={selectedAnnotationKey ?? null}
           onSelect={onSelectAnnotation ?? (() => {})}
-          pendingKind={pendingAnnotationKind ?? null}
-          onSetPending={onSetPendingAnnotation ?? (() => {})}
+          pendingKind={null}
+          onSetPending={() => {}}
           brandContext={brandContext}
           hideAddButtons
         />
@@ -344,9 +217,11 @@ export function CircuitMapEditor({
           drawings={section.drawings ?? []}
           onChange={(drawings) => onChange({ drawings })}
           brandContext={brandContext}
+          selectedKey={selectedDrawingKey ?? null}
+          onSelect={onSelectDrawing}
         />
         </>
-        ) : null}
+        )}
       </div>
 
       <div className="field-section-heading">Stats strip</div>
@@ -397,10 +272,14 @@ function DrawingsList({
   drawings,
   onChange,
   brandContext,
+  selectedKey,
+  onSelect,
 }: {
   drawings: CircuitDrawing[]
   onChange: (next: CircuitDrawing[]) => void
   brandContext?: BrandContext
+  selectedKey?: string | null
+  onSelect?: (key: string | null) => void
 }) {
   if (drawings.length === 0) return null
 
@@ -440,36 +319,47 @@ function DrawingsList({
         </button>
       </div>
       <div className="annotation-list">
-        {drawings.map((d, i) => (
-          <div key={d._key} className="annotation-card selected">
-            <div className="annotation-card-header">
-              <span className="annotation-card-kind">Drawing</span>
-              <span className="annotation-card-title">
-                {d.dash ?? 'solid'} · {String(i + 1).padStart(2, '0')}
-              </span>
-              <div className="annotation-card-actions">
-                <button
-                  type="button"
-                  className="annotation-card-delete"
-                  onClick={() => deleteDrawing(d._key)}
-                  title="Delete"
-                >×</button>
+        {drawings.map((d, i) => {
+          const isSelected = selectedKey === d._key
+          return (
+            <div
+              key={d._key}
+              className={`annotation-card${isSelected ? ' selected' : ''}`}
+              onClick={() => onSelect?.(isSelected ? null : d._key)}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="annotation-card-header">
+                <span className="annotation-card-kind">Drawing</span>
+                <span className="annotation-card-title">
+                  {d.dash ?? 'solid'} · {String(i + 1).padStart(2, '0')}
+                </span>
+                <div className="annotation-card-actions">
+                  <button
+                    type="button"
+                    className="annotation-card-delete"
+                    onClick={(e) => { e.stopPropagation(); deleteDrawing(d._key); if (isSelected) onSelect?.(null) }}
+                    title="Delete"
+                  >×</button>
+                </div>
               </div>
+              {isSelected ? (
+                <div className="annotation-card-body" onClick={(e) => e.stopPropagation()}>
+                  <AnnotationColorField
+                    value={d.color}
+                    onChange={(color) => updateDrawing(d._key, { color })}
+                    brandContext={brandContext}
+                    recentColors={recentColors}
+                  />
+                  <OpacitySlider
+                    value={d.opacity}
+                    onChange={(opacity) => updateDrawing(d._key, { opacity })}
+                  />
+                </div>
+              ) : null}
             </div>
-            <div className="annotation-card-body">
-              <AnnotationColorField
-                value={d.color}
-                onChange={(color) => updateDrawing(d._key, { color })}
-                brandContext={brandContext}
-                recentColors={recentColors}
-              />
-              <OpacitySlider
-                value={d.opacity}
-                onChange={(opacity) => updateDrawing(d._key, { opacity })}
-              />
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

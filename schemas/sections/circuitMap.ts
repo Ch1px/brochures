@@ -128,6 +128,10 @@ export default defineType({
             { name: 'dash', type: 'string', title: 'Dash style (solid|dashed|dotted)' },
             { name: 'color', type: 'string', title: 'Colour' },
             { name: 'opacity', type: 'number', title: 'Opacity' },
+            { name: 'tx', type: 'number', title: 'Translate X (viewBox)' },
+            { name: 'ty', type: 'number', title: 'Translate Y (viewBox)' },
+            { name: 'scale', type: 'number', title: 'Scale' },
+            { name: 'rotation', type: 'number', title: 'Rotation (deg)' },
           ],
           preview: {
             select: { color: 'color', dash: 'dash' },

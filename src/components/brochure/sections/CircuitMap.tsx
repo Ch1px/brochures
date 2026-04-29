@@ -14,6 +14,7 @@ import { nanokey } from '@/lib/nanokey'
 import { FONT_PALETTE } from '@/lib/fontPalette'
 import { resolveColor, type BrandContext } from '@/lib/brandColorTokens'
 import { DrawingCanvas } from '../../admin/DrawingCanvas'
+import { CircuitMapToolbar } from '../../admin/circuitMap/CircuitMapToolbar'
 
 type Props = {
   data: SectionCircuitMap
@@ -268,21 +269,44 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
     if (!wrap) return
 
     const onClick = (e: MouseEvent) => {
-      // Always stop propagation in recolour mode so the preview-section
-      // hitbox doesn't pick up the click and switch sections.
+      const el = e.target as Element | null
+      // Don't intercept clicks targeted at annotations or drawings — those
+      // are handled by their own React onClick handlers, and a native
+      // stopPropagation here would beat them to the punch (native bubble
+      // runs before React's root-delegated handlers).
+      if (
+        el?.closest('.circuit-map-annotation') ||
+        el?.closest('.circuit-map-drawings-overlay')
+      ) {
+        return
+      }
+      const target = el?.closest('[data-recolor-id]')
+      if (target) {
+        e.stopPropagation()
+        e.preventDefault()
+        const id = target.getAttribute('data-recolor-id')
+        if (!id) return
+        const multi = e.metaKey || e.ctrlKey || e.shiftKey
+        recolorRef.current?.onElementClick(sectionKey, id, e.clientX, e.clientY, multi)
+        return
+      }
+      // Click landed on the wrap but not on a recolourable element — still
+      // swallow so the preview-section hitbox doesn't switch sections.
       e.stopPropagation()
       e.preventDefault()
-      const target = (e.target as Element | null)?.closest('[data-recolor-id]')
-      if (!target) return
-      const id = target.getAttribute('data-recolor-id')
-      if (!id) return
-      const multi = e.metaKey || e.ctrlKey || e.shiftKey
-      recolorRef.current?.onElementClick(sectionKey, id, e.clientX, e.clientY, multi)
     }
 
     // Block mousedown bubbling too so any future outside-click logic on the
-    // popover doesn't see this as a click outside.
+    // popover doesn't see this as a click outside. Same exception as above:
+    // skip when targeting annotations/drawings so their drag/select work.
     const onMouseDown = (e: MouseEvent) => {
+      const el = e.target as Element | null
+      if (
+        el?.closest('.circuit-map-annotation') ||
+        el?.closest('.circuit-map-drawings-overlay')
+      ) {
+        return
+      }
       e.stopPropagation()
     }
 
@@ -320,6 +344,22 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
           {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption" richBody><RichBody className="circuit-map-caption" text={data.caption} /></InlineEditable> : null}
         </div>
         <div className="circuit-map-stage">
+          {annotationCtx ? (
+            <CircuitMapToolbar
+              tool={annotationCtx.pendingKind ?? 'select'}
+              onSelectTool={(t) => {
+                annotationCtx.onSetPendingKind(t === 'select' ? null : t)
+                if (t !== 'select') {
+                  annotationCtx.onSelect(null)
+                  annotationCtx.onSelectDrawing(null)
+                }
+              }}
+              drawTool={annotationCtx.drawTool}
+              onSelectDrawTool={annotationCtx.onSetDrawTool}
+              drawStyle={annotationCtx.drawStyle}
+              onSelectDrawStyle={annotationCtx.onSetDrawStyle}
+            />
+          ) : null}
           {hasSvg ? (
             <div
               ref={svgWrapRef}
@@ -344,6 +384,15 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
                       viewBox={svgViewBox}
                       drawings={data.drawings ?? []}
                       brandCtx={brandCtx}
+                      selectedKey={annotationCtx?.selectedDrawingKey ?? null}
+                      onSelect={
+                        annotationCtx && annotationCtx.pendingKind === null
+                          ? (key) => {
+                              annotationCtx.onSelectDrawing(key)
+                              if (key) annotationCtx.onSelect(null)
+                            }
+                          : undefined
+                      }
                     />
                   ) : null}
                   {(annotations.length > 0 || annotationCtx) ? (
@@ -438,17 +487,29 @@ function DrawingsOverlay({
   viewBox,
   drawings,
   brandCtx,
+  selectedKey,
+  onSelect,
 }: {
   viewBox: string
   drawings: CircuitDrawing[]
   brandCtx: BrandContext
+  selectedKey?: string | null
+  onSelect?: (key: string | null) => void
 }) {
+  const editable = Boolean(onSelect)
   return (
     <svg
-      className="circuit-map-drawings-overlay"
+      className={`circuit-map-drawings-overlay${editable ? ' editable' : ''}`}
       viewBox={viewBox}
       preserveAspectRatio="xMidYMid meet"
       aria-hidden
+      onClick={
+        editable
+          ? (e) => {
+              if (e.target === e.currentTarget) onSelect?.(null)
+            }
+          : undefined
+      }
     >
       {drawings.map((dr) => {
         const stroke = dr.color ? resolveColor(dr.color, brandCtx) : '#e10600'
@@ -456,19 +517,54 @@ function DrawingsOverlay({
         let dasharray: string | undefined
         if (dr.dash === 'dotted') dasharray = `0 ${(sw * 2).toFixed(2)}`
         else if (dr.dash === 'dashed') dasharray = `${(sw * 3).toFixed(2)} ${(sw * 2).toFixed(2)}`
+        const tx = dr.tx ?? 0
+        const ty = dr.ty ?? 0
+        const transform = tx !== 0 || ty !== 0 ? `translate(${tx} ${ty})` : undefined
+        const isSelected = selectedKey === dr._key
         return (
-          <path
-            key={dr._key}
-            d={dr.d}
-            fill="none"
-            stroke={stroke}
-            strokeWidth={sw}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray={dasharray}
-            opacity={dr.opacity != null && dr.opacity < 1 ? dr.opacity : undefined}
-            data-circuit-drawing={dr._key}
-          />
+          <g key={dr._key} transform={transform}>
+            {/* Wide invisible hit-area so thin strokes are easy to click. */}
+            {editable ? (
+              <path
+                d={dr.d}
+                fill="none"
+                stroke="transparent"
+                strokeWidth={Math.max(sw * 4, 6)}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ pointerEvents: 'stroke', cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onSelect?.(dr._key)
+                }}
+              />
+            ) : null}
+            <path
+              d={dr.d}
+              fill="none"
+              stroke={stroke}
+              strokeWidth={sw}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray={dasharray}
+              opacity={dr.opacity != null && dr.opacity < 1 ? dr.opacity : undefined}
+              data-circuit-drawing={dr._key}
+              data-selected={isSelected || undefined}
+              style={{ pointerEvents: 'none' }}
+            />
+            {isSelected ? (
+              <path
+                d={dr.d}
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth={Math.max(sw * 0.5, 1)}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray={`${(sw * 2).toFixed(2)} ${(sw * 1.5).toFixed(2)}`}
+                style={{ pointerEvents: 'none' }}
+              />
+            ) : null}
+          </g>
         )
       })}
     </svg>

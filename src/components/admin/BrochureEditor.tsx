@@ -101,42 +101,46 @@ export function BrochureEditor({ initialBrochure }: Props) {
   }, [brochure.pages, currentSectionKey])
 
   // ───────── Map edit mode (recolour + annotations) ─────────
-  const [mapEditMode, setMapEditMode] = useState(false)
+  // Auto-on whenever the selected section is a circuit map. The on-stage
+  // toolbar replaces the explicit "Edit map" button; admins go straight to
+  // editing without a separate mode toggle.
   const [selectedAnnotationKey, setSelectedAnnotationKey] = useState<string | null>(null)
+  const [selectedDrawingKey, setSelectedDrawingKey] = useState<string | null>(null)
   const [pendingAnnotationKind, setPendingAnnotationKind] = useState<AnnotationKind | null>(null)
   const [drawTool, setDrawTool] = useState<'freehand' | 'line'>('freehand')
   const [drawStyle, setDrawStyle] = useState<'solid' | 'dashed' | 'dotted'>('solid')
 
-  // Turn off map edit mode when switching sections
+  // True when the currently-selected section is a circuit map. Drives the
+  // floating toolbar visibility and the (always-on) recolour click delegate.
+  const mapEditMode = useMemo(() => {
+    if (!currentSectionKey) return false
+    const section = brochure.pages
+      .flatMap((p) => p.sections)
+      .find((s) => s._key === currentSectionKey)
+    return section?._type === 'circuitMap'
+  }, [brochure.pages, currentSectionKey])
+
+  // Reset all section-scoped tool state when switching sections so a Draw or
+  // Add tool from the previous map doesn't follow the user across.
   useEffect(() => {
-    setMapEditMode(false)
     setRecolorMode(false)
     setSelectedAnnotationKey(null)
+    setSelectedDrawingKey(null)
     setPendingAnnotationKind(null)
   }, [currentSectionKey])
 
-  // When map edit mode is turned off, clear all sub-states
+  // Recolour is the default click behaviour while on a circuit map. Disabled
+  // only while an Add tool is pending (so clicks fall through to the overlay
+  // for placement) or while drawing (DrawingCanvas owns clicks).
   useEffect(() => {
     if (!mapEditMode) {
       setRecolorMode(false)
       setRecolorSelection(null)
-      setSelectedAnnotationKey(null)
-      setPendingAnnotationKind(null)
-    } else {
-      // Recolor is always on in map edit mode
-      setRecolorMode(true)
+      return
     }
-  }, [mapEditMode])
+    setRecolorMode(pendingAnnotationKind === null)
+  }, [mapEditMode, pendingAnnotationKind])
 
-  // When placing an annotation, temporarily suppress recolor so clicks go
-  // to the overlay instead of the SVG. Once placed, recolor resumes.
-  useEffect(() => {
-    if (pendingAnnotationKind) {
-      setRecolorMode(false)
-    } else if (mapEditMode) {
-      setRecolorMode(true)
-    }
-  }, [pendingAnnotationKind, mapEditMode])
 
   // Move an annotation (called from drag handler)
   const handleAnnotationMove = useCallback(
@@ -268,6 +272,48 @@ export function BrochureEditor({ initialBrochure }: Props) {
             if (s._key !== sectionKey || s._type !== 'circuitMap') return s
             const cm = s as SectionCircuitMap
             return { ...cm, drawings: [...(cm.drawings ?? []), drawing] } as Section
+          }),
+        })),
+      }))
+    },
+    [],
+  )
+
+  const handleUpdateDrawing = useCallback(
+    (sectionKey: string, drawingKey: string, update: Partial<CircuitDrawing>) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return {
+              ...cm,
+              drawings: (cm.drawings ?? []).map((d) =>
+                d._key === drawingKey ? { ...d, ...update } : d,
+              ),
+            } as Section
+          }),
+        })),
+      }))
+    },
+    [],
+  )
+
+  const handleDeleteDrawing = useCallback(
+    (sectionKey: string, drawingKey: string) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return {
+              ...cm,
+              drawings: (cm.drawings ?? []).filter((d) => d._key !== drawingKey),
+            } as Section
           }),
         })),
       }))
@@ -477,13 +523,20 @@ export function BrochureEditor({ initialBrochure }: Props) {
       onTransform: handleAnnotationTransform,
       onUpdate: handleAnnotationUpdate,
       pendingKind: pendingAnnotationKind,
+      onSetPendingKind: setPendingAnnotationKind,
       onPlaceNew: handlePlaceNewAnnotation,
       onAddAnnotation: handleAddAnnotation,
       onAddDrawing: handleAddDrawing,
+      selectedDrawingKey,
+      onSelectDrawing: setSelectedDrawingKey,
+      onUpdateDrawing: handleUpdateDrawing,
+      onDeleteDrawing: handleDeleteDrawing,
       drawTool,
       drawStyle,
+      onSetDrawTool: setDrawTool,
+      onSetDrawStyle: setDrawStyle,
     } : undefined,
-    [mapEditMode, selectedAnnotationKey, handleAnnotationMove, handleAnnotationTransform, handleAnnotationUpdate, pendingAnnotationKind, handlePlaceNewAnnotation, handleAddAnnotation, handleAddDrawing, drawTool, drawStyle]
+    [mapEditMode, selectedAnnotationKey, handleAnnotationMove, handleAnnotationTransform, handleAnnotationUpdate, pendingAnnotationKind, handlePlaceNewAnnotation, handleAddAnnotation, handleAddDrawing, selectedDrawingKey, handleUpdateDrawing, handleDeleteDrawing, drawTool, drawStyle]
   )
 
   // Recent colours used in the active circuit-map section, most-recent-first
@@ -518,6 +571,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
         .filter((o) => o.color?.toLowerCase() === target)
         .map((o) => o.elementId)
       if (ids.length === 0) return
+      setPendingAnnotationKind(null)
       setRecolorMode(true)
       const x = window.innerWidth / 2 - 140
       const y = window.innerHeight / 2 - 120
@@ -602,6 +656,69 @@ export function BrochureEditor({ initialBrochure }: Props) {
     }))
     setCurrentSectionKey(null)
   }, [currentSectionKey, brochure.pages, setBrochure])
+
+  // ───────── Map editor keyboard shortcuts ─────────
+  // Tool selection (V/T/P/I/S/D) + Delete for selected drawings. Only fires
+  // while a circuit map is the active section.
+  useEffect(() => {
+    if (!mapEditMode) return
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement
+      const tag = el?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (el?.isContentEditable) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+
+      if (e.key === 'v' || e.key === 'V') {
+        e.preventDefault()
+        setPendingAnnotationKind(null)
+        return
+      }
+      if (e.key === 't' || e.key === 'T') {
+        e.preventDefault()
+        setPendingAnnotationKind('text')
+        return
+      }
+      if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault()
+        setPendingAnnotationKind('pin')
+        return
+      }
+      if (e.key === 'i' || e.key === 'I') {
+        e.preventDefault()
+        setPendingAnnotationKind('image')
+        return
+      }
+      if (e.key === 's' || e.key === 'S') {
+        e.preventDefault()
+        setPendingAnnotationKind('svg')
+        return
+      }
+      if (e.key === 'd' || e.key === 'D') {
+        e.preventDefault()
+        setPendingAnnotationKind('draw')
+        return
+      }
+
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedDrawingKey && currentSectionKey) {
+        e.preventDefault()
+        handleDeleteDrawing(currentSectionKey, selectedDrawingKey)
+        setSelectedDrawingKey(null)
+        return
+      }
+
+      if (e.key === 'Escape') {
+        if (pendingAnnotationKind || selectedDrawingKey || selectedAnnotationKey) {
+          e.preventDefault()
+          setPendingAnnotationKind(null)
+          setSelectedDrawingKey(null)
+          setSelectedAnnotationKey(null)
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [mapEditMode, currentSectionKey, selectedDrawingKey, selectedAnnotationKey, pendingAnnotationKind, handleDeleteDrawing])
 
   // ───────── Annotation keyboard shortcuts ─────────
   useEffect(() => {
@@ -747,7 +864,6 @@ export function BrochureEditor({ initialBrochure }: Props) {
             annotations={annotationContext}
             onInlineEdit={handleInlineEdit}
             onInlineMediaEdit={handleInlineMediaEdit}
-            onRequestMapEdit={() => setMapEditMode(true)}
           />
         </main>
 
@@ -787,19 +903,11 @@ export function BrochureEditor({ initialBrochure }: Props) {
                   }))
                 }}
                 accentColor={brochure.accentColor}
-                mapEditMode={mapEditMode}
-                onMapEditModeChange={setMapEditMode}
-                recolorMode={recolorMode}
-                onRecolorModeChange={setRecolorMode}
                 onPickByColor={handlePickByColor}
                 selectedAnnotationKey={selectedAnnotationKey}
                 onSelectAnnotation={setSelectedAnnotationKey}
-                pendingAnnotationKind={pendingAnnotationKind}
-                onSetPendingAnnotation={setPendingAnnotationKind}
-                drawTool={drawTool}
-                onDrawToolChange={setDrawTool}
-                drawStyle={drawStyle}
-                onDrawStyleChange={setDrawStyle}
+                selectedDrawingKey={selectedDrawingKey}
+                onSelectDrawing={setSelectedDrawingKey}
               />
             </aside>
           </>

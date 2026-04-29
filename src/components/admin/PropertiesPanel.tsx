@@ -39,19 +39,11 @@ type Props = {
   brandContext?: BrandContext
   onAddCustomColor?: (name: string, hex: string) => void
   accentColor?: string
-  recolorMode?: boolean
-  onRecolorModeChange?: (next: boolean) => void
   onPickByColor?: (color: string) => void
-  mapEditMode?: boolean
-  onMapEditModeChange?: (on: boolean) => void
   selectedAnnotationKey?: string | null
   onSelectAnnotation?: (key: string | null) => void
-  pendingAnnotationKind?: import('@/types/brochure').AnnotationKind | null
-  onSetPendingAnnotation?: (kind: import('@/types/brochure').AnnotationKind | null) => void
-  drawTool?: 'freehand' | 'line'
-  onDrawToolChange?: (tool: 'freehand' | 'line') => void
-  drawStyle?: 'solid' | 'dashed' | 'dotted'
-  onDrawStyleChange?: (style: 'solid' | 'dashed' | 'dotted') => void
+  selectedDrawingKey?: string | null
+  onSelectDrawing?: (key: string | null) => void
 }
 
 type Tab = 'content' | 'styles'
@@ -71,19 +63,11 @@ export function PropertiesPanel({
   brandContext,
   onAddCustomColor,
   accentColor,
-  recolorMode = false,
-  onRecolorModeChange,
   onPickByColor,
-  mapEditMode,
-  onMapEditModeChange,
   selectedAnnotationKey,
   onSelectAnnotation,
-  pendingAnnotationKind,
-  onSetPendingAnnotation,
-  drawTool,
-  onDrawToolChange,
-  drawStyle,
-  onDrawStyleChange,
+  selectedDrawingKey,
+  onSelectDrawing,
 }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('content')
 
@@ -137,7 +121,7 @@ export function PropertiesPanel({
       </div>
       <div className="properties-body">
         {activeTab === 'content' || isFooter ? (
-          renderEditor(section, onChange, accentColor, mapEditMode, onMapEditModeChange, recolorMode, onRecolorModeChange, onPickByColor, selectedAnnotationKey, onSelectAnnotation, pendingAnnotationKind, onSetPendingAnnotation, drawTool, onDrawToolChange, drawStyle, onDrawStyleChange, brandContext)
+          renderEditor(section, onChange, accentColor, onPickByColor, selectedAnnotationKey, onSelectAnnotation, selectedDrawingKey, onSelectDrawing, brandContext)
         ) : (
           <SectionStylesEditor
             section={section as Exclude<Section, SectionFooter>}
@@ -155,19 +139,11 @@ function renderEditor(
   section: Section,
   onChange: (u: Partial<Section>) => void,
   accentColor?: string,
-  mapEditMode?: boolean,
-  onMapEditModeChange?: (on: boolean) => void,
-  recolorMode = false,
-  onRecolorModeChange?: (next: boolean) => void,
   onPickByColor?: (color: string) => void,
   selectedAnnotationKey?: string | null,
   onSelectAnnotation?: (key: string | null) => void,
-  pendingAnnotationKind?: import('@/types/brochure').AnnotationKind | null,
-  onSetPendingAnnotation?: (kind: import('@/types/brochure').AnnotationKind | null) => void,
-  drawTool?: 'freehand' | 'line',
-  onDrawToolChange?: (tool: 'freehand' | 'line') => void,
-  drawStyle?: 'solid' | 'dashed' | 'dotted',
-  onDrawStyleChange?: (style: 'solid' | 'dashed' | 'dotted') => void,
+  selectedDrawingKey?: string | null,
+  onSelectDrawing?: (key: string | null) => void,
   brandContext?: BrandContext,
 ) {
   // Each editor narrows to its own section type. The cast on onChange is safe
@@ -213,19 +189,11 @@ function renderEditor(
           section={section}
           onChange={anyOnChange}
           accentColor={accentColor}
-          mapEditMode={mapEditMode}
-          onMapEditModeChange={onMapEditModeChange}
-          recolorMode={recolorMode}
-          onRecolorModeChange={onRecolorModeChange}
           onPickByColor={onPickByColor}
           selectedAnnotationKey={selectedAnnotationKey}
           onSelectAnnotation={onSelectAnnotation}
-          pendingAnnotationKind={pendingAnnotationKind}
-          onSetPendingAnnotation={onSetPendingAnnotation}
-          drawTool={drawTool}
-          onDrawToolChange={onDrawToolChange}
-          drawStyle={drawStyle}
-          onDrawStyleChange={onDrawStyleChange}
+          selectedDrawingKey={selectedDrawingKey}
+          onSelectDrawing={onSelectDrawing}
           brandContext={brandContext}
         />
       )

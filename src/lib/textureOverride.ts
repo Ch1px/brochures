@@ -28,6 +28,8 @@ export function textureOverrideCss(
     '.page-quote-profile',
     '.page-circuit-map',
     '.page-text-center',
+    '.page-cta-banner',
+    '.page-linked-cards',
     '.page-logos',
   ]
 

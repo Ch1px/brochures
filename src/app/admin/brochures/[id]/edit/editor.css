@@ -2552,3 +2552,81 @@
   padding: 40px 0;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * Circuit map floating toolbar
+ *
+ * Pinned to the top-centre of the .circuit-map-stage in editor preview.
+ * Tools: Select · Text · Pin · Image · SVG · Draw. Draw exposes a sub-row
+ * with stroke + style choices when active. Buttons stop propagation so
+ * clicks don't bubble to the preview-section-hitbox underneath.
+ * ───────────────────────────────────────────────────────────────────────── */
+.cm-toolbar {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  background: var(--chrome-surface);
+  border: 1px solid var(--chrome-border-strong);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+  font-family: var(--font-condensed);
+}
+.cm-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cm-toolbar-subrow {
+  border-top: 1px solid var(--chrome-border);
+  padding-top: 6px;
+}
+.cm-toolbar-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--chrome-border);
+  margin: 2px 4px;
+}
+.cm-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--chrome-text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.cm-toolbar-btn.small {
+  padding: 4px 8px;
+  font-size: 10px;
+}
+.cm-toolbar-btn:hover {
+  background: var(--chrome-raised);
+  color: var(--chrome-text);
+}
+.cm-toolbar-btn.active {
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  color: #fff;
+}
+.cm-toolbar-btn.active:hover {
+  background: var(--brand-red-hover);
+  border-color: var(--brand-red-hover);
+}
+.cm-toolbar-btn svg {
+  flex-shrink: 0;
+}
+

@@ -64,14 +64,24 @@ export type BrochureBranding = {
     onTransform: (sectionKey: string, annotationKey: string, update: { rotation?: number; scale?: number }) => void
     onUpdate: (sectionKey: string, annotationKey: string, update: Record<string, unknown>) => void
     pendingKind: AnnotationKind | null
+    /** Tool setter — used by the on-stage toolbar to switch tools without a
+     *  round-trip through the right panel. Pass null for the Select tool. */
+    onSetPendingKind: (kind: AnnotationKind | null) => void
     onPlaceNew: (sectionKey: string, x: number, y: number) => void
     onAddAnnotation: (sectionKey: string, annotation: Annotation) => void
     /** Free-hand drawings are stored separately from annotations and baked
      *  into the circuit SVG at render time so they scale with the map. */
     onAddDrawing: (sectionKey: string, drawing: CircuitDrawing) => void
+    /** Selected drawing key — for direct manipulation on the stage. */
+    selectedDrawingKey: string | null
+    onSelectDrawing: (key: string | null) => void
+    onUpdateDrawing: (sectionKey: string, drawingKey: string, update: Partial<CircuitDrawing>) => void
+    onDeleteDrawing: (sectionKey: string, drawingKey: string) => void
     /** When `pendingKind === 'draw'`, which sub-tool and stroke style to use. */
     drawTool: 'freehand' | 'line'
     drawStyle: 'solid' | 'dashed' | 'dotted'
+    onSetDrawTool: (tool: 'freehand' | 'line') => void
+    onSetDrawStyle: (style: 'solid' | 'dashed' | 'dotted') => void
   }
 }
 

@@ -36,11 +36,18 @@ type Props = {
     onTransform: (sectionKey: string, annotationKey: string, update: { rotation?: number; scale?: number }) => void
     onUpdate: (sectionKey: string, annotationKey: string, update: Record<string, unknown>) => void
     pendingKind: AnnotationKind | null
+    onSetPendingKind: (kind: AnnotationKind | null) => void
     onPlaceNew: (sectionKey: string, x: number, y: number) => void
     onAddAnnotation: (sectionKey: string, annotation: import('@/types/brochure').Annotation) => void
     onAddDrawing: (sectionKey: string, drawing: import('@/types/brochure').CircuitDrawing) => void
+    selectedDrawingKey: string | null
+    onSelectDrawing: (key: string | null) => void
+    onUpdateDrawing: (sectionKey: string, drawingKey: string, update: Partial<import('@/types/brochure').CircuitDrawing>) => void
+    onDeleteDrawing: (sectionKey: string, drawingKey: string) => void
     drawTool: 'freehand' | 'line'
     drawStyle: 'solid' | 'dashed' | 'dotted'
+    onSetDrawTool: (tool: 'freehand' | 'line') => void
+    onSetDrawStyle: (style: 'solid' | 'dashed' | 'dotted') => void
   }
   onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void
   onInlineMediaEdit?: (sectionKey: string, fieldPath: string, value: unknown) => void

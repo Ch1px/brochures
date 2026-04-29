@@ -91,12 +91,17 @@ function AnnotationElement({ annotation, editorMode, isSelected, onSelect, handl
   const brandCtx: BrandContext = { accentColor, backgroundColor, textColor, theme }
   const resolvedColor = a.color ? resolveColor(a.color, brandCtx) : undefined
   const elRef = useRef<HTMLDivElement | null>(null)
+  const scale = a.scale ?? 1
   const style: CSSProperties = {
     left: `${a.x}%`,
     top: `${a.y}%`,
-    transform: `translate(-50%, -50%) scale(${a.scale ?? 1}) rotate(${a.rotation ?? 0}deg)`,
+    transform: `translate(-50%, -50%) scale(${scale}) rotate(${a.rotation ?? 0}deg)`,
     color: resolvedColor,
     opacity: a.opacity != null ? a.opacity : undefined,
+    // Counter-scale factor for selection chrome (outline + transform handles).
+    // CSS uses calc(<px> * var(--cm-inv-scale)) so handles stay visually
+    // constant size regardless of the annotation's scale.
+    ['--cm-inv-scale' as string]: 1 / Math.max(scale, 0.01),
   }
 
   return (
@@ -201,13 +206,25 @@ function TransformHandles({
     const rect = el.getBoundingClientRect()
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
-    const startDist = Math.sqrt((e.clientX - cx) ** 2 + (e.clientY - cy) ** 2)
+    // Distance from box centre to its bottom-right corner. Used as the basis
+    // for the resize ratio so the constant pixel offset of the handle (6px
+    // past the corner, not scaled with the box) doesn't bias the math and
+    // make the handle drift away from the cursor during drag.
+    const cornerDist = Math.sqrt(
+      (rect.width / 2) ** 2 + (rect.height / 2) ** 2,
+    )
+    const startCursorDist = Math.sqrt(
+      (e.clientX - cx) ** 2 + (e.clientY - cy) ** 2,
+    )
+    if (startCursorDist < 1 || cornerDist < 1) return
     const startScale = stateRef.current.scale
-    if (startDist < 1) return
 
     const onMove = (ev: MouseEvent) => {
       const dist = Math.sqrt((ev.clientX - cx) ** 2 + (ev.clientY - cy) ** 2)
-      const ratio = dist / startDist
+      // Cursor distance maps to box-corner distance (= cornerDist at startScale).
+      // Scale linearly with corner distance so the corner — and therefore the
+      // adjacent handle — stays under the cursor.
+      const ratio = dist / Math.max(1, cornerDist) // cornerDist is the screen distance to the corner at startScale
       const newScale = Math.round(Math.min(4, Math.max(0.25, startScale * ratio)) * 100) / 100
       onTransform(annotationKey, { scale: newScale })
     }

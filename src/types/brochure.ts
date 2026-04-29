@@ -416,6 +416,13 @@ export type CircuitDrawing = {
   color?: string
   /** 0–1. Defaults to 1. */
   opacity?: number
+  /** Translate in viewBox units. Defaults to 0. */
+  tx?: number
+  ty?: number
+  /** Uniform scale around the path bbox centre. Defaults to 1. */
+  scale?: number
+  /** Rotation in degrees, around the path bbox centre. Defaults to 0. */
+  rotation?: number
 }
 
 export type SectionCircuitMap = {
