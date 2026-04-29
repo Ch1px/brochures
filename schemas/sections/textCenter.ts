@@ -11,6 +11,8 @@ export default defineType({
     defineField({ name: 'eyebrow', type: 'string' }),
     defineField({ name: 'title', type: 'text', rows: 2 }),
     defineField({ name: 'body', type: 'text', rows: 6, validation: (Rule) => Rule.required() }),
+    defineField({ name: 'ctaText', type: 'string', description: 'Optional CTA button label.' }),
+    defineField({ name: 'ctaHref', type: 'string', description: 'CTA target: "#next", "#enquire", or a full URL.' }),
     ...sectionStyleFields,
     backgroundField,
   ],

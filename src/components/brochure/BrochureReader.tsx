@@ -40,6 +40,32 @@ export function BrochureReader({ brochure }: Props) {
   const next = useCallback(() => goTo(pageIndex + 1), [pageIndex, goTo])
   const prev = useCallback(() => goTo(pageIndex - 1), [pageIndex, goTo])
 
+  // Map page _key → index for #page-{key} CTA links
+  const keyToIndex = useMemo(
+    () => Object.fromEntries(pages.map((p, i) => [p._key, i])),
+    [pages]
+  )
+
+  // Event delegation for internal CTA links (#next, #page-{key})
+  const handleCtaClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const anchor = (e.target as HTMLElement).closest('a[href^="#"]')
+      if (!anchor) return
+      const href = anchor.getAttribute('href')!
+      if (href === '#next') {
+        e.preventDefault()
+        next()
+      } else if (href.startsWith('#page-')) {
+        e.preventDefault()
+        const key = href.slice(6)
+        const idx = keyToIndex[key]
+        if (idx != null) goTo(idx)
+      }
+      // #enquire: let pass through for future modal handler
+    },
+    [next, goTo, keyToIndex]
+  )
+
   // Keyboard arrow navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -101,6 +127,7 @@ export function BrochureReader({ brochure }: Props) {
       <div className="preview-mode-canvas">
         <div
           className="preview-mode-slider"
+          onClick={handleCtaClick}
           style={{
             top: 'var(--brochure-nav-h, 52px)',
             left: 0,
@@ -135,10 +162,11 @@ export function BrochureReader({ brochure }: Props) {
       {/* Page turner — counter + prev/next arrows, bottom right */}
       <div className="preview-mode-nav">
         <div className="preview-mode-counter">
-          <span className="current">{String(pageIndex + 1).padStart(2, '0')}</span>
+          {String(pageIndex + 1).padStart(2, '0')}
           <span className="preview-mode-counter-sep">/</span>
-          <span>{String(total).padStart(2, '0')}</span>
+          {String(total).padStart(2, '0')}
         </div>
+        <div className="preview-mode-nav-buttons">
         <button
           className="preview-mode-nav-btn"
           onClick={prev}
@@ -159,6 +187,7 @@ export function BrochureReader({ brochure }: Props) {
             <path d="m20 6.6l13.4 13.4-13.4 13.4-2.3-2.4 9.3-9.4h-20.4v-3.2h20.4l-9.3-9.4z" />
           </svg>
         </button>
+        </div>
       </div>
     </div>
     </BrochureBrandingProvider>

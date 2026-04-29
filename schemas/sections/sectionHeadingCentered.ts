@@ -11,6 +11,8 @@ export default defineType({
     defineField({ name: 'eyebrow', type: 'string' }),
     defineField({ name: 'title', type: 'string', validation: (Rule) => Rule.required() }),
     defineField({ name: 'text', type: 'text', rows: 3 }),
+    defineField({ name: 'ctaText', type: 'string', description: 'Optional CTA button label.' }),
+    defineField({ name: 'ctaHref', type: 'string', description: 'CTA target: "#next", "#enquire", or a full URL.' }),
     defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
     defineField({
       name: 'overlayStrength',

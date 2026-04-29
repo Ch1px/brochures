@@ -65,6 +65,7 @@ export type SectionCover = {
   titleAccent?: string
   tag?: string
   cta?: string
+  ctaHref?: string
   ref?: string
   image?: SanityImage
   video?: SanityFile
@@ -85,6 +86,8 @@ export type SectionIntro = {
   eyebrow?: string
   title: string
   body?: string
+  ctaText?: string
+  ctaHref?: string
   image?: SanityImage
   video?: SanityFile
   caption?: string
@@ -104,6 +107,8 @@ export type SectionContentImage = {
   eyebrow?: string
   title: string
   body?: string
+  ctaText?: string
+  ctaHref?: string
   image?: SanityImage
   video?: SanityFile
   caption?: string
@@ -123,6 +128,8 @@ export type SectionSectionHeading = {
   eyebrow?: string
   title: string
   text?: string
+  ctaText?: string
+  ctaHref?: string
   image?: SanityImage
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
@@ -142,6 +149,8 @@ export type SectionFeatures = {
   title: string
   titleAccent?: string
   subtitle?: string
+  ctaText?: string
+  ctaHref?: string
   cards: Array<{
     _key: string
     title: string
@@ -163,6 +172,8 @@ export type SectionImageHero = {
   eyebrow?: string
   title: string
   text?: string
+  ctaText?: string
+  ctaHref?: string
   image: SanityImage
   video?: SanityFile
   background?: string
@@ -415,6 +426,8 @@ export type SectionSpotlight = {
   eyebrow?: string
   title: string
   body?: string
+  ctaText?: string
+  ctaHref?: string
   showForegroundImage?: boolean
   image?: SanityImage
   video?: SanityFile
@@ -439,6 +452,8 @@ export type SectionTextCenter = {
   eyebrow?: string
   title?: string
   body: string
+  ctaText?: string
+  ctaHref?: string
   background?: string
   eyebrowColor?: string
   titleColor?: string

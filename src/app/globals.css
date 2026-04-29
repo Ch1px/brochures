@@ -1576,6 +1576,21 @@
     transition: all 0.2s;
   }
   .closing-cta:hover { background: var(--brand-red-hover); box-shadow: 0 0 40px var(--brand-red-glow); }
+  .section-cta {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: clamp(12px, 1.8cqi, 18px) clamp(20px, 3cqi, 36px);
+    background: var(--section-accent-color, var(--brand-red));
+    color: var(--brand-on-accent); text-decoration: none;
+    font-family: var(--font-condensed); font-weight: 600;
+    font-size: clamp(12px, 1.5cqi, 16px);
+    letter-spacing: 0.22em; text-transform: uppercase;
+    border-radius: 2px;
+    transition: all 0.2s;
+    margin-top: clamp(16px, 2cqi, 28px);
+  }
+  .section-cta:hover { background: var(--brand-red-hover); box-shadow: 0 0 30px var(--brand-red-glow); }
+  .section-cta .arrow { display: inline-block; transition: transform 0.2s; }
+  .section-cta:hover .arrow { transform: translateX(4px); }
   .closing-contact {
     display: flex; flex-direction: column;
     gap: clamp(4px, 0.6cqi, 8px);
@@ -3146,13 +3161,18 @@
     bottom: 28px;
     right: 28px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     z-index: 210;
   }
+  .preview-mode-nav-buttons {
+    display: flex;
+    gap: 6px;
+  }
   .preview-mode-nav-btn {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3175,11 +3195,12 @@
     height: 18px;
   }
   .preview-mode-counter {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.22em;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.5);
     pointer-events: none;
     user-select: none;
   }
@@ -3758,6 +3779,7 @@
       gap: 14px;
     }
     .closing-cta { width: 100%; justify-content: center; }
+    .section-cta { width: 100%; justify-content: center; }
 
     /* SECTION HEADING */
     .section-heading-eyebrow { font-size: calc(var(--eyebrow-scale, 1) * clamp(44px, 12cqi, 72px)); }

@@ -68,13 +68,20 @@ export function CoverEditor({ section, onChange }: Props) {
           placeholder="Take your seat"
         />
         <FieldInput
-          label="Reference"
-          description="Bottom-right line."
-          value={section.ref}
-          onChange={(ref) => onChange({ ref })}
-          placeholder="No. 001 / Volume XV"
+          label="CTA link"
+          description="#next, #enquire, or a full URL. Defaults to #enquire."
+          value={section.ctaHref}
+          onChange={(ctaHref) => onChange({ ctaHref })}
+          placeholder="#enquire"
         />
       </div>
+      <FieldInput
+        label="Reference"
+        description="Bottom-right line."
+        value={section.ref}
+        onChange={(ref) => onChange({ ref })}
+        placeholder="No. 001 / Volume XV"
+      />
 
       <div className="field-section-heading">Background</div>
       <FieldImage

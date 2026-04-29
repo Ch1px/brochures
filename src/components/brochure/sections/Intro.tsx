@@ -2,6 +2,7 @@ import type { SectionIntro } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
+import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
@@ -39,6 +40,7 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
           <InlineEditable sectionKey={data._key} field="body" richBody>
             <RichBody className="intro-body" text={data.body} />
           </InlineEditable>
+          <SectionCTA text={data.ctaText} href={data.ctaHref} />
         </div>
         <div className="page-intro-right-wrap">
           <div className="image-offset-frame" aria-hidden="true" />

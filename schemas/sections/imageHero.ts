@@ -16,6 +16,8 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({ name: 'text', type: 'text', rows: 4 }),
+    defineField({ name: 'ctaText', type: 'string', description: 'Optional CTA button label.' }),
+    defineField({ name: 'ctaHref', type: 'string', description: 'CTA target: "#next", "#enquire", or a full URL.' }),
     defineField({
       name: 'image',
       type: 'image',

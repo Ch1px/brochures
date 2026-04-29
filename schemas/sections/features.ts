@@ -14,6 +14,8 @@ export default defineType({
       description: 'Second part of title in red, e.g. "speed" in "A weekend of speed"',
     }),
     defineField({ name: 'subtitle', type: 'text', rows: 3 }),
+    defineField({ name: 'ctaText', type: 'string', description: 'Optional CTA button label.' }),
+    defineField({ name: 'ctaHref', type: 'string', description: 'CTA target: "#next", "#enquire", or a full URL.' }),
     defineField({
       name: 'cards',
       type: 'array',

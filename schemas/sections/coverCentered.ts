@@ -14,6 +14,7 @@ export default defineType({
     defineField({ name: 'titleAccent', type: 'string' }),
     defineField({ name: 'tag', type: 'text', rows: 2 }),
     defineField({ name: 'cta', type: 'string' }),
+    defineField({ name: 'ctaHref', type: 'string', description: 'CTA target. Use "#next" for next page, "#enquire" for the lead modal, or a full URL. Defaults to "#enquire".' }),
     defineField({ name: 'ref', type: 'string' }),
     defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
     defineField({

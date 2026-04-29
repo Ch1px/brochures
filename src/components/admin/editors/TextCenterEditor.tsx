@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionTextCenter } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldCTAGroup } from '../fields'
 
 type Props = {
   section: SectionTextCenter
@@ -33,6 +33,12 @@ export function TextCenterEditor({ section, onChange }: Props) {
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={6}
+      />
+
+      <FieldCTAGroup
+        ctaText={section.ctaText}
+        ctaHref={section.ctaHref}
+        onChange={(u) => onChange(u)}
       />
     </>
   )

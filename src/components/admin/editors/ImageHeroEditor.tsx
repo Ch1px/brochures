@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionImageHero } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldCTAGroup } from '../fields'
 
 type Props = {
   section: SectionImageHero
@@ -33,6 +33,12 @@ export function ImageHeroEditor({ section, onChange }: Props) {
         value={section.text}
         onChange={(text) => onChange({ text })}
         rows={4}
+      />
+
+      <FieldCTAGroup
+        ctaText={section.ctaText}
+        ctaHref={section.ctaHref}
+        onChange={(u) => onChange(u)}
       />
 
       <div className="field-section-heading">Background</div>

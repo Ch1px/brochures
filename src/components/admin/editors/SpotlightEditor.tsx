@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSpotlight } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldBoolean } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldBoolean, FieldCTAGroup } from '../fields'
 
 type Props = {
   section: SectionSpotlight
@@ -40,6 +40,12 @@ export function SpotlightEditor({ section, onChange }: Props) {
         value={section.caption}
         onChange={(caption) => onChange({ caption })}
         placeholder="Exclusive paddock access"
+      />
+
+      <FieldCTAGroup
+        ctaText={section.ctaText}
+        ctaHref={section.ctaHref}
+        onChange={(u) => onChange(u)}
       />
 
       <div className="field-section-heading">Foreground</div>

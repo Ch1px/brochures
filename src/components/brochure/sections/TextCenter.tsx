@@ -1,5 +1,6 @@
 import type { SectionTextCenter } from '@/types/brochure'
 import { RichBody } from '../RichBody'
+import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { useBrochureBranding } from '../BrochureContext'
 
@@ -19,6 +20,7 @@ export function TextCenter({ data, pageNum, total, showFolio }: Props) {
         {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="text-center-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
         {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="text-center-title">{data.title || ''}</h2></InlineEditable> : null}
         <InlineEditable sectionKey={data._key} field="body" richBody><RichBody className="text-center-body" text={data.body} /></InlineEditable>
+        <SectionCTA text={data.ctaText} href={data.ctaHref} />
       </div>
       {showFolio ? (
         <div className="page-folio">

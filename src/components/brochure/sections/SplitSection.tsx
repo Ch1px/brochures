@@ -2,6 +2,7 @@ import type { SectionContentImage } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
+import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
@@ -32,6 +33,7 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
       {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="intro-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
       <InlineEditable sectionKey={data._key} field="title"><h2 className="intro-title">{data.title ?? ''}</h2></InlineEditable>
       <InlineEditable sectionKey={data._key} field="body" richBody><RichBody className="intro-body" text={data.body} /></InlineEditable>
+      <SectionCTA text={data.ctaText} href={data.ctaHref} />
     </div>
   )
 

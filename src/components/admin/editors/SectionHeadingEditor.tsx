@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSectionHeading } from '@/types/brochure'
-import { FieldInput, FieldRichText, FieldImage, FieldVideo } from '../fields'
+import { FieldInput, FieldRichText, FieldImage, FieldVideo, FieldCTAGroup } from '../fields'
 
 type Props = {
   section: SectionSectionHeading
@@ -34,6 +34,12 @@ export function SectionHeadingEditor({ section, onChange }: Props) {
         value={section.text}
         onChange={(text) => onChange({ text })}
         rows={3}
+      />
+
+      <FieldCTAGroup
+        ctaText={section.ctaText}
+        ctaHref={section.ctaHref}
+        onChange={(u) => onChange(u)}
       />
 
       <div className="field-section-heading">Background</div>

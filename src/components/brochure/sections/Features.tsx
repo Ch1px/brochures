@@ -2,6 +2,7 @@ import type { SectionFeatures } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
+import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
@@ -31,6 +32,7 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
             {(data.titleAccent || editorMode) ? <InlineEditable sectionKey={data._key} field="titleAccent"><span className="features-title-accent">{data.titleAccent || ''}</span></InlineEditable> : null}
           </h2>
           {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="features-subtitle" text={data.subtitle} /></InlineEditable> : null}
+          <SectionCTA text={data.ctaText} href={data.ctaHref} />
         </div>
         <div className="features-grid">
           {cards.map((card, i) => {

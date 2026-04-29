@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionIntro } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldCTAGroup } from '../fields'
 
 type Props = {
   section: SectionIntro
@@ -43,6 +43,12 @@ export function IntroEditor({ section, onChange }: Props) {
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={6}
+      />
+
+      <FieldCTAGroup
+        ctaText={section.ctaText}
+        ctaHref={section.ctaHref}
+        onChange={(u) => onChange(u)}
       />
 
       <div className="field-section-heading">Media</div>

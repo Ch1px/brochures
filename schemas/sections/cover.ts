@@ -28,6 +28,7 @@ export default defineType({
       description: 'Supporting tagline beneath the title',
     }),
     defineField({ name: 'cta', type: 'string', description: 'CTA button label, e.g. "Take your seat"' }),
+    defineField({ name: 'ctaHref', type: 'string', description: 'CTA target. Use "#next" for next page, "#enquire" for the lead modal, or a full URL. Defaults to "#enquire".' }),
     defineField({ name: 'ref', type: 'string', description: 'Bottom-right reference, e.g. "No. 001 / Volume XV"' }),
     defineField({
       name: 'image',

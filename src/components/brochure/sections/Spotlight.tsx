@@ -2,6 +2,7 @@ import type { SectionSpotlight } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { RichBody } from '../RichBody'
+import { SectionCTA } from '../SectionCTA'
 import { SpotlightBackground } from './SpotlightBackground'
 import { InlineEditable } from '../InlineEditable'
 import { useBrochureBranding } from '../BrochureContext'
@@ -97,6 +98,7 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
           {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="intro-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
           <InlineEditable sectionKey={data._key} field="title"><h2 className="intro-title">{data.title ?? ''}</h2></InlineEditable>
           {(data.body || editorMode) ? <InlineEditable sectionKey={data._key} field="body" richBody><RichBody className="intro-body" text={data.body} /></InlineEditable> : null}
+          <SectionCTA text={data.ctaText} href={data.ctaHref} />
         </div>
       </div>
       {showFolio ? (

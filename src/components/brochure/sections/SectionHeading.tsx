@@ -1,6 +1,7 @@
 import type { SectionSectionHeading } from '@/types/brochure'
 import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
+import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
@@ -85,6 +86,7 @@ export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
         {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="section-heading-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
         {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><div className="section-heading-title">{data.title || ''}</div></InlineEditable> : null}
         {(data.text || editorMode) ? <InlineEditable sectionKey={data._key} field="text" richBody><RichBody className="section-heading-text" text={data.text} /></InlineEditable> : null}
+        <SectionCTA text={data.ctaText} href={data.ctaHref} />
       </div>
       {showFolio ? (
         <div className="page-folio">

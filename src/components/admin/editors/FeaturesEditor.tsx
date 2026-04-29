@@ -2,7 +2,7 @@
 
 import type { SectionFeatures } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldObjectArray } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldObjectArray, FieldCTAGroup } from '../fields'
 
 type Props = {
   section: SectionFeatures
@@ -37,6 +37,12 @@ export function FeaturesEditor({ section, onChange }: Props) {
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
         rows={2}
+      />
+
+      <FieldCTAGroup
+        ctaText={section.ctaText}
+        ctaHref={section.ctaHref}
+        onChange={(u) => onChange(u)}
       />
 
       <div className="field-section-heading">Feature cards</div>
