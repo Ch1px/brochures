@@ -724,6 +724,14 @@
     display: flex; flex-direction: column; justify-content: center;
     padding-right: 0;
   }
+  .page-intro-left[data-align="center"] {
+    text-align: center;
+    align-items: center;
+  }
+  .page-intro-left[data-align="right"] {
+    text-align: right;
+    align-items: flex-end;
+  }
   .intro-mark-letter {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: clamp(80px, 15cqi, 220px);

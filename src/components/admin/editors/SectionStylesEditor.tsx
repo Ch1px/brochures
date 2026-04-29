@@ -102,8 +102,29 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
 
   const hasColorFields = config.eyebrow || config.title || config.body || config.accent
 
+  const supportsContentAlign =
+    section._type === 'intro' ||
+    section._type === 'contentImage' ||
+    section._type === 'imageContent'
+
   return (
     <>
+      {supportsContentAlign && (
+        <>
+          <div className="field-section-heading">Layout</div>
+          <FieldSelect
+            label="Content alignment"
+            description="Horizontal alignment of the eyebrow, title, body and CTA."
+            value={(s.contentAlign as string) ?? ''}
+            onChange={(v) => anyChange({ contentAlign: v || undefined })}
+            options={[
+              { value: '', label: 'Left (default)' },
+              { value: 'center', label: 'Center' },
+              { value: 'right', label: 'Right' },
+            ]}
+          />
+        </>
+      )}
       {hasColorFields ? (
         <>
           <div className="field-section-heading">Colours</div>

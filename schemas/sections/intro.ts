@@ -36,6 +36,19 @@ export default defineType({
       options: { accept: 'video/*' },
     }),
     defineField({ name: 'caption', type: 'string', description: 'Caption beneath the image' }),
+    defineField({
+      name: 'contentAlign',
+      title: 'Content alignment',
+      type: 'string',
+      description: 'Horizontal alignment of the text content (eyebrow, title, body, CTA).',
+      options: {
+        list: [
+          { title: 'Left', value: 'left' },
+          { title: 'Center', value: 'center' },
+          { title: 'Right', value: 'right' },
+        ],
+      },
+    }),
     ...sectionStyleFields,
     backgroundField,
   ],

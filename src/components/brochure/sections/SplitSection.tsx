@@ -29,7 +29,7 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
   const videoUrl = urlForFile(data.video)
 
   const contentDiv = (
-    <div className="page-intro-left">
+    <div className="page-intro-left" data-align={data.contentAlign || undefined}>
       {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="intro-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
       <InlineEditable sectionKey={data._key} field="title"><h2 className="intro-title">{data.title ?? ''}</h2></InlineEditable>
       <InlineEditable sectionKey={data._key} field="body" richBody><RichBody className="intro-body" text={data.body} /></InlineEditable>

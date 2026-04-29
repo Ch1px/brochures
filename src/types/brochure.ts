@@ -91,6 +91,7 @@ export type SectionIntro = {
   image?: SanityImage
   video?: SanityFile
   caption?: string
+  contentAlign?: 'left' | 'center' | 'right'
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -112,6 +113,7 @@ export type SectionContentImage = {
   image?: SanityImage
   video?: SanityFile
   caption?: string
+  contentAlign?: 'left' | 'center' | 'right'
   background?: string
   eyebrowColor?: string
   titleColor?: string

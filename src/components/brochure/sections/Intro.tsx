@@ -23,7 +23,7 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
     <section className="section page-intro" data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-intro-inner">
-        <div className="page-intro-left">
+        <div className="page-intro-left" data-align={data.contentAlign || undefined}>
           {(data.letter || editorMode) ? (
             <InlineEditable sectionKey={data._key} field="letter">
               <div className="intro-mark-letter">{data.letter || ''}</div>
