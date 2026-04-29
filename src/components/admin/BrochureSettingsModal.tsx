@@ -147,21 +147,24 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose, pending])
 
-  // Load custom fonts via FontFace API
+  // Load custom fonts by fetching the binary and creating data-URI @font-face
+  // rules. Data URIs bypass Chrome's OTS sanitizer which rejects some older
+  // TTF files with minor spec violations.
+  const [fontFaceCss, setFontFaceCss] = useState<string | null>(null)
   useEffect(() => {
-    if (!customFonts || customFonts.length === 0) return
+    if (!customFonts || customFonts.length === 0) {
+      setFontFaceCss(null)
+      return
+    }
     let cancelled = false
-    const loaded: FontFace[] = []
-
-    const loadAll = async () => {
-      for (let i = 0; i < customFonts.length; i++) {
-        const font = customFonts[i]
-        if (!font || !font.weights || font.weights.length === 0) continue
+    const buildCss = async () => {
+      const rules: string[] = []
+      for (const font of customFonts) {
+        if (!font.weights?.length) continue
         const familyName = 'CustomFont-' + font._key
-        for (let j = 0; j < font.weights.length; j++) {
+        for (const w of font.weights) {
           if (cancelled) return
-          const w = font.weights[j]
-          if (!w || !w.file || !w.file.asset || !w.file.asset._ref) continue
+          if (!w.file?.asset?._ref) continue
           const ref = w.file.asset._ref
           if (!/^file-[a-zA-Z0-9]+-[a-z0-9]+$/.test(ref)) continue
           try {
@@ -169,26 +172,32 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             if (!resp.ok || cancelled) continue
             const buf = await resp.arrayBuffer()
             if (cancelled) return
-            const face = new FontFace(familyName, buf, { weight: w.weight || '400' })
-            await face.load()
-            if (cancelled) return
-            document.fonts.add(face)
-            loaded.push(face)
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
+            const ext = ref.match(/-([a-z0-9]+)$/)?.[1] ?? 'ttf'
+            const mime = ext === 'woff2' ? 'font/woff2' : ext === 'woff' ? 'font/woff' : ext === 'otf' ? 'font/otf' : 'font/ttf'
+            rules.push(
+              `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url(data:${mime};base64,${base64});font-display:swap;}`
+            )
           } catch {
-            // Font load failed — falls back to sans-serif
+            // skip failed fonts
           }
         }
       }
+      if (!cancelled && rules.length > 0) setFontFaceCss(rules.join('\n'))
     }
-
-    loadAll()
-    return () => {
-      cancelled = true
-      for (let i = 0; i < loaded.length; i++) {
-        try { document.fonts.delete(loaded[i]) } catch {}
-      }
-    }
+    buildCss()
+    return () => { cancelled = true }
   }, [customFonts])
+
+  // Inject the data-URI @font-face rules into <head>
+  useEffect(() => {
+    if (!fontFaceCss) return
+    const style = document.createElement('style')
+    style.setAttribute('data-custom-fonts', 'true')
+    style.textContent = fontFaceCss
+    document.head.appendChild(style)
+    return () => { style.remove() }
+  }, [fontFaceCss])
 
   if (!open) return null
 

@@ -177,10 +177,8 @@ export function customFontFaceCss(customFonts?: CustomFont[] | null): string | n
       if (!w.file?.asset?._ref) continue
       const url = sanityFileUrl(w.file.asset._ref)
       if (!url) continue
-      const ext = extFromRef(w.file.asset._ref)
-      const format = FORMAT_MAP[ext] ?? 'woff2'
       rules.push(
-        `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url('${url}') format('${format}');font-display:swap;}`
+        `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url('${url}');font-display:swap;}`
       )
     }
   }
