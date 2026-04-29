@@ -95,6 +95,9 @@ export function AdminLibraryClient({ brochures }: Props) {
         </div>
         <div className="library-header-actions">
 
+          <Link href="/admin/media" className="library-header-btn">
+            Media
+          </Link>
           <button className="library-header-btn" onClick={() => setAiOpen(true)}>
             Generate with AI
           </button>

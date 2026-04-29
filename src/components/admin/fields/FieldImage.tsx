@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import type { SanityImage } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { FieldLabel } from './FieldLabel'
+import { MediaPickerModal } from '../MediaPickerModal'
 
 type UploadResult = { ok: true; image: SanityImage } | { ok: false; error: string }
 
@@ -29,6 +30,7 @@ export function FieldImage({ label, description, value, onChange, previewWidth =
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   async function handleFile(file: File) {
     setUploading(true)
@@ -81,6 +83,14 @@ export function FieldImage({ label, description, value, onChange, previewWidth =
           >
             {uploading ? 'Uploading…' : url ? 'Replace' : 'Upload'}
           </button>
+          <button
+            type="button"
+            className="field-btn"
+            onClick={() => setPickerOpen(true)}
+            disabled={uploading}
+          >
+            Library
+          </button>
           {url && !uploading ? (
             <button
               type="button"
@@ -104,6 +114,11 @@ export function FieldImage({ label, description, value, onChange, previewWidth =
           }}
         />
         {error ? <div className="field-error">{error}</div> : null}
+        <MediaPickerModal
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onSelect={(image) => onChange(image)}
+        />
       </div>
     </FieldLabel>
   )

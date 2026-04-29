@@ -9,6 +9,7 @@ import {
   createBrochure as createBrochureMutation,
   duplicateBrochure as duplicateBrochureMutation,
   deleteBrochure as deleteBrochureMutation,
+  deleteImageAsset as deleteImageAssetMutation,
   updateBrochureSettings as updateBrochureSettingsMutation,
   uploadImageAsset,
   uploadFileAsset,
@@ -113,6 +114,31 @@ export async function deleteBrochureAction(id: string) {
   await assertAdmin()
   const result = await deleteBrochureMutation(id)
   revalidatePath('/admin', 'page')
+  return result
+}
+
+// --- Media library ---
+
+export type ImageAssetRow = {
+  _id: string
+  originalFilename: string | null
+  url: string
+  metadata: { dimensions: { width: number; height: number } }
+  size: number
+  _createdAt: string
+}
+
+export async function fetchImageAssetsAction(): Promise<ImageAssetRow[]> {
+  await assertAdmin()
+  const { sanityWriteClient } = await import('./client')
+  const { ALL_IMAGE_ASSETS } = await import('./queries')
+  return sanityWriteClient.fetch<ImageAssetRow[]>(ALL_IMAGE_ASSETS)
+}
+
+export async function deleteImageAssetAction(assetId: string) {
+  await assertAdmin()
+  const result = await deleteImageAssetMutation(assetId)
+  revalidatePath('/admin/media', 'page')
   return result
 }
 

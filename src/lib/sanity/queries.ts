@@ -127,6 +127,25 @@ export const ALL_BROCHURES = groq`
 /**
  * Published brochures for sitemap.xml.
  */
+/**
+ * All image assets for the media library.
+ */
+export const ALL_IMAGE_ASSETS = groq`
+  *[_type == "sanity.imageAsset"] | order(_createdAt desc) {
+    _id,
+    originalFilename,
+    url,
+    metadata {
+      dimensions {
+        width,
+        height
+      }
+    },
+    size,
+    _createdAt
+  }
+`
+
 export const PUBLISHED_BROCHURES_SITEMAP = groq`
   *[_type == "brochure" && status == "published"]{
     "slug": slug.current,

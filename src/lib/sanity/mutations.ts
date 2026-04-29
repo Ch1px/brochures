@@ -318,6 +318,17 @@ export async function duplicateBrochure(
   }
 }
 
+/** Hard-delete a Sanity image asset. */
+export async function deleteImageAsset(assetId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    await sanityWriteClient.delete(assetId)
+    return { ok: true }
+  } catch (err) {
+    console.error('deleteImageAsset failed:', err)
+    return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
+  }
+}
+
 /** Hard-delete a brochure. Prefer archiving in most cases. */
 export async function deleteBrochure(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
