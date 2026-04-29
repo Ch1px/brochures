@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { Annotation, AnnotationKind, SectionCircuitMap } from '@/types/brochure'
-import { nanokey } from '@/lib/nanokey'
+import { cloneWithNewKeys, nanokey } from '@/lib/nanokey'
 import { FONT_PALETTE, weightOptionsForRole } from '@/lib/fontPalette'
 import { BRAND_TOKENS, isBrandToken, resolveColor, tokenLabel, type BrandContext } from '@/lib/brandColorTokens'
 import { FieldInput, FieldSelect, FieldImage } from '../fields'
@@ -83,7 +83,7 @@ export function AnnotationEditor({
   function duplicateAnnotation(key: string) {
     const src = annotations.find((a) => a._key === key)
     if (!src) return
-    const clone = { ...JSON.parse(JSON.stringify(src)), _key: nanokey(), x: Math.min(100, src.x + 3), y: Math.min(100, src.y + 3) } as Annotation
+    const clone = { ...cloneWithNewKeys(src), _key: nanokey(), x: Math.min(100, src.x + 3), y: Math.min(100, src.y + 3) } as Annotation
     const idx = annotations.findIndex((a) => a._key === key)
     const next = [...annotations]
     next.splice(idx + 1, 0, clone)

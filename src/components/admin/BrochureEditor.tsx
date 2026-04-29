@@ -17,7 +17,7 @@ import { useBrochureHistory } from '@/hooks/useBrochureHistory'
 import { useEditorLayout } from '@/hooks/useEditorLayout'
 import { useEditorShortcuts } from '@/hooks/useEditorShortcuts'
 import { labelFor } from '@/lib/sectionLabels'
-import { nanokey } from '@/lib/nanokey'
+import { cloneWithNewKeys, nanokey } from '@/lib/nanokey'
 import { applyFieldPath } from '@/lib/applyFieldPath'
 import { sectionDefaults } from '@/lib/sectionDefaults'
 import { EditorTopbar } from './EditorTopbar'
@@ -624,8 +624,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
       pages: prev.pages.map((page) => {
         const idx = page.sections.findIndex((s) => s._key === currentSectionKey)
         if (idx === -1) return page
-        const cloned = JSON.parse(JSON.stringify(page.sections[idx])) as Section
-        cloned._key = nanokey()
+        const cloned: Section = { ...cloneWithNewKeys(page.sections[idx]), _key: nanokey() }
         newKey = cloned._key
         return {
           ...page,
