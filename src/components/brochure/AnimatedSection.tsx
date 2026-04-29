@@ -25,6 +25,7 @@ const ANIMATABLE_CLASSES = [
   '.gallery-variant-eyebrow',
   '.circuit-map-eyebrow',
   '.text-center-eyebrow',
+  '.linked-cards-eyebrow',
   '.section-heading-eyebrow',
   '.features-title-accent',
   // Section-heading title only
@@ -43,6 +44,7 @@ const ANIMATABLE_CLASSES = [
   // Images
   '.package-image',
   '.feature-card-media',
+  '.linked-card-bg',
   '.page-image-hero-bg',
   '.page-spotlight-image',
   '.quote-profile-photo',

@@ -1,0 +1,69 @@
+import type { SectionLinkedCards } from '@/types/brochure'
+import { urlForSection } from '@/lib/sanity/image'
+import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
+import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
+import { useBrochureBranding } from '../BrochureContext'
+
+type Props = {
+  data: SectionLinkedCards
+  pageNum: number
+  total: number
+  showFolio: boolean
+}
+
+export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
+  const { editorMode } = useBrochureBranding()
+  const cards = (data.cards ?? []).slice(0, 4)
+
+  return (
+    <section className="section page-linked-cards" data-section-id={data._key}>
+      <div className="page-brand-mark">Grand Prix Grand Tours</div>
+      <div className="page-linked-cards-inner">
+        {(data.eyebrow || data.title || editorMode) ? (
+          <div className="linked-cards-header">
+            {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="linked-cards-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
+            {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="linked-cards-title">{data.title || ''}</h2></InlineEditable> : null}
+          </div>
+        ) : null}
+        <div className={`linked-cards-grid linked-cards-grid-${Math.min(cards.length, 4)}`}>
+          {cards.map((card, i) => {
+            const imageUrl = urlForSection(card.image, 900)
+            const isExternal = card.linkHref?.startsWith('http')
+            return (
+              <div key={card._key} className="linked-card">
+                <InlineMedia sectionKey={data._key} field={`cards.${i}.image`} hasImage={Boolean(imageUrl)}>
+                  <div
+                    className="linked-card-bg"
+                    style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+                  >
+                    {!imageUrl ? <ImagePlaceholderSVG /> : null}
+                  </div>
+                </InlineMedia>
+                <div className="linked-card-overlay" />
+                <div className="linked-card-body">
+                  <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="linked-card-title">{card.title ?? ''}</div></InlineEditable>
+                  {(card.text || editorMode) ? <InlineEditable sectionKey={data._key} field={`cards.${i}.text`}><p className="linked-card-text">{card.text || ''}</p></InlineEditable> : null}
+                  {card.linkText ? (
+                    <a
+                      className="linked-card-link"
+                      href={card.linkHref || '#'}
+                      {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    >
+                      {card.linkText} <span className="arrow">&#x2197;</span>
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      {showFolio ? (
+        <div className="page-folio">
+          {pageNum} / {total}
+        </div>
+      ) : null}
+    </section>
+  )
+}

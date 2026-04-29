@@ -1068,6 +1068,124 @@
     max-width: 120ch;
   }
 
+  /* ─── LINKED CARDS ─── */
+  .page-linked-cards { min-height: auto; }
+  .page-linked-cards-inner {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: min(7%, 60px) 8%;
+    gap: clamp(18px, 2.5cqi, 32px);
+  }
+  .linked-cards-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(6px, 1cqi, 12px);
+  }
+  .linked-cards-eyebrow {
+    font-family: var(--font-script);
+    font-weight: 400;
+    font-style: italic;
+    font-size: calc(var(--eyebrow-scale, 1) * clamp(28px, 4cqi, 48px));
+    color: var(--section-eyebrow-color, var(--brand-red));
+    line-height: 1;
+  }
+  .linked-cards-title {
+    font-family: var(--font-display);
+    font-weight: var(--font-display-weight);
+    font-size: calc(var(--title-scale, 1) * clamp(20px, 3.5cqi, 40px));
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--section-title-color, var(--page-text));
+  }
+  .linked-cards-grid {
+    display: grid;
+    gap: clamp(12px, 1.5cqi, 20px);
+  }
+  .linked-cards-grid-1 { grid-template-columns: 1fr; max-width: 50%; margin: 0 auto; }
+  .linked-cards-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .linked-cards-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .linked-cards-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .linked-card {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border: 1px solid var(--page-border);
+    transition: border-color 0.2s;
+  }
+  .linked-card:hover { border-color: var(--section-accent-color, var(--brand-red)); }
+  .linked-card-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a1a20;
+    transition: transform 0.4s;
+  }
+  .linked-card:hover .linked-card-bg { transform: scale(1.03); }
+  .linked-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.75) 100%);
+    pointer-events: none;
+  }
+  .linked-card-body {
+    position: relative;
+    z-index: 1;
+    padding: clamp(16px, 2.5cqi, 28px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 1cqi, 12px);
+  }
+  .linked-card-title {
+    font-family: var(--font-display);
+    font-weight: var(--font-display-weight);
+    font-size: clamp(14px, 2cqi, 22px);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .linked-card-text {
+    font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
+    line-height: var(--body-text-line-height);
+    color: rgba(255,255,255,0.7);
+  }
+  .linked-card-link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 8px;
+    padding: clamp(8px, 1.2cqi, 12px) clamp(14px, 2cqi, 24px);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 2px;
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: clamp(10px, 1.2cqi, 13px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-top: clamp(4px, 0.5cqi, 8px);
+  }
+  .linked-card-link:hover {
+    border-color: var(--section-accent-color, var(--brand-red));
+    color: var(--section-accent-color, var(--brand-red));
+    background: rgba(255,255,255,0.05);
+  }
+  .linked-card-link .arrow {
+    display: inline-block;
+    transition: transform 0.2s;
+  }
+  .linked-card-link:hover .arrow { transform: translate(2px, -2px); }
+
   /* Mini preview for the Add Section modal */
   .mini-text-center {
     position: absolute;
@@ -1082,6 +1200,21 @@
   .mini-text-center-eyebrow { height: 3px; width: 28%; background: var(--brand-red); border-radius: 1px; }
   .mini-text-center-title { height: 5px; width: 55%; background: #cfd1d6; border-radius: 1px; margin-bottom: 3px; }
   .mini-text-center-body { height: 2px; width: 100%; background: #7a7d85; border-radius: 1px; }
+  .mini-cta-btn { height: 6px; width: 35%; background: var(--brand-red); border-radius: 2px; margin-top: 4px; }
+
+  /* Mini preview: Linked Cards */
+  .mini-linked-cards {
+    position: absolute; inset: 0;
+    padding: 14% 10%;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .mini-linked-cards-title { height: 5px; width: 40%; background: #cfd1d6; border-radius: 1px; margin-bottom: 2px; }
+  .mini-linked-cards-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mini-linked-card { display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .mini-linked-card-img { flex: 1; background: linear-gradient(135deg, #2a2d35 0%, #1f2026 100%); }
+  .mini-linked-card-body { padding: 4px; display: flex; flex-direction: column; gap: 2px; }
+  .mini-linked-card-body::before { content: ''; height: 3px; width: 60%; background: #cfd1d6; border-radius: 1px; }
+  .mini-linked-card-body::after { content: ''; height: 2px; width: 80%; background: #7a7d85; border-radius: 1px; }
 
   /* Mini preview for the Add Section modal */
   .mini-spotlight {
@@ -3632,6 +3765,7 @@
        they are on desktop. */
     .intro-eyebrow,
     .text-center-eyebrow,
+    .linked-cards-eyebrow,
     .image-hero-eyebrow,
     .stats-eyebrow,
     .packages-eyebrow,
@@ -3780,6 +3914,13 @@
     }
     .closing-cta { width: 100%; justify-content: center; }
     .section-cta { width: 100%; justify-content: center; }
+
+    /* LINKED CARDS */
+    .linked-cards-grid-2,
+    .linked-cards-grid-3,
+    .linked-cards-grid-4 { grid-template-columns: 1fr; }
+    .linked-cards-grid-1 { max-width: 100%; }
+    .linked-card { aspect-ratio: 16 / 9; }
 
     /* SECTION HEADING */
     .section-heading-eyebrow { font-size: calc(var(--eyebrow-scale, 1) * clamp(44px, 12cqi, 72px)); }
@@ -4250,6 +4391,7 @@
     .gallery-variant-eyebrow,
     .circuit-map-eyebrow,
     .text-center-eyebrow,
+    .linked-cards-eyebrow,
     .section-heading-eyebrow,
     .features-title-accent,
     /* Section-heading title (only this section type's title) */
@@ -4268,6 +4410,7 @@
     /* Images */
     .package-image,
     .feature-card-media,
+    .linked-card-bg,
     .page-image-hero-bg,
     .page-spotlight-image,
     .quote-profile-photo,
@@ -4298,6 +4441,7 @@
     .gallery-variant-eyebrow,
     .circuit-map-eyebrow,
     .text-center-eyebrow,
+    .linked-cards-eyebrow,
     .section-heading-eyebrow,
     .features-title-accent,
     .section-heading-title,
@@ -4313,6 +4457,7 @@
     .cover-ref,
     .package-image,
     .feature-card-media,
+    .linked-card-bg,
     .page-image-hero-bg,
     .page-spotlight-image,
     .quote-profile-photo,
@@ -4340,6 +4485,7 @@
       .gallery-variant-eyebrow,
       .circuit-map-eyebrow,
       .text-center-eyebrow,
+      .linked-cards-eyebrow,
       .section-heading-eyebrow,
       .features-title-accent,
       .section-heading-title,
@@ -4355,6 +4501,7 @@
       .cover-ref,
       .package-image,
       .feature-card-media,
+      .linked-card-bg,
       .page-image-hero-bg,
       .page-spotlight-image,
       .quote-profile-photo,
@@ -4430,6 +4577,8 @@
   .page-quote-profile,
   .page-circuit-map,
   .page-text-center,
+  .page-cta-banner,
+  .page-linked-cards,
   .page-logos {
     background-image: url('/textures/halftone.png');
     background-size: 800px auto;
@@ -4452,6 +4601,8 @@
   [data-theme="dark"] .page-quote-profile,
   [data-theme="dark"] .page-circuit-map,
   [data-theme="dark"] .page-text-center,
+  [data-theme="dark"] .page-cta-banner,
+  [data-theme="dark"] .page-linked-cards,
   [data-theme="dark"] .page-logos {
     background-image:
       linear-gradient(color-mix(in srgb, var(--page-bg) 88%, transparent), color-mix(in srgb, var(--page-bg) 88%, transparent)),

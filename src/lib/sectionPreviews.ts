@@ -50,6 +50,10 @@ export const SECTION_PREVIEW_HTML: Record<Section['_type'], string> = {
     '<div class="mini-spotlight"><div class="mini-spotlight-inner"><div class="mini-spotlight-image"></div><div class="mini-spotlight-text"><div class="mini-spotlight-eyebrow"></div><div class="mini-spotlight-title"></div><div class="mini-spotlight-body"></div><div class="mini-spotlight-body"></div></div></div></div>',
   textCenter:
     '<div class="mini-text-center"><div class="mini-text-center-eyebrow"></div><div class="mini-text-center-title"></div><div class="mini-text-center-body"></div><div class="mini-text-center-body"></div><div class="mini-text-center-body"></div></div>',
+  ctaBanner:
+    '<div class="mini-text-center"><div class="mini-text-center-eyebrow"></div><div class="mini-text-center-title"></div><div class="mini-text-center-body"></div><div class="mini-cta-btn"></div></div>',
+  linkedCards:
+    '<div class="mini-linked-cards"><div class="mini-linked-cards-title"></div><div class="mini-linked-cards-grid"><div class="mini-linked-card"><div class="mini-linked-card-img"></div><div class="mini-linked-card-body"></div></div><div class="mini-linked-card"><div class="mini-linked-card-img"></div><div class="mini-linked-card-body"></div></div></div></div>',
   footer:
     '<div class="mini-footer"><div class="mini-footer-bar"><div class="mini-footer-legal"></div><div class="mini-footer-contact"></div><div class="mini-footer-socials"><span></span><span></span><span></span></div></div></div>',
   logoWall:
@@ -74,6 +78,8 @@ export const SECTION_PICKER_ORDER: Section['_type'][] = [
   'imageContent',
   'spotlight',
   'textCenter',
+  'ctaBanner',
+  'linkedCards',
   'imageHero',
   'features',
   'stats',

@@ -446,6 +446,49 @@ export type SectionSpotlight = {
   bodyScale?: TextScalePreset
 }
 
+export type LinkedCardItem = {
+  _key: string
+  title: string
+  text?: string
+  image?: SanityImage
+  linkText?: string
+  linkHref?: string
+}
+
+export type SectionLinkedCards = {
+  _key: string
+  _type: 'linkedCards'
+  eyebrow?: string
+  title?: string
+  cards: LinkedCardItem[]
+  background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
+}
+
+export type SectionCTABanner = {
+  _key: string
+  _type: 'ctaBanner'
+  eyebrow?: string
+  title?: string
+  body?: string
+  ctaText?: string
+  ctaHref?: string
+  background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
+}
+
 export type SectionTextCenter = {
   _key: string
   _type: 'textCenter'
@@ -531,6 +574,8 @@ export type Section =
   | SectionCircuitMap
   | SectionSpotlight
   | SectionTextCenter
+  | SectionCTABanner
+  | SectionLinkedCards
   | SectionFooter
   | SectionLogos
 

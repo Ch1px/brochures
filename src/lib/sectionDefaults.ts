@@ -175,6 +175,29 @@ export function sectionDefaults(type: Section['_type']): Section {
         caption: 'Monte Carlo, May 2026',
       }
 
+    case 'linkedCards':
+      return {
+        _key,
+        _type: 'linkedCards',
+        eyebrow: 'Explore',
+        title: 'Other Experiences',
+        cards: [
+          { _key: nanokey(), title: 'Paddock Club', text: 'The ultimate Formula 1 hospitality experience with exclusive behind-the-scenes access.', linkText: 'Take me there', linkHref: '#' },
+          { _key: nanokey(), title: 'Yacht Experience', text: 'Watch the race from a luxury yacht in the heart of the harbour with panoramic views.', linkText: 'Take me there', linkHref: '#' },
+        ],
+      }
+
+    case 'ctaBanner':
+      return {
+        _key,
+        _type: 'ctaBanner',
+        eyebrow: 'Ready?',
+        title: 'Take the next step',
+        body: 'Limited packages available for the 2026 season.',
+        ctaText: 'Enquire Now',
+        ctaHref: '#enquire',
+      }
+
     case 'textCenter':
       return {
         _key,

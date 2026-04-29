@@ -22,6 +22,8 @@ import { QuoteProfileEditor } from './editors/QuoteProfileEditor'
 import { CircuitMapEditor } from './editors/CircuitMapEditor'
 import { SpotlightEditor } from './editors/SpotlightEditor'
 import { TextCenterEditor } from './editors/TextCenterEditor'
+import { CTABannerEditor } from './editors/CTABannerEditor'
+import { LinkedCardsEditor } from './editors/LinkedCardsEditor'
 import { FooterEditor } from './editors/FooterEditor'
 import { LogosEditor } from './editors/LogosEditor'
 import { SectionStylesEditor } from './editors/SectionStylesEditor'
@@ -213,6 +215,10 @@ function renderEditor(
       return <SpotlightEditor section={section} onChange={anyOnChange} />
     case 'textCenter':
       return <TextCenterEditor section={section} onChange={anyOnChange} />
+    case 'ctaBanner':
+      return <CTABannerEditor section={section} onChange={anyOnChange} />
+    case 'linkedCards':
+      return <LinkedCardsEditor section={section} onChange={anyOnChange} />
     case 'footer':
       return <FooterEditor section={section} onChange={anyOnChange} />
     case 'logoWall':

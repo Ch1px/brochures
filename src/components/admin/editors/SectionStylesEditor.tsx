@@ -52,6 +52,8 @@ const STYLE_CONFIG: Record<
   circuitMap:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
   spotlight:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  parallax: true  },
   textCenter:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
+  ctaBanner:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
+  linkedCards:              { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
   logoWall:                 { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
   logoStrip:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
 }

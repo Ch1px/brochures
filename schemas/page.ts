@@ -44,6 +44,8 @@ export default defineType({
         { type: 'circuitMap' },
         { type: 'spotlight' },
         { type: 'textCenter' },
+        { type: 'ctaBanner' },
+        { type: 'linkedCards' },
         { type: 'footer' },
         { type: 'logoWall' },
         { type: 'logoStrip' },

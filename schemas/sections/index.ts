@@ -19,6 +19,8 @@ import closing from './closing'
 import circuitMap from './circuitMap'
 import spotlight from './spotlight'
 import textCenter from './textCenter'
+import ctaBanner from './ctaBanner'
+import linkedCards from './linkedCards'
 import footer from './footer'
 import logoWall from './logoWall'
 import logoStrip from './logoStrip'
@@ -45,6 +47,8 @@ export const sectionSchemas = [
   circuitMap,
   spotlight,
   textCenter,
+  ctaBanner,
+  linkedCards,
   footer,
   logoWall,
   logoStrip,

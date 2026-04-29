@@ -21,6 +21,8 @@ import { Closing } from './sections/Closing'
 import { CircuitMap } from './sections/CircuitMap'
 import { Spotlight } from './sections/Spotlight'
 import { TextCenter } from './sections/TextCenter'
+import { CTABanner } from './sections/CTABanner'
+import { LinkedCards } from './sections/LinkedCards'
 import { Footer } from './sections/Footer'
 import { Logos } from './sections/Logos'
 import { UnsupportedSection } from './sections/UnsupportedSection'
@@ -179,6 +181,12 @@ function renderSection({ section, pageNum, total, showFolio }: Props) {
 
     case 'textCenter':
       return <TextCenter data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
+
+    case 'ctaBanner':
+      return <CTABanner data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
+
+    case 'linkedCards':
+      return <LinkedCards data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
 
     case 'footer':
       return <Footer data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
