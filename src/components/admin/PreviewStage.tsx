@@ -8,7 +8,7 @@ import { GoogleFontsLink } from '../brochure/GoogleFontsLink'
 import { TextureOverride } from '../brochure/TextureOverride'
 import { CustomFontFaces } from '../brochure/CustomFontFaces'
 import { accentColorVars } from '@/lib/accentColor'
-import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
+import { backgroundColorVars, textColorVars, titleColorVars, bodyColorVars, eyebrowStyleVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
 
@@ -111,6 +111,9 @@ export function PreviewStage({
   const accentStyle = accentColorVars(brochure.accentColor)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
+  const titleStyle = titleColorVars(brochure.titleColor)
+  const bodyStyle = bodyColorVars(brochure.bodyColor)
+  const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
   const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
   const navStyle = navColorVars(brochure.navColor)
   const scaleStyle = textScaleVars(brochure)
@@ -131,7 +134,7 @@ export function PreviewStage({
       <div
         className="preview-stage-frame"
         data-theme={theme}
-        style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
+        style={{ ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...bodyStyle, ...eyebrowStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
         ref={frameRef}
       >
         <div className="brochure-page" style={{ width: '100%' }}>

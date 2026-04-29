@@ -161,6 +161,42 @@ export default defineType({
       group: 'branding',
     }),
     defineField({
+      name: 'titleColor',
+      type: 'string',
+      title: 'Title colour',
+      description: 'Independent colour for section headings. Falls back to text colour.',
+      group: 'branding',
+    }),
+    defineField({
+      name: 'bodyColor',
+      type: 'string',
+      title: 'Body text colour',
+      description: 'Independent colour for paragraphs, subtitles, and captions. Falls back to text colour.',
+      group: 'branding',
+    }),
+    defineField({
+      name: 'eyebrowItalic',
+      type: 'boolean',
+      title: 'Italic eyebrows',
+      description: 'When false, eyebrow text renders upright instead of italic.',
+      group: 'branding',
+    }),
+    defineField({
+      name: 'eyebrowTransform',
+      type: 'string',
+      title: 'Eyebrow text transform',
+      description: 'Controls casing of eyebrow text.',
+      options: {
+        list: [
+          { title: 'None (as typed)', value: 'none' },
+          { title: 'Uppercase', value: 'uppercase' },
+          { title: 'Lowercase', value: 'lowercase' },
+          { title: 'Capitalize', value: 'capitalize' },
+        ],
+      },
+      group: 'branding',
+    }),
+    defineField({
       name: 'fontOverrides',
       type: 'object',
       title: 'Font overrides',

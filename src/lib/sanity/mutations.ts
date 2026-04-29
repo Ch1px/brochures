@@ -60,6 +60,10 @@ export async function saveBrochure(
       | 'accentColor'
       | 'backgroundColor'
       | 'textColor'
+      | 'titleColor'
+      | 'bodyColor'
+      | 'eyebrowItalic'
+      | 'eyebrowTransform'
       | 'fontOverrides'
       | 'customColors'
       | 'navColor'
@@ -93,6 +97,10 @@ export type BrochureSettingsUpdate = {
   accentColor?: string | null
   backgroundColor?: string | null
   textColor?: string | null
+  titleColor?: string | null
+  bodyColor?: string | null
+  eyebrowItalic?: boolean | null
+  eyebrowTransform?: string | null
   fontOverrides?: FontOverrides | null
   customFonts?: CustomFont[] | null
   titleScale?: string | null
@@ -158,6 +166,24 @@ export async function updateBrochureSettings(
       const trimmed = updates.textColor?.trim() ?? ''
       if (trimmed === '' || updates.textColor === null) unset.push('textColor')
       else patch.textColor = trimmed
+    }
+    if (updates.titleColor !== undefined) {
+      const trimmed = updates.titleColor?.trim() ?? ''
+      if (trimmed === '' || updates.titleColor === null) unset.push('titleColor')
+      else patch.titleColor = trimmed
+    }
+    if (updates.bodyColor !== undefined) {
+      const trimmed = updates.bodyColor?.trim() ?? ''
+      if (trimmed === '' || updates.bodyColor === null) unset.push('bodyColor')
+      else patch.bodyColor = trimmed
+    }
+    if (updates.eyebrowItalic !== undefined) {
+      if (updates.eyebrowItalic === null) unset.push('eyebrowItalic')
+      else patch.eyebrowItalic = updates.eyebrowItalic
+    }
+    if (updates.eyebrowTransform !== undefined) {
+      if (!updates.eyebrowTransform || updates.eyebrowTransform === null) unset.push('eyebrowTransform')
+      else patch.eyebrowTransform = updates.eyebrowTransform
     }
     if (updates.fontOverrides !== undefined) {
       if (updates.fontOverrides === null) unset.push('fontOverrides')
@@ -297,6 +323,10 @@ export async function duplicateBrochure(
       accentColor: src.accentColor,
       backgroundColor: src.backgroundColor,
       textColor: src.textColor,
+      titleColor: src.titleColor,
+      bodyColor: src.bodyColor,
+      eyebrowItalic: src.eyebrowItalic,
+      eyebrowTransform: src.eyebrowTransform,
       fontOverrides: src.fontOverrides,
       customFonts: src.customFonts,
       titleScale: src.titleScale,

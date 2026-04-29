@@ -32,6 +32,10 @@ type Props = {
     accentColor: string | undefined
     backgroundColor: string | undefined
     textColor: string | undefined
+    titleColor: string | undefined
+    bodyColor: string | undefined
+    eyebrowItalic: boolean | undefined
+    eyebrowTransform: string | undefined
     fontOverrides: FontOverrides | undefined
     customFonts: CustomFont[] | undefined
     titleScale: TextScalePreset | undefined
@@ -79,6 +83,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   const [accentColor, setAccentColor] = useState<string | undefined>(brochure.accentColor)
   const [backgroundColor, setBackgroundColor] = useState<string | undefined>(brochure.backgroundColor)
   const [textColor, setTextColor] = useState<string | undefined>(brochure.textColor)
+  const [titleColor, setTitleColor] = useState<string | undefined>(brochure.titleColor)
+  const [bodyColor, setBodyColor] = useState<string | undefined>(brochure.bodyColor)
+  const [eyebrowItalic, setEyebrowItalic] = useState<boolean | undefined>(brochure.eyebrowItalic)
+  const [eyebrowTransform, setEyebrowTransform] = useState<string | undefined>(brochure.eyebrowTransform)
   const [fontDisplay, setFontDisplay] = useState<string | undefined>(brochure.fontOverrides?.display)
   const [fontDisplayWeight, setFontDisplayWeight] = useState<string | undefined>(brochure.fontOverrides?.displayWeight)
   const [fontScript, setFontScript] = useState<string | undefined>(brochure.fontOverrides?.script)
@@ -118,6 +126,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     setAccentColor(brochure.accentColor)
     setBackgroundColor(brochure.backgroundColor)
     setTextColor(brochure.textColor)
+    setTitleColor(brochure.titleColor)
+    setBodyColor(brochure.bodyColor)
+    setEyebrowItalic(brochure.eyebrowItalic)
+    setEyebrowTransform(brochure.eyebrowTransform)
     setFontDisplay(brochure.fontOverrides?.display)
     setFontDisplayWeight(brochure.fontOverrides?.displayWeight)
     setFontScript(brochure.fontOverrides?.script)
@@ -205,6 +217,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
           accentColor: accentColor ?? null,
           backgroundColor: backgroundColor ?? null,
           textColor: textColor ?? null,
+          titleColor: titleColor ?? null,
+          bodyColor: bodyColor ?? null,
+          eyebrowItalic: eyebrowItalic ?? null,
+          eyebrowTransform: eyebrowTransform ?? null,
           fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
             ? {
                 display: fontDisplay || undefined,
@@ -242,6 +258,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         accentColor,
         backgroundColor,
         textColor,
+        titleColor,
+        bodyColor,
+        eyebrowItalic,
+        eyebrowTransform,
         fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
           ? { display: fontDisplay, displayWeight: fontDisplayWeight, script: fontScript, scriptWeight: fontScriptWeight, body: fontBody, bodyWeight: fontBodyWeight, mono: fontMono, monoWeight: fontMonoWeight }
           : undefined,
@@ -377,6 +397,21 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
                 />
                 <FieldColor
+                  label="Title colour"
+                  description="Independent colour for all section headings. Falls back to text colour if not set."
+                  value={titleColor}
+                  onChange={setTitleColor}
+                  fallback={textColor || (brochure.theme === 'light' ? '#161618' : '#ffffff')}
+                />
+                <FieldColor
+                  label="Body text colour"
+                  description="Independent colour for paragraphs, subtitles, and captions. Falls back to text colour if not set."
+                  value={bodyColor}
+                  onChange={setBodyColor}
+                  fallback={textColor || (brochure.theme === 'light' ? '#161618' : '#ffffff')}
+                />
+
+                <FieldColor
                   label="Navigation background"
                   description="Override the nav bar background. Should always be a dark colour. Default: #161618."
                   value={navColor}
@@ -486,6 +521,24 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   value={eyebrowScale ?? 'm'}
                   onChange={(v) => setEyebrowScale(v === 'm' ? undefined : (v as TextScalePreset))}
                   options={scaleOptions}
+                />
+                <FieldBoolean
+                  label="Italic eyebrows"
+                  description="When off, eyebrow text renders in normal (upright) style instead of italic."
+                  value={eyebrowItalic ?? true}
+                  onChange={(v) => setEyebrowItalic(v ? undefined : false)}
+                />
+                <FieldSelect
+                  label="Eyebrow text transform"
+                  description="Controls the casing of eyebrow/script text across all sections."
+                  value={eyebrowTransform ?? ''}
+                  onChange={(v) => setEyebrowTransform(v || undefined)}
+                  options={[
+                    { value: '', label: 'None (as typed)' },
+                    { value: 'uppercase', label: 'UPPERCASE' },
+                    { value: 'lowercase', label: 'lowercase' },
+                    { value: 'capitalize', label: 'Capitalize Each Word' },
+                  ]}
                 />
                 <FieldSelect
                   label="Body / tagline text size"

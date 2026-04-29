@@ -54,6 +54,9 @@
     --page-text-muted: rgba(255, 255, 255, 0.6);
     --page-text-subtle: rgba(255, 255, 255, 0.35);
     --page-border: rgba(255, 255, 255, 0.09);
+    --title-text: var(--page-text);
+    --body-text: var(--page-text);
+    --body-text-muted: var(--page-text-muted);
 
     --font-display: 'Formula1', 'Titillium Web', sans-serif;
     --font-condensed: 'Barlow Condensed', sans-serif;
@@ -615,7 +618,7 @@
   .cover-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(28px, 5.3cqi, 70px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.9;
     letter-spacing: -0.01em;
     text-transform: uppercase;
@@ -623,9 +626,9 @@
   .cover-title-accent {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
     color: var(--section-accent-color, var(--brand-red));
-    text-transform: none;
+    text-transform: var(--eyebrow-text-transform, none);
     letter-spacing: 0;
     font-size: 1.05em;
     line-height: 0.8;
@@ -638,7 +641,7 @@
     font-weight: 400;
     font-size: calc(var(--tagline-scale, 1) * clamp(15px, 2.2cqi, 24px));
     letter-spacing: 0;
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     max-width: 65%;
     line-height: 1.55;
     margin-top: 10px;
@@ -687,7 +690,7 @@
     border-radius: 2px;
     transition: all 0.2s;
   }
-  .cover-cta:hover { background: var(--brand-red-hover); box-shadow: 0 0 30px var(--brand-red-glow); }
+  .cover-cta:hover { background: color-mix(in srgb, var(--section-accent-color, var(--brand-red)) 85%, white); box-shadow: 0 0 30px color-mix(in srgb, var(--section-accent-color, var(--brand-red)) 35%, transparent); }
   .cover-cta .arrow { display: inline-block; transition: transform 0.2s; }
   .cover-cta:hover .arrow { transform: translateX(4px); }
 
@@ -724,7 +727,8 @@
   .intro-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(34px, 5cqi, 62px));
     color: var(--section-eyebrow-color, var(--brand-red));
     margin-bottom: clamp(6px, 1cqi, 12px);
@@ -733,7 +737,7 @@
   .intro-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(24px, 4.1cqi, 52px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -742,7 +746,7 @@
   .intro-body {
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
   }
 
   /* Rich body output — used by <RichBody> when the value contains lists or
@@ -1050,7 +1054,8 @@
   .text-center-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
     color: var(--section-eyebrow-color, var(--brand-red));
     line-height: 1;
@@ -1062,13 +1067,14 @@
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
-    color: var(--section-title-color, var(--page-text));
+    color: var(--section-title-color, var(--title-text));
+    color: var(--section-title-color, var(--title-text));
     max-width: 18ch;
   }
   .text-center-body {
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     max-width: 120ch;
   }
 
@@ -1092,7 +1098,8 @@
   .linked-cards-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(28px, 4cqi, 48px));
     color: var(--section-eyebrow-color, var(--brand-red));
     line-height: 1;
@@ -1104,7 +1111,8 @@
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
-    color: var(--section-title-color, var(--page-text));
+    color: var(--section-title-color, var(--title-text));
+    color: var(--section-title-color, var(--title-text));
   }
   .linked-cards-grid {
     display: grid;
@@ -1267,7 +1275,7 @@
   .features-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em; text-transform: uppercase;
     flex: 1;
@@ -1275,9 +1283,9 @@
   .features-title-accent {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
     color: var(--section-accent-color, var(--brand-red));
-    text-transform: none;
+    text-transform: var(--eyebrow-text-transform, none);
     letter-spacing: 0;
     font-size: 1.2em;
     margin-left: 0.1em;
@@ -1287,7 +1295,7 @@
   .features-subtitle {
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     max-width: 35%;
     margin-left: auto;
   }
@@ -1369,7 +1377,8 @@
   .image-hero-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
     color: var(--section-eyebrow-color, var(--brand-red));
     margin-bottom: clamp(10px, 1.5cqi, 16px);
@@ -1378,7 +1387,7 @@
   .image-hero-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(28px, 5.3cqi, 70px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.92; letter-spacing: 0.005em;
     text-transform: uppercase;
     margin-bottom: clamp(14px, 2cqi, 24px);
@@ -1386,7 +1395,7 @@
   .image-hero-text {
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     max-width: 80%;
   }
 
@@ -1403,7 +1412,8 @@
   .stats-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
     color: var(--section-eyebrow-color, var(--brand-red));
     margin-bottom: clamp(10px, 1.4cqi, 16px);
@@ -1412,7 +1422,7 @@
   .stats-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .stats-grid {
@@ -1465,7 +1475,8 @@
   .packages-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
     color: var(--section-eyebrow-color, var(--brand-red));
     margin-bottom: clamp(4px, 0.6cqi, 10px);
@@ -1474,7 +1485,7 @@
   .packages-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .packages-grid {
@@ -1577,7 +1588,7 @@
   .itinerary-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .itinerary-list {
@@ -1632,7 +1643,7 @@
   .gallery-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .gallery-grid {
@@ -1699,7 +1710,8 @@
   .closing-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(36px, 5.5cqi, 64px));
     color: var(--section-eyebrow-color, var(--brand-red));
     margin-bottom: clamp(10px, 1.5cqi, 16px);
@@ -1709,7 +1721,7 @@
   .closing-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(28px, 5.5cqi, 76px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.92; letter-spacing: 0.005em; text-transform: uppercase;
     margin-bottom: clamp(14px, 2cqi, 26px);
   }
@@ -1717,7 +1729,7 @@
     font-family: var(--font-body);
     font-size: calc(var(--tagline-scale, 1) * clamp(14px, 1.9cqi, 20px));
     letter-spacing: 0;
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     margin-bottom: clamp(20px, 3cqi, 40px);
     max-width: 80%;
     line-height: 1.55;
@@ -1737,7 +1749,7 @@
     border-radius: 2px;
     transition: all 0.2s;
   }
-  .closing-cta:hover { background: var(--brand-red-hover); box-shadow: 0 0 40px var(--brand-red-glow); }
+  .closing-cta:hover { background: color-mix(in srgb, var(--section-accent-color, var(--brand-red)) 85%, white); box-shadow: 0 0 40px color-mix(in srgb, var(--section-accent-color, var(--brand-red)) 35%, transparent); }
   .section-cta {
     display: inline-flex; align-items: center; gap: 14px;
     padding: clamp(12px, 1.8cqi, 18px) clamp(20px, 3cqi, 36px);
@@ -1750,7 +1762,7 @@
     transition: all 0.2s;
     margin-top: clamp(16px, 2cqi, 28px);
   }
-  .section-cta:hover { background: var(--brand-red-hover); box-shadow: 0 0 30px var(--brand-red-glow); }
+  .section-cta:hover { background: color-mix(in srgb, var(--section-accent-color, var(--brand-red)) 85%, white); box-shadow: 0 0 30px color-mix(in srgb, var(--section-accent-color, var(--brand-red)) 35%, transparent); }
   .section-cta .arrow { display: inline-block; transition: transform 0.2s; }
   .section-cta:hover .arrow { transform: translateX(4px); }
   .closing-contact {
@@ -1781,7 +1793,8 @@
   .script-accent {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     letter-spacing: 0 !important;
     text-transform: none !important;
     color: var(--section-accent-color, var(--brand-red));
@@ -1855,7 +1868,8 @@
   .section-heading-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(40px, 7cqi, 90px));
     line-height: 0.85;
     color: var(--section-eyebrow-color, var(--brand-red));
@@ -1869,13 +1883,14 @@
     line-height: 0.92;
     letter-spacing: 0.005em;
     text-transform: uppercase;
-    color: var(--section-title-color, var(--page-text));
+    color: var(--section-title-color, var(--title-text));
+    color: var(--section-title-color, var(--title-text));
     margin-top: 0.05em;
   }
   .section-heading-text {
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     max-width: 60%;
     margin-top: clamp(16px, 2.5cqi, 32px);
   }
@@ -1910,7 +1925,8 @@
   .quote-profile-eyebrow {
     font-family: var(--font-script);
     font-weight: 400;
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(34px, 5cqi, 62px));
     color: var(--section-eyebrow-color, var(--brand-red));
     margin-bottom: clamp(4px, 0.6cqi, 8px);
@@ -1968,7 +1984,7 @@
   .quote-profile-body {
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
   }
 
   /* ===== GALLERY VARIANTS ===== */
@@ -1989,7 +2005,8 @@
   .gallery-variant-header { display: flex; flex-direction: column; align-items: flex-start; }
   .gallery-variant-eyebrow {
     font-family: var(--font-script);
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
     line-height: 1;
     color: var(--section-eyebrow-color, var(--brand-red));
@@ -1999,7 +2016,7 @@
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(20px, 3.5cqi, 42px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.96;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -2221,7 +2238,8 @@
   }
   .circuit-map-eyebrow {
     font-family: var(--font-script);
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(32px, 4.7cqi, 56px));
     line-height: 1;
     color: var(--section-eyebrow-color, var(--brand-red));
@@ -2231,7 +2249,7 @@
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -2240,7 +2258,7 @@
     font-family: var(--font-body);
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     max-width: 1200px;
     margin-top: clamp(6px, 1cqi, 12px);
   }
@@ -4909,7 +4927,8 @@
   }
   .logos-eyebrow {
     font-family: var(--font-script);
-    font-style: italic;
+    font-style: var(--eyebrow-font-style, italic);
+    text-transform: var(--eyebrow-text-transform, none);
     font-size: calc(var(--eyebrow-scale, 1) * clamp(28px, 4.2cqi, 52px));
     line-height: 1;
     color: var(--section-eyebrow-color, var(--brand-red));
@@ -4919,7 +4938,7 @@
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
-    color: var(--section-title-color, inherit);
+    color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -4928,7 +4947,7 @@
     font-family: var(--font-body);
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: var(--section-body-color, var(--page-text-muted));
+    color: var(--section-body-color, var(--body-text-muted));
     margin-top: clamp(6px, 1cqi, 14px);
     max-width: 100%;
   }

@@ -47,6 +47,49 @@ export function textColorVars(hex?: string | null): CSSProperties | undefined {
 }
 
 /**
+ * Per-brochure title colour override. Sets `--title-text` used by section
+ * headings. Returns `undefined` when no override is set.
+ */
+export function titleColorVars(hex?: string | null): CSSProperties | undefined {
+  if (!hex) return undefined
+  const normalised = hex.trim()
+  if (!HEX_RE.test(normalised)) return undefined
+  return { ['--title-text' as string]: normalised } as CSSProperties
+}
+
+/**
+ * Per-brochure body colour override. Sets `--body-text` and `--body-text-muted`
+ * used by paragraphs, subtitles, and captions. Returns `undefined` when no
+ * override is set.
+ */
+export function bodyColorVars(hex?: string | null): CSSProperties | undefined {
+  if (!hex) return undefined
+  const normalised = hex.trim()
+  if (!HEX_RE.test(normalised)) return undefined
+  const { r, g, b } = hexToRgb(normalised)
+  return {
+    ['--body-text' as string]: normalised,
+    ['--body-text-muted' as string]: `rgba(${r}, ${g}, ${b}, 0.6)`,
+  } as CSSProperties
+}
+
+/**
+ * Per-brochure eyebrow style overrides. Controls italic and text-transform
+ * on script-font eyebrow elements.
+ */
+export function eyebrowStyleVars(
+  italic?: boolean,
+  transform?: string | null,
+): CSSProperties | undefined {
+  const vars: Record<string, string> = {}
+  if (italic === false) vars['--eyebrow-font-style'] = 'normal'
+  if (italic === true) vars['--eyebrow-font-style'] = 'italic'
+  if (transform) vars['--eyebrow-text-transform'] = transform
+  if (Object.keys(vars).length === 0) return undefined
+  return vars as unknown as CSSProperties
+}
+
+/**
  * Per-brochure nav background override. Sets `--nav-bg` from a single hex.
  * Returns `undefined` when no override is set.
  */
