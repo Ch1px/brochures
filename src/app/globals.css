@@ -3919,14 +3919,23 @@
     .quote-profile-quote { font-size: clamp(16px, 3.4cqi, 19px); line-height: 1.5; }
 
     /* CLOSING */
-    .closing-title { font-size: calc(var(--title-scale, 1) * clamp(32px, 10cqi, 52px)); }
+    .page-closing-inner {
+      max-width: 100%;
+      padding: 8%;
+      align-items: center;
+      text-align: center;
+    }
+    .closing-eyebrow { font-size: calc(var(--eyebrow-scale, 1) * clamp(28px, 8cqi, 44px)); }
+    .closing-title { font-size: calc(var(--title-scale, 1) * clamp(24px, 8cqi, 40px)); }
     .closing-subtitle { max-width: 100%; }
     .closing-actions {
       flex-direction: column;
       align-items: stretch;
       gap: 14px;
+      width: 100%;
     }
     .closing-cta { width: 100%; justify-content: center; }
+    .closing-contact { align-items: center; text-align: center; }
     .section-cta { width: 100%; justify-content: center; }
 
     /* LINKED CARDS */
