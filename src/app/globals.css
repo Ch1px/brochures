@@ -611,6 +611,7 @@
   .cover-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(28px, 5.3cqi, 70px));
+    color: var(--section-title-color, inherit);
     line-height: 0.9;
     letter-spacing: -0.01em;
     text-transform: uppercase;
@@ -728,6 +729,7 @@
   .intro-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(24px, 4.1cqi, 52px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -1127,6 +1129,7 @@
   .features-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95;
     letter-spacing: 0.01em; text-transform: uppercase;
     flex: 1;
@@ -1227,6 +1230,7 @@
   .image-hero-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(28px, 5.3cqi, 70px));
+    color: var(--section-title-color, inherit);
     line-height: 0.92; letter-spacing: 0.005em;
     text-transform: uppercase;
     margin-bottom: clamp(14px, 2cqi, 24px);
@@ -1260,6 +1264,7 @@
   .stats-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .stats-grid {
@@ -1321,6 +1326,7 @@
   .packages-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .packages-grid {
@@ -1423,6 +1429,7 @@
   .itinerary-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .itinerary-list {
@@ -1477,6 +1484,7 @@
   .gallery-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
   .gallery-grid {
@@ -1539,6 +1547,7 @@
   .closing-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(28px, 5.5cqi, 76px));
+    color: var(--section-title-color, inherit);
     line-height: 0.92; letter-spacing: 0.005em; text-transform: uppercase;
     margin-bottom: clamp(14px, 2cqi, 26px);
   }
@@ -1798,6 +1807,7 @@
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(20px, 3.5cqi, 42px));
+    color: var(--section-title-color, inherit);
     line-height: 0.96;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -2029,6 +2039,7 @@
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -4598,6 +4609,7 @@
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
     font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    color: var(--section-title-color, inherit);
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;

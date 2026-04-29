@@ -18,7 +18,9 @@ export type TextScalePreset = 'xs' | 's' | 'm' | 'l' | 'xl'
 export type CustomFontWeight = {
   _key: string
   weight: string
-  file: SanityFile
+  /** Base64 data URI (e.g. `data:font/ttf;base64,...`). Stored directly in
+   *  the document — no file asset needed. Typically 30–80KB per weight. */
+  dataUri: string
 }
 
 export type CustomFont = {

@@ -255,7 +255,7 @@ export default defineType({
                     ],
                   },
                 }),
-                defineField({ name: 'file', type: 'file', title: 'Font file', options: { accept: '.woff2,.woff,.ttf,.otf' } }),
+                defineField({ name: 'dataUri', type: 'text', title: 'Font data (base64)', hidden: true }),
               ],
               preview: {
                 select: { weight: 'weight' },

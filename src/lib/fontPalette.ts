@@ -161,12 +161,6 @@ const FORMAT_MAP: Record<string, string> = {
  * Generates `@font-face` CSS rules for ALL custom uploaded fonts.
  * One rule per weight per font. Returns null when no custom fonts exist.
  */
-/** Extract file extension from a Sanity file asset ref (e.g. `file-abc123-ttf` → `ttf`). */
-function extFromRef(ref: string): string {
-  const match = ref.match(/^file-[a-zA-Z0-9]+-([a-z0-9]+)$/)
-  return match?.[1] ?? 'woff2'
-}
-
 export function customFontFaceCss(customFonts?: CustomFont[] | null): string | null {
   if (!customFonts?.length) return null
   const rules: string[] = []
@@ -174,11 +168,9 @@ export function customFontFaceCss(customFonts?: CustomFont[] | null): string | n
     if (!font.weights?.length) continue
     const familyName = customFontFamilyName(font._key)
     for (const w of font.weights) {
-      if (!w.file?.asset?._ref) continue
-      const url = sanityFileUrl(w.file.asset._ref)
-      if (!url) continue
+      if (!w.dataUri) continue
       rules.push(
-        `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url('${url}');font-display:swap;}`
+        `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url(${w.dataUri});font-display:swap;}`
       )
     }
   }

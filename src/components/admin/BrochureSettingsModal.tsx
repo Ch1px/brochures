@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import type { Brochure, CustomColor, CustomFont, CustomFontWeight, FontOverrides, SanityImage, TextScalePreset } from '@/types/brochure'
-import { updateBrochureSettingsAction, uploadFileAction } from '@/lib/sanity/actions'
+import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
 import { nanokey } from '@/lib/nanokey'
 import {
   customFontSlug,
@@ -147,57 +147,17 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose, pending])
 
-  // Load custom fonts by fetching the binary and creating data-URI @font-face
-  // rules. Data URIs bypass Chrome's OTS sanitizer which rejects some older
-  // TTF files with minor spec violations.
-  const [fontFaceCss, setFontFaceCss] = useState<string | null>(null)
+  // Inject @font-face rules for custom fonts into <head>.
+  // Data URIs are stored directly on the font weights — no network requests needed.
   useEffect(() => {
-    if (!customFonts || customFonts.length === 0) {
-      setFontFaceCss(null)
-      return
-    }
-    let cancelled = false
-    const buildCss = async () => {
-      const rules: string[] = []
-      for (const font of customFonts) {
-        if (!font.weights?.length) continue
-        const familyName = 'CustomFont-' + font._key
-        for (const w of font.weights) {
-          if (cancelled) return
-          if (!w.file?.asset?._ref) continue
-          const ref = w.file.asset._ref
-          if (!/^file-[a-zA-Z0-9]+-[a-z0-9]+$/.test(ref)) continue
-          try {
-            const resp = await fetch('/api/font?ref=' + encodeURIComponent(ref))
-            if (!resp.ok || cancelled) continue
-            const buf = await resp.arrayBuffer()
-            if (cancelled) return
-            const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
-            const ext = ref.match(/-([a-z0-9]+)$/)?.[1] ?? 'ttf'
-            const mime = ext === 'woff2' ? 'font/woff2' : ext === 'woff' ? 'font/woff' : ext === 'otf' ? 'font/otf' : 'font/ttf'
-            rules.push(
-              `@font-face{font-family:'${familyName}';font-weight:${w.weight || '400'};src:url(data:${mime};base64,${base64});font-display:swap;}`
-            )
-          } catch {
-            // skip failed fonts
-          }
-        }
-      }
-      if (!cancelled && rules.length > 0) setFontFaceCss(rules.join('\n'))
-    }
-    buildCss()
-    return () => { cancelled = true }
-  }, [customFonts])
-
-  // Inject the data-URI @font-face rules into <head>
-  useEffect(() => {
-    if (!fontFaceCss) return
+    const css = customFonts?.length ? customFontFaceCss(customFonts) : null
+    if (!css) return
     const style = document.createElement('style')
     style.setAttribute('data-custom-fonts', 'true')
-    style.textContent = fontFaceCss
+    style.textContent = css
     document.head.appendChild(style)
     return () => { style.remove() }
-  }, [fontFaceCss])
+  }, [customFonts])
 
   if (!open) return null
 
@@ -774,8 +734,43 @@ function CustomFontsManager({
   onChange: (fonts: CustomFont[] | undefined) => void
 }) {
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
-  async function handleAddFont() {
+  /** Read a font file as a base64 data URI. */
+  function readAsDataUri(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = () => reject(reader.error)
+      reader.readAsDataURL(file)
+    })
+  }
+
+  /** Validate that the browser can actually parse and render the font. */
+  async function validateFont(dataUri: string): Promise<void> {
+    const res = await fetch(dataUri)
+    const buf = await res.arrayBuffer()
+    const face = new FontFace('__validate__', buf)
+    await face.load()
+  }
+
+  /** Read, validate, and return a data URI for a font file. Throws on failure. */
+  async function readAndValidateFont(file: File): Promise<string> {
+    if (file.size > 2 * 1024 * 1024) {
+      throw new Error('Font file too large (max 2MB). Use a WOFF2 file for smaller sizes.')
+    }
+    const dataUri = await readAsDataUri(file)
+    try {
+      await validateFont(dataUri)
+    } catch {
+      throw new Error(
+        `"${file.name}" could not be loaded — the font file appears to be corrupted or uses an unsupported format. Try converting it to WOFF2 at fonts.google.com/knowledge or transfonter.org.`
+      )
+    }
+    return dataUri
+  }
+
+  function handleAddFont() {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.woff2,.woff,.ttf,.otf'
@@ -783,19 +778,18 @@ function CustomFontsManager({
       const file = input.files?.[0]
       if (!file) return
       setUploading(true)
+      setUploadError(null)
       try {
-        const fd = new FormData()
-        fd.append('file', file)
-        const res = await uploadFileAction(fd)
-        if (res.ok) {
-          const name = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
-          const newFont: CustomFont = {
-            _key: nanokey(),
-            name,
-            weights: [{ _key: nanokey(), weight: '400', file: res.file }],
-          }
-          onChange([...fonts, newFont])
+        const dataUri = await readAndValidateFont(file)
+        const name = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
+        const newFont: CustomFont = {
+          _key: nanokey(),
+          name,
+          weights: [{ _key: nanokey(), weight: '400', dataUri }],
         }
+        onChange([...fonts, newFont])
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : 'Upload failed')
       } finally {
         setUploading(false)
       }
@@ -803,7 +797,7 @@ function CustomFontsManager({
     input.click()
   }
 
-  async function handleAddWeight(fontKey: string, targetWeight: string) {
+  function handleAddWeight(fontKey: string, targetWeight: string) {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.woff2,.woff,.ttf,.otf'
@@ -811,18 +805,17 @@ function CustomFontsManager({
       const file = input.files?.[0]
       if (!file) return
       setUploading(true)
+      setUploadError(null)
       try {
-        const fd = new FormData()
-        fd.append('file', file)
-        const res = await uploadFileAction(fd)
-        if (res.ok) {
-          const newWeight: CustomFontWeight = { _key: nanokey(), weight: targetWeight, file: res.file }
-          onChange(fonts.map((f) =>
-            f._key === fontKey
-              ? { ...f, weights: [...f.weights.filter((w) => w.weight !== targetWeight), newWeight] }
-              : f
-          ))
-        }
+        const dataUri = await readAndValidateFont(file)
+        const newWeight: CustomFontWeight = { _key: nanokey(), weight: targetWeight, dataUri }
+        onChange(fonts.map((f) =>
+          f._key === fontKey
+            ? { ...f, weights: [...f.weights.filter((w) => w.weight !== targetWeight), newWeight] }
+            : f
+        ))
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : 'Upload failed')
       } finally {
         setUploading(false)
       }
@@ -854,8 +847,9 @@ function CustomFontsManager({
           Upload .woff2, .ttf, .otf, or .woff files. Uploaded fonts appear in every font family dropdown above.
         </div>
         <button type="button" className="field-btn" onClick={handleAddFont} disabled={uploading}>
-          {uploading ? 'Uploading...' : '+ Upload font'}
+          {uploading ? 'Validating...' : '+ Upload font'}
         </button>
+        {uploadError ? <div className="field-error" style={{ marginTop: 8 }}>{uploadError}</div> : null}
       </div>
     )
   }
@@ -925,8 +919,9 @@ function CustomFontsManager({
         </div>
       ))}
       <button type="button" className="field-btn" onClick={handleAddFont} disabled={uploading}>
-        {uploading ? 'Uploading...' : '+ Upload another font'}
+        {uploading ? 'Validating...' : '+ Upload another font'}
       </button>
+      {uploadError ? <div className="field-error" style={{ marginTop: 8 }}>{uploadError}</div> : null}
     </div>
   )
 }
