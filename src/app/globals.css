@@ -487,6 +487,7 @@
   .page-gallery-hero-inner,
   .page-quote-profile-inner,
   .page-circuit-map-inner,
+  .page-linked-cards-inner,
   .page-closing-inner {
     padding-top: max(6%, var(--nav-safe-top)) !important;
   }
@@ -506,6 +507,7 @@
     .page-gallery-hero-inner,
     .page-quote-profile-inner,
     .page-circuit-map-inner,
+    .page-linked-cards-inner,
     .page-closing-inner {
       padding-bottom: max(6%, var(--nav-safe-top)) !important;
     }
@@ -1077,7 +1079,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: min(7%, 60px) 8%;
+    padding: 6% 7%;
     gap: clamp(18px, 2.5cqi, 32px);
   }
   .linked-cards-header {
@@ -3748,6 +3750,7 @@
     .page-itinerary-inner,
     .page-gallery-inner,
     .page-closing-inner,
+    .page-linked-cards-inner,
     .page-quote-profile-inner,
     .page-section-heading-inner,
     .page-circuit-map-inner {
@@ -4023,7 +4026,8 @@
     .page-itinerary-inner,
     .page-gallery-inner,
     .page-quote-profile-inner,
-    .page-circuit-map-inner {
+    .page-circuit-map-inner,
+    .page-linked-cards-inner {
       padding-top: max(16%, 68px);
       padding-bottom: max(16%, 68px);
     }

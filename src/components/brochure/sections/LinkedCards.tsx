@@ -50,7 +50,10 @@ export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
                       href={card.linkHref || '#'}
                       {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     >
-                      {card.linkText} <span className="arrow">&#x2197;</span>
+                      {card.linkText}
+                      <svg className="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                        <path d="M3 1h8v8M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                     </a>
                   ) : null}
                 </div>
