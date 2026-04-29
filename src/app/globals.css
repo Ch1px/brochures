@@ -1301,7 +1301,7 @@
   .feature-card {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 4 / 3;
+    height: clamp(280px, 38cqi, 480px);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -3946,7 +3946,8 @@
     .features-subtitle { max-width: 100%; margin-left: 0; }
     .features-grid { flex: none; min-height: 0; }
     .feature-card {
-      aspect-ratio: 4 / 3;
+      height: auto;
+      aspect-ratio: 16 / 10;
     }
     .feature-card-body {
       flex: none;
@@ -4089,7 +4090,7 @@
     .gallery-grid > .gallery-item { aspect-ratio: 4/3; }
 
     /* Features — wider aspect ratio on very small screens */
-    .feature-card { aspect-ratio: 4 / 3; }
+    .feature-card { height: auto; aspect-ratio: 16 / 10; }
   }
 
 
