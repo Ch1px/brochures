@@ -472,6 +472,8 @@
   .section.page-image-hero,
   .section.page-closing {
     min-height: 100%;
+    display: flex;
+    flex-direction: column;
   }
   /* Ensure direct content wrappers within sections clear the nav overlay */
   .page-intro-inner,
@@ -1675,7 +1677,7 @@
   .page-closing-inner {
     position: relative;
     width: 100%;
-    min-height: 100%;
+    height: 100%;
     padding: 8% 10%;
     display: flex; flex-direction: column; justify-content: center;
     z-index: 2;
@@ -1744,6 +1746,21 @@
     font-family: var(--font-mono); font-size: clamp(10px, 1.1cqi, 12px);
     letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--page-text-subtle);
+  }
+  .closing-contact-item {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .closing-contact-icon {
+    width: clamp(14px, 1.4cqi, 18px);
+    height: clamp(14px, 1.4cqi, 18px);
+    flex-shrink: 0;
+    color: var(--section-accent-color, var(--brand-red));
+  }
+  /* Prevent mobile browsers from auto-linking phone numbers as blue links */
+  .closing-contact a,
+  .closing-contact a[href^="tel"] {
+    color: inherit;
+    text-decoration: none;
   }
 
 
@@ -3924,6 +3941,7 @@
       padding: 8%;
       align-items: center;
       text-align: center;
+      height: 100%;
     }
     .closing-eyebrow { font-size: calc(var(--eyebrow-scale, 1) * clamp(28px, 8cqi, 44px)); }
     .closing-title { font-size: calc(var(--title-scale, 1) * clamp(24px, 8cqi, 40px)); }
@@ -3936,6 +3954,7 @@
     }
     .closing-cta { width: 100%; justify-content: center; }
     .closing-contact { align-items: center; text-align: center; }
+    .closing-contact-item { justify-content: center; }
     .section-cta { width: 100%; justify-content: center; }
 
     /* LINKED CARDS */
@@ -3992,6 +4011,10 @@
      MOBILE PADDING — more generous breathing room around sections
      ============================================================ */
   @media (max-width: 768px) {
+    /* Closing: ensure full viewport height so flex centering works */
+    .section.page-closing {
+      min-height: calc(100dvh - var(--brochure-nav-h, 52px));
+    }
     /* Content sections: bump vertical padding for breathing room */
     .page-intro-inner,
     .page-features-inner,
@@ -4000,8 +4023,7 @@
     .page-itinerary-inner,
     .page-gallery-inner,
     .page-quote-profile-inner,
-    .page-circuit-map-inner,
-    .page-closing-inner {
+    .page-circuit-map-inner {
       padding-top: max(16%, 68px);
       padding-bottom: max(16%, 68px);
     }

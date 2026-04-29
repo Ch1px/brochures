@@ -99,8 +99,23 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
             </a>
           ) : null}
           <div className="closing-contact">
-            {(data.email || editorMode) ? <div>✉ <InlineEditable sectionKey={data._key} field="email"><span>{data.email}</span></InlineEditable></div> : null}
-            {(data.phone || editorMode) ? <div>☏ <InlineEditable sectionKey={data._key} field="phone"><span>{data.phone}</span></InlineEditable></div> : null}
+            {(data.email || editorMode) ? (
+              <div className="closing-contact-item">
+                <svg className="closing-contact-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <rect x="2" y="4" width="16" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M2 5.5L10 11L18 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+                <InlineEditable sectionKey={data._key} field="email"><span>{data.email}</span></InlineEditable>
+              </div>
+            ) : null}
+            {(data.phone || editorMode) ? (
+              <div className="closing-contact-item">
+                <svg className="closing-contact-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <path d="M6.6 3H4.5A1.5 1.5 0 003 4.5c0 7.18 5.82 13 13 13a1.5 1.5 0 001.5-1.5v-2.1a1 1 0 00-.7-.95l-2.8-.8a1 1 0 00-1 .27l-1.1 1.1a10.5 10.5 0 01-4.4-4.4l1.1-1.1a1 1 0 00.27-1l-.8-2.8A1 1 0 006.6 3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <InlineEditable sectionKey={data._key} field="phone"><span>{data.phone}</span></InlineEditable>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
