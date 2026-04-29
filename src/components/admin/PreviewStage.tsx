@@ -38,6 +38,9 @@ type Props = {
     pendingKind: AnnotationKind | null
     onPlaceNew: (sectionKey: string, x: number, y: number) => void
     onAddAnnotation: (sectionKey: string, annotation: import('@/types/brochure').Annotation) => void
+    onAddDrawing: (sectionKey: string, drawing: import('@/types/brochure').CircuitDrawing) => void
+    drawTool: 'freehand' | 'line'
+    drawStyle: 'solid' | 'dashed' | 'dotted'
   }
   onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void
   onInlineMediaEdit?: (sectionKey: string, fieldPath: string, value: unknown) => void

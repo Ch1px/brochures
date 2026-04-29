@@ -1672,7 +1672,7 @@
   .gallery-item {
     background-size: cover; background-position: center;
     background-color: var(--chrome-raised);
-    border: 1px solid var(--page-border);
+   
     position: relative;
   }
   .gallery-grid > .gallery-item:nth-child(1) { grid-row: span 2; }
@@ -2305,6 +2305,36 @@
     max-height: 100%;
     display: block;
   }
+  /* `display: contents` makes this wrapper invisible to layout — the inlined
+     SVG below it behaves as a direct flex child of .circuit-map-svg-wrap so
+     existing sizing rules still apply. We need this wrapper because
+     dangerouslySetInnerHTML cannot coexist with sibling React children. */
+  .circuit-map-svg-content {
+    display: contents;
+  }
+  /* Sized via inline style to the SVG's actual letterboxed content rect. All
+     overlays (drawings, annotations, draw canvas) live inside this frame so
+     percentage / viewBox positioning maps to circuit features exactly.
+     pointer-events: none lets recolour clicks fall through to the wrap; child
+     overlays opt back in (annotations via `.placing`, hitarea via own rule).
+     container-type: size makes cqi/cqh inside resolve to the frame's actual
+     dimensions (= SVG content rect), so text annotations sized in cqi scale
+     identically to the circuit map across all screen sizes — same as drawings. */
+  .circuit-map-content-frame {
+    position: absolute;
+    pointer-events: none;
+    container-type: size;
+    container-name: circuit-content;
+  }
+  .circuit-map-drawings-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: block;
+    z-index: 1;
+  }
   /* Editor-only: when recolour mode is active for this section, make
      recolourable elements look clickable and outline them on hover so admins
      can see which paths/shapes will respond. The .recolor-active class is
@@ -2518,6 +2548,7 @@
     z-index: 5;
     cursor: crosshair;
     touch-action: none;
+    pointer-events: auto;
   }
   .drawing-canvas-render {
     position: fixed;
@@ -2845,6 +2876,91 @@
   }
   .annotation-brand-swatch:hover { border-color: var(--chrome-border-strong); }
   .annotation-brand-swatch.active { border-color: var(--brand-red); }
+
+  .annotation-color-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: var(--chrome-raised);
+    border: 1px solid var(--chrome-border);
+    border-radius: 4px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: var(--chrome-text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    transition: border-color 0.1s;
+  }
+  .annotation-color-trigger:hover { border-color: var(--chrome-border-strong); }
+  .annotation-color-trigger-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: 1px solid var(--chrome-border-strong);
+    background-image:
+      linear-gradient(45deg, var(--chrome-border) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--chrome-border) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--chrome-border) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--chrome-border) 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    flex-shrink: 0;
+  }
+  .annotation-color-trigger-label {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .annotation-opacity-field {
+    margin-top: 8px;
+  }
+  .annotation-opacity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .annotation-opacity-value {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--chrome-text-secondary);
+  }
+  .annotation-opacity-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--chrome-border-strong);
+    outline: none;
+    cursor: pointer;
+  }
+  .annotation-opacity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--brand-red);
+    border: 2px solid var(--chrome-bg);
+    cursor: pointer;
+    box-shadow: 0 0 0 1px var(--brand-red);
+  }
+  .annotation-opacity-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--brand-red);
+    border: 2px solid var(--chrome-bg);
+    cursor: pointer;
+    box-shadow: 0 0 0 1px var(--brand-red);
+  }
 
   /* Mini preview for add-section modal */
   .mini-circuit {
@@ -3451,8 +3567,8 @@
 
   .preview-mode-nav {
     position: fixed;
-    bottom: 28px;
-    right: 28px;
+    bottom: 40px;
+    right: 38px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3461,7 +3577,7 @@
   }
   .preview-mode-nav-buttons {
     display: flex;
-    gap: 6px;
+    gap: 2px;
   }
   .preview-mode-nav-btn {
     width: 52px;
@@ -3472,7 +3588,7 @@
     color: var(--brand-on-accent);
     background: var(--brand-red);
     border: none;
-    border-radius: 50%;
+    
     cursor: pointer;
     transition: background 0.2s, opacity 0.2s;
   }
@@ -4500,13 +4616,13 @@
   /* Preview-mode nav on phones */
   @media (max-width: 560px) {
     .preview-mode-nav {
-      bottom: max(16px, env(safe-area-inset-bottom));
-      right: 16px;
+      bottom: max(32px, env(safe-area-inset-bottom));
+      right: 24px;
       gap: 4px;
     }
     .preview-mode-nav-btn {
-      width: 38px;
-      height: 38px;
+      width: 42px;
+      height: 42px;
     }
     .preview-mode-nav-btn svg { width: 15px; height: 15px; }
     .preview-mode-counter {

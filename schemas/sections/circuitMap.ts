@@ -114,6 +114,32 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'drawings',
+      type: 'array',
+      description:
+        'Free-hand drawings baked into the circuit SVG at render time. Path data is stored in SVG viewBox coordinates so drawings scale with the circuit.',
+      of: [
+        {
+          type: 'object',
+          name: 'drawing',
+          fields: [
+            { name: 'd', type: 'text', title: 'Path data (SVG d attribute)', rows: 2, validation: (Rule: any) => Rule.required() },
+            { name: 'strokeWidth', type: 'number', title: 'Stroke width (viewBox units)', validation: (Rule: any) => Rule.required() },
+            { name: 'dash', type: 'string', title: 'Dash style (solid|dashed|dotted)' },
+            { name: 'color', type: 'string', title: 'Colour' },
+            { name: 'opacity', type: 'number', title: 'Opacity' },
+          ],
+          preview: {
+            select: { color: 'color', dash: 'dash' },
+            prepare: ({ color, dash }: any) => ({
+              title: 'Drawing',
+              subtitle: `${dash || 'solid'} · ${color || 'accent'}`,
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'stats',
       type: 'array',
       description: 'Up to 4 stats displayed in a strip below the map',

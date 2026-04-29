@@ -7,6 +7,7 @@ import type {
   Brochure,
   BrochureStatus,
   BrochureTheme,
+  CircuitDrawing,
   ColorOverride,
   Section,
   SectionCircuitMap,
@@ -103,6 +104,8 @@ export function BrochureEditor({ initialBrochure }: Props) {
   const [mapEditMode, setMapEditMode] = useState(false)
   const [selectedAnnotationKey, setSelectedAnnotationKey] = useState<string | null>(null)
   const [pendingAnnotationKind, setPendingAnnotationKind] = useState<AnnotationKind | null>(null)
+  const [drawTool, setDrawTool] = useState<'freehand' | 'line'>('freehand')
+  const [drawStyle, setDrawStyle] = useState<'solid' | 'dashed' | 'dotted'>('solid')
 
   // Turn off map edit mode when switching sections
   useEffect(() => {
@@ -251,6 +254,23 @@ export function BrochureEditor({ initialBrochure }: Props) {
         })),
       }))
       setSelectedAnnotationKey(annotation._key)
+    },
+    [],
+  )
+
+  const handleAddDrawing = useCallback(
+    (sectionKey: string, drawing: CircuitDrawing) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) => {
+            if (s._key !== sectionKey || s._type !== 'circuitMap') return s
+            const cm = s as SectionCircuitMap
+            return { ...cm, drawings: [...(cm.drawings ?? []), drawing] } as Section
+          }),
+        })),
+      }))
     },
     [],
   )
@@ -459,8 +479,11 @@ export function BrochureEditor({ initialBrochure }: Props) {
       pendingKind: pendingAnnotationKind,
       onPlaceNew: handlePlaceNewAnnotation,
       onAddAnnotation: handleAddAnnotation,
+      onAddDrawing: handleAddDrawing,
+      drawTool,
+      drawStyle,
     } : undefined,
-    [mapEditMode, selectedAnnotationKey, handleAnnotationMove, handleAnnotationTransform, handleAnnotationUpdate, pendingAnnotationKind, handlePlaceNewAnnotation, handleAddAnnotation]
+    [mapEditMode, selectedAnnotationKey, handleAnnotationMove, handleAnnotationTransform, handleAnnotationUpdate, pendingAnnotationKind, handlePlaceNewAnnotation, handleAddAnnotation, handleAddDrawing, drawTool, drawStyle]
   )
 
   // Recent colours used in the active circuit-map section, most-recent-first
@@ -773,6 +796,10 @@ export function BrochureEditor({ initialBrochure }: Props) {
                 onSelectAnnotation={setSelectedAnnotationKey}
                 pendingAnnotationKind={pendingAnnotationKind}
                 onSetPendingAnnotation={setPendingAnnotationKind}
+                drawTool={drawTool}
+                onDrawToolChange={setDrawTool}
+                drawStyle={drawStyle}
+                onDrawStyleChange={setDrawStyle}
               />
             </aside>
           </>

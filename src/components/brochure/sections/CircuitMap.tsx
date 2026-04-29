@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import type { Annotation, SectionCircuitMap } from '@/types/brochure'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { CircuitDrawing, SectionCircuitMap } from '@/types/brochure'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { bakeOverridesIntoSvg, bakeRecolorIds } from '@/lib/svgRecolor'
 import { useBrochureBranding } from '../BrochureContext'
@@ -52,6 +52,9 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
   )
 
   // The fully-prepared SVG string: themed → ids stamped → overrides injected.
+  // Free-hand drawings are NOT baked here; they render as a sibling SVG
+  // overlay with the same viewBox so React reconciliation manages them
+  // directly (simpler + always in sync with state).
   const themedSvg = useMemo(() => {
     const base =
       data.svgOriginal && data.svgOriginal.trim().length > 0
@@ -62,7 +65,6 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
     const overrideMap = new Map<string, string>()
     ;(data.colorOverrides ?? []).forEach((o) => {
       if (o.elementId && o.color) {
-        // Resolve brand variable tokens (e.g. "var:accent") to current hex
         overrideMap.set(o.elementId, resolveColor(o.color, brandCtx))
       }
     })
@@ -133,19 +135,16 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
   )
 
   const handleDrawingComplete = useCallback(
-    (svgText: string, x: number, y: number, width: number) => {
+    ({ d, strokeWidth, dash }: { d: string; strokeWidth: number; dash: 'solid' | 'dashed' | 'dotted' }) => {
       if (!annotationCtx) return
-      const newAnnotation: Annotation = {
+      const drawing: CircuitDrawing = {
         _key: nanokey(),
-        kind: 'svg',
-        x,
-        y,
-        svgText,
-        width,
-        strokeMode: true,
+        d,
+        strokeWidth,
+        dash,
         color: 'var:accent',
       }
-      annotationCtx.onAddAnnotation(sectionKey, newAnnotation)
+      annotationCtx.onAddDrawing(sectionKey, drawing)
     },
     [annotationCtx, sectionKey],
   )
@@ -156,6 +155,79 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
     recolor?.targetSectionKey === sectionKey
 
   const svgWrapRef = useRef<HTMLDivElement | null>(null)
+  const svgElRef = useRef<SVGSVGElement | null>(null)
+  const [svgViewBox, setSvgViewBox] = useState<string | null>(null)
+
+  // The circuit SVG is inlined via dangerouslySetInnerHTML, so React doesn't
+  // give us a ref to it. Query the inlined element to capture its viewBox
+  // so overlays can mirror it (same viewBox + preserveAspectRatio = identical
+  // letterboxing) and so we can compute the SVG's actual content rect.
+  useEffect(() => {
+    const el = svgWrapRef.current?.querySelector('svg') as SVGSVGElement | null
+    svgElRef.current = el
+    if (!el) {
+      setSvgViewBox(null)
+      return
+    }
+    const vb = el.getAttribute('viewBox')
+    if (vb) {
+      setSvgViewBox(vb)
+    } else {
+      const w = el.getAttribute('width') ?? '1000'
+      const h = el.getAttribute('height') ?? '600'
+      setSvgViewBox(`0 0 ${w} ${h}`)
+    }
+  }, [themedSvg])
+
+  // ── Content rect: the SVG's actual rendered content area inside the wrap,
+  // accounting for letterboxing under preserveAspectRatio="xMidYMid meet".
+  // Used to size the content-frame div that holds all overlays (drawings,
+  // annotations, draw canvas) so their coordinates track circuit features
+  // exactly across screen sizes — not the wrap box.
+  const [contentRect, setContentRect] = useState<{ left: number; top: number; width: number; height: number } | null>(null)
+
+  useEffect(() => {
+    const wrap = svgWrapRef.current
+    if (!wrap || !svgViewBox) {
+      setContentRect(null)
+      return
+    }
+    const parts = svgViewBox.trim().split(/[\s,]+/).map(Number)
+    if (parts.length !== 4) return
+    const [, , vbW, vbH] = parts
+    if (!(vbW > 0 && vbH > 0)) return
+    const ar = vbW / vbH
+
+    const update = () => {
+      const r = wrap.getBoundingClientRect()
+      if (r.width < 1 || r.height < 1) {
+        setContentRect(null)
+        return
+      }
+      const wrapAr = r.width / r.height
+      let cw: number, ch: number
+      if (wrapAr > ar) {
+        // wrap wider than SVG aspect → letterbox left/right
+        ch = r.height
+        cw = ch * ar
+      } else {
+        // wrap taller than SVG aspect → letterbox top/bottom
+        cw = r.width
+        ch = cw / ar
+      }
+      const left = (r.width - cw) / 2
+      const top = (r.height - ch) / 2
+      setContentRect((prev) =>
+        prev && prev.left === left && prev.top === top && prev.width === cw && prev.height === ch
+          ? prev
+          : { left, top, width: cw, height: ch },
+      )
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(wrap)
+    return () => ro.disconnect()
+  }, [svgViewBox])
 
   // Latest-state ref consumed by the click delegate. Updated every render so
   // the handler always sees the freshest `recolor.onElementClick` without
@@ -252,8 +324,60 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
             <div
               ref={svgWrapRef}
               className={`circuit-map-svg-wrap${isRecolorTarget ? ' recolor-active' : ''}`}
-              dangerouslySetInnerHTML={{ __html: themedSvg }}
-            />
+            >
+              <div
+                className="circuit-map-svg-content"
+                dangerouslySetInnerHTML={{ __html: themedSvg }}
+              />
+              {contentRect ? (
+                <div
+                  className="circuit-map-content-frame"
+                  style={{
+                    left: contentRect.left,
+                    top: contentRect.top,
+                    width: contentRect.width,
+                    height: contentRect.height,
+                  }}
+                >
+                  {svgViewBox && (data.drawings?.length ?? 0) > 0 ? (
+                    <DrawingsOverlay
+                      viewBox={svgViewBox}
+                      drawings={data.drawings ?? []}
+                      brandCtx={brandCtx}
+                    />
+                  ) : null}
+                  {(annotations.length > 0 || annotationCtx) ? (
+                    <AnnotationOverlay
+                      annotations={annotations}
+                      editorMode={Boolean(annotationCtx)}
+                      selectedKey={annotationCtx?.selectedKey}
+                      overlayRef={overlayRef}
+                      onSelect={annotationCtx?.onSelect}
+                      onOverlayClick={annotationCtx ? handleOverlayClick : undefined}
+                      getHandleProps={annotationCtx ? getHandleProps : undefined}
+                      onTransform={annotationCtx ? handleAnnotationTransform : undefined}
+                      onUpdate={annotationCtx ? (key: string, update: Record<string, unknown>) => {
+                        annotationCtx.onUpdate(sectionKey, key, update)
+                      } : undefined}
+                      dragInfo={dragInfo}
+                      pendingKind={annotationCtx?.pendingKind}
+                    />
+                  ) : null}
+                  {annotationCtx?.pendingKind === 'draw' ? (
+                    <DrawingCanvas
+                      overlayRef={overlayRef}
+                      svgWrapRef={svgWrapRef}
+                      viewBox={svgViewBox}
+                      strokeWidth={3}
+                      tool={annotationCtx.drawTool}
+                      style={annotationCtx.drawStyle}
+                      onComplete={handleDrawingComplete}
+                      onCancel={() => {}}
+                    />
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           ) : (
             <div className="circuit-map-svg-wrap">
               <div className="circuit-map-placeholder">
@@ -275,31 +399,6 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
               </div>
             </div>
           )}
-          {(annotations.length > 0 || annotationCtx) ? (
-            <AnnotationOverlay
-              annotations={annotations}
-              editorMode={Boolean(annotationCtx)}
-              selectedKey={annotationCtx?.selectedKey}
-              overlayRef={overlayRef}
-              onSelect={annotationCtx?.onSelect}
-              onOverlayClick={annotationCtx ? handleOverlayClick : undefined}
-              getHandleProps={annotationCtx ? getHandleProps : undefined}
-              onTransform={annotationCtx ? handleAnnotationTransform : undefined}
-              onUpdate={annotationCtx ? (key: string, update: Record<string, unknown>) => {
-                annotationCtx.onUpdate(sectionKey, key, update)
-              } : undefined}
-              dragInfo={dragInfo}
-              pendingKind={annotationCtx?.pendingKind}
-            />
-          ) : null}
-          {annotationCtx?.pendingKind === 'draw' ? (
-            <DrawingCanvas
-              overlayRef={overlayRef}
-              strokeWidth={3}
-              onComplete={handleDrawingComplete}
-              onCancel={() => {}}
-            />
-          ) : null}
         </div>
         {stats.length > 0 ? (
           <div
@@ -324,5 +423,54 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
         </div>
       ) : null}
     </section>
+  )
+}
+
+/**
+ * Drawings overlay — a sibling SVG inside the same `.circuit-map-stage` flex
+ * container as the inlined circuit SVG. Both fill the stage at 100% and
+ * use the same viewBox + preserveAspectRatio, so the browser's letterboxing
+ * is identical and viewBox-coord paths line up exactly with circuit features.
+ *
+ * No rect tracking needed — relies purely on CSS layout.
+ */
+function DrawingsOverlay({
+  viewBox,
+  drawings,
+  brandCtx,
+}: {
+  viewBox: string
+  drawings: CircuitDrawing[]
+  brandCtx: BrandContext
+}) {
+  return (
+    <svg
+      className="circuit-map-drawings-overlay"
+      viewBox={viewBox}
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden
+    >
+      {drawings.map((dr) => {
+        const stroke = dr.color ? resolveColor(dr.color, brandCtx) : '#e10600'
+        const sw = dr.strokeWidth || 1
+        let dasharray: string | undefined
+        if (dr.dash === 'dotted') dasharray = `0 ${(sw * 2).toFixed(2)}`
+        else if (dr.dash === 'dashed') dasharray = `${(sw * 3).toFixed(2)} ${(sw * 2).toFixed(2)}`
+        return (
+          <path
+            key={dr._key}
+            d={dr.d}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={sw}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray={dasharray}
+            opacity={dr.opacity != null && dr.opacity < 1 ? dr.opacity : undefined}
+            data-circuit-drawing={dr._key}
+          />
+        )
+      })}
+    </svg>
   )
 }

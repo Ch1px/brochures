@@ -48,6 +48,10 @@ type Props = {
   onSelectAnnotation?: (key: string | null) => void
   pendingAnnotationKind?: import('@/types/brochure').AnnotationKind | null
   onSetPendingAnnotation?: (kind: import('@/types/brochure').AnnotationKind | null) => void
+  drawTool?: 'freehand' | 'line'
+  onDrawToolChange?: (tool: 'freehand' | 'line') => void
+  drawStyle?: 'solid' | 'dashed' | 'dotted'
+  onDrawStyleChange?: (style: 'solid' | 'dashed' | 'dotted') => void
 }
 
 type Tab = 'content' | 'styles'
@@ -76,6 +80,10 @@ export function PropertiesPanel({
   onSelectAnnotation,
   pendingAnnotationKind,
   onSetPendingAnnotation,
+  drawTool,
+  onDrawToolChange,
+  drawStyle,
+  onDrawStyleChange,
 }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('content')
 
@@ -129,7 +137,7 @@ export function PropertiesPanel({
       </div>
       <div className="properties-body">
         {activeTab === 'content' || isFooter ? (
-          renderEditor(section, onChange, accentColor, mapEditMode, onMapEditModeChange, recolorMode, onRecolorModeChange, onPickByColor, selectedAnnotationKey, onSelectAnnotation, pendingAnnotationKind, onSetPendingAnnotation)
+          renderEditor(section, onChange, accentColor, mapEditMode, onMapEditModeChange, recolorMode, onRecolorModeChange, onPickByColor, selectedAnnotationKey, onSelectAnnotation, pendingAnnotationKind, onSetPendingAnnotation, drawTool, onDrawToolChange, drawStyle, onDrawStyleChange, brandContext)
         ) : (
           <SectionStylesEditor
             section={section as Exclude<Section, SectionFooter>}
@@ -156,6 +164,11 @@ function renderEditor(
   onSelectAnnotation?: (key: string | null) => void,
   pendingAnnotationKind?: import('@/types/brochure').AnnotationKind | null,
   onSetPendingAnnotation?: (kind: import('@/types/brochure').AnnotationKind | null) => void,
+  drawTool?: 'freehand' | 'line',
+  onDrawToolChange?: (tool: 'freehand' | 'line') => void,
+  drawStyle?: 'solid' | 'dashed' | 'dotted',
+  onDrawStyleChange?: (style: 'solid' | 'dashed' | 'dotted') => void,
+  brandContext?: BrandContext,
 ) {
   // Each editor narrows to its own section type. The cast on onChange is safe
   // because the editor only passes partials valid for that narrower type.
@@ -209,6 +222,11 @@ function renderEditor(
           onSelectAnnotation={onSelectAnnotation}
           pendingAnnotationKind={pendingAnnotationKind}
           onSetPendingAnnotation={onSetPendingAnnotation}
+          drawTool={drawTool}
+          onDrawToolChange={onDrawToolChange}
+          drawStyle={drawStyle}
+          onDrawStyleChange={onDrawStyleChange}
+          brandContext={brandContext}
         />
       )
     case 'spotlight':

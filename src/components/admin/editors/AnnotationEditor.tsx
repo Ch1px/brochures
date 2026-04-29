@@ -1,12 +1,11 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Annotation, AnnotationKind, SectionCircuitMap } from '@/types/brochure'
 import { nanokey } from '@/lib/nanokey'
 import { FONT_PALETTE, weightOptionsForRole } from '@/lib/fontPalette'
 import { BRAND_TOKENS, isBrandToken, resolveColor, tokenLabel, type BrandContext } from '@/lib/brandColorTokens'
-import { useBrochureBranding } from '../../brochure/BrochureContext'
-import { FieldInput, FieldSelect, FieldColor, FieldImage, FieldTextarea } from '../fields'
+import { FieldInput, FieldSelect, FieldImage } from '../fields'
 
 type Props = {
   annotations: Annotation[]
@@ -15,6 +14,7 @@ type Props = {
   onSelect: (key: string | null) => void
   pendingKind: AnnotationKind | null
   onSetPending: (kind: AnnotationKind | null) => void
+  brandContext?: BrandContext
   /** When true, hides the add buttons (they live in the parent toolbar instead). */
   hideAddButtons?: boolean
 }
@@ -39,9 +39,10 @@ const PIN_ICON_OPTIONS = [
   { value: 'number', label: 'Number' },
 ]
 
+const HEX_RE = /^#[0-9a-fA-F]{6}$/
+
 function weightOptionsForFont(slug?: string): { value: string; label: string }[] {
   const opts = weightOptionsForRole('body', slug)
-  // For annotations, default is "Regular (400)" not role-based
   if (opts[0]?.value === '') {
     opts[0] = { value: '', label: 'Default (400)' }
   }
@@ -63,12 +64,9 @@ export function AnnotationEditor({
   onSelect,
   pendingKind,
   onSetPending,
+  brandContext,
   hideAddButtons,
 }: Props) {
-  function addAnnotation(kind: AnnotationKind) {
-    onSetPending(kind)
-  }
-
   function updateAnnotation(key: string, update: Partial<Annotation>) {
     onChange({
       annotations: annotations.map((a) =>
@@ -105,6 +103,24 @@ export function AnnotationEditor({
   }
 
   const selected = annotations.find((a) => a._key === selectedKey) ?? null
+
+  // Recent colours: unique literal hexes used by other annotations on this map,
+  // most-recent first. Tokens (var:* / custom:*) are excluded — those already
+  // appear under Brand / Custom.
+  const recentColors: string[] = (() => {
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (let i = annotations.length - 1; i >= 0; i--) {
+      const c = annotations[i].color
+      if (!c || isBrandToken(c)) continue
+      const lower = c.toLowerCase()
+      if (!HEX_RE.test(lower) || seen.has(lower)) continue
+      seen.add(lower)
+      out.push(lower)
+      if (out.length >= 8) break
+    }
+    return out
+  })()
 
   return (
     <div className={`annotation-editor${hideAddButtons ? ' annotation-editor-embedded' : ''}`}>
@@ -145,9 +161,9 @@ export function AnnotationEditor({
               className={`annotation-add-btn${pendingKind === 'svg' ? ' active' : ''}`}
               onClick={() => onSetPending(pendingKind === 'svg' ? null : 'svg')}
             >
-          + SVG
-        </button>
-      </div>
+              + SVG
+            </button>
+          </div>
         </>
       ) : null}
 
@@ -217,28 +233,14 @@ export function AnnotationEditor({
                           value={String((selected as Annotation & { kind: 'text' }).fontSize ?? '')}
                           onChange={(v) => updateAnnotation(a._key, { fontSize: v ? Number(v) : undefined } as Partial<Annotation>)}
                         />
-                        <FieldInput
-                          label="Width (cqi)"
-                          description="Set a fixed width for text wrapping. Leave empty for auto-width."
-                          value={String((selected as Annotation & { kind: 'text' }).width ?? '')}
-                          onChange={(v) => updateAnnotation(a._key, { width: v ? Number(v) : undefined } as Partial<Annotation>)}
-                        />
                       </>
                     ) : null}
                     {a.kind === 'image' ? (
-                      <>
-                        <FieldImage
-                          label="Image"
-                          value={(selected as Annotation & { kind: 'image' }).image}
-                          onChange={(image) => updateAnnotation(a._key, { image } as Partial<Annotation>)}
-                        />
-                        <FieldInput
-                          label="Width (cqi)"
-                          description="Width in container query units. Default: 10"
-                          value={String((selected as Annotation & { kind: 'image' }).width ?? '')}
-                          onChange={(v) => updateAnnotation(a._key, { width: v ? Number(v) : undefined } as Partial<Annotation>)}
-                        />
-                      </>
+                      <FieldImage
+                        label="Image"
+                        value={(selected as Annotation & { kind: 'image' }).image}
+                        onChange={(image) => updateAnnotation(a._key, { image } as Partial<Annotation>)}
+                      />
                     ) : null}
                     {a.kind === 'pin' ? (
                       <>
@@ -273,43 +275,13 @@ export function AnnotationEditor({
                     <AnnotationColorField
                       value={selected.color}
                       onChange={(color) => updateAnnotation(a._key, { color })}
+                      brandContext={brandContext}
+                      recentColors={recentColors}
                     />
-                    <FieldInput
-                      label="Scale"
-                      description="0.25 to 4. Default: 1"
-                      value={String(selected.scale ?? '')}
-                      onChange={(v) => {
-                        const n = v ? Math.min(4, Math.max(0.25, Number(v))) : undefined
-                        updateAnnotation(a._key, { scale: n })
-                      }}
+                    <OpacitySlider
+                      value={selected.opacity}
+                      onChange={(opacity) => updateAnnotation(a._key, { opacity })}
                     />
-                    <FieldInput
-                      label="Rotation (°)"
-                      description="0 to 360"
-                      value={String(selected.rotation ?? '')}
-                      onChange={(v) => updateAnnotation(a._key, { rotation: v ? Number(v) : undefined })}
-                    />
-                    <FieldInput
-                      label="Opacity"
-                      description="0 (invisible) to 1 (fully visible). Default: 1"
-                      value={String(selected.opacity ?? '')}
-                      onChange={(v) => {
-                        const n = v ? Math.min(1, Math.max(0, Number(v))) : undefined
-                        updateAnnotation(a._key, { opacity: n })
-                      }}
-                    />
-                    <div className="annotation-card-coords">
-                      <FieldInput
-                        label="X %"
-                        value={String(Math.round(selected.x * 100) / 100)}
-                        onChange={(v) => updateAnnotation(a._key, { x: Number(v) || 0 })}
-                      />
-                      <FieldInput
-                        label="Y %"
-                        value={String(Math.round(selected.y * 100) / 100)}
-                        onChange={(v) => updateAnnotation(a._key, { y: Number(v) || 0 })}
-                      />
-                    </div>
                   </div>
                 ) : null}
               </div>
@@ -338,103 +310,335 @@ function SvgAnnotationFields({
   }
 
   return (
-    <>
-      <div className="annotation-svg-upload">
-        <button
-          type="button"
-          className="annotation-add-btn"
-          onClick={() => fileRef.current?.click()}
-          style={{ width: '100%' }}
-        >
-          {a.svgText ? 'Replace SVG' : 'Upload SVG'}
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept=".svg,image/svg+xml"
-          style={{ display: 'none' }}
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) handleSvgFile(file)
-            e.target.value = ''
-          }}
-        />
-      </div>
-      {a.svgText ? (
-        <FieldTextarea
-          label="SVG markup"
-          description="Raw SVG XML. Colour is applied via CSS currentColor."
-          value={a.svgText}
-          onChange={(svgText) => onUpdate({ svgText })}
-          rows={3}
-        />
-      ) : null}
-      <FieldInput
-        label="Width (cqi)"
-        description="Width in container query units. Default: 6"
-        value={String(a.width ?? '')}
-        onChange={(v) => onUpdate({ width: v ? Number(v) : undefined })}
+    <div className="annotation-svg-upload">
+      <button
+        type="button"
+        className="annotation-add-btn"
+        onClick={() => fileRef.current?.click()}
+        style={{ width: '100%' }}
+      >
+        {a.svgText ? 'Replace SVG' : 'Upload SVG'}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept=".svg,image/svg+xml"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) handleSvgFile(file)
+          e.target.value = ''
+        }}
       />
-    </>
+    </div>
   )
 }
 
-function AnnotationColorField({
+/**
+ * Opacity slider 0–100% (stored as 0–1 on the annotation).
+ */
+export function OpacitySlider({
   value,
   onChange,
 }: {
+  value: number | undefined
+  onChange: (next: number | undefined) => void
+}) {
+  const pct = Math.round((value ?? 1) * 100)
+  return (
+    <div className="annotation-opacity-field">
+      <div className="annotation-opacity-header">
+        <span className="field-label-text">Opacity</span>
+        <span className="annotation-opacity-value">{pct}%</span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={1}
+        value={pct}
+        className="annotation-opacity-slider"
+        onChange={(e) => {
+          const next = Number(e.target.value) / 100
+          onChange(next >= 1 ? undefined : next)
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Inline colour control for an annotation. Shows the active swatch + a
+ * "Pick…" button which opens a popover anchored to the swatch with the same
+ * Recent / Brand / Custom layout as the recolour-element popover.
+ */
+export function AnnotationColorField({
+  value,
+  onChange,
+  brandContext,
+  recentColors,
+}: {
   value: string | undefined
   onChange: (color: string | undefined) => void
+  brandContext?: BrandContext
+  recentColors: string[]
 }) {
-  const { accentColor, backgroundColor, textColor, customColors, theme } = useBrochureBranding()
-  const brandCtx: BrandContext = { accentColor, backgroundColor, textColor, theme, customColors }
+  const [open, setOpen] = useState(false)
+  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+  const ctx: BrandContext = brandContext ?? {}
   const isToken = value ? isBrandToken(value) : false
-  const resolved = value && isToken ? resolveColor(value, brandCtx) : value
+  const resolved = value && isToken ? resolveColor(value, ctx) : value
+  const swatchBg = resolved && HEX_RE.test(resolved) ? resolved : value && HEX_RE.test(value) ? value : 'transparent'
+
+  function openPopover() {
+    const rect = buttonRef.current?.getBoundingClientRect()
+    if (rect) setAnchor({ x: rect.left, y: rect.bottom + 6 })
+    setOpen(true)
+  }
 
   return (
     <div className="annotation-color-field">
       <div className="annotation-color-field-label">
         <span className="field-label-text">Colour</span>
-        {isToken ? (
-          <span className="annotation-color-token-badge">{tokenLabel(value!, brandCtx) ?? value}</span>
+        {isToken && brandContext ? (
+          <span className="annotation-color-token-badge">{tokenLabel(value!, ctx) ?? value}</span>
         ) : null}
       </div>
-      <div className="annotation-brand-swatches">
-        {BRAND_TOKENS.map((t) => {
-          const hex = t.resolve(brandCtx)
-          const isActive = value === t.token
-          return (
-            <button
-              key={t.token}
-              type="button"
-              className={`annotation-brand-swatch${isActive ? ' active' : ''}`}
-              style={{ background: hex }}
-              title={`${t.label} (${hex})`}
-              onClick={() => onChange(t.token)}
-            />
-          )
-        })}
-        {(customColors ?? []).map((c) => {
-          const token = `custom:${c._key}`
-          const isActive = value === token
-          return (
-            <button
-              key={c._key}
-              type="button"
-              className={`annotation-brand-swatch${isActive ? ' active' : ''}`}
-              style={{ background: c.hex }}
-              title={`${c.name} (${c.hex})`}
-              onClick={() => onChange(token)}
-            />
-          )
-        })}
+      <button
+        ref={buttonRef}
+        type="button"
+        className="annotation-color-trigger"
+        onClick={openPopover}
+        aria-label="Pick colour"
+      >
+        <span className="annotation-color-trigger-swatch" style={{ background: swatchBg }} />
+        <span className="annotation-color-trigger-label">
+          {value ? (isToken ? (tokenLabel(value, ctx) ?? value) : value) : 'Default'}
+        </span>
+      </button>
+      {open && anchor ? (
+        <AnnotationColorPopover
+          x={anchor.x}
+          y={anchor.y}
+          value={value}
+          recentColors={recentColors}
+          brandContext={ctx}
+          onChange={onChange}
+          onReset={() => onChange(undefined)}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * Floating colour-picker for annotations — same layout as RecolorPopover
+ * (Recent / Brand / Custom + native picker + hex input) but scoped to a
+ * single annotation.
+ */
+function AnnotationColorPopover({
+  x,
+  y,
+  value,
+  recentColors,
+  brandContext,
+  onChange,
+  onReset,
+  onClose,
+}: {
+  x: number
+  y: number
+  value: string | undefined
+  recentColors: string[]
+  brandContext: BrandContext
+  onChange: (color: string | undefined) => void
+  onReset: () => void
+  onClose: () => void
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    const onMouseDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('mousedown', onMouseDown)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('mousedown', onMouseDown)
+    }
+  }, [onClose])
+
+  const POPOVER_WIDTH = 280
+  const POPOVER_HEIGHT = 280
+  const margin = 12
+  const vw = typeof window !== 'undefined' ? window.innerWidth : POPOVER_WIDTH * 4
+  const vh = typeof window !== 'undefined' ? window.innerHeight : POPOVER_HEIGHT * 4
+  const clampedX = Math.min(Math.max(margin, x), vw - POPOVER_WIDTH - margin)
+  const clampedY = Math.min(Math.max(margin, y), vh - POPOVER_HEIGHT - margin)
+
+  const isToken = value ? isBrandToken(value) : false
+  const resolvedValue = value && isToken ? resolveColor(value, brandContext) : value
+  const swatchValue = resolvedValue && HEX_RE.test(resolvedValue) ? resolvedValue : '#e10600'
+
+  const commit = (next: string) => {
+    if (HEX_RE.test(next)) onChange(next.toLowerCase())
+  }
+
+  const [hexDraft, setHexDraft] = useState<string>(swatchValue)
+  useEffect(() => {
+    setHexDraft(swatchValue)
+  }, [swatchValue])
+
+  const commitHex = () => {
+    const trimmed = hexDraft.trim()
+    const withHash = trimmed.startsWith('#') ? trimmed : `#${trimmed}`
+    if (HEX_RE.test(withHash)) {
+      onChange(withHash.toLowerCase())
+    } else {
+      setHexDraft(swatchValue)
+    }
+  }
+
+  const customColors = brandContext.customColors ?? []
+
+  return (
+    <div
+      ref={ref}
+      className="recolor-popover"
+      style={{ position: 'fixed', left: clampedX, top: clampedY }}
+      role="dialog"
+      aria-label="Annotation colour"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="recolor-popover-header">
+        <div className="recolor-popover-title">Colour</div>
       </div>
-      <FieldColor
-        label=""
-        description="Or pick a custom colour"
-        value={resolved}
-        onChange={onChange}
-      />
+
+      <div className="recolor-popover-picker">
+        <label
+          className="field-color-swatch"
+          htmlFor="annotation-color-popover"
+          style={{ background: swatchValue }}
+        >
+          <input
+            id="annotation-color-popover"
+            type="color"
+            value={swatchValue}
+            onInput={(e) => commit((e.target as HTMLInputElement).value)}
+            onChange={(e) => commit(e.target.value)}
+            aria-label="Annotation colour picker"
+          />
+        </label>
+        <input
+          type="text"
+          className="recolor-popover-hex-input"
+          value={hexDraft}
+          onChange={(e) => setHexDraft(e.target.value)}
+          onBlur={commitHex}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              commitHex()
+            } else if (e.key === 'Escape') {
+              setHexDraft(swatchValue)
+              ;(e.target as HTMLInputElement).blur()
+            }
+          }}
+          spellCheck={false}
+          aria-label="Hex colour value"
+          placeholder="#000000"
+        />
+      </div>
+
+      {recentColors.length > 0 ? (
+        <div className="recolor-popover-recents">
+          <div className="recolor-popover-recents-label">Recent</div>
+          <div className="recolor-popover-recents-grid">
+            {recentColors.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`recolor-popover-recent-swatch${
+                  c.toLowerCase() === swatchValue.toLowerCase() ? ' active' : ''
+                }`}
+                style={{ background: c }}
+                title={c}
+                onClick={() => onChange(c.toLowerCase())}
+                aria-label={`Apply ${c}`}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="recolor-popover-recents">
+        <div className="recolor-popover-recents-label">Brand colours</div>
+        <div className="recolor-popover-recents-grid">
+          {BRAND_TOKENS.map((t) => {
+            const resolved = t.resolve(brandContext)
+            const isActive = value === t.token
+            return (
+              <button
+                key={t.token}
+                type="button"
+                className={`recolor-popover-recent-swatch${isActive ? ' active' : ''}`}
+                style={{ background: resolved }}
+                title={`${t.label} (${resolved})`}
+                onClick={() => onChange(t.token)}
+                aria-label={`Apply ${t.label}`}
+              />
+            )
+          })}
+        </div>
+        {customColors.length > 0 ? (
+          <>
+            <div className="recolor-popover-recents-label" style={{ marginTop: 6 }}>Custom</div>
+            <div className="recolor-popover-recents-grid">
+              {customColors.map((c) => {
+                const token = `custom:${c._key}`
+                const isActive = value === token
+                return (
+                  <button
+                    key={c._key}
+                    type="button"
+                    className={`recolor-popover-recent-swatch${isActive ? ' active' : ''}`}
+                    style={{ background: c.hex }}
+                    title={`${c.name} (${c.hex})`}
+                    onClick={() => onChange(token)}
+                    aria-label={`Apply ${c.name}`}
+                  />
+                )
+              })}
+            </div>
+          </>
+        ) : null}
+        {isToken ? (
+          <div className="recolor-popover-token-label">
+            Using: {tokenLabel(value!, brandContext) ?? value}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="recolor-popover-actions">
+        <button
+          type="button"
+          className="field-btn field-btn-ghost"
+          onClick={onReset}
+        >
+          Reset
+        </button>
+        <button type="button" className="field-btn" onClick={onClose}>
+          Done
+        </button>
+      </div>
     </div>
   )
 }

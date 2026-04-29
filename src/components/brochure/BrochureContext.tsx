@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, type ReactNode } from 'react'
-import type { Annotation, AnnotationKind, BrochureTheme, CustomColor, FontOverrides, SanityImage } from '@/types/brochure'
+import type { Annotation, AnnotationKind, BrochureTheme, CircuitDrawing, CustomColor, FontOverrides, SanityImage } from '@/types/brochure'
 
 /**
  * Lightweight context for brochure-wide branding values that descendant
@@ -66,6 +66,12 @@ export type BrochureBranding = {
     pendingKind: AnnotationKind | null
     onPlaceNew: (sectionKey: string, x: number, y: number) => void
     onAddAnnotation: (sectionKey: string, annotation: Annotation) => void
+    /** Free-hand drawings are stored separately from annotations and baked
+     *  into the circuit SVG at render time so they scale with the map. */
+    onAddDrawing: (sectionKey: string, drawing: CircuitDrawing) => void
+    /** When `pendingKind === 'draw'`, which sub-tool and stroke style to use. */
+    drawTool: 'freehand' | 'line'
+    drawStyle: 'solid' | 'dashed' | 'dotted'
   }
 }
 

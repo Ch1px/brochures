@@ -404,6 +404,20 @@ export type AnnotationSvg = AnnotationBase & {
 
 export type Annotation = AnnotationText | AnnotationImage | AnnotationPin | AnnotationSvg
 
+export type CircuitDrawing = {
+  _key: string
+  /** SVG path data in the parent SVG's viewBox coordinate space. */
+  d: string
+  /** Stroke width in viewBox units (so it scales with the circuit). */
+  strokeWidth: number
+  /** Stroke pattern. Defaults to 'solid'. */
+  dash?: 'solid' | 'dashed' | 'dotted'
+  /** Brand token (e.g. 'var:accent', 'custom:abc') or hex. Defaults to accent. */
+  color?: string
+  /** 0–1. Defaults to 1. */
+  opacity?: number
+}
+
 export type SectionCircuitMap = {
   _key: string
   _type: 'circuitMap'
@@ -414,6 +428,7 @@ export type SectionCircuitMap = {
   svgOriginal?: string
   colorOverrides?: ColorOverride[]
   annotations?: Annotation[]
+  drawings?: CircuitDrawing[]
   stats?: StatItem[]
   background?: string
   eyebrowColor?: string
