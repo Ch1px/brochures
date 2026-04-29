@@ -6,7 +6,7 @@ import type { TextScalePreset } from '@/types/brochure'
  * that wrap existing `clamp()` font-size values:
  *   font-size: calc(var(--title-scale, 1) * clamp(…))
  */
-const SCALE_MAP: Record<TextScalePreset, number> = {
+export const SCALE_MAP: Record<TextScalePreset, number> = {
   xs: 0.7,
   s: 0.85,
   m: 1,

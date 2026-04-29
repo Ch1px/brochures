@@ -1,6 +1,8 @@
 import type { Section } from '@/types/brochure'
 import { useBrochureBranding } from './BrochureContext'
 import { isBrandToken, resolveColor, type BrandContext } from '@/lib/brandColorTokens'
+import { SCALE_MAP } from '@/lib/textScale'
+import type { TextScalePreset } from '@/types/brochure'
 import { Cover } from './sections/Cover'
 import { ImageHero } from './sections/ImageHero'
 import { SectionHeading } from './sections/SectionHeading'
@@ -74,18 +76,30 @@ function resolveFieldColor(
 }
 
 /**
- * Build per-section colour CSS variable declarations from the section's
- * optional colour override fields. Supports both literal hex values and
- * brand/custom tokens (resolved via brandCtx). Returns null when no
- * overrides are set.
+ * Resolve a TextScalePreset to its numeric multiplier string.
+ * Returns null for 'm' (default) or invalid values.
  */
-function sectionColorCss(
+function resolveScale(value: unknown): string | null {
+  if (typeof value !== 'string' || !value || value === 'm') return null
+  const n = SCALE_MAP[value as TextScalePreset]
+  return n != null ? String(n) : null
+}
+
+/**
+ * Build per-section style CSS variable declarations from the section's
+ * optional colour and scale override fields. Supports both literal hex
+ * values and brand/custom tokens (resolved via brandCtx). Returns null
+ * when no overrides are set.
+ */
+function sectionStyleCss(
   section: Section,
   brandCtx: BrandContext | undefined,
 ): string | null {
   if (section._type === 'footer') return null
   const s = section as Record<string, unknown>
   const vars: string[] = []
+
+  // Colour overrides
   const eyebrow = resolveFieldColor(s.eyebrowColor, brandCtx)
   if (eyebrow) vars.push(`--section-eyebrow-color:${eyebrow}`)
   const title = resolveFieldColor(s.titleColor, brandCtx)
@@ -94,6 +108,15 @@ function sectionColorCss(
   if (body) vars.push(`--section-body-color:${body}`)
   const accent = resolveFieldColor(s.accentColor, brandCtx)
   if (accent) vars.push(`--section-accent-color:${accent}`)
+
+  // Scale overrides — override the brochure-wide --X-scale vars for this section
+  const ts = resolveScale(s.titleScale)
+  if (ts) vars.push(`--title-scale:${ts}`)
+  const es = resolveScale(s.eyebrowScale)
+  if (es) vars.push(`--eyebrow-scale:${es}`)
+  const bs = resolveScale(s.bodyScale)
+  if (bs) vars.push(`--tagline-scale:${bs}`)
+
   return vars.length > 0 ? vars.join(';') : null
 }
 
@@ -179,7 +202,7 @@ export function SectionRenderer(props: Props) {
     theme: branding.theme,
     customColors: branding.customColors,
   }
-  const colorCss = sectionColorCss(props.section, brandCtx)
+  const colorCss = sectionStyleCss(props.section, brandCtx)
 
   if (!bg && !colorCss) return element
 

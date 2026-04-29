@@ -55,6 +55,15 @@ const STYLE_CONFIG: Record<
   logoStrip:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
 }
 
+const SCALE_OPTIONS = [
+  { value: '', label: 'Default (brochure setting)' },
+  { value: 'xs', label: 'XS — Compact' },
+  { value: 's', label: 'S — Small' },
+  { value: 'm', label: 'M — Medium' },
+  { value: 'l', label: 'L — Large' },
+  { value: 'xl', label: 'XL — Extra Large' },
+]
+
 const OVERLAY_OPTIONS = [
   { value: 'none', label: 'None' },
   { value: 'light', label: 'Light' },
@@ -125,6 +134,35 @@ export function SectionStylesEditor({ section, onChange, brandContext }: Props) 
           )}
         </>
       ) : null}
+
+      <div className="field-section-heading">Text sizes</div>
+      {config.title && (
+        <FieldSelect
+          label="Title text size"
+          description="Override the title size for this section."
+          value={(s.titleScale as string) ?? ''}
+          onChange={(v) => anyChange({ titleScale: v || undefined })}
+          options={SCALE_OPTIONS}
+        />
+      )}
+      {config.eyebrow && (
+        <FieldSelect
+          label="Eyebrow text size"
+          description="Override the eyebrow size for this section."
+          value={(s.eyebrowScale as string) ?? ''}
+          onChange={(v) => anyChange({ eyebrowScale: v || undefined })}
+          options={SCALE_OPTIONS}
+        />
+      )}
+      {config.body && (
+        <FieldSelect
+          label="Body text size"
+          description="Override the body/tagline size for this section."
+          value={(s.bodyScale as string) ?? ''}
+          onChange={(v) => anyChange({ bodyScale: v || undefined })}
+          options={SCALE_OPTIONS}
+        />
+      )}
 
       {config.overlay || config.parallax ? (
         <>

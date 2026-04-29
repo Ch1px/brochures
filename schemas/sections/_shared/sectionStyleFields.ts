@@ -34,4 +34,49 @@ export const sectionStyleFields = [
     description:
       'Override the accent colour (brand red) for this section — affects eyebrows, CTAs, decorative elements. Hex format. Leave blank for the brochure default.',
   }),
+  defineField({
+    name: 'titleScale',
+    title: 'Title text size',
+    type: 'string',
+    description: 'Override the title text size for this section. Leave blank to use the brochure default.',
+    options: {
+      list: [
+        { title: 'XS — Compact', value: 'xs' },
+        { title: 'S — Small', value: 's' },
+        { title: 'M — Default', value: 'm' },
+        { title: 'L — Large', value: 'l' },
+        { title: 'XL — Extra Large', value: 'xl' },
+      ],
+    },
+  }),
+  defineField({
+    name: 'eyebrowScale',
+    title: 'Eyebrow text size',
+    type: 'string',
+    description: 'Override the eyebrow text size for this section. Leave blank to use the brochure default.',
+    options: {
+      list: [
+        { title: 'XS — Compact', value: 'xs' },
+        { title: 'S — Small', value: 's' },
+        { title: 'M — Default', value: 'm' },
+        { title: 'L — Large', value: 'l' },
+        { title: 'XL — Extra Large', value: 'xl' },
+      ],
+    },
+  }),
+  defineField({
+    name: 'bodyScale',
+    title: 'Body text size',
+    type: 'string',
+    description: 'Override the body/tagline text size for this section. Leave blank to use the brochure default.',
+    options: {
+      list: [
+        { title: 'XS — Compact', value: 'xs' },
+        { title: 'S — Small', value: 's' },
+        { title: 'M — Default', value: 'm' },
+        { title: 'L — Large', value: 'l' },
+        { title: 'XL — Extra Large', value: 'xl' },
+      ],
+    },
+  }),
 ]

@@ -77,6 +77,9 @@ export type SectionCover = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionIntro = {
@@ -94,6 +97,9 @@ export type SectionIntro = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionContentImage = {
@@ -110,6 +116,9 @@ export type SectionContentImage = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionSectionHeading = {
@@ -126,6 +135,9 @@ export type SectionSectionHeading = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionFeatures = {
@@ -144,6 +156,9 @@ export type SectionFeatures = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionImageHero = {
@@ -159,6 +174,9 @@ export type SectionImageHero = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type StatItem = {
@@ -178,6 +196,9 @@ export type SectionStats = {
   eyebrowColor?: string
   titleColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionPackages = {
@@ -200,6 +221,9 @@ export type SectionPackages = {
   eyebrowColor?: string
   titleColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionItinerary = {
@@ -216,6 +240,9 @@ export type SectionItinerary = {
   background?: string
   titleColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionGalleryEditorial = {
@@ -225,6 +252,9 @@ export type SectionGalleryEditorial = {
   images?: SanityImage[]
   background?: string
   titleColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionGalleryGrid = {
@@ -237,6 +267,9 @@ export type SectionGalleryGrid = {
   eyebrowColor?: string
   titleColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionGalleryDuo = {
@@ -250,6 +283,9 @@ export type SectionGalleryDuo = {
   eyebrowColor?: string
   titleColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionGalleryHero = {
@@ -263,6 +299,9 @@ export type SectionGalleryHero = {
   eyebrowColor?: string
   titleColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionQuoteProfile = {
@@ -278,6 +317,9 @@ export type SectionQuoteProfile = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionClosing = {
@@ -295,6 +337,9 @@ export type SectionClosing = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type ColorOverride = {
@@ -363,6 +408,9 @@ export type SectionCircuitMap = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionSpotlight = {
@@ -384,6 +432,9 @@ export type SectionSpotlight = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SectionTextCenter = {
@@ -397,6 +448,9 @@ export type SectionTextCenter = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type LogoItem = {
@@ -418,6 +472,9 @@ export type SectionLogos = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
 }
 
 export type SocialPlatform =
