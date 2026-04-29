@@ -1657,6 +1657,20 @@
 
   /* CLOSING */
   .page-closing { background: #000; position: relative; }
+  .page-closing-bg {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    filter: brightness(var(--closing-brightness, 0.55)) contrast(1.15);
+  }
+  .page-closing-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,var(--closing-grad-top, 0.3)) 0%, rgba(0,0,0,var(--closing-grad-mid, 0.1)) 35%, rgba(0,0,0,var(--closing-grad-bot, 0.85)) 100%);
+  }
+  .page-closing.closing-overlay-none   { --closing-brightness: 0.9;  --closing-grad-top: 0.05; --closing-grad-mid: 0;    --closing-grad-bot: 0.15; }
+  .page-closing.closing-overlay-light  { --closing-brightness: 0.7;  --closing-grad-top: 0.15; --closing-grad-mid: 0.05; --closing-grad-bot: 0.5;  }
+  .page-closing.closing-overlay-medium { --closing-brightness: 0.55; --closing-grad-top: 0.3;  --closing-grad-mid: 0.1;  --closing-grad-bot: 0.85; }
+  .page-closing.closing-overlay-strong { --closing-brightness: 0.35; --closing-grad-top: 0.55; --closing-grad-mid: 0.35; --closing-grad-bot: 0.95; }
   .page-closing-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
   .page-closing-inner {
     position: relative;
@@ -4420,6 +4434,7 @@
     .gallery-hero-thumb,
     .gallery-duo-item,
     /* Decorative SVGs */
+    .page-closing-bg,
     .page-section-heading-svg-decor,
     .page-spotlight-svg-decor,
     .page-closing-svg,
@@ -4466,6 +4481,7 @@
     .gallery-hero-lead,
     .gallery-hero-thumb,
     .gallery-duo-item,
+    .page-closing-bg,
     .page-section-heading-svg-decor,
     .page-spotlight-svg-decor,
     .page-closing-svg,
@@ -4510,7 +4526,8 @@
       .gallery-hero-lead,
       .gallery-hero-thumb,
       .gallery-duo-item,
-      .page-section-heading-svg-decor,
+      .page-closing-bg,
+    .page-section-heading-svg-decor,
       .page-spotlight-svg-decor,
       .page-closing-svg,
       .circuit-map-svg-wrap

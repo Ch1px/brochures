@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionClosing } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo } from '../fields'
 
 type Props = {
   section: SectionClosing
@@ -70,6 +70,20 @@ export function ClosingEditor({ section, onChange }: Props) {
           placeholder="+44 20 1234 5678"
         />
       </div>
+
+      <div className="field-section-heading">Background</div>
+      <FieldImage
+        label="Background image"
+        description="Optional full-bleed background image. The decorative SVG renders on top. Ideal: 1920×1080px landscape."
+        value={section.image}
+        onChange={(image) => onChange({ image })}
+      />
+      <FieldVideo
+        label="Background video (optional)"
+        description="Looping video replaces the image. The image above is used as the poster while loading."
+        value={section.video}
+        onChange={(video) => onChange({ video })}
+      />
     </>
   )
 }

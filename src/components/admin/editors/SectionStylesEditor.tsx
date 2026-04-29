@@ -48,7 +48,7 @@ const STYLE_CONFIG: Record<
   galleryDuo:               { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, parallax: false },
   galleryHero:              { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, parallax: false },
   quoteProfile:             { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  closing:                  { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
+  closing:                  { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  parallax: false },
   circuitMap:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
   spotlight:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  parallax: true  },
   textCenter:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },

@@ -53,6 +53,8 @@ const ANIMATABLE_CLASSES = [
   '.gallery-hero-lead',
   '.gallery-hero-thumb',
   '.gallery-duo-item',
+  // Closing background
+  '.page-closing-bg',
   // Decorative SVGs
   '.page-section-heading-svg-decor',
   '.page-spotlight-svg-decor',

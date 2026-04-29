@@ -1,6 +1,8 @@
 import type { SectionClosing } from '@/types/brochure'
+import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
+import { InlineMedia } from '../InlineMedia'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -13,20 +15,42 @@ type Props = {
 /**
  * Closing — ported from renderClosing().
  * Black background with dual red radial-gradient wash + racing lines.
+ * Optionally a full-bleed background image/video behind the SVG decoration.
  * Eyebrow, title, subtitle, CTA button, and contact (email + phone) beneath.
- *
- * The CTA href defaults to '#' matching the builder. If it's '#enquire', the
- * public brochure page should intercept the click and open the HubSpot lead modal
- * (wire this up in BrochureReader or a global handler when the modal ships).
  */
 export function Closing({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
   const ctaHref = data.ctaHref || '#'
   const gradId1 = `clg1-${data._key}`
   const gradId2 = `clg2-${data._key}`
+  const imageUrl = urlForSection(data.image, 2000)
+  const videoUrl = urlForFile(data.video)
 
   return (
-    <section className="section page-closing" data-section-id={data._key}>
+    <section
+      className={`section page-closing closing-overlay-${data.overlayStrength ?? 'medium'}`}
+      data-section-id={data._key}
+    >
+      {imageUrl ? (
+        <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
+          <div
+            className="page-closing-bg"
+            style={{ backgroundImage: `url('${imageUrl}')` }}
+          >
+            {videoUrl ? (
+              <video
+                className="media-video"
+                src={videoUrl}
+                poster={imageUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : null}
+          </div>
+        </InlineMedia>
+      ) : null}
       <svg
         className="page-closing-svg"
         style={{ color: 'var(--brand-red)' }}
@@ -45,10 +69,12 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
             <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
           </radialGradient>
         </defs>
-        <rect width="1600" height="1000" fill="#000" />
+        {!imageUrl && (
+          <rect width="1600" height="1000" fill="#000" />
+        )}
         <rect width="1600" height="1000" fill={`url(#${gradId1})`} />
         <rect width="1600" height="1000" fill={`url(#${gradId2})`} />
-        <g opacity={0.6}>
+        <g opacity={imageUrl ? 0.4 : 0.6}>
           <line x1={-50} y1={250} x2={1700} y2={80} stroke="currentColor" strokeWidth={2} opacity={0.5} />
           <line x1={-50} y1={310} x2={1700} y2={160} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
           <line x1={-50} y1={820} x2={1700} y2={940} stroke="currentColor" strokeWidth={2} opacity={0.4} />

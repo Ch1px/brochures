@@ -45,6 +45,32 @@ export default defineType({
       type: 'string',
       description: 'Public contact phone shown beneath the CTA',
     }),
+    defineField({
+      name: 'image',
+      type: 'image',
+      description: 'Optional full-bleed background image. The SVG decoration renders on top.',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'video',
+      type: 'file',
+      description: 'Optional looping background video. If set, plays in place of the image; the image is used as the poster.',
+      options: { accept: 'video/*' },
+    }),
+    defineField({
+      name: 'overlayStrength',
+      type: 'string',
+      title: 'Overlay strength',
+      description: 'Controls the dark overlay over the background image. Default: medium.',
+      options: {
+        list: [
+          { title: 'None', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium (default)', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+      },
+    }),
     ...sectionStyleFields,
     backgroundField,
   ],
