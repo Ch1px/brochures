@@ -211,6 +211,25 @@
   display: inline-block;
   margin-right: 8px;
 }
+.editor-topbar-menu-divider {
+  height: 1px;
+  background: var(--chrome-border);
+  margin: 4px 0;
+}
+.editor-topbar-menu button.danger {
+  color: #ff5555;
+}
+.editor-topbar-menu button.danger:hover {
+  background: rgba(255, 85, 85, 0.12);
+  color: #ff5555;
+}
+
+/* Library card delete button */
+.library-card-action.danger:hover {
+  color: #ff5555;
+  border-color: #ff5555;
+  background: rgba(255, 85, 85, 0.1);
+}
 
 /* ----- BODY (3-column layout, resizable) -----
    Widths are driven by inline styles from useEditorLayout() and persisted

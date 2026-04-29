@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import type { Brochure, BrochureStatus, BrochureTheme } from '@/types/brochure'
 import type { SaveStatus } from '@/hooks/useAutosave'
@@ -8,6 +9,7 @@ import {
   setBrochureStatusAction,
   setFeaturedBrochureAction,
   generatePreviewLinkAction,
+  deleteBrochureAction,
 } from '@/lib/sanity/actions'
 
 type Props = {
@@ -27,6 +29,7 @@ const STATUS_LABEL: Record<BrochureStatus, string> = {
 }
 
 export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChange, onThemeChange, onOpenSettings }: Props) {
+  const router = useRouter()
   const theme: BrochureTheme = brochure.theme ?? 'dark'
   const [pending, startTransition] = useTransition()
   const [publishMenu, setPublishMenu] = useState(false)
@@ -44,6 +47,18 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
   function handleFeature() {
     startTransition(async () => {
       await setFeaturedBrochureAction(brochure._id)
+    })
+  }
+
+  function handleDelete() {
+    if (!confirm(`Permanently delete "${brochure.title}"? This cannot be undone.`)) return
+    startTransition(async () => {
+      const res = await deleteBrochureAction(brochure._id)
+      if (res.ok) {
+        router.push('/admin')
+      } else {
+        alert(`Delete failed: ${'error' in res ? res.error : 'Unknown error'}`)
+      }
     })
   }
 
@@ -191,6 +206,10 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
                   {STATUS_LABEL[s]}
                 </button>
               ))}
+              <div className="editor-topbar-menu-divider" />
+              <button onClick={handleDelete} className="danger">
+                Delete permanently
+              </button>
             </div>
           ) : null}
         </div>

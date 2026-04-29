@@ -1,9 +1,11 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
 import { AiGenerateModal } from './AiGenerateModal'
+import { deleteBrochureAction } from '@/lib/sanity/actions'
 
 type BrochureRow = {
   _id: string
@@ -34,6 +36,8 @@ const STATUS_OPTIONS = [
  * "New brochure" modal, and per-card "Duplicate" action.
  */
 export function AdminLibraryClient({ brochures }: Props) {
+  const router = useRouter()
+  const [deletePending, startDeleteTransition] = useTransition()
   const [newOpen, setNewOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
   const [duplicateSource, setDuplicateSource] = useState<DuplicateSource | null>(null)
@@ -169,6 +173,31 @@ export function AdminLibraryClient({ brochures }: Props) {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                     <rect x="9" y="9" width="11" height="11" rx="2" />
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                </button>
+                <button
+                  className="library-card-action danger"
+                  disabled={deletePending}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (!confirm(`Permanently delete "${b.title}"? This cannot be undone.`)) return
+                    startDeleteTransition(async () => {
+                      const res = await deleteBrochureAction(b._id)
+                      if (res.ok) {
+                        router.refresh()
+                      } else {
+                        alert(`Delete failed: ${'error' in res ? res.error : 'Unknown error'}`)
+                      }
+                    })
+                  }}
+                  title="Delete"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6M14 11v6" />
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
                   </svg>
                 </button>
               </div>

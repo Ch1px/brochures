@@ -112,7 +112,7 @@ export async function duplicateBrochureAction(
 export async function deleteBrochureAction(id: string) {
   await assertAdmin()
   const result = await deleteBrochureMutation(id)
-  revalidatePath('/admin')
+  revalidatePath('/admin', 'page')
   return result
 }
 
