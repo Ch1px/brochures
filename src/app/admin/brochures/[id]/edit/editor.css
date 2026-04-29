@@ -367,9 +367,40 @@
 .editor-page-group {
   position: relative;
   border-bottom: 1px solid var(--chrome-border);
+  transition: background 0.2s;
 }
 .editor-page-group.active-page {
   background: rgba(225, 6, 0, 0.04);
+}
+.editor-page-group.dragging {
+  opacity: 0.5;
+}
+/* Drop target — page visually "opens" to receive the section */
+.editor-page-group.drag-target {
+  background: rgba(225, 6, 0, 0.06);
+  box-shadow: inset 0 0 0 1px var(--brand-red-dim), 0 0 12px rgba(225, 6, 0, 0.1);
+  border-radius: 4px;
+  margin: 2px 4px;
+  border-bottom-color: transparent;
+  transition: background 0.15s, box-shadow 0.15s, margin 0.15s;
+}
+.editor-page-group.drag-target .editor-page-group-header {
+  background: transparent;
+}
+.editor-page-group.drag-target .editor-page-chevron {
+  color: var(--brand-red);
+}
+.editor-page-group.drag-target .editor-page-num {
+  color: var(--brand-red);
+}
+.editor-page-group.drag-target .editor-section-list-collapsed {
+  color: var(--brand-red);
+  padding-bottom: 10px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.editor-page-group.drag-target .editor-section-list-collapsed::after {
+  content: ' — drop here';
 }
 .editor-page-group.active-page::before {
   content: '';
@@ -391,6 +422,37 @@
 }
 .editor-page-group-header:hover {
   background: rgba(255, 255, 255, 0.03);
+}
+.editor-page-chevron {
+  flex-shrink: 0;
+  color: var(--chrome-text-tertiary);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s;
+}
+.editor-page-chevron.open {
+  transform: rotate(90deg);
+  color: var(--brand-red);
+}
+
+/* Accordion expand/collapse animation */
+.editor-section-list-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.editor-section-list-wrap.expanded {
+  grid-template-rows: 1fr;
+}
+.editor-section-list-inner {
+  overflow: hidden;
+}
+
+.editor-section-list-collapsed {
+  padding: 4px 12px 6px 46px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--chrome-text-muted);
 }
 
 .editor-page-num {
@@ -526,7 +588,7 @@
   gap: 8px;
   padding: 6px 12px 6px 28px;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.15s, border-color 0.15s, opacity 0.2s;
   border-left: 2px solid transparent;
 }
 .editor-section-item:hover {
@@ -535,6 +597,9 @@
 .editor-section-item.active-section {
   background: rgba(225, 6, 0, 0.08);
   border-left-color: var(--brand-red);
+}
+.editor-section-item.dragging {
+  opacity: 0.5;
 }
 
 .editor-section-num {
