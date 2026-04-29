@@ -736,7 +736,7 @@
   }
   .intro-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(24px, 4.1cqi, 52px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em;
@@ -1086,7 +1086,7 @@
     display: flex;
     flex-direction: column;
     padding: 6% 7%;
-    gap: clamp(18px, 2.5cqi, 32px);
+    gap: clamp(28px, 3.8cqi, 52px);
   }
   .linked-cards-header {
     display: flex;
@@ -1107,7 +1107,7 @@
   .linked-cards-title {
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(20px, 3.5cqi, 40px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     line-height: 0.95;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -1274,7 +1274,7 @@
   .features-header { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
   .features-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em; text-transform: uppercase;
@@ -1386,7 +1386,7 @@
   }
   .image-hero-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(28px, 5.3cqi, 70px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.92; letter-spacing: 0.005em;
     text-transform: uppercase;
@@ -1421,7 +1421,7 @@
   }
   .stats-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
@@ -1484,7 +1484,7 @@
   }
   .packages-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
@@ -1587,7 +1587,7 @@
   .itinerary-header { margin-bottom: clamp(14px, 2cqi, 28px); }
   .itinerary-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
@@ -1642,7 +1642,7 @@
   .gallery-header { margin-bottom: clamp(16px, 2cqi, 28px); }
   .gallery-title {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(22px, 3.4cqi, 42px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95; letter-spacing: 0.01em; text-transform: uppercase;
   }
@@ -2015,7 +2015,7 @@
   .gallery-variant-title {
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(20px, 3.5cqi, 42px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.96;
     letter-spacing: 0.01em;
@@ -2248,7 +2248,7 @@
   .circuit-map-title {
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em;
@@ -3951,7 +3951,10 @@
       max-height: 280px;
     }
     .intro-mark-letter { font-size: clamp(90px, 28cqi, 140px); }
-    .intro-title { font-size: calc(var(--title-scale, 1) * clamp(24px, 7.5cqi, 40px)); }
+    .intro-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
+    .text-center-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
+    .linked-cards-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
+    .gallery-variant-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
 
     /* FEATURES — stack cards vertically with horizontal card layout (image + text row) */
     .features-grid { grid-template-columns: 1fr; gap: 14px; }
@@ -3960,7 +3963,7 @@
       align-items: flex-start;
       gap: 10px;
     }
-    .features-title { font-size: calc(var(--title-scale, 1) * clamp(24px, 7.5cqi, 40px)); }
+    .features-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
     .features-subtitle { max-width: 100%; margin-left: 0; }
     .features-grid { flex: none; min-height: 0; }
     .feature-card {
@@ -3979,11 +3982,11 @@
     .page-image-hero-bg::after {
       background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.75) 100%);
     }
-    .image-hero-title { font-size: calc(var(--title-scale, 1) * clamp(28px, 8.5cqi, 48px)); }
+    .image-hero-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
     .image-hero-text { max-width: 100%; }
 
     /* STATS — 2 cols */
-    .stats-title { font-size: calc(var(--title-scale, 1) * clamp(22px, 7cqi, 38px)); }
+    .stats-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .stats-cell { padding: 18px 14px; border-right: 1px solid var(--page-border); }
     .stats-cell:nth-child(2n) { border-right: none; }
@@ -3993,10 +3996,10 @@
 
     /* PACKAGES — stack */
     .packages-grid { grid-template-columns: 1fr; gap: 12px; }
-    .packages-title { font-size: calc(var(--title-scale, 1) * clamp(22px, 7cqi, 38px)); }
+    .packages-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
 
     /* ITINERARY — tighter */
-    .itinerary-title { font-size: calc(var(--title-scale, 1) * clamp(22px, 7cqi, 38px)); }
+    .itinerary-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
     .itinerary-day {
       grid-template-columns: auto 1fr;
       gap: 14px;
@@ -4009,7 +4012,7 @@
     .day-content { grid-column: 2; grid-row: 2; }
 
     /* GALLERY — 2 col grid */
-    .gallery-title { font-size: calc(var(--title-scale, 1) * clamp(22px, 7cqi, 38px)); }
+    .gallery-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
     .gallery-grid {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: auto auto auto;
@@ -4077,7 +4080,7 @@
     .section-heading-text { max-width: 100%; }
 
     /* CIRCUIT MAP */
-    .circuit-map-title { font-size: calc(var(--title-scale, 1) * clamp(22px, 7cqi, 38px)); }
+    .circuit-map-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
     .circuit-map-caption { max-width: 100%; }
     .circuit-map-stat { padding: 12px 8px; }
     .circuit-map-stat-value { font-size: clamp(22px, 6cqi, 34px); }
@@ -4937,7 +4940,7 @@
   .logos-title {
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(22px, 3.7cqi, 44px));
+    font-size: calc(var(--title-scale, 1) * clamp(22px, 4cqi, 48px));
     color: var(--section-title-color, var(--title-text));
     line-height: 0.95;
     letter-spacing: 0.01em;
@@ -5203,7 +5206,7 @@
   @container (max-width: 768px) {
     .page-logos-inner { padding: 8% 7%; gap: clamp(16px, 3cqi, 28px); }
     .logos-header { max-width: 100%; }
-    .logos-title { font-size: calc(var(--title-scale, 1) * clamp(22px, 7cqi, 38px)); }
+    .logos-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
     .logos-subtitle { max-width: 100%; }
     .page-logos-wall .logos-grid,
     .page-logos-wall .logos-grid[data-count="6"],
