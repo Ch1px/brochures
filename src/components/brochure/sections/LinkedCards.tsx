@@ -40,7 +40,6 @@ export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
                     {!imageUrl ? <ImagePlaceholderSVG /> : null}
                   </div>
                 </InlineMedia>
-                <div className="linked-card-overlay" />
                 <div className="linked-card-body">
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="linked-card-title">{card.title ?? ''}</div></InlineEditable>
                   {(card.text || editorMode) ? <InlineEditable sectionKey={data._key} field={`cards.${i}.text`}><p className="linked-card-text">{card.text || ''}</p></InlineEditable> : null}

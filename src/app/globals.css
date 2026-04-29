@@ -1134,7 +1134,8 @@
     transition: transform 0.4s;
   }
   .linked-card:hover .linked-card-bg { transform: scale(1.03); }
-  .linked-card-overlay {
+  .linked-card-bg::after {
+    content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.75) 100%);
@@ -1317,7 +1318,8 @@
     transition: transform 0.4s;
   }
   .feature-card:hover .feature-card-bg { transform: scale(1.03); }
-  .feature-card-overlay {
+  .feature-card-bg::after {
+    content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, transparent 25%, rgba(0,0,0,0.8) 100%);

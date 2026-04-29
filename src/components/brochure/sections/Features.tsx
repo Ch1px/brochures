@@ -48,7 +48,6 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
                     {!imageUrl ? <ImagePlaceholderSVG /> : null}
                   </div>
                 </InlineMedia>
-                <div className="feature-card-overlay" />
                 <div className="feature-card-body">
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="feature-card-title">{card.title ?? ''}</div></InlineEditable>
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.text`} richBody><RichBody className="feature-card-text" text={card.text} /></InlineEditable>
