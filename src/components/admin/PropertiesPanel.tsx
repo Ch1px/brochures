@@ -1,6 +1,8 @@
 'use client'
 
-import type { Section } from '@/types/brochure'
+import { useEffect, useState } from 'react'
+import type { Section, SectionFooter } from '@/types/brochure'
+import type { BrandContext } from '@/lib/brandColorTokens'
 import { labelFor } from '@/lib/sectionLabels'
 import { CoverEditor } from './editors/CoverEditor'
 import { IntroEditor } from './editors/IntroEditor'
@@ -22,7 +24,7 @@ import { SpotlightEditor } from './editors/SpotlightEditor'
 import { TextCenterEditor } from './editors/TextCenterEditor'
 import { FooterEditor } from './editors/FooterEditor'
 import { LogosEditor } from './editors/LogosEditor'
-import { FieldBackground } from './fields/FieldBackground'
+import { SectionStylesEditor } from './editors/SectionStylesEditor'
 
 type Props = {
   section: Section | null
@@ -32,6 +34,7 @@ type Props = {
     totalSections: number
   } | null
   onChange: (update: Partial<Section>) => void
+  brandContext?: BrandContext
   accentColor?: string
   recolorMode?: boolean
   onRecolorModeChange?: (next: boolean) => void
@@ -44,15 +47,21 @@ type Props = {
   onSetPendingAnnotation?: (kind: import('@/types/brochure').AnnotationKind | null) => void
 }
 
+type Tab = 'content' | 'styles'
+
 /**
  * Right-panel dispatcher — picks the editor component for the selected section.
  * All 19 section types wired (20 _type values including variants).
- * Image uploads are still disabled; the upload pipeline lands in sub-batch 2F.
+ *
+ * Two tabs:
+ *   Content — text, image, video, and array fields (type-specific editors)
+ *   Styles  — colour overrides, overlay strength, parallax, section background
  */
 export function PropertiesPanel({
   section,
   context,
   onChange,
+  brandContext,
   accentColor,
   recolorMode = false,
   onRecolorModeChange,
@@ -64,6 +73,13 @@ export function PropertiesPanel({
   pendingAnnotationKind,
   onSetPendingAnnotation,
 }: Props) {
+  const [activeTab, setActiveTab] = useState<Tab>('content')
+
+  // Reset to Content tab when switching sections
+  useEffect(() => {
+    setActiveTab('content')
+  }, [section?._key])
+
   if (!section) {
     return (
       <div className="properties-empty">
@@ -75,6 +91,8 @@ export function PropertiesPanel({
       </div>
     )
   }
+
+  const isFooter = section._type === 'footer'
 
   return (
     <div className="properties">
@@ -88,16 +106,33 @@ export function PropertiesPanel({
               : null}
           </div>
         ) : null}
+        {!isFooter ? (
+          <div className="properties-tabs">
+            <button
+              className={`properties-tab ${activeTab === 'content' ? 'active' : ''}`.trim()}
+              onClick={() => setActiveTab('content')}
+            >
+              Content
+            </button>
+            <button
+              className={`properties-tab ${activeTab === 'styles' ? 'active' : ''}`.trim()}
+              onClick={() => setActiveTab('styles')}
+            >
+              Styles
+            </button>
+          </div>
+        ) : null}
       </div>
       <div className="properties-body">
-        {renderEditor(section, onChange, accentColor, mapEditMode, onMapEditModeChange, recolorMode, onRecolorModeChange, onPickByColor, selectedAnnotationKey, onSelectAnnotation, pendingAnnotationKind, onSetPendingAnnotation)}
-        <div className="properties-section-divider" />
-        <FieldBackground
-          label="Section background"
-          description='Override the page background for this section. Pick a colour, type a hex/rgba value, or choose "None" for transparent.'
-          value={section.background}
-          onChange={(value) => onChange({ background: value } as Partial<Section>)}
-        />
+        {activeTab === 'content' || isFooter ? (
+          renderEditor(section, onChange, accentColor, mapEditMode, onMapEditModeChange, recolorMode, onRecolorModeChange, onPickByColor, selectedAnnotationKey, onSelectAnnotation, pendingAnnotationKind, onSetPendingAnnotation)
+        ) : (
+          <SectionStylesEditor
+            section={section as Exclude<Section, SectionFooter>}
+            onChange={onChange}
+            brandContext={brandContext}
+          />
+        )}
       </div>
     </div>
   )

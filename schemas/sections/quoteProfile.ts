@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 export default defineType({
   name: 'quoteProfile',
@@ -37,6 +38,7 @@ export default defineType({
       rows: 4,
       description: 'Supporting body text beneath the quote',
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

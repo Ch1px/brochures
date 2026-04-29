@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 export default defineType({
   name: 'spotlight',
@@ -69,6 +70,7 @@ export default defineType({
         layout: 'radio',
       },
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

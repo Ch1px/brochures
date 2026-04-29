@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 export default defineType({
   name: 'contentImage',
@@ -18,6 +19,7 @@ export default defineType({
       options: { accept: 'video/*' },
     }),
     defineField({ name: 'caption', type: 'string' }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

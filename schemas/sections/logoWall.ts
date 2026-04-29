@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 /**
  * Shared logo item — used by both the Wall and Strip logo sections.
@@ -51,6 +52,7 @@ export default defineType({
       of: [logoItem],
       validation: (Rule) => Rule.min(1).max(24),
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

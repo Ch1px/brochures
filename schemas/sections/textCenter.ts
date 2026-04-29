@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 export default defineType({
   name: 'textCenter',
@@ -10,6 +11,7 @@ export default defineType({
     defineField({ name: 'eyebrow', type: 'string' }),
     defineField({ name: 'title', type: 'text', rows: 2 }),
     defineField({ name: 'body', type: 'text', rows: 6, validation: (Rule) => Rule.required() }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

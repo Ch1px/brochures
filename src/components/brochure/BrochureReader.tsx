@@ -7,9 +7,11 @@ import { AnimatedSection } from './AnimatedSection'
 import { BrochureBrandingProvider } from './BrochureContext'
 import { GoogleFontsLink } from './GoogleFontsLink'
 import { TextureOverride } from './TextureOverride'
+import { CustomFontFaces } from './CustomFontFaces'
 import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
+import { textScaleVars } from '@/lib/textScale'
 
 type Props = {
   brochure: Brochure
@@ -72,18 +74,20 @@ export function BrochureReader({ brochure }: Props) {
   const accentStyle = accentColorVars(brochure.accentColor)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
-  const fontStyle = fontOverrideVars(brochure.fontOverrides)
+  const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
   const navStyle = navColorVars(brochure.navColor)
+  const scaleStyle = textScaleVars(brochure)
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
     <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
     <GoogleFontsLink url={fontsUrl} />
+    <CustomFontFaces customFonts={brochure.customFonts} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div
       className="preview-mode visible"
       data-theme={theme}
-      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}
+      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
     >
       <BrochureNav
         brand={brochure.title}

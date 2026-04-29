@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionSpotlight } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldBoolean, FieldSelect } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldBoolean } from '../fields'
 
 type Props = {
   section: SectionSpotlight
@@ -75,26 +75,6 @@ export function SpotlightEditor({ section, onChange }: Props) {
         value={section.backgroundVideo}
         onChange={(backgroundVideo) => onChange({ backgroundVideo })}
       />
-      <div className="field-row-2">
-        <FieldSelect
-          label="Overlay strength"
-          description="How much the dark gradient dims the background."
-          value={section.overlayStrength ?? 'medium'}
-          onChange={(v) => onChange({ overlayStrength: v as 'none' | 'light' | 'medium' | 'strong' })}
-          options={[
-            { value: 'none', label: 'None' },
-            { value: 'light', label: 'Light' },
-            { value: 'medium', label: 'Medium' },
-            { value: 'strong', label: 'Strong' },
-          ]}
-        />
-        <FieldBoolean
-          label="Parallax background"
-          description="Background drifts slower than content as the page scrolls."
-          value={section.backgroundParallax}
-          onChange={(backgroundParallax) => onChange({ backgroundParallax })}
-        />
-      </div>
     </>
   )
 }

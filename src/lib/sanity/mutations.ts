@@ -1,6 +1,6 @@
 import 'server-only'
 import { sanityWriteClient } from './client'
-import type { Brochure, FontOverrides, SanityImage } from '@/types/brochure'
+import type { Brochure, CustomFonts, FontOverrides, SanityImage } from '@/types/brochure'
 
 /**
  * Sanity mutations for brochure documents — all server-side only.
@@ -94,6 +94,10 @@ export type BrochureSettingsUpdate = {
   backgroundColor?: string | null
   textColor?: string | null
   fontOverrides?: FontOverrides | null
+  customFonts?: CustomFonts | null
+  titleScale?: string | null
+  eyebrowScale?: string | null
+  taglineScale?: string | null
   customColors?: { _key: string; name: string; hex: string }[] | null
   navColor?: string | null
   textureImage?: SanityImage | null
@@ -158,6 +162,22 @@ export async function updateBrochureSettings(
     if (updates.fontOverrides !== undefined) {
       if (updates.fontOverrides === null) unset.push('fontOverrides')
       else patch.fontOverrides = updates.fontOverrides
+    }
+    if (updates.customFonts !== undefined) {
+      if (updates.customFonts === null) unset.push('customFonts')
+      else patch.customFonts = updates.customFonts
+    }
+    if (updates.titleScale !== undefined) {
+      if (updates.titleScale === null || updates.titleScale === 'm') unset.push('titleScale')
+      else patch.titleScale = updates.titleScale
+    }
+    if (updates.eyebrowScale !== undefined) {
+      if (updates.eyebrowScale === null || updates.eyebrowScale === 'm') unset.push('eyebrowScale')
+      else patch.eyebrowScale = updates.eyebrowScale
+    }
+    if (updates.taglineScale !== undefined) {
+      if (updates.taglineScale === null || updates.taglineScale === 'm') unset.push('taglineScale')
+      else patch.taglineScale = updates.taglineScale
     }
     if (updates.customColors !== undefined) {
       if (updates.customColors === null || updates.customColors.length === 0) unset.push('customColors')
@@ -278,6 +298,10 @@ export async function duplicateBrochure(
       backgroundColor: src.backgroundColor,
       textColor: src.textColor,
       fontOverrides: src.fontOverrides,
+      customFonts: src.customFonts,
+      titleScale: src.titleScale,
+      eyebrowScale: src.eyebrowScale,
+      taglineScale: src.taglineScale,
       customColors: src.customColors,
       navColor: src.navColor,
       textureImage: src.textureImage,

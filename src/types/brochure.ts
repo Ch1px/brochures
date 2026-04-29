@@ -13,6 +13,26 @@ export type BrochureStatus = 'draft' | 'published' | 'unpublished' | 'archived'
 
 export type BrochureTheme = 'dark' | 'light'
 
+export type TextScalePreset = 'xs' | 's' | 'm' | 'l' | 'xl'
+
+export type CustomFontWeight = {
+  _key: string
+  weight: string
+  file: SanityFile
+}
+
+export type CustomFont = {
+  name: string
+  weights: CustomFontWeight[]
+}
+
+export type CustomFonts = {
+  display?: CustomFont
+  script?: CustomFont
+  body?: CustomFont
+  mono?: CustomFont
+}
+
 export type FontOverrides = {
   display?: string
   displayWeight?: string
@@ -54,6 +74,9 @@ export type SectionCover = {
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   background?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionIntro = {
@@ -67,6 +90,10 @@ export type SectionIntro = {
   video?: SanityFile
   caption?: string
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionContentImage = {
@@ -79,6 +106,10 @@ export type SectionContentImage = {
   video?: SanityFile
   caption?: string
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionSectionHeading = {
@@ -91,6 +122,10 @@ export type SectionSectionHeading = {
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionFeatures = {
@@ -106,6 +141,9 @@ export type SectionFeatures = {
     image?: SanityImage
   }>
   background?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionImageHero = {
@@ -117,6 +155,10 @@ export type SectionImageHero = {
   image: SanityImage
   video?: SanityFile
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type StatItem = {
@@ -133,6 +175,9 @@ export type SectionStats = {
   title: string
   stats: StatItem[]
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  accentColor?: string
 }
 
 export type SectionPackages = {
@@ -152,6 +197,9 @@ export type SectionPackages = {
     features?: string[]
   }>
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  accentColor?: string
 }
 
 export type SectionItinerary = {
@@ -166,6 +214,8 @@ export type SectionItinerary = {
     description?: string
   }>
   background?: string
+  titleColor?: string
+  accentColor?: string
 }
 
 export type SectionGalleryEditorial = {
@@ -174,6 +224,7 @@ export type SectionGalleryEditorial = {
   title: string
   images?: SanityImage[]
   background?: string
+  titleColor?: string
 }
 
 export type SectionGalleryGrid = {
@@ -183,6 +234,9 @@ export type SectionGalleryGrid = {
   title: string
   images?: SanityImage[]
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  accentColor?: string
 }
 
 export type SectionGalleryDuo = {
@@ -193,6 +247,9 @@ export type SectionGalleryDuo = {
   images?: SanityImage[]
   captions?: string[]
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  accentColor?: string
 }
 
 export type SectionGalleryHero = {
@@ -203,6 +260,9 @@ export type SectionGalleryHero = {
   caption?: string
   images?: SanityImage[]
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  accentColor?: string
 }
 
 export type SectionQuoteProfile = {
@@ -214,6 +274,10 @@ export type SectionQuoteProfile = {
   quote: string
   body?: string
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionClosing = {
@@ -227,6 +291,10 @@ export type SectionClosing = {
   email?: string
   phone?: string
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type ColorOverride = {
@@ -291,6 +359,10 @@ export type SectionCircuitMap = {
   annotations?: Annotation[]
   stats?: StatItem[]
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionSpotlight = {
@@ -308,6 +380,10 @@ export type SectionSpotlight = {
   backgroundParallax?: boolean
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SectionTextCenter = {
@@ -317,6 +393,10 @@ export type SectionTextCenter = {
   title?: string
   body: string
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type LogoItem = {
@@ -334,6 +414,10 @@ export type SectionLogos = {
   subtitle?: string
   logos: LogoItem[]
   background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
 }
 
 export type SocialPlatform =
@@ -406,6 +490,10 @@ export type Brochure = {
   backgroundColor?: string
   textColor?: string
   fontOverrides?: FontOverrides
+  customFonts?: CustomFonts
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  taglineScale?: TextScalePreset
   navColor?: string
   textureImage?: SanityImage
   hideTexture?: boolean

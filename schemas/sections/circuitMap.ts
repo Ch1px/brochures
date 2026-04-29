@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 /**
  * Circuit Map section. The SVG is uploaded via the builder, which remaps
@@ -136,6 +137,7 @@ export default defineType({
         },
       ],
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

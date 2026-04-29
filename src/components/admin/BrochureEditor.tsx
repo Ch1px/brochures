@@ -746,6 +746,13 @@ export function BrochureEditor({ initialBrochure }: Props) {
                 section={currentSection}
                 context={propertiesContext}
                 onChange={handleSectionChange}
+                brandContext={{
+                  accentColor: brochure.accentColor,
+                  backgroundColor: brochure.backgroundColor,
+                  textColor: brochure.textColor,
+                  theme: brochure.theme,
+                  customColors: brochure.customColors,
+                }}
                 accentColor={brochure.accentColor}
                 mapEditMode={mapEditMode}
                 onMapEditModeChange={setMapEditMode}
@@ -809,6 +816,10 @@ export function BrochureEditor({ initialBrochure }: Props) {
             backgroundColor: updates.backgroundColor,
             textColor: updates.textColor,
             fontOverrides: updates.fontOverrides,
+            customFonts: updates.customFonts,
+            titleScale: updates.titleScale,
+            eyebrowScale: updates.eyebrowScale,
+            taglineScale: updates.taglineScale,
             customColors: updates.customColors,
             navColor: updates.navColor,
             textureImage: updates.textureImage,

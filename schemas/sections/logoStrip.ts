@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 import { logoItem } from './logoWall'
 
 export default defineType({
@@ -17,6 +18,7 @@ export default defineType({
       of: [logoItem],
       validation: (Rule) => Rule.min(1).max(12),
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

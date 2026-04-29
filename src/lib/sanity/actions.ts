@@ -241,6 +241,51 @@ export async function uploadVideoAction(formData: FormData): Promise<UploadVideo
   }
 }
 
+// ── Font upload ──────────────────────────────────────────────────────────
+
+type UploadFileResult =
+  | { ok: true; file: { _type: 'file'; asset: { _type: 'reference'; _ref: string } } }
+  | { ok: false; error: string }
+
+const MAX_FONT_BYTES = 5 * 1024 * 1024 // 5 MB
+
+/**
+ * Upload a font file (.woff2) to Sanity Storage.
+ * Returns a ready-to-store Sanity file reference.
+ */
+export async function uploadFileAction(formData: FormData): Promise<UploadFileResult> {
+  await assertAdmin()
+
+  const file = formData.get('file')
+  if (!(file instanceof File)) {
+    return { ok: false, error: 'No file provided' }
+  }
+  if (file.size > MAX_FONT_BYTES) {
+    return { ok: false, error: `File too large (max ${MAX_FONT_BYTES / (1024 * 1024)}MB)` }
+  }
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const asset = await uploadFileAsset(buffer, {
+      filename: file.name,
+      contentType: file.type || 'font/woff2',
+    })
+    return {
+      ok: true,
+      file: {
+        _type: 'file',
+        asset: { _type: 'reference', _ref: asset._id },
+      },
+    }
+  } catch (err) {
+    console.error('uploadFileAction failed:', err)
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Upload failed',
+    }
+  }
+}
+
 /**
  * Generate a brochure with Claude and persist it as a draft in Sanity.
  * Returns the new doc ID + slug + token-usage breakdown for telemetry.

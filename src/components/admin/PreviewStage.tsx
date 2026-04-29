@@ -6,9 +6,11 @@ import { SectionRenderer } from '../brochure/SectionRenderer'
 import { BrochureBrandingProvider } from '../brochure/BrochureContext'
 import { GoogleFontsLink } from '../brochure/GoogleFontsLink'
 import { TextureOverride } from '../brochure/TextureOverride'
+import { CustomFontFaces } from '../brochure/CustomFontFaces'
 import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
+import { textScaleVars } from '@/lib/textScale'
 
 type Props = {
   brochure: Brochure
@@ -109,13 +111,15 @@ export function PreviewStage({
   const accentStyle = accentColorVars(brochure.accentColor)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
-  const fontStyle = fontOverrideVars(brochure.fontOverrides)
+  const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
   const navStyle = navColorVars(brochure.navColor)
+  const scaleStyle = textScaleVars(brochure)
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
     <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme, editorMode: true, onInlineEdit, onInlineMediaEdit, onRequestMapEdit, recolor, annotations: annotationsProp }}>
     <GoogleFontsLink url={fontsUrl} />
+    <CustomFontFaces customFonts={brochure.customFonts} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div className="preview-stage-wrap">
       <div className="preview-stage-label">
@@ -127,7 +131,7 @@ export function PreviewStage({
       <div
         className="preview-stage-frame"
         data-theme={theme}
-        style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}
+        style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
         ref={frameRef}
       >
         <div className="brochure-page" style={{ width: '100%' }}>

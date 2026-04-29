@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 export default defineType({
   name: 'imageHero',
@@ -28,6 +29,7 @@ export default defineType({
       description: 'Optional looping video. If set, plays in place of the image; the image is used as the poster.',
       options: { accept: 'video/*' },
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

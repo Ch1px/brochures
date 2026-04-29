@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 export default defineType({
   name: 'closing',
@@ -44,6 +45,7 @@ export default defineType({
       type: 'string',
       description: 'Public contact phone shown beneath the CTA',
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {

@@ -1,10 +1,18 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import type { Brochure, CustomColor, FontOverrides, SanityImage } from '@/types/brochure'
+import type { Brochure, CustomColor, CustomFont, CustomFontWeight, CustomFonts, FontOverrides, SanityImage, TextScalePreset } from '@/types/brochure'
 import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
 import { nanokey } from '@/lib/nanokey'
-import { fontOptionsForRole, weightOptionsForRole } from '@/lib/fontPalette'
+import {
+  CUSTOM_FONT_SLUG,
+  fontOptionsForRole,
+  weightOptionsForRole,
+  fontFamilyForSlug,
+  googleFontsUrlForSlug,
+  customFontFaceCss,
+} from '@/lib/fontPalette'
+import { uploadFileAction } from '@/lib/sanity/actions'
 import { FieldInput } from './fields/FieldInput'
 import { FieldTextarea } from './fields/FieldTextarea'
 import { FieldBoolean } from './fields/FieldBoolean'
@@ -26,6 +34,10 @@ type Props = {
     backgroundColor: string | undefined
     textColor: string | undefined
     fontOverrides: FontOverrides | undefined
+    customFonts: CustomFonts | undefined
+    titleScale: TextScalePreset | undefined
+    eyebrowScale: TextScalePreset | undefined
+    taglineScale: TextScalePreset | undefined
     customColors: CustomColor[] | undefined
     navColor: string | undefined
     textureImage: SanityImage | undefined
@@ -34,13 +46,28 @@ type Props = {
   }) => void
 }
 
+type SettingsTab = 'general' | 'branding' | 'typography' | 'seo' | 'lead'
+
+const TABS: { key: SettingsTab; label: string }[] = [
+  { key: 'general', label: 'General' },
+  { key: 'branding', label: 'Branding' },
+  { key: 'typography', label: 'Typography' },
+  { key: 'seo', label: 'SEO' },
+  { key: 'lead', label: 'Lead capture' },
+]
+
 /**
  * Brochure-level settings modal — opened from the editor topbar.
- * Covers fields that aren't part of the autosave write path: slug, season,
- * event, SEO, and lead capture. Commits via updateBrochureSettingsAction
- * which runs a slug uniqueness check server-side.
+ *
+ * Organised into five vertical tabs:
+ *   General    — event, season, slug
+ *   Branding   — colours, logo, custom colours, background texture
+ *   Typography — text sizes, font families + weights
+ *   SEO        — meta title, meta description, noIndex
+ *   Lead       — HubSpot portal/form, destination email
  */
 export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Props) {
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
   const [slug, setSlug] = useState(brochure.slug.current)
   const [season, setSeason] = useState(brochure.season)
   const [event, setEvent] = useState(brochure.event ?? '')
@@ -61,6 +88,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   const [fontBodyWeight, setFontBodyWeight] = useState<string | undefined>(brochure.fontOverrides?.bodyWeight)
   const [fontMono, setFontMono] = useState<string | undefined>(brochure.fontOverrides?.mono)
   const [fontMonoWeight, setFontMonoWeight] = useState<string | undefined>(brochure.fontOverrides?.monoWeight)
+  const [customFonts, setCustomFonts] = useState<CustomFonts | undefined>(brochure.customFonts)
+  const [titleScale, setTitleScale] = useState<TextScalePreset | undefined>(brochure.titleScale)
+  const [eyebrowScale, setEyebrowScale] = useState<TextScalePreset | undefined>(brochure.eyebrowScale)
+  const [taglineScale, setTaglineScale] = useState<TextScalePreset | undefined>(brochure.taglineScale)
   const [customColors, setCustomColors] = useState<CustomColor[]>(brochure.customColors ?? [])
   const [navColor, setNavColor] = useState<string | undefined>(brochure.navColor)
   const [textureImage, setTextureImage] = useState<SanityImage | undefined>(brochure.textureImage)
@@ -73,6 +104,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   // brochure changes — prevents showing stale fields if the admin reopens.
   useEffect(() => {
     if (!open) return
+    setActiveTab('general')
     setSlug(brochure.slug.current)
     setSeason(brochure.season)
     setEvent(brochure.event ?? '')
@@ -93,6 +125,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     setFontBodyWeight(brochure.fontOverrides?.bodyWeight)
     setFontMono(brochure.fontOverrides?.mono)
     setFontMonoWeight(brochure.fontOverrides?.monoWeight)
+    setCustomFonts(brochure.customFonts)
+    setTitleScale(brochure.titleScale)
+    setEyebrowScale(brochure.eyebrowScale)
+    setTaglineScale(brochure.taglineScale)
     setCustomColors(brochure.customColors ?? [])
     setNavColor(brochure.navColor)
     setTextureImage(brochure.textureImage)
@@ -117,14 +153,17 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   function handleSave() {
     const normalisedSlug = slug.trim().toLowerCase()
     if (!normalisedSlug) {
+      setActiveTab('general')
       setError('Slug is required.')
       return
     }
     if (!/^[a-z0-9-]+$/.test(normalisedSlug)) {
+      setActiveTab('general')
       setError('Slug can only contain lowercase letters, numbers, and hyphens.')
       return
     }
     if (!event.trim()) {
+      setActiveTab('general')
       setError('Event is required.')
       return
     }
@@ -165,6 +204,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                 monoWeight: fontMonoWeight || undefined,
               }
             : null,
+          customFonts: customFonts ?? null,
+          titleScale: titleScale ?? null,
+          eyebrowScale: eyebrowScale ?? null,
+          taglineScale: taglineScale ?? null,
           customColors: customColors.length > 0 ? customColors : null,
           navColor: navColor ?? null,
           textureImage: textureImage ?? null,
@@ -189,6 +232,10 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
           ? { display: fontDisplay, displayWeight: fontDisplayWeight, script: fontScript, scriptWeight: fontScriptWeight, body: fontBody, bodyWeight: fontBodyWeight, mono: fontMono, monoWeight: fontMonoWeight }
           : undefined,
+        customFonts,
+        titleScale,
+        eyebrowScale,
+        taglineScale,
         customColors: customColors.length > 0 ? customColors : undefined,
         navColor,
         textureImage,
@@ -199,6 +246,15 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     })
   }
 
+  // ───────── Scale preset options (shared) ─────────
+  const scaleOptions = [
+    { value: 'xs', label: 'XS — Compact' },
+    { value: 's', label: 'S — Small' },
+    { value: 'm', label: 'M — Default' },
+    { value: 'l', label: 'L — Large' },
+    { value: 'xl', label: 'XL — Extra Large' },
+  ]
+
   return (
     <div
       className="add-section-overlay"
@@ -208,7 +264,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
       aria-label="Brochure settings"
     >
       <div
-        className="add-section-modal new-brochure-modal brochure-settings-modal"
+        className="add-section-modal brochure-settings-modal"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="add-section-modal-header">
@@ -228,247 +284,322 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
+          {/* Font preview links + custom @font-face — inside header to avoid flex layout interference */}
+          <FontPreviewLinks slugs={[fontDisplay, fontScript, fontBody, fontMono]} />
+          {customFonts ? <style>{customFontFaceCss(customFonts) ?? ''}</style> : null}
         </header>
 
-        <div className="new-brochure-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-          <SectionHeader label="Core" />
-
-          <FieldInput
-            label="Event"
-            description="The grand prix or race name, e.g. Italian Grand Prix."
-            value={event}
-            onChange={setEvent}
-            placeholder="Italian Grand Prix"
-          />
-
-          <FieldSelect
-            label="Season"
-            description="The calendar year the event falls in."
-            value={season}
-            onChange={setSeason}
-            options={[
-              { value: '2026', label: '2026' },
-              { value: '2027', label: '2027' },
-              { value: '2028', label: '2028' },
-            ]}
-          />
-
-          <FieldInput
-            label="URL slug"
-            description={
-              slugChanged
-                ? '⚠ Changing the slug breaks any existing public URLs that used the old one. Make sure no live links depend on it.'
-                : 'Public URL path. Lowercase letters, numbers, and hyphens only.'
-            }
-            value={slug}
-            onChange={(v) => setSlug(v.toLowerCase())}
-            placeholder="italian-grand-prix"
-          />
-
-          <SectionHeader label="Branding" />
-
-          <FieldColor
-            label="Accent colour"
-            description="Overrides the platform brand red across this brochure (buttons, eyebrows, accent rules, decorative SVG washes). Leave default for #e10600."
-            value={accentColor}
-            onChange={setAccentColor}
-          />
-
-          <FieldColor
-            label="Background colour"
-            description="Overrides the page background. Leave default to use the theme colour."
-            value={backgroundColor}
-            onChange={setBackgroundColor}
-            fallback={brochure.theme === 'light' ? '#f6f5f1' : '#161618'}
-          />
-
-          <FieldColor
-            label="Text colour"
-            description="Overrides the page text colour. Derives muted, subtle, and border variants automatically."
-            value={textColor}
-            onChange={setTextColor}
-            fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
-          />
-
-          <FieldColor
-            label="Navigation background"
-            description="Override the nav bar background. Should always be a dark colour. Default: #161618."
-            value={navColor}
-            onChange={setNavColor}
-            fallback="#161618"
-          />
-
-          <FieldImage
-            label="Logo"
-            description="Replaces the GPGT logo in the brochure nav. Leave blank to use the default."
-            value={logo}
-            onChange={setLogo}
-            previewWidth={400}
-          />
-
-          <SectionHeader label="Custom colours" />
-
-          {customColors.map((c, i) => (
-            <div key={c._key} className="custom-color-row">
-              <FieldInput
-                label={`Name ${i + 1}`}
-                value={c.name}
-                onChange={(name) => setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, name } : p))}
-                placeholder="e.g. Sponsor Blue"
-              />
-              <FieldColor
-                label=""
-                value={c.hex}
-                onChange={(hex) => setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, hex: hex ?? '' } : p))}
-              />
+        <div className="settings-layout">
+          {/* ───── Sidebar tabs ───── */}
+          <nav className="settings-sidebar" role="tablist" aria-label="Settings sections">
+            {TABS.map((tab) => (
               <button
-                type="button"
-                className="field-btn field-btn-ghost"
-                style={{ marginTop: 4 }}
-                onClick={() => setCustomColors((prev) => prev.filter((p) => p._key !== c._key))}
+                key={tab.key}
+                role="tab"
+                aria-selected={activeTab === tab.key}
+                className={`settings-sidebar-tab${activeTab === tab.key ? ' active' : ''}`}
+                onClick={() => setActiveTab(tab.key)}
               >
-                Remove
+                {tab.label}
               </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            className="field-btn"
-            onClick={() => setCustomColors((prev) => [...prev, { _key: nanokey(), name: '', hex: '#e10600' }])}
-          >
-            + Add colour
-          </button>
+            ))}
+          </nav>
 
-          <SectionHeader label="Background texture" />
+          {/* ───── Tab panel ───── */}
+          <div className="settings-panel" role="tabpanel">
+            {activeTab === 'general' && (
+              <>
+                <FieldInput
+                  label="Event"
+                  description="The grand prix or race name, e.g. Italian Grand Prix."
+                  value={event}
+                  onChange={setEvent}
+                  placeholder="Italian Grand Prix"
+                />
+                <FieldSelect
+                  label="Season"
+                  description="The calendar year the event falls in."
+                  value={season}
+                  onChange={setSeason}
+                  options={[
+                    { value: '2026', label: '2026' },
+                    { value: '2027', label: '2027' },
+                    { value: '2028', label: '2028' },
+                  ]}
+                />
+                <FieldInput
+                  label="URL slug"
+                  description={
+                    slugChanged
+                      ? '⚠ Changing the slug breaks any existing public URLs that used the old one. Make sure no live links depend on it.'
+                      : 'Public URL path. Lowercase letters, numbers, and hyphens only.'
+                  }
+                  value={slug}
+                  onChange={(v) => setSlug(v.toLowerCase())}
+                  placeholder="italian-grand-prix"
+                />
+              </>
+            )}
 
-          <FieldBoolean
-            label="Hide background texture"
-            description="Remove the halftone texture across all sections, leaving flat backgrounds."
-            value={hideTexture}
-            onChange={setHideTexture}
-          />
+            {activeTab === 'branding' && (
+              <>
+                <SectionHeader label="Colours" />
+                <FieldColor
+                  label="Accent colour"
+                  description="Overrides the platform brand red across this brochure (buttons, eyebrows, accent rules, decorative SVG washes). Leave default for #e10600."
+                  value={accentColor}
+                  onChange={setAccentColor}
+                />
+                <FieldColor
+                  label="Background colour"
+                  description="Overrides the page background. Leave default to use the theme colour."
+                  value={backgroundColor}
+                  onChange={setBackgroundColor}
+                  fallback={brochure.theme === 'light' ? '#f6f5f1' : '#161618'}
+                />
+                <FieldColor
+                  label="Text colour"
+                  description="Overrides the page text colour. Derives muted, subtle, and border variants automatically."
+                  value={textColor}
+                  onChange={setTextColor}
+                  fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
+                />
+                <FieldColor
+                  label="Navigation background"
+                  description="Override the nav bar background. Should always be a dark colour. Default: #161618."
+                  value={navColor}
+                  onChange={setNavColor}
+                  fallback="#161618"
+                />
 
-          {!hideTexture ? (
-            <FieldImage
-              label="Custom texture image"
-              description="Replaces the default halftone texture across all textured sections. Leave blank to keep the default."
-              value={textureImage}
-              onChange={setTextureImage}
-            />
-          ) : null}
+                <SectionHeader label="Logo" />
+                <FieldImage
+                  label="Logo"
+                  description="Replaces the GPGT logo in the brochure nav. Leave blank to use the default."
+                  value={logo}
+                  onChange={setLogo}
+                  previewWidth={400}
+                />
 
-          <SectionHeader label="Typography" />
+                <SectionHeader label="Custom colours" />
+                <div className="custom-colors-list">
+                  {customColors.map((c) => (
+                    <div key={c._key} className="custom-color-card">
+                      <label
+                        className="custom-color-swatch"
+                        style={{ background: c.hex || '#888' }}
+                      >
+                        <input
+                          type="color"
+                          value={c.hex || '#e10600'}
+                          onChange={(e) => setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, hex: e.target.value } : p))}
+                          aria-label={`${c.name || 'Custom'} colour picker`}
+                        />
+                      </label>
+                      <div className="custom-color-fields">
+                        <input
+                          type="text"
+                          className="field-input custom-color-name"
+                          value={c.name}
+                          onChange={(e) => setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, name: e.target.value } : p))}
+                          placeholder="Colour name"
+                        />
+                        <input
+                          type="text"
+                          className="field-input custom-color-hex"
+                          value={c.hex}
+                          onChange={(e) => {
+                            const v = e.target.value.trim()
+                            setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, hex: v } : p))
+                          }}
+                          placeholder="#e10600"
+                          spellCheck={false}
+                          maxLength={7}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="custom-color-remove"
+                        onClick={() => setCustomColors((prev) => prev.filter((p) => p._key !== c._key))}
+                        aria-label={`Remove ${c.name || 'colour'}`}
+                        title="Remove"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width={14} height={14}>
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="field-btn"
+                  onClick={() => setCustomColors((prev) => [...prev, { _key: nanokey(), name: '', hex: '#e10600' }])}
+                >
+                  + Add colour
+                </button>
 
-          <FieldSelect
-            label="Title font"
-            description="Headlines and display text. Default: Formula1."
-            value={fontDisplay ?? ''}
-            onChange={(v) => { setFontDisplay(v || undefined); setFontDisplayWeight(undefined) }}
-            options={fontOptionsForRole('display')}
-          />
-          <FieldSelect
-            label="Title font weight"
-            value={fontDisplayWeight ?? ''}
-            onChange={(v) => setFontDisplayWeight(v || undefined)}
-            options={weightOptionsForRole('display', fontDisplay)}
-          />
+                <SectionHeader label="Background texture" />
+                <FieldBoolean
+                  label="Hide background texture"
+                  description="Remove the halftone texture across all sections, leaving flat backgrounds."
+                  value={hideTexture}
+                  onChange={setHideTexture}
+                />
+                {!hideTexture ? (
+                  <FieldImage
+                    label="Custom texture image"
+                    description="Replaces the default halftone texture across all textured sections. Leave blank to keep the default."
+                    value={textureImage}
+                    onChange={setTextureImage}
+                  />
+                ) : null}
+              </>
+            )}
 
-          <FieldSelect
-            label="Eyebrow font"
-            description="Eyebrow and accent text. Default: Northwell."
-            value={fontScript ?? ''}
-            onChange={(v) => { setFontScript(v || undefined); setFontScriptWeight(undefined) }}
-            options={fontOptionsForRole('script')}
-          />
-          <FieldSelect
-            label="Eyebrow font weight"
-            value={fontScriptWeight ?? ''}
-            onChange={(v) => setFontScriptWeight(v || undefined)}
-            options={weightOptionsForRole('script', fontScript)}
-          />
+            {activeTab === 'typography' && (
+              <>
+                <SectionHeader label="Text sizes" />
+                <FieldSelect
+                  label="Title text size"
+                  description="Scale factor for all headline/title text across the brochure."
+                  value={titleScale ?? 'm'}
+                  onChange={(v) => setTitleScale(v === 'm' ? undefined : (v as TextScalePreset))}
+                  options={scaleOptions}
+                />
+                <FieldSelect
+                  label="Eyebrow text size"
+                  description="Scale factor for all eyebrow/script text across the brochure."
+                  value={eyebrowScale ?? 'm'}
+                  onChange={(v) => setEyebrowScale(v === 'm' ? undefined : (v as TextScalePreset))}
+                  options={scaleOptions}
+                />
+                <FieldSelect
+                  label="Tagline / subtitle text size"
+                  description="Scale factor for taglines, subtitles, and body text across the brochure."
+                  value={taglineScale ?? 'm'}
+                  onChange={(v) => setTaglineScale(v === 'm' ? undefined : (v as TextScalePreset))}
+                  options={scaleOptions}
+                />
 
-          <FieldSelect
-            label="Body font"
-            description="Paragraph and body text. Default: Titillium Web."
-            value={fontBody ?? ''}
-            onChange={(v) => { setFontBody(v || undefined); setFontBodyWeight(undefined) }}
-            options={fontOptionsForRole('body')}
-          />
-          <FieldSelect
-            label="Body font weight"
-            value={fontBodyWeight ?? ''}
-            onChange={(v) => setFontBodyWeight(v || undefined)}
-            options={weightOptionsForRole('body', fontBody)}
-          />
+                <SectionHeader label="Font families" />
+                <FontCard
+                  role="display"
+                  label="Title font"
+                  description="Headlines and display text"
+                  previewText="Monaco Grand Prix"
+                  previewSize={28}
+                  fontSlug={fontDisplay}
+                  fontWeight={fontDisplayWeight}
+                  customFont={customFonts?.display}
+                  customFonts={customFonts}
+                  onFontChange={(v) => { setFontDisplay(v || undefined); setFontDisplayWeight(undefined) }}
+                  onWeightChange={(v) => setFontDisplayWeight(v || undefined)}
+                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, display: f }))}
+                />
+                <FontCard
+                  role="script"
+                  label="Eyebrow font"
+                  description="Eyebrow and accent text"
+                  previewText="A weekend of speed"
+                  previewSize={26}
+                  previewItalic
+                  fontSlug={fontScript}
+                  fontWeight={fontScriptWeight}
+                  customFont={customFonts?.script}
+                  customFonts={customFonts}
+                  onFontChange={(v) => { setFontScript(v || undefined); setFontScriptWeight(undefined) }}
+                  onWeightChange={(v) => setFontScriptWeight(v || undefined)}
+                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, script: f }))}
+                />
+                <FontCard
+                  role="body"
+                  label="Body font"
+                  description="Paragraph and body text"
+                  previewText="Every trip is built around one idea: giving you a front-row seat to the world's most prestigious motorsport."
+                  previewSize={14}
+                  fontSlug={fontBody}
+                  fontWeight={fontBodyWeight}
+                  customFont={customFonts?.body}
+                  customFonts={customFonts}
+                  onFontChange={(v) => { setFontBody(v || undefined); setFontBodyWeight(undefined) }}
+                  onWeightChange={(v) => setFontBodyWeight(v || undefined)}
+                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, body: f }))}
+                />
+                <FontCard
+                  role="mono"
+                  label="Label font"
+                  description="Labels, meta text, and data"
+                  previewText="3.337 KM · 78 LAPS · 19 CORNERS"
+                  previewSize={11}
+                  previewUppercase
+                  fontSlug={fontMono}
+                  fontWeight={fontMonoWeight}
+                  customFont={customFonts?.mono}
+                  customFonts={customFonts}
+                  onFontChange={(v) => { setFontMono(v || undefined); setFontMonoWeight(undefined) }}
+                  onWeightChange={(v) => setFontMonoWeight(v || undefined)}
+                  onCustomFontChange={(f) => setCustomFonts((prev) => ({ ...prev, mono: f }))}
+                />
+              </>
+            )}
 
-          <FieldSelect
-            label="Label font"
-            description="Labels, meta text, and data. Default: JetBrains Mono."
-            value={fontMono ?? ''}
-            onChange={(v) => { setFontMono(v || undefined); setFontMonoWeight(undefined) }}
-            options={fontOptionsForRole('mono')}
-          />
-          <FieldSelect
-            label="Label font weight"
-            value={fontMonoWeight ?? ''}
-            onChange={(v) => setFontMonoWeight(v || undefined)}
-            options={weightOptionsForRole('mono', fontMono)}
-          />
+            {activeTab === 'seo' && (
+              <>
+                <FieldInput
+                  label="Meta title"
+                  description="Shown in search results and browser tabs. Falls back to the brochure title."
+                  value={metaTitle}
+                  onChange={setMetaTitle}
+                  placeholder={brochure.title}
+                  maxLength={70}
+                />
+                <FieldTextarea
+                  label="Meta description"
+                  description="1-2 sentence summary for search results. Keep under 160 characters."
+                  value={metaDescription}
+                  onChange={setMetaDescription}
+                  placeholder="Fully inclusive packages for the 2026 Italian Grand Prix..."
+                  rows={3}
+                />
+                <FieldBoolean
+                  label="Hide from search engines (noindex)"
+                  description="Useful for private or draft brochures that are published but shouldn't appear on Google."
+                  value={noIndex}
+                  onChange={setNoIndex}
+                />
+              </>
+            )}
 
-          <SectionHeader label="SEO" />
+            {activeTab === 'lead' && (
+              <>
+                <FieldInput
+                  label="HubSpot portal ID"
+                  description="Defaults to HUBSPOT_PORTAL_ID env var if left blank."
+                  value={hubspotPortalId}
+                  onChange={setHubspotPortalId}
+                  placeholder="123456"
+                />
+                <FieldInput
+                  label="HubSpot form ID"
+                  description="The form that receives enquiries from this brochure."
+                  value={hubspotFormId}
+                  onChange={setHubspotFormId}
+                  placeholder="abc-123-def-456"
+                />
+                <FieldInput
+                  label="Destination email"
+                  description="Internal recipient for new-enquiry notifications (via Resend)."
+                  value={destinationEmail}
+                  onChange={setDestinationEmail}
+                  placeholder="sales@grandprixgrandtours.com"
+                />
+              </>
+            )}
 
-          <FieldInput
-            label="Meta title"
-            description="Shown in search results and browser tabs. Falls back to the brochure title."
-            value={metaTitle}
-            onChange={setMetaTitle}
-            placeholder={brochure.title}
-            maxLength={70}
-          />
-
-          <FieldTextarea
-            label="Meta description"
-            description="1–2 sentence summary for search results. Keep under 160 characters."
-            value={metaDescription}
-            onChange={setMetaDescription}
-            placeholder="Fully inclusive packages for the 2026 Italian Grand Prix…"
-            rows={3}
-          />
-
-          <FieldBoolean
-            label="Hide from search engines (noindex)"
-            description="Useful for private or draft brochures that are published but shouldn't appear on Google."
-            value={noIndex}
-            onChange={setNoIndex}
-          />
-
-          <SectionHeader label="Lead capture" />
-
-          <FieldInput
-            label="HubSpot portal ID"
-            description="Defaults to HUBSPOT_PORTAL_ID env var if left blank."
-            value={hubspotPortalId}
-            onChange={setHubspotPortalId}
-            placeholder="123456"
-          />
-
-          <FieldInput
-            label="HubSpot form ID"
-            description="The form that receives enquiries from this brochure."
-            value={hubspotFormId}
-            onChange={setHubspotFormId}
-            placeholder="abc-123-def-456"
-          />
-
-          <FieldInput
-            label="Destination email"
-            description="Internal recipient for new-enquiry notifications (via Resend)."
-            value={destinationEmail}
-            onChange={setDestinationEmail}
-            placeholder="sales@grandprixgrandtours.com"
-          />
-
-          {error ? <div className="field-error" style={{ marginTop: 12 }}>{error}</div> : null}
+            {error ? <div className="field-error" style={{ marginTop: 12 }}>{error}</div> : null}
+          </div>
         </div>
 
         <footer className="new-brochure-footer">
@@ -476,7 +607,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
             Cancel
           </button>
           <button className="editor-topbar-btn primary" onClick={handleSave} disabled={pending}>
-            {pending ? 'Saving…' : 'Save settings'}
+            {pending ? 'Saving...' : 'Save settings'}
           </button>
         </footer>
       </div>
@@ -486,20 +617,232 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div
-      style={{
-        marginTop: 14,
-        marginBottom: 4,
-        paddingBottom: 6,
-        borderBottom: '1px solid var(--chrome-border)',
-        fontFamily: 'var(--font-mono)',
-        fontSize: 10,
-        letterSpacing: '0.16em',
-        textTransform: 'uppercase',
-        color: 'var(--chrome-text-secondary)',
-      }}
-    >
+    <div className="settings-section-header">
       {label}
+    </div>
+  )
+}
+
+/** Injects <link> tags for any Google Fonts needed by the current selections. */
+function FontPreviewLinks({ slugs }: { slugs: (string | undefined)[] }) {
+  const urls = slugs
+    .map((s) => googleFontsUrlForSlug(s))
+    .filter((u): u is string => u !== null)
+  // Deduplicate
+  const unique = [...new Set(urls)]
+  return (
+    <>
+      {unique.map((url) => (
+        <link key={url} rel="stylesheet" href={url} />
+      ))}
+    </>
+  )
+}
+
+const WEIGHT_OPTIONS = [
+  { value: '100', label: '100 · Thin' },
+  { value: '200', label: '200 · Extra Light' },
+  { value: '300', label: '300 · Light' },
+  { value: '400', label: '400 · Regular' },
+  { value: '500', label: '500 · Medium' },
+  { value: '600', label: '600 · Semi Bold' },
+  { value: '700', label: '700 · Bold' },
+  { value: '800', label: '800 · Extra Bold' },
+  { value: '900', label: '900 · Black' },
+]
+
+type FontCardProps = {
+  role: string
+  label: string
+  description: string
+  previewText: string
+  previewSize: number
+  previewItalic?: boolean
+  previewUppercase?: boolean
+  fontSlug: string | undefined
+  fontWeight: string | undefined
+  customFont?: CustomFont
+  customFonts?: CustomFonts | null
+  onFontChange: (slug: string) => void
+  onWeightChange: (weight: string) => void
+  onCustomFontChange: (font: CustomFont | undefined) => void
+}
+
+function FontCard({
+  role,
+  label,
+  description,
+  previewText,
+  previewSize,
+  previewItalic,
+  previewUppercase,
+  fontSlug,
+  fontWeight,
+  customFont,
+  customFonts,
+  onFontChange,
+  onWeightChange,
+  onCustomFontChange,
+}: FontCardProps) {
+  const [uploading, setUploading] = useState(false)
+  const family = fontFamilyForSlug(fontSlug, role, customFonts)
+  const weight = fontWeight || undefined
+  const isCustom = fontSlug === CUSTOM_FONT_SLUG
+  const hasCustomWeights = !!(customFont?.weights?.length)
+
+  // Build font family dropdown options
+  const options = fontOptionsForRole(role)
+  if (hasCustomWeights) {
+    options.push({ value: CUSTOM_FONT_SLUG, label: `Custom: ${customFont!.name || 'Uploaded font'}` })
+  } else {
+    options.push({ value: CUSTOM_FONT_SLUG, label: 'Upload custom font...' })
+  }
+
+  async function handleUpload(targetWeight: string) {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.woff2,font/woff2'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file) return
+      setUploading(true)
+      try {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await uploadFileAction(fd)
+        if (res.ok) {
+          const name = customFont?.name || file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
+          const existing = customFont?.weights ?? []
+          // Replace if same weight exists, otherwise append
+          const filtered = existing.filter((w) => w.weight !== targetWeight)
+          const newWeight: CustomFontWeight = {
+            _key: nanokey(),
+            weight: targetWeight,
+            file: res.file,
+          }
+          onCustomFontChange({ name, weights: [...filtered, newWeight] })
+          onFontChange(CUSTOM_FONT_SLUG)
+        }
+      } finally {
+        setUploading(false)
+      }
+    }
+    input.click()
+  }
+
+  function handleRemoveWeight(key: string) {
+    if (!customFont?.weights) return
+    const next = customFont.weights.filter((w) => w._key !== key)
+    if (next.length === 0) {
+      onCustomFontChange(undefined)
+      onFontChange('')
+    } else {
+      onCustomFontChange({ ...customFont, weights: next })
+    }
+  }
+
+  function handleRemoveAll() {
+    onCustomFontChange(undefined)
+    onFontChange('')
+    onWeightChange('')
+  }
+
+  return (
+    <div className="font-card">
+      <div
+        className="font-card-preview"
+        style={{
+          fontFamily: family,
+          fontWeight: weight,
+          fontSize: previewSize,
+          fontStyle: previewItalic ? 'italic' : undefined,
+          textTransform: previewUppercase ? 'uppercase' : undefined,
+          letterSpacing: previewUppercase ? '0.12em' : undefined,
+        }}
+      >
+        {previewText}
+      </div>
+      <div className="font-card-meta">
+        <span className="font-card-label">{label}</span>
+        <span className="font-card-desc">{description}</span>
+      </div>
+      <div className="font-card-controls">
+        <FieldSelect
+          label="Family"
+          value={fontSlug ?? ''}
+          onChange={(v) => {
+            if (v === CUSTOM_FONT_SLUG && !hasCustomWeights) {
+              // No weights uploaded yet — trigger first upload at 400
+              handleUpload('400')
+              return
+            }
+            onFontChange(v)
+          }}
+          options={options}
+        />
+        <FieldSelect
+          label="Weight"
+          value={fontWeight ?? ''}
+          onChange={onWeightChange}
+          options={weightOptionsForRole(role, fontSlug, customFonts)}
+        />
+      </div>
+      {isCustom && hasCustomWeights ? (
+        <div className="font-card-custom-section">
+          <div className="font-card-custom-header">
+            <span className="font-card-custom-name">{customFont!.name || 'Custom font'}</span>
+            <button
+              type="button"
+              className="field-btn field-btn-ghost"
+              onClick={handleRemoveAll}
+            >
+              Remove all
+            </button>
+          </div>
+          <div className="font-card-weights">
+            {customFont!.weights
+              .slice()
+              .sort((a, b) => Number(a.weight) - Number(b.weight))
+              .map((w) => (
+                <div key={w._key} className="font-card-weight-row">
+                  <span className="font-card-weight-label">
+                    {WEIGHT_OPTIONS.find((o) => o.value === w.weight)?.label ?? w.weight}
+                  </span>
+                  <button
+                    type="button"
+                    className="custom-color-remove"
+                    onClick={() => handleRemoveWeight(w._key)}
+                    title="Remove weight"
+                    aria-label={`Remove ${w.weight}`}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width={12} height={12}>
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+          </div>
+          <div className="font-card-add-weight">
+            <select
+              className="field-input field-select"
+              value=""
+              onChange={(e) => {
+                if (e.target.value) handleUpload(e.target.value)
+              }}
+              disabled={uploading}
+            >
+              <option value="">+ Add weight...</option>
+              {WEIGHT_OPTIONS
+                .filter((o) => !customFont!.weights.some((w) => w.weight === o.value))
+                .map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+            </select>
+          </div>
+        </div>
+      ) : null}
+      {uploading ? <div className="font-card-uploading">Uploading...</div> : null}
     </div>
   )
 }

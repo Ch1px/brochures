@@ -218,6 +218,108 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'customFonts',
+      type: 'object',
+      title: 'Custom font uploads',
+      description: 'Upload .woff2 font files to override the font for each role. Multiple weights per role supported.',
+      group: 'branding',
+      fields: (['display', 'script', 'body', 'mono'] as const).map((role) =>
+        defineField({
+          name: role,
+          type: 'object',
+          title: role === 'display' ? 'Title font' : role === 'script' ? 'Eyebrow font' : role === 'body' ? 'Body font' : 'Label font',
+          fields: [
+            defineField({ name: 'name', type: 'string', title: 'Font name' }),
+            defineField({
+              name: 'weights',
+              type: 'array',
+              title: 'Font weights',
+              of: [{
+                type: 'object',
+                name: 'fontWeight',
+                fields: [
+                  defineField({
+                    name: 'weight',
+                    type: 'string',
+                    title: 'Weight',
+                    options: {
+                      list: [
+                        { title: '100 · Thin', value: '100' },
+                        { title: '200 · Extra Light', value: '200' },
+                        { title: '300 · Light', value: '300' },
+                        { title: '400 · Regular', value: '400' },
+                        { title: '500 · Medium', value: '500' },
+                        { title: '600 · Semi Bold', value: '600' },
+                        { title: '700 · Bold', value: '700' },
+                        { title: '800 · Extra Bold', value: '800' },
+                        { title: '900 · Black', value: '900' },
+                      ],
+                    },
+                  }),
+                  defineField({ name: 'file', type: 'file', title: 'Font file (.woff2)', options: { accept: '.woff2,font/woff2' } }),
+                ],
+                preview: {
+                  select: { weight: 'weight' },
+                  prepare: ({ weight }: { weight?: string }) => ({ title: weight ?? 'Unknown weight' }),
+                },
+              }],
+            }),
+          ],
+        }),
+      ),
+    }),
+    defineField({
+      name: 'titleScale',
+      type: 'string',
+      title: 'Title text size',
+      description:
+        'Scale multiplier for all headline/title text across the brochure. Default: M.',
+      options: {
+        list: [
+          { title: 'XS — Compact', value: 'xs' },
+          { title: 'S — Small', value: 's' },
+          { title: 'M — Default', value: 'm' },
+          { title: 'L — Large', value: 'l' },
+          { title: 'XL — Extra Large', value: 'xl' },
+        ],
+      },
+      group: 'branding',
+    }),
+    defineField({
+      name: 'eyebrowScale',
+      type: 'string',
+      title: 'Eyebrow text size',
+      description:
+        'Scale multiplier for all eyebrow/script text across the brochure. Default: M.',
+      options: {
+        list: [
+          { title: 'XS — Compact', value: 'xs' },
+          { title: 'S — Small', value: 's' },
+          { title: 'M — Default', value: 'm' },
+          { title: 'L — Large', value: 'l' },
+          { title: 'XL — Extra Large', value: 'xl' },
+        ],
+      },
+      group: 'branding',
+    }),
+    defineField({
+      name: 'taglineScale',
+      type: 'string',
+      title: 'Tagline / subtitle text size',
+      description:
+        'Scale multiplier for taglines, subtitles, and body text across the brochure. Default: M.',
+      options: {
+        list: [
+          { title: 'XS — Compact', value: 'xs' },
+          { title: 'S — Small', value: 's' },
+          { title: 'M — Default', value: 'm' },
+          { title: 'L — Large', value: 'l' },
+          { title: 'XL — Extra Large', value: 'xl' },
+        ],
+      },
+      group: 'branding',
+    }),
+    defineField({
       name: 'navColor',
       type: 'string',
       title: 'Navigation background',

@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
+import { sectionStyleFields } from './_shared/sectionStyleFields'
 
 /**
  * Shared stat item — used by both Stats section and Circuit Map section.
@@ -39,6 +40,7 @@ export default defineType({
       description: '4 stats render as a row; 3 or fewer center-align',
       validation: (Rule) => Rule.min(1).max(6),
     }),
+    ...sectionStyleFields,
     backgroundField,
   ],
   preview: {
