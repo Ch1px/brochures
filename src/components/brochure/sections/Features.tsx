@@ -17,6 +17,7 @@ type Props = {
 /**
  * Three Features — ported from renderFeatures().
  * Header has an optional red accent suffix on the title, then three image/text cards below.
+ * Each card uses the image as a full-bleed background with content overlaid.
  */
 export function Features({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
@@ -40,13 +41,14 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
             return (
               <div key={card._key} className="feature-card">
                 <InlineMedia sectionKey={data._key} field={`cards.${i}.image`} hasImage={Boolean(imageUrl)}>
-                <div
-                  className="feature-card-media"
-                  style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-                >
-                  {!imageUrl ? <ImagePlaceholderSVG /> : null}
-                </div>
+                  <div
+                    className="feature-card-bg"
+                    style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+                  >
+                    {!imageUrl ? <ImagePlaceholderSVG /> : null}
+                  </div>
                 </InlineMedia>
+                <div className="feature-card-overlay" />
                 <div className="feature-card-body">
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="feature-card-title">{card.title ?? ''}</div></InlineEditable>
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.text`} richBody><RichBody className="feature-card-text" text={card.text} /></InlineEditable>

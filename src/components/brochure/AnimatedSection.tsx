@@ -43,7 +43,7 @@ const ANIMATABLE_CLASSES = [
   '.cover-ref',
   // Images
   '.package-image',
-  '.feature-card-media',
+  '.feature-card-bg',
   '.linked-card-bg',
   '.page-image-hero-bg',
   '.page-spotlight-image',
