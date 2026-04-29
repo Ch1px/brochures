@@ -1131,6 +1131,17 @@
   padding: 2px 4px;
   min-height: 1em;
 }
+.preview-stage-frame .inline-editable-richbody-placeholder {
+  opacity: 0.25;
+  font-style: italic;
+}
+.preview-stage-frame .inline-editable-richbody-edit {
+  white-space: pre-wrap;
+  min-height: 1.4em;
+  outline: 2px solid var(--brand-red);
+  outline-offset: 2px;
+  cursor: text;
+}
 
 /* ── Inline media (image replace/remove) ─── */
 /* Overlay is injected as a child of the image container via cloneElement.
