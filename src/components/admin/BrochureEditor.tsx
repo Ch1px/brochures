@@ -31,6 +31,7 @@ import { BrochureSettingsModal } from './BrochureSettingsModal'
 import { RecolorPopover } from './RecolorPopover'
 import { SaveToast } from './SaveToast'
 import { CollapseButton, CollapsedRail, ResizeHandle } from './EditorLayoutControls'
+import { LiveblocksProvider, RoomProvider, roomIdForBrochure } from '@/lib/liveblocks'
 
 /**
  * Section types that expose image-treatment controls (overlay, greyscale,
@@ -99,6 +100,11 @@ export type CompanyOption = {
 type Props = {
   initialBrochure: Brochure
   companies: CompanyOption[]
+  /** When true, the editor wraps itself in a Liveblocks room so the
+   *  topbar can show peer-presence avatars. Server determines this
+   *  from `LIVEBLOCKS_SECRET_KEY` — without the key the editor still
+   *  loads, the avatar stack just doesn't render. */
+  liveblocksEnabled: boolean
 }
 
 /**
@@ -117,7 +123,19 @@ type Props = {
  *   2E.2 — PropertiesPanel complex editors (features, stats, packages, itinerary, galleries, quote, circuit)
  *   2F — image/SVG upload integration
  */
-export function BrochureEditor({ initialBrochure, companies }: Props) {
+export function BrochureEditor(props: Props) {
+  const { liveblocksEnabled, initialBrochure } = props
+  if (!liveblocksEnabled) return <BrochureEditorInner {...props} />
+  return (
+    <LiveblocksProvider>
+      <RoomProvider id={roomIdForBrochure(initialBrochure._id)} initialPresence={{}}>
+        <BrochureEditorInner {...props} />
+      </RoomProvider>
+    </LiveblocksProvider>
+  )
+}
+
+function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: Props) {
   const { brochure, setBrochure, undo, redo } = useBrochureHistory(initialBrochure)
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
   const [currentSectionKey, setCurrentSectionKey] = useState<string | null>(null)
@@ -963,6 +981,7 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
         brochure={brochure}
         companies={companies}
         saveStatus={saveStatus}
+        liveblocksEnabled={liveblocksEnabled}
         onTitleChange={handleTitleChange}
         onStatusChange={handleStatusChange}
         onFeatureChange={handleFeatureChange}

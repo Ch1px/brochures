@@ -320,11 +320,27 @@ export const COMPANY_BY_ID = groq`
 `
 
 /**
+ * Top 5 brochures by last edit, minimal fields, for the admin shell's
+ * "Recent" sidebar section. Excludes archived so old brochures don't
+ * crowd it out.
+ */
+export const RECENT_BROCHURES_FOR_SHELL = groq`
+  *[_type == "brochure" && status != "archived"] | order(_updatedAt desc) [0...5] {
+    _id,
+    title,
+    "slug": slug.current,
+    status,
+    _updatedAt
+  }
+`
+
+/**
  * All brochures for the admin library.
  */
 export const ALL_BROCHURES = groq`
   *[_type == "brochure"] | order(coalesce(publishedAt, _createdAt) desc) {
     _id,
+    _updatedAt,
     title,
     "slug": slug.current,
     season,

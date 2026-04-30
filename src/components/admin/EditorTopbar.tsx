@@ -34,11 +34,16 @@ import {
 } from '@/lib/sanity/actions'
 import { brochureHost } from '@/lib/brochureHost'
 import { AdminThemeToggle } from './AdminThemeToggle'
+import { PresenceAvatars } from './PresenceAvatars'
 
 type Props = {
   brochure: Brochure
   companies: CompanyOption[]
   saveStatus: SaveStatus
+  /** Whether the surrounding Liveblocks room is mounted. False in
+   *  dev environments without `LIVEBLOCKS_SECRET_KEY` set; in that
+   *  case the presence avatar stack is omitted. */
+  liveblocksEnabled: boolean
   onTitleChange: (title: string) => void
   onStatusChange: (status: BrochureStatus) => void
   onFeatureChange: (featured: boolean) => void
@@ -60,7 +65,7 @@ const STATUS_DOT: Record<BrochureStatus, string> = {
   archived: '#64748b',
 }
 
-export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, onStatusChange, onFeatureChange, onThemeChange, onOpenSettings }: Props) {
+export function EditorTopbar({ brochure, companies, saveStatus, liveblocksEnabled, onTitleChange, onStatusChange, onFeatureChange, onThemeChange, onOpenSettings }: Props) {
   const router = useRouter()
   const theme: BrochureTheme = brochure.theme ?? 'dark'
   const [pending, startTransition] = useTransition()
@@ -225,6 +230,7 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
         />
         <HostBadge host={host} slug={brochure.slug.current} isCompany={Boolean(companyDomain)} onClick={onOpenSettings} />
         <SaveIndicator status={saveStatus} />
+        {liveblocksEnabled ? <PresenceAvatars /> : null}
       </div>
 
       <div className="editor-topbar-right">
@@ -390,10 +396,11 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
 
 function SaveIndicator({ status }: { status: SaveStatus }) {
   const config = {
-    saved:   { Icon: CloudCheck,  label: 'Saved',       title: 'All changes saved' },
-    saving:  { Icon: CloudUpload, label: 'Saving',      title: 'Saving changes…' },
-    unsaved: { Icon: CircleDot,   label: 'Unsaved',     title: 'Unsaved changes' },
-    error:   { Icon: CloudOff,    label: 'Save failed', title: 'Save failed — retrying' },
+    saved:    { Icon: CloudCheck,  label: 'Saved',       title: 'All changes saved' },
+    saving:   { Icon: CloudUpload, label: 'Saving',      title: 'Saving changes…' },
+    unsaved:  { Icon: CircleDot,   label: 'Unsaved',     title: 'Unsaved changes' },
+    error:    { Icon: CloudOff,    label: 'Save failed', title: 'Save failed — retrying' },
+    conflict: { Icon: AlertCircle, label: 'Conflict',    title: 'Another admin edited this brochure — reload to continue' },
   }[status]
   return (
     <div className={`editor-save-indicator status-${status}`} title={config.title} aria-live="polite">

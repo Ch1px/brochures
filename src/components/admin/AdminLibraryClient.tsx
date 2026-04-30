@@ -8,8 +8,6 @@ import {
   X,
   Plus,
   Sparkles,
-  Building2,
-  Image as ImageIcon,
   Copy,
   Trash2,
   ExternalLink,
@@ -20,13 +18,13 @@ import {
 import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
 import { AiGenerateModal } from './AiGenerateModal'
 import { deleteBrochureAction } from '@/lib/sanity/actions'
-import { CANONICAL_HOST, brochurePublicUrl as brochurePublicUrlLib } from '@/lib/brochureHost'
-import { AdminThemeToggle } from './AdminThemeToggle'
+import { brochurePublicUrl as brochurePublicUrlLib } from '@/lib/brochureHost'
 import { MiniCoverPreview, type MiniBrochure } from './MiniCoverPreview'
 import type { Brochure } from '@/types/brochure'
 
 type BrochureRow = MiniBrochure & {
   _id: string
+  _updatedAt: string
   title: string
   slug: string
   season: string
@@ -36,6 +34,24 @@ type BrochureRow = MiniBrochure & {
   featured?: boolean
   pageCount: number
   company?: { _id: string; name: string; accentColor?: string; domain?: string; logo?: Brochure['logo'] } | null
+}
+
+function relativeTime(iso: string | undefined | null): string {
+  if (!iso) return ''
+  const then = new Date(iso).getTime()
+  if (Number.isNaN(then)) return ''
+  const diff = Date.now() - then
+  const sec = Math.max(0, Math.floor(diff / 1000))
+  if (sec < 60) return 'just now'
+  const min = Math.floor(sec / 60)
+  if (min < 60) return `${min}m ago`
+  const hr = Math.floor(min / 60)
+  if (hr < 24) return `${hr}h ago`
+  const day = Math.floor(hr / 24)
+  if (day < 7) return `${day}d ago`
+  if (day < 30) return `${Math.floor(day / 7)}w ago`
+  if (day < 365) return `${Math.floor(day / 30)}mo ago`
+  return `${Math.floor(day / 365)}y ago`
 }
 
 function brochurePublicUrl(brochure: BrochureRow): string {
@@ -158,27 +174,15 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
 
   return (
     <>
-      {/* Header */}
+      {/* Header — title + count, primary actions right */}
       <div className="library-header">
-        <div>
+        <div className="library-header-titleblock">
           <h1 className="library-title">Brochures</h1>
-          <div className="library-subtitle">
-            {brochures.length} total
-            {hasActiveFilters ? <span className="library-subtitle-sep"> · </span> : null}
-            {hasActiveFilters ? <span>{filtered.length} matching</span> : null}
-          </div>
+          <span className="library-title-count">
+            {hasActiveFilters ? `${filtered.length} of ${brochures.length}` : brochures.length}
+          </span>
         </div>
         <div className="library-header-actions">
-          <AdminThemeToggle />
-          <span className="library-header-divider" aria-hidden />
-          <Link href="/admin/companies" className="library-header-btn" title="Manage companies">
-            <Building2 size={14} strokeWidth={2} />
-            <span>Companies</span>
-          </Link>
-          <Link href="/admin/media" className="library-header-btn" title="Browse media library">
-            <ImageIcon size={14} strokeWidth={2} />
-            <span>Media</span>
-          </Link>
           <button className="library-header-btn" onClick={() => setAiOpen(true)} title="Generate a new brochure with AI">
             <Sparkles size={14} strokeWidth={2} />
             <span>Generate</span>
@@ -190,101 +194,88 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="library-filters">
-        <div className="library-filter-row">
-          <div className="library-search">
-            <Search size={15} strokeWidth={2} className="library-search-icon" aria-hidden />
-            <input
-              type="text"
-              className="library-search-input"
-              placeholder="Search by title, slug or event…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {search ? (
-              <button
-                type="button"
-                className="library-search-clear"
-                onClick={() => setSearch('')}
-                aria-label="Clear search"
-              >
-                <X size={14} strokeWidth={2.2} />
-              </button>
-            ) : null}
-          </div>
-          {hasActiveFilters ? (
-            <button type="button" className="library-filter-clear" onClick={clearFilters}>
+      {/* Toolbar — search left, dropdowns right */}
+      <div className="library-toolbar">
+        <div className="library-search">
+          <Search size={14} strokeWidth={2} className="library-search-icon" aria-hidden />
+          <input
+            type="text"
+            className="library-search-input"
+            placeholder="Search…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {search ? (
+            <button
+              type="button"
+              className="library-search-clear"
+              onClick={() => setSearch('')}
+              aria-label="Clear search"
+            >
               <X size={13} strokeWidth={2.2} />
-              <span>Clear filters</span>
             </button>
           ) : null}
         </div>
 
-        <FilterGroup label="Status">
-          {STATUS_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              className={`library-filter-pill${statusFilter === opt.value ? ' active' : ''}`}
-              onClick={() => setStatusFilter(opt.value)}
-            >
-              {opt.value ? (
-                <span className="library-filter-pill-dot" style={{ background: STATUS_DOT[opt.value] }} />
-              ) : null}
-              <span>{opt.label}</span>
-              <span className="library-filter-pill-count">
-                {opt.value ? (counts[opt.value] ?? 0) : counts.all}
-              </span>
-            </button>
-          ))}
-        </FilterGroup>
-
-        {seasons.length > 1 ? (
-          <FilterGroup label="Season">
-            {seasons.map((s) => (
-              <button
-                key={s}
-                className={`library-filter-pill${seasonFilter === s ? ' active' : ''}`}
-                onClick={() => setSeasonFilter(seasonFilter === s ? '' : s)}
-              >
-                {s}
-              </button>
+        <div className="library-toolbar-controls">
+          <select
+            className="library-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by status"
+          >
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.value
+                  ? `${opt.label} (${counts[opt.value] ?? 0})`
+                  : `All status (${counts.all})`}
+              </option>
             ))}
-          </FilterGroup>
-        ) : null}
+          </select>
 
-        {companies.length > 0 ? (
-          <FilterGroup label="Host">
-            <button
-              className={`library-filter-pill${companyFilter === CANONICAL_COMPANY_ID ? ' active' : ''}`}
-              onClick={() =>
-                setCompanyFilter(companyFilter === CANONICAL_COMPANY_ID ? '' : CANONICAL_COMPANY_ID)
-              }
-              title="Brochures hosted on the Grand Prix Grand Tours domain"
+          {seasons.length > 1 ? (
+            <select
+              className="library-select"
+              value={seasonFilter}
+              onChange={(e) => setSeasonFilter(e.target.value)}
+              aria-label="Filter by season"
             >
-              <span>Grand Prix Grand Tours</span>
-              <span className="library-filter-pill-count">{canonicalCount}</span>
+              <option value="">All seasons</option>
+              {seasons.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          ) : null}
+
+          {companies.length > 0 ? (
+            <select
+              className="library-select"
+              value={companyFilter}
+              onChange={(e) => setCompanyFilter(e.target.value)}
+              aria-label="Filter by host"
+            >
+              <option value="">All hosts</option>
+              <option value={CANONICAL_COMPANY_ID}>Grand Prix Grand Tours ({canonicalCount})</option>
+              {companies.map((c) => {
+                const count = brochures.filter((b) => b.company?._id === c._id).length
+                return (
+                  <option key={c._id} value={c._id}>
+                    {c.name} ({count})
+                  </option>
+                )
+              })}
+            </select>
+          ) : null}
+
+          {hasActiveFilters ? (
+            <button type="button" className="library-filter-clear" onClick={clearFilters} title="Clear filters">
+              <X size={13} strokeWidth={2.2} />
+              <span>Clear</span>
             </button>
-            {companies.map((c) => {
-              const count = brochures.filter((b) => b.company?._id === c._id).length
-              return (
-                <button
-                  key={c._id}
-                  className={`library-filter-pill${companyFilter === c._id ? ' active' : ''}`}
-                  onClick={() => setCompanyFilter(companyFilter === c._id ? '' : c._id)}
-                  style={
-                    companyFilter === c._id && c.accentColor
-                      ? { borderColor: c.accentColor, color: c.accentColor, background: `${c.accentColor}1a` }
-                      : undefined
-                  }
-                >
-                  <span>{c.name}</span>
-                  <span className="library-filter-pill-count">{count}</span>
-                </button>
-              )
-            })}
-          </FilterGroup>
-        ) : null}
+          ) : null}
+        </div>
       </div>
 
       {/* Grid */}
@@ -292,6 +283,27 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
         <div className="library-grid">
           {paginated.map((b) => (
             <div key={b._id} className={`library-card${b.featured ? ' featured' : ''}`}>
+              <Link href={`/admin/brochures/${b._id}/edit`} className="library-card-link">
+                <div className="library-card-thumb-wrap">
+                  <MiniCoverPreview brochure={b} />
+                  {b.featured ? (
+                    <span className="library-card-featured-glyph" title="Featured — site root redirect">
+                      <Star size={10} strokeWidth={2.4} fill="currentColor" />
+                    </span>
+                  ) : null}
+                </div>
+                <div className="library-card-body">
+                  <div className="library-card-title" title={b.title}>{b.title}</div>
+                  <div className="library-card-meta">
+                    <span className={`library-card-status ${b.status}`}>
+                      <span className="library-card-status-dot" style={{ background: STATUS_DOT[b.status] }} />
+                      <span>{b.status}</span>
+                    </span>
+                    <span className="library-card-meta-sep" aria-hidden>·</span>
+                    <span className="library-card-meta-text">Edited {relativeTime(b._updatedAt)}</span>
+                  </div>
+                </div>
+              </Link>
               <div className="library-card-actions">
                 {b.status === 'published' ? (
                   <a
@@ -303,7 +315,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
                     title={`Open ${brochurePublicUrl(b).replace(/^https?:\/\//, '')}`}
                     aria-label="Open live brochure"
                   >
-                    <ExternalLink size={14} strokeWidth={2} />
+                    <ExternalLink size={13} strokeWidth={2} />
                   </a>
                 ) : null}
                 <button
@@ -323,7 +335,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
                   title="Duplicate"
                   aria-label="Duplicate brochure"
                 >
-                  <Copy size={14} strokeWidth={2} />
+                  <Copy size={13} strokeWidth={2} />
                 </button>
                 <button
                   className="library-card-action danger"
@@ -344,58 +356,9 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
                   title="Delete"
                   aria-label="Delete brochure"
                 >
-                  <Trash2 size={14} strokeWidth={2} />
+                  <Trash2 size={13} strokeWidth={2} />
                 </button>
               </div>
-              {b.featured ? (
-                <div className="library-card-featured-badge" title="Featured — site root redirect">
-                  <Star size={11} strokeWidth={2.4} fill="currentColor" />
-                  <span>Featured</span>
-                </div>
-              ) : null}
-              <Link href={`/admin/brochures/${b._id}/edit`} className="library-card-link">
-                <div className="library-card-thumb-wrap">
-                  <MiniCoverPreview brochure={b} />
-                </div>
-                <div className="library-card-body">
-                  <div className="library-card-title">{b.title}</div>
-                  <div className="library-card-meta">
-                    <span className={`library-card-status ${b.status}`}>
-                      <span className="library-card-status-dot" style={{ background: STATUS_DOT[b.status] }} />
-                      <span>{b.status}</span>
-                    </span>
-                    <span className="library-card-meta-sep">·</span>
-                    <span className="library-card-meta-text">{b.season}</span>
-                    <span className="library-card-meta-sep">·</span>
-                    <span className="library-card-meta-text">
-                      {b.pageCount} {b.pageCount === 1 ? 'page' : 'pages'}
-                    </span>
-                  </div>
-                  {b.event ? <div className="library-card-event">{b.event}</div> : null}
-                  <div className="library-card-footer">
-                    <div className="library-card-slug">
-                      {(b.company?.domain || CANONICAL_HOST) + '/' + b.slug}
-                    </div>
-                    {b.company ? (
-                      <span
-                        className="library-card-company"
-                        style={
-                          b.company.accentColor
-                            ? {
-                                background: `${b.company.accentColor}1f`,
-                                color: b.company.accentColor,
-                                borderColor: `${b.company.accentColor}66`,
-                              }
-                            : undefined
-                        }
-                        title={`Hosted on ${b.company.name}`}
-                      >
-                        {b.company.name}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              </Link>
             </div>
           ))}
         </div>
@@ -474,15 +437,6 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
       />
       <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} />
     </>
-  )
-}
-
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="library-filter-group">
-      <span className="library-filter-group-label">{label}</span>
-      <div className="library-filter-pills">{children}</div>
-    </div>
   )
 }
 

@@ -6,6 +6,7 @@ import type { Brochure } from '@/types/brochure'
 
 type BrochureRow = MiniBrochure & {
   _id: string
+  _updatedAt: string
   title: string
   slug: string
   season: string

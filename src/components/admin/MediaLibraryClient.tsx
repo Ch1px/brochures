@@ -2,11 +2,10 @@
 
 import { useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { Search, X, Plus, Trash2 } from 'lucide-react'
 import type { ImageAssetRow } from '@/lib/sanity/actions'
 import { deleteImageAssetAction } from '@/lib/sanity/actions'
 import { urlFor } from '@/lib/sanity/image'
-import { AdminThemeToggle } from './AdminThemeToggle'
 
 type Props = {
   assets: ImageAssetRow[]
@@ -93,15 +92,13 @@ export function MediaLibraryClient({ assets }: Props) {
   return (
     <>
       <div className="library-header">
-        <div>
-          <h1 className="library-title">Media Library</h1>
-          <div className="library-subtitle">{assets.length} assets</div>
+        <div className="library-header-titleblock">
+          <h1 className="library-title">Media</h1>
+          <span className="library-title-count">
+            {search.trim() ? `${filtered.length} of ${assets.length}` : assets.length}
+          </span>
         </div>
         <div className="library-header-actions">
-          <AdminThemeToggle />
-          <Link href="/admin" className="library-header-btn">
-            Brochures
-          </Link>
           <input
             ref={fileRef}
             type="file"
@@ -115,24 +112,32 @@ export function MediaLibraryClient({ assets }: Props) {
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
           >
-            {uploading ? 'Uploading...' : '+ Upload'}
+            <Plus size={15} strokeWidth={2.4} />
+            <span>{uploading ? 'Uploading…' : 'Upload'}</span>
           </button>
         </div>
       </div>
 
-      <div className="library-filters">
+      <div className="library-toolbar">
         <div className="library-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="library-search-icon">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <Search size={14} strokeWidth={2} className="library-search-icon" aria-hidden />
           <input
             type="text"
             className="library-search-input"
-            placeholder="Search by filename..."
+            placeholder="Search by filename…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {search ? (
+            <button
+              type="button"
+              className="library-search-clear"
+              onClick={() => setSearch('')}
+              aria-label="Clear search"
+            >
+              <X size={13} strokeWidth={2.2} />
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -149,13 +154,9 @@ export function MediaLibraryClient({ assets }: Props) {
                     disabled={deletePending}
                     onClick={() => handleDelete(asset)}
                     title="Delete"
+                    aria-label="Delete asset"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                      <path d="M10 11v6M14 11v6" />
-                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                    </svg>
+                    <Trash2 size={13} strokeWidth={2} />
                   </button>
                 </div>
                 <div className="media-asset-thumb">

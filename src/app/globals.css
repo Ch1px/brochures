@@ -3209,14 +3209,31 @@
     font-family: var(--font-body);
     overflow-y: auto;
   }
-  /* Override the global overflow:hidden on html/body when the library page is active */
-  html:has(.library-page), html:has(.library-page) body {
+  /* Override the global overflow:hidden on html/body when the library page is active.
+     Skipped when the library page is rendered inside `.admin-shell` — the
+     shell owns scrolling there, body must stay locked at 100% so the
+     fixed grid (topbar + sidebar + main) doesn't fall apart. */
+  html:has(.library-page):not(:has(.admin-shell)),
+  html:has(.library-page):not(:has(.admin-shell)) body {
     overflow: auto;
     height: auto;
   }
   .library-page > .library-header {
-    padding: 32px 40px 24px;
+    padding: 22px 28px 16px;
     border-bottom: none;
+  }
+  .library-header-titleblock {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+  .library-title-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--chrome-text-tertiary);
+    font-weight: 500;
   }
   .library-subtitle {
     font-family: var(--font-mono);
@@ -3266,21 +3283,72 @@
   .library-subtitle-sep { color: var(--chrome-border-strong); margin: 0 2px; }
 
   .library-page > .library-body {
-    padding: 0 40px 60px;
+    padding: 0 28px 48px;
   }
   .library-page > .library-body > .library-grid {
     max-width: none;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
   }
 
-  /* Filters */
+  /* Toolbar — search left, filter dropdowns right */
+  .library-toolbar {
+    padding: 0 28px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .library-toolbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .library-select {
+    height: 30px;
+    padding: 0 26px 0 10px;
+    background: var(--chrome-surface);
+    border: 1px solid var(--chrome-border);
+    border-radius: 5px;
+    color: var(--chrome-text);
+    font-family: var(--font-condensed);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--chrome-text-tertiary) 50%),
+      linear-gradient(135deg, var(--chrome-text-tertiary) 50%, transparent 50%);
+    background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    transition: border-color 0.12s, background-color 0.12s;
+  }
+  .library-select:hover {
+    border-color: var(--chrome-border-strong);
+    background-color: var(--chrome-raised);
+  }
+  .library-select:focus {
+    outline: none;
+    border-color: var(--brand-red);
+  }
+  .library-select option {
+    background: var(--chrome-surface);
+    color: var(--chrome-text);
+  }
+
+  /* Filters (legacy — superseded by toolbar; kept so stray references
+     don't break, but no longer rendered by AdminLibraryClient.) */
   .library-filters {
-    padding: 0 40px;
-    margin-bottom: 24px;
+    padding: 0 28px;
+    margin-bottom: 18px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
   }
   .library-filter-row {
     display: flex;
@@ -3291,12 +3359,12 @@
   .library-search {
     position: relative;
     flex: 1;
-    max-width: 440px;
-    min-width: 240px;
+    max-width: 320px;
+    min-width: 200px;
   }
   .library-search-icon {
     position: absolute;
-    left: 12px;
+    left: 9px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--chrome-text-tertiary);
@@ -3304,14 +3372,14 @@
   }
   .library-search-input {
     width: 100%;
-    height: 38px;
-    padding: 0 36px 0 36px;
+    height: 30px;
+    padding: 0 30px 0 30px;
     background: var(--chrome-surface);
     border: 1px solid var(--chrome-border);
-    border-radius: 6px;
+    border-radius: 5px;
     color: var(--chrome-text);
     font-family: var(--font-body);
-    font-size: 13px;
+    font-size: 12px;
     outline: none;
     transition: border-color 0.12s, background 0.12s;
   }
@@ -3613,24 +3681,34 @@
     border-bottom: 1px solid var(--chrome-border);
     display: flex; justify-content: space-between; align-items: center;
   }
-  .library-title { font-family: var(--font-display); font-weight: var(--font-display-weight); font-size: 32px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .library-title {
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--chrome-text);
+  }
   .library-body { flex: 1; overflow-y: auto; padding: 40px; }
   .library-grid {
     max-width: 1400px; margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
   }
 
   .library-card {
     background: var(--chrome-surface);
     border: 1px solid var(--chrome-border);
-    border-radius: 3px; overflow: hidden;
+    border-radius: 8px; overflow: hidden;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: border-color 0.12s, background 0.12s, box-shadow 0.15s;
     position: relative;
   }
-  .library-card:hover { border-color: var(--brand-red); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .library-card:hover {
+    border-color: var(--chrome-border-strong);
+    background: var(--chrome-raised);
+  }
 
   /* Card thumb — wraps the live MiniCoverPreview render. Establishes the
      16:10 aspect ratio. Inside, the cover is rendered at a fixed virtual
@@ -3761,43 +3839,50 @@
   .library-card-thumb.theme-light:not(.has-image) .library-card-thumb-text {
     color: #1a1a1a;
   }
-  .library-card-body { padding: 20px; }
+  .library-card-body { padding: 10px 12px 12px; }
   .library-card-title {
-    font-family: var(--font-display); font-weight: 700;
-    font-size: 16px; letter-spacing: 0.04em; text-transform: uppercase;
-    margin-bottom: 6px;
+    font-family: var(--font-condensed); font-weight: 600;
+    font-size: 13px; letter-spacing: 0.01em; text-transform: none;
+    color: var(--chrome-text);
+    margin-bottom: 4px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .library-card-meta {
-    display: flex; align-items: center; flex-wrap: wrap;
+    display: flex; align-items: center;
     gap: 6px;
-    font-family: var(--font-mono); font-size: 10px;
-    letter-spacing: 0.06em; text-transform: none;
+    font-family: var(--font-body); font-size: 11px;
+    letter-spacing: 0;
     color: var(--chrome-text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .library-card-actions {
-    position: absolute; top: 10px; right: 10px;
-    display: flex; gap: 4px;
-    opacity: 0.55; transition: opacity 0.15s;
+    position: absolute; top: 8px; right: 8px;
+    display: flex; gap: 3px;
+    opacity: 0; transition: opacity 0.12s;
     z-index: 2;
+    pointer-events: none;
   }
   .library-card:hover .library-card-actions,
-  .library-card:focus-within .library-card-actions { opacity: 1; }
+  .library-card:focus-within .library-card-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
   .library-card-action {
-    width: 30px; height: 30px;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(6px);
+    width: 26px; height: 26px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 5px;
     display: flex; align-items: center; justify-content: center;
     color: #fff;
     cursor: pointer;
-    transition: all 0.12s;
+    transition: background 0.12s, border-color 0.12s;
   }
   .library-card-action:hover:not(:disabled) {
     background: var(--brand-red);
     border-color: var(--brand-red);
-    transform: scale(1.05);
   }
   .library-card-action:disabled { opacity: 0.4; cursor: not-allowed; }
   .library-card-action.danger:hover:not(:disabled) {
@@ -3806,24 +3891,92 @@
     color: #fff;
   }
 
+  /* Tiny corner star — replaces the "Featured" pill ribbon. */
+  .library-card-featured-glyph {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    z-index: 2;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    border-radius: 999px;
+    color: #ffd166;
+    pointer-events: auto;
+  }
+
+  /* ── COMPANY CARD ── */
+  /* Reuses .library-card chrome (border, hover, body padding) and adds a
+     company-specific thumb + accent dot. The card itself is a <button> so
+     reset native button cosmetics. */
+  .library-card.company-card {
+    text-align: left;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+  }
+  .company-card-thumb {
+    aspect-ratio: 16/10;
+    background: var(--chrome-raised);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .company-card-logo {
+    max-width: 65%;
+    max-height: 65%;
+    object-fit: contain;
+    display: block;
+  }
+  .company-card-monogram {
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--chrome-text-tertiary);
+    letter-spacing: 0.02em;
+  }
+  .company-card-accent-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px var(--chrome-surface);
+  }
+  .company-card-domain {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--chrome-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
   /* ── MEDIA LIBRARY ── */
   .media-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
   }
   .media-picker-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
   }
   .media-asset-card {
     background: var(--chrome-surface);
     border: 1px solid var(--chrome-border);
-    border-radius: 3px;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: border-color 0.12s, background 0.12s;
     position: relative;
     text-align: left;
     padding: 0;
@@ -3831,12 +3984,11 @@
     color: inherit;
   }
   .media-asset-card:hover {
-    border-color: var(--brand-red);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: var(--chrome-border-strong);
+    background: var(--chrome-raised);
   }
   .media-asset-card-selectable:hover {
-    box-shadow: 0 0 0 1px var(--brand-red), 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: var(--brand-red);
   }
   .media-asset-actions {
     position: absolute;
@@ -3844,14 +3996,18 @@
     right: 6px;
     z-index: 2;
     display: flex;
-    gap: 4px;
+    gap: 3px;
     opacity: 0;
-    transition: opacity 0.15s;
+    transition: opacity 0.12s;
+    pointer-events: none;
   }
-  .media-asset-card:hover .media-asset-actions { opacity: 1; }
+  .media-asset-card:hover .media-asset-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
   .media-asset-thumb {
     aspect-ratio: 1 / 1;
-    background: #0a0a0c;
+    background: var(--chrome-bg);
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -3863,22 +4019,26 @@
     object-fit: cover;
     display: block;
   }
-  .media-asset-info { padding: 8px 10px; }
+  .media-asset-info { padding: 8px 10px 10px; }
   .media-asset-filename {
-    font-family: var(--font-body);
-    font-size: 11px;
+    font-family: var(--font-condensed);
+    font-weight: 500;
+    font-size: 12px;
     color: var(--chrome-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .media-asset-meta {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--chrome-text-tertiary);
-    margin-top: 3px;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .library-new-card {
@@ -4996,10 +5156,11 @@
 
   /* Library on mobile */
   @media (max-width: 560px) {
-    .library-header { padding: 16px 18px; }
-    .library-title { font-size: 20px; letter-spacing: 0.03em; }
-    .library-body { padding: 18px; }
-    .library-grid { grid-template-columns: 1fr; gap: 14px; }
+    .library-page > .library-header { padding: 16px 16px 10px; }
+    .library-title { font-size: 18px; }
+    .library-toolbar { padding: 0 16px; }
+    .library-page > .library-body { padding: 0 16px 32px; }
+    .library-page > .library-body > .library-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
   }
 
   /* ============================================================

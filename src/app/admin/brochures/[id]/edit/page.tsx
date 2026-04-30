@@ -3,6 +3,7 @@ import { fetchBrochureForEdit } from '@/lib/sanity/mutations'
 import { sanityWriteClient } from '@/lib/sanity/client'
 import { COMPANIES_FOR_PICKER } from '@/lib/sanity/queries'
 import { BrochureEditor, type CompanyOption } from '@/components/admin/BrochureEditor'
+import { optionalEnv } from '@/lib/env'
 
 type Params = { id: string }
 
@@ -15,7 +16,14 @@ export default async function EditBrochurePage({ params }: { params: Promise<Par
     sanityWriteClient.fetch<CompanyOption[]>(COMPANIES_FOR_PICKER),
   ])
   if (!brochure) notFound()
-  return <BrochureEditor initialBrochure={brochure} companies={companies} />
+  const liveblocksEnabled = Boolean(optionalEnv('LIVEBLOCKS_SECRET_KEY'))
+  return (
+    <BrochureEditor
+      initialBrochure={brochure}
+      companies={companies}
+      liveblocksEnabled={liveblocksEnabled}
+    />
+  )
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }) {

@@ -699,6 +699,10 @@ export type CustomColor = {
 
 export type Brochure = {
   _id: string
+  /** Sanity document revision. Used by the editor's autosave to guard
+   *  against silently overwriting another admin's concurrent edits via
+   *  the `ifRevisionID` patch option. */
+  _rev?: string
   title: string
   slug: { current: string }
   season: string

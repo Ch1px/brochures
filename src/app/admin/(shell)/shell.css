@@ -1,0 +1,328 @@
+/* ====================================================================
+   ADMIN SHELL
+   --------------------------------------------------------------------
+   Application shell wrapping /admin (brochures), /admin/companies, and
+   /admin/media. Layout:
+
+      ┌────────── topbar (40px) ───────────┐
+      ├──────────┬─────────────────────────┤
+      │ sidebar  │  main (page content)    │
+      │ (210px)  │                         │
+      └──────────┴─────────────────────────┘
+
+   The editor route (/admin/brochures/[id]/edit) lives outside this
+   shell and keeps its own three-pane layout. Tokens come from the
+   admin-chrome custom properties already defined in globals.css, so
+   light/dark cascades automatically.
+   ================================================================== */
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 44px 1fr;
+  grid-template-areas:
+    'sidebar topbar'
+    'sidebar main';
+  height: 100vh;
+  background: var(--chrome-bg);
+  color: var(--chrome-text);
+}
+
+/* ────────── Topbar ────────── */
+
+.admin-shell-topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  background: var(--chrome-surface);
+  border-bottom: 1px solid var(--chrome-border);
+  z-index: 2;
+}
+
+.admin-shell-topbar-left,
+.admin-shell-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+
+.admin-shell-section {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--chrome-text);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Compact icon-only button shared by Topbar utilities (View site, etc).
+   `.admin-theme-toggle` already lives in globals.css and naturally
+   matches this shape since both pull from the same chrome tokens. */
+.admin-shell-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--chrome-text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.admin-shell-icon-btn:hover {
+  color: var(--chrome-text);
+  background: var(--chrome-elevated);
+}
+
+/* Inside the shell topbar, drop the theme toggle's border so it visually
+   matches the borderless `.admin-shell-icon-btn`. The editor topbar
+   keeps the bordered version it was originally designed against. */
+.admin-shell-topbar .admin-theme-toggle {
+  border-color: transparent;
+}
+.admin-shell-topbar .admin-theme-toggle:hover {
+  background: var(--chrome-elevated);
+  border-color: transparent;
+}
+
+/* Small identity dot on the far right of the topbar — placeholder for
+   a future profile menu. Click does nothing today; tooltip surfaces the
+   email so it isn't dead chrome. */
+.admin-shell-topbar-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--chrome-elevated);
+  color: var(--chrome-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  cursor: default;
+  flex-shrink: 0;
+}
+
+/* ────────── Sidebar ────────── */
+
+.admin-shell-sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--chrome-surface);
+  border-right: 1px solid var(--chrome-border);
+  padding: 8px 8px 12px;
+  gap: 6px;
+}
+/* In light mode `--chrome-surface` is pure white — same as `--chrome-raised`
+   used for hover. Switch the sidebar to `--chrome-bg` (light grey) so hover
+   states have something to contrast against. The topbar stays white so it
+   reads as the elevated layer above the sidebar. */
+[data-admin-theme="light"] .admin-shell-sidebar {
+  background: var(--chrome-bg);
+}
+
+/* Identity row — single inline button, no card chrome. Hover lifts to
+   `--chrome-raised` to signal it's interactive (currently a no-op
+   click target; will host an account menu later). */
+.admin-shell-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--chrome-text);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.12s;
+  text-align: left;
+  width: 100%;
+  min-width: 0;
+}
+.admin-shell-identity:hover {
+  background: var(--chrome-elevated);
+}
+
+.admin-shell-identity-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--brand-red);
+  color: var(--brand-on-accent, #fff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.admin-shell-identity-name {
+  flex: 1;
+  font-family: var(--font-condensed);
+  font-weight: 500;
+  font-size: 12.5px;
+  color: var(--chrome-text);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.admin-shell-identity-caret {
+  flex-shrink: 0;
+  color: var(--chrome-text-tertiary);
+}
+.admin-shell-identity:hover .admin-shell-identity-caret {
+  color: var(--chrome-text-secondary);
+}
+
+/* Sidebar scroll region — everything between the identity row and the
+   footer scrolls independently. Identity stays pinned at top, Studio
+   link stays pinned at bottom. */
+.admin-shell-sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  margin: 0 -2px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+/* Section header + container — used for both Workspace and Recent. */
+.admin-shell-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.admin-shell-section-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--chrome-text-tertiary);
+  padding: 6px 10px 4px;
+}
+
+/* Nav — flat list, soft fill on active, no left rail. */
+.admin-shell-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.admin-shell-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 9px;
+  border-radius: 5px;
+  color: var(--chrome-text-secondary);
+  font-family: var(--font-condensed);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+.admin-shell-nav-item svg {
+  color: var(--chrome-text-tertiary);
+  transition: color 0.12s;
+  flex-shrink: 0;
+}
+.admin-shell-nav-item:hover {
+  color: var(--chrome-text);
+  background: var(--chrome-elevated);
+}
+.admin-shell-nav-item:hover svg {
+  color: var(--chrome-text-secondary);
+}
+.admin-shell-nav-item.active {
+  color: var(--chrome-text);
+  background: var(--chrome-raised);
+  font-weight: 600;
+}
+.admin-shell-nav-item.active svg {
+  color: var(--brand-red);
+}
+
+/* Recent brochures list — top 5 most recently edited. Each row is a
+   link straight into the editor; status dot tracks publish state. */
+.admin-shell-recent {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.admin-shell-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  color: var(--chrome-text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+  min-width: 0;
+}
+.admin-shell-recent-item:hover {
+  color: var(--chrome-text);
+  background: var(--chrome-elevated);
+}
+.admin-shell-recent-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.admin-shell-recent-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+
+
+/* ────────── Main ────────── */
+
+.admin-shell-main {
+  grid-area: main;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--chrome-bg);
+}
+
+/* The legacy `.library-page` wrapper is still rendered by each list
+   page. Inside the shell it's just a content container — drop the full
+   viewport height so the shell controls scrolling. */
+.admin-shell-main .library-page {
+  min-height: 100%;
+  height: auto;
+}

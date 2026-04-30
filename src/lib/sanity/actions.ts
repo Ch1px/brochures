@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { currentUser } from '@clerk/nextjs/server'
 import {
   saveBrochure as saveBrochureMutation,
+  type SaveBrochureResult,
   setBrochureStatus as setBrochureStatusMutation,
   setFeaturedBrochure as setFeaturedBrochureMutation,
   createBrochure as createBrochureMutation,
@@ -73,10 +74,11 @@ export async function saveBrochureAction(
       | 'hideTexture'
       | 'logo'
     >
-  >
-) {
+  >,
+  expectedRev?: string
+): Promise<SaveBrochureResult> {
   await assertAdmin()
-  return saveBrochureMutation(id, updates)
+  return saveBrochureMutation(id, updates, expectedRev)
 }
 
 export async function setBrochureStatusAction(

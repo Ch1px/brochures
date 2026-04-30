@@ -166,9 +166,21 @@ Each section has:
 
 Sanity has native `drafts.{id}` vs `{id}` document IDs. We don't use this convention. Instead, every brochure is a single doc with an explicit `status: 'draft' | 'published' | 'unpublished' | 'archived'` field. Why: we need 4 states, Sanity's built-in model only gives 2. The `/[slug]` public route filters on `status == "published"`; preview-token-verified requests can see any status.
 
-### Whole-array patches, not granular array operations
+### Whole-array patches, gated on `_rev`
 
-`saveBrochureAction` does `patch.set({ pages })` — replaces the whole pages array on every save. Simpler than Sanity's `insert()`/`unset()` operations and fine for single-admin editing. If we ever need multi-admin, switch to granular ops keyed by `_key`. Don't assume you can edit granularly here without first moving to the other pattern — race conditions are real.
+`saveBrochureAction` does `patch.set({ pages })` — replaces the whole pages array on every save. Simpler than Sanity's `insert()`/`unset()` operations. The patch is gated on `ifRevisionID: brochure._rev` so a concurrent edit from another admin causes Sanity to reject the second write with a 409 instead of silently clobbering it. `useAutosave` tracks the last-known `_rev`, updates it from the patch response, and on a 409 transitions to a `'conflict'` save status — autosave halts and the editor surfaces a persistent banner with a Reload button. There's no automatic merge; the user reloads (losing in-memory edits) or copies their work out manually. Saves are also serialised internally via `inFlightRef` + `pendingRef` so two debounce-triggered saves can't race using the same stale rev. If you ever need real collaborative editing, switch to granular array operations keyed by `_key` and replace the whole-array set.
+
+### Real-time presence (Liveblocks)
+
+The editor wraps `BrochureEditor` in a Liveblocks `<RoomProvider id={"brochure-" + _id}>` so peer admins viewing the same brochure show up as avatars in the topbar. Identity (name, avatar URL, deterministic colour) is baked into the Liveblocks token by `/api/liveblocks-auth` from the validated Clerk session — peers can't spoof identity by mutating presence. The `Presence` type in `src/lib/liveblocks.ts` is currently empty; Tier 2 will add `cursor` and `selectedSectionKey` for Figma-style live cursors and selection outlines.
+
+Degrades gracefully: when `LIVEBLOCKS_SECRET_KEY` is unset (dev environments without an account) the page passes `liveblocksEnabled={false}`, the editor skips the provider, and the avatar stack doesn't render. The auth route returns 503 in that case so any client that did try to connect fails fast.
+
+The room id format (`brochure-{id}`) is centralised in `roomIdForBrochure()` / `brochureIdFromRoomId()` so the auth endpoint can validate that an incoming room id maps to a real brochure doc — without that check, a malicious client could probe arbitrary room ids and broadcast presence to anyone joining the same fake id.
+
+**Two-file split** (don't merge them back): `src/lib/liveblocks-shared.ts` holds pure helpers and types and is safe to import from server route handlers. `src/lib/liveblocks.ts` is `'use client'` and creates the React contexts via `@liveblocks/react`. If a server module (like `/api/liveblocks-auth/route.ts`) imports from `./liveblocks` directly, Next.js evaluates `@liveblocks/react` in the RSC bundle and crashes with `createContext is not a function`. The auth route MUST import its helpers from `./liveblocks-shared`.
+
+Presence is **not** a replacement for the `_rev` save guard. Avatars help admins coordinate socially ("Sarah's in there, I'll wait"); the guard catches the case where they don't.
 
 ### Server actions, not API routes, for mutations
 

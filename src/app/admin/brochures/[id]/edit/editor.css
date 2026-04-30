@@ -153,13 +153,68 @@
   color: var(--chrome-text-secondary);
   transition: color 0.15s, background 0.15s;
 }
-.editor-save-indicator.status-saved   { color: #4ade80; background: rgba(74, 222, 128, 0.08); }
-.editor-save-indicator.status-saving  { color: #60a5fa; background: rgba(96, 165, 250, 0.08); }
-.editor-save-indicator.status-unsaved { color: #ffb340; background: rgba(255, 179, 64, 0.10); }
-.editor-save-indicator.status-error   { color: #ff5555; background: rgba(255, 85, 85, 0.10); }
+.editor-save-indicator.status-saved    { color: #4ade80; background: rgba(74, 222, 128, 0.08); }
+.editor-save-indicator.status-saving   { color: #60a5fa; background: rgba(96, 165, 250, 0.08); }
+.editor-save-indicator.status-unsaved  { color: #ffb340; background: rgba(255, 179, 64, 0.10); }
+.editor-save-indicator.status-error    { color: #ff5555; background: rgba(255, 85, 85, 0.10); }
+.editor-save-indicator.status-conflict { color: #ff5555; background: rgba(255, 85, 85, 0.16); }
+
+/* Presence avatar stack — peer admins currently viewing this brochure.
+   Renders only when at least one peer is connected. Avatars overlap
+   slightly (negative margin) and gain a coloured ring keyed to each
+   peer's deterministic colour, so the same person looks consistent
+   here, in cursor pills, and in selection outlines (Tier 2). */
+.editor-presence-stack {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+}
+.editor-presence-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #888;
+  background: var(--chrome-raised);
+  margin-left: -6px;
+  overflow: hidden;
+  font-family: var(--font-condensed);
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+.editor-presence-avatar:first-child { margin-left: 0; }
+.editor-presence-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.editor-presence-initials {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.editor-presence-overflow {
+  background: var(--chrome-raised);
+  color: var(--chrome-text-secondary);
+  border-color: var(--chrome-border-strong);
+}
 
 @keyframes editor-spin-slow { to { transform: rotate(360deg); } }
 .editor-spin-slow { animation: editor-spin-slow 1.6s linear infinite; }
+
+/* Hide the free-tier "Powered by Liveblocks" badge that @liveblocks/core
+   injects into document.body at runtime. Liveblocks themselves ship a
+   close button on the badge that sets `display: none`, so suppressing
+   it via CSS is just making that dismissal default-on. */
+#liveblocks-badge { display: none !important; }
 
 /* Host badge — shows the full public URL preview (host / slug) and opens
    Settings on click. Slug is dimmed so the host (the part the admin is most

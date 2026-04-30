@@ -54,7 +54,16 @@ export async function uploadFileAsset(
   })
 }
 
-/** Save the editable fields of a brochure. Does not touch status/publishedAt/featured. */
+export type SaveBrochureResult =
+  | { ok: true; rev: string }
+  | { ok: false; error: string; conflict?: true }
+
+/** Save the editable fields of a brochure. Does not touch status/publishedAt/featured.
+ *
+ *  When `expectedRev` is provided the patch is gated on `ifRevisionID`, so a
+ *  concurrent edit by another admin causes Sanity to reject the write with a
+ *  409 instead of silently clobbering their changes. The new `_rev` is
+ *  returned so the caller can keep its optimistic state in lockstep. */
 export async function saveBrochure(
   id: string,
   updates: Partial<
@@ -83,14 +92,26 @@ export async function saveBrochure(
       | 'hideTexture'
       | 'logo'
     >
-  >
-): Promise<{ ok: true } | { ok: false; error: string }> {
+  >,
+  expectedRev?: string
+): Promise<SaveBrochureResult> {
   try {
-    await sanityWriteClient.patch(id).set(updates).commit({ autoGenerateArrayKeys: true })
-    return { ok: true }
+    const patch = expectedRev
+      ? sanityWriteClient.patch(id, { ifRevisionID: expectedRev })
+      : sanityWriteClient.patch(id)
+    const doc = await patch.set(updates).commit<{ _rev: string }>({ autoGenerateArrayKeys: true })
+    return { ok: true, rev: doc._rev }
   } catch (err) {
+    const statusCode =
+      typeof err === 'object' && err !== null && 'statusCode' in err
+        ? (err as { statusCode?: unknown }).statusCode
+        : undefined
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    const conflict = statusCode === 409 || /revision/i.test(message)
     console.error('saveBrochure failed:', err)
-    return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
+    return conflict
+      ? { ok: false, error: message, conflict: true }
+      : { ok: false, error: message }
   }
 }
 
