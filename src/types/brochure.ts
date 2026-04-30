@@ -738,6 +738,7 @@ export type Brochure = {
     name?: string
     accentColor?: string
     logo?: SanityImage
+    favicon?: SanityImage
   }
   ogImage?: SanityImage
   seo?: {
@@ -767,6 +768,7 @@ export type Company = {
   displayName: string
   website?: string
   logo?: SanityImage
+  favicon?: SanityImage
   accentColor?: string
   featuredBrochure?: { _ref: string; _type: 'reference' }
 }

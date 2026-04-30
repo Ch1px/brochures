@@ -61,6 +61,13 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     ? urlFor(brochure.seo.ogImage).width(1200).height(630).url()
     : undefined
 
+  // Per-host favicon: child-company brochures use the company's favicon if
+  // set, otherwise the canonical Next.js default. Sanity's image pipeline
+  // delivers a properly sized PNG that browsers accept as `rel="icon"`.
+  const faviconUrl = brochure.companyBranding?.favicon
+    ? urlFor(brochure.companyBranding.favicon).width(128).height(128).format('png').url()
+    : undefined
+
   // Preview mode always forces noindex — nothing under review should be crawled.
   const noIndex = isPreview || brochure.seo?.noIndex
 
@@ -74,6 +81,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     metadataBase,
     alternates: { canonical: `/${slug}` },
     robots: noIndex ? { index: false, follow: false } : undefined,
+    icons: faviconUrl ? { icon: faviconUrl, shortcut: faviconUrl, apple: faviconUrl } : undefined,
     openGraph: {
       title: brochure.seo?.metaTitle ?? brochure.title,
       description: brochure.seo?.metaDescription,

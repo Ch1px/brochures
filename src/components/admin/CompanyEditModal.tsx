@@ -22,6 +22,7 @@ export type CompanyFormSource = {
   website?: string
   accentColor?: string
   logo?: SanityImage
+  favicon?: SanityImage
 }
 
 type Props = {
@@ -98,6 +99,8 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   const [accentColor, setAccentColor] = useState('')
   const [logo, setLogo] = useState<SanityImage | undefined>(undefined)
   const [logoUploading, setLogoUploading] = useState(false)
+  const [favicon, setFavicon] = useState<SanityImage | undefined>(undefined)
+  const [faviconUploading, setFaviconUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [warning, setWarning] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -107,6 +110,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   const [createdInfo, setCreatedInfo] = useState<{ id: string; domain: string } | null>(null)
   const [pending, startTransition] = useTransition()
   const fileRef = useRef<HTMLInputElement>(null)
+  const faviconFileRef = useRef<HTMLInputElement>(null)
 
   const derivedHost =
     domainMode === 'default' ? deriveDefaultHost(rootDomain) : cleanHost(customHost)
@@ -124,6 +128,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       setWebsite('')
       setAccentColor('')
       setLogo(undefined)
+      setFavicon(undefined)
       setError(null)
       setWarning(null)
       setConfirmDelete(false)
@@ -151,6 +156,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       setWebsite(source.website ?? '')
       setAccentColor(source.accentColor ?? '')
       setLogo(source.logo)
+      setFavicon(source.favicon)
     }
   }, [open, source])
 
@@ -242,6 +248,20 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
     }
   }
 
+  async function handleFaviconFile(file: File) {
+    setFaviconUploading(true)
+    setError(null)
+    try {
+      const fd = new FormData()
+      fd.set('file', file)
+      const res = await uploadImageAction(fd)
+      if (res.ok) setFavicon(res.image)
+      else setError(res.error)
+    } finally {
+      setFaviconUploading(false)
+    }
+  }
+
   function refreshDomainStatus() {
     const host = activeHost
     if (!host) return
@@ -302,6 +322,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       website: website.trim() || undefined,
       accentColor: accentColor.trim() || undefined,
       logo: logo ?? null,
+      favicon: favicon ?? null,
     }
     startTransition(async () => {
       if (isEdit) {
@@ -348,11 +369,12 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   }
 
   const logoUrl = logo ? urlForSection(logo, 200) : null
+  const faviconUrl = favicon ? urlForSection(favicon, 128) : null
 
   return (
     <div
       className="add-section-overlay"
-      onClick={pending || logoUploading ? undefined : onClose}
+      onClick={pending || logoUploading || faviconUploading ? undefined : onClose}
       role="dialog"
       aria-modal="true"
       aria-label={isEdit ? 'Edit company' : 'New company'}
@@ -375,7 +397,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
             type="button"
             className="add-section-close"
             onClick={onClose}
-            disabled={pending || logoUploading}
+            disabled={pending || logoUploading || faviconUploading}
             aria-label="Close"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -596,6 +618,77 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
               </div>
             </div>
           </div>
+
+          <div className="field-group">
+            <label className="field-label">Favicon (optional)</label>
+            <div className="field-description">
+              Browser-tab icon for this company&apos;s brochures and holding page.
+              Use a square PNG (128×128 or larger) — non-square images will appear stretched.
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {faviconUrl ? (
+                <img
+                  src={faviconUrl}
+                  alt=""
+                  style={{
+                    width: 48,
+                    height: 48,
+                    objectFit: 'contain',
+                    background: 'var(--chrome-raised)',
+                    borderRadius: 6,
+                    padding: 6,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    background: 'var(--chrome-raised)',
+                    borderRadius: 6,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    color: 'var(--chrome-text-tertiary)',
+                  }}
+                >
+                  None
+                </div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button
+                  type="button"
+                  className="editor-topbar-btn"
+                  onClick={() => faviconFileRef.current?.click()}
+                  disabled={faviconUploading || pending}
+                >
+                  {faviconUploading ? 'Uploading…' : favicon ? 'Replace' : 'Upload'}
+                </button>
+                {favicon ? (
+                  <button
+                    type="button"
+                    className="editor-topbar-btn"
+                    onClick={() => setFavicon(undefined)}
+                    disabled={faviconUploading || pending}
+                  >
+                    Remove
+                  </button>
+                ) : null}
+                <input
+                  ref={faviconFileRef}
+                  type="file"
+                  accept="image/png,image/x-icon,image/svg+xml,image/jpeg,image/webp"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleFaviconFile(file)
+                    e.target.value = ''
+                  }}
+                />
+              </div>
+            </div>
+          </div>
           </>
           )}
 
@@ -643,7 +736,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
                 <button
                   className="editor-topbar-btn"
                   onClick={handleDelete}
-                  disabled={pending || logoUploading}
+                  disabled={pending || logoUploading || faviconUploading}
                   style={{ marginRight: 'auto', color: '#cf212a' }}
                 >
                   {confirmDelete ? 'Click again to confirm' : 'Delete'}
@@ -652,14 +745,14 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
               <button
                 className="editor-topbar-btn"
                 onClick={onClose}
-                disabled={pending || logoUploading}
+                disabled={pending || logoUploading || faviconUploading}
               >
                 Cancel
               </button>
               <button
                 className="editor-topbar-btn primary"
                 onClick={handleSubmit}
-                disabled={pending || logoUploading}
+                disabled={pending || logoUploading || faviconUploading}
               >
                 {pending ? (isEdit ? 'Saving…' : 'Creating…') : isEdit ? 'Save' : 'Create'}
               </button>

@@ -483,6 +483,7 @@ export type CompanyInput = {
   website?: string
   accentColor?: string
   logo?: SanityImage | null
+  favicon?: SanityImage | null
   featuredBrochureId?: string | null
 }
 
@@ -508,6 +509,7 @@ export async function fetchCompanyForEdit(id: string) {
     website?: string
     accentColor?: string
     logo?: SanityImage
+    favicon?: SanityImage
     featuredBrochure?: { _ref: string; _type: 'reference' }
   } | null>(`*[_id == $id][0]`, { id })
 }
@@ -530,6 +532,7 @@ export async function createCompany(
       website: input.website?.trim() || undefined,
       accentColor: input.accentColor?.trim() || undefined,
       logo: input.logo ?? undefined,
+      favicon: input.favicon ?? undefined,
       featuredBrochure: input.featuredBrochureId
         ? { _type: 'reference', _ref: input.featuredBrochureId }
         : undefined,
@@ -569,6 +572,9 @@ export async function updateCompany(
 
     if (input.logo) set.logo = input.logo
     else unset.push('logo')
+
+    if (input.favicon) set.favicon = input.favicon
+    else unset.push('favicon')
 
     if (input.featuredBrochureId) {
       set.featuredBrochure = { _type: 'reference', _ref: input.featuredBrochureId }

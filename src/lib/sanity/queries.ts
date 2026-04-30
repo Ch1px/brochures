@@ -49,7 +49,7 @@ export const BROCHURE_BY_SLUG = groq`
     hideTexture,
     logo,
     publishedAt,
-    "companyBranding": company->{_id, name, accentColor, logo},
+    "companyBranding": company->{_id, name, accentColor, logo, favicon},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -103,7 +103,7 @@ export const BROCHURE_BY_SLUG_PREVIEW = groq`
     hideTexture,
     logo,
     publishedAt,
-    "companyBranding": company->{_id, name, accentColor, logo},
+    "companyBranding": company->{_id, name, accentColor, logo, favicon},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -159,7 +159,7 @@ export const BROCHURE_BY_SLUG_ANY_COMPANY = groq`
     logo,
     publishedAt,
     company,
-    "companyBranding": company->{_id, name, accentColor, logo},
+    "companyBranding": company->{_id, name, accentColor, logo, favicon},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -209,7 +209,7 @@ export const BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW = groq`
     logo,
     publishedAt,
     company,
-    "companyBranding": company->{_id, name, accentColor, logo},
+    "companyBranding": company->{_id, name, accentColor, logo, favicon},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -263,6 +263,7 @@ export const ALL_COMPANIES_FOR_ADMIN = groq`
     website,
     accentColor,
     logo,
+    favicon,
     "featuredBrochure": featuredBrochure->{_id, title, "slug": slug.current},
     "brochureCount": count(*[_type == "brochure" && references(^._id)])
   }
@@ -309,6 +310,7 @@ export const COMPANY_BY_ID = groq`
     displayName,
     website,
     logo,
+    favicon,
     accentColor,
     featuredBrochure->{
       "slug": slug.current,

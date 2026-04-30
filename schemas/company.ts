@@ -71,6 +71,14 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'favicon',
+      type: 'image',
+      title: 'Favicon',
+      description:
+        'Browser tab icon for this company\'s brochures and holding page. Upload a square PNG (128×128 or larger) — non-square images will appear stretched.',
+      options: { hotspot: false },
+    }),
+    defineField({
       name: 'accentColor',
       type: 'string',
       title: 'Accent colour',

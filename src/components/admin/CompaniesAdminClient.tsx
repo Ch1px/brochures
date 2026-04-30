@@ -16,6 +16,7 @@ export type CompanyRow = {
   website?: string
   accentColor?: string
   logo?: SanityImage
+  favicon?: SanityImage
   brochureCount: number
 }
 
@@ -78,6 +79,7 @@ export function CompaniesAdminClient({ companies }: Props) {
                     website: c.website,
                     accentColor: c.accentColor,
                     logo: c.logo,
+                    favicon: c.favicon,
                   })
                 }
                 style={{ textAlign: 'left' }}

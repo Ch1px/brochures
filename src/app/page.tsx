@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { sanityClient } from '@/lib/sanity/client'
@@ -6,7 +7,8 @@ import {
   COMPANY_FEATURED_BROCHURE_SLUG,
   FEATURED_BROCHURE_SLUG,
 } from '@/lib/sanity/queries'
-import type { Company } from '@/types/brochure'
+import { urlFor } from '@/lib/sanity/image'
+import type { Company, SanityImage } from '@/types/brochure'
 
 // Reads request headers, so this route is dynamic per host. No ISR — Sanity
 // CDN caches the underlying GROQ responses anyway.
@@ -16,7 +18,26 @@ type CompanyForHolding = Pick<
   Company,
   '_id' | 'displayName' | 'website' | 'accentColor'
 > & {
+  favicon?: SanityImage
   featuredBrochure?: { slug?: string; status?: string }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const h = await headers()
+  const companyId = h.get('x-gpgt-company')
+  if (!companyId) return {}
+  const company = await sanityClient.fetch<CompanyForHolding | null>(
+    COMPANY_BY_ID,
+    { companyId }
+  )
+  if (!company) return {}
+  const faviconUrl = company.favicon
+    ? urlFor(company.favicon).width(128).height(128).format('png').url()
+    : undefined
+  return {
+    title: company.displayName,
+    icons: faviconUrl ? { icon: faviconUrl, shortcut: faviconUrl, apple: faviconUrl } : undefined,
+  }
 }
 
 export default async function RootPage() {
