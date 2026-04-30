@@ -59,6 +59,35 @@ const IMAGE_TREATMENT_TYPES = new Set<string>([
   'linkedCards',
 ])
 
+/**
+ * Per-type bulk-apply groups. Each group is a set of `_type` values that
+ * are conceptually "the same kind of section" — variants are grouped
+ * together (cover + coverCentered, sectionHeading + sectionHeadingCentered,
+ * contentImage + imageContent). The label is used in the button text
+ * (e.g. "Apply to all section headings") so it should read as a plural noun.
+ */
+const IMAGE_TREATMENT_GROUPS: Array<{ types: string[]; label: string }> = [
+  { types: ['cover', 'coverCentered'], label: 'covers' },
+  { types: ['sectionHeading', 'sectionHeadingCentered'], label: 'section headings' },
+  { types: ['contentImage', 'imageContent'], label: 'split sections' },
+  { types: ['intro'], label: 'intros' },
+  { types: ['features'], label: 'features sections' },
+  { types: ['imageHero'], label: 'image heroes' },
+  { types: ['packages'], label: 'packages sections' },
+  { types: ['galleryEditorial'], label: 'editorial galleries' },
+  { types: ['galleryGrid'], label: 'grid galleries' },
+  { types: ['galleryDuo'], label: 'duo galleries' },
+  { types: ['galleryHero'], label: 'hero galleries' },
+  { types: ['quoteProfile'], label: 'quote profiles' },
+  { types: ['closing'], label: 'closings' },
+  { types: ['spotlight'], label: 'spotlights' },
+  { types: ['linkedCards'], label: 'linked-card sections' },
+]
+
+function findImageTreatmentGroup(type: string) {
+  return IMAGE_TREATMENT_GROUPS.find((g) => g.types.includes(type)) ?? null
+}
+
 export type CompanyOption = {
   _id: string
   name: string
@@ -441,24 +470,33 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
   // section in the brochure. Raw values are propagated — undefined included —
   // so the source section becomes the single source of truth.
   //
+  // Optional `typeFilter` narrows the action to a specific group of section
+  // types (e.g. all section-heading variants). When omitted, every
+  // image-bearing section is updated.
+  //
   // Spotlight is a special case: it has independent foreground-image fields
   // that don't fall back to the section-level vars. To keep "Apply to all"
   // visually consistent, the bulk action mirrors the four values onto the
   // foreground fields too. Admins who want a different foreground treatment
   // can override it after via the Spotlight section's Styles tab.
   const handleApplyImageTreatmentToAll = useCallback(
-    (treatment: {
-      overlayStrength?: string
-      overlayColor?: string
-      mediaGrayscale?: string
-      mediaBlur?: string
-    }) => {
+    (
+      treatment: {
+        overlayStrength?: string
+        overlayColor?: string
+        mediaGrayscale?: string
+        mediaBlur?: string
+      },
+      typeFilter?: string[],
+    ) => {
+      const allowed = typeFilter ? new Set(typeFilter) : null
       setBrochure((prev) => ({
         ...prev,
         pages: prev.pages.map((page) => ({
           ...page,
           sections: page.sections.map((s) => {
             if (!IMAGE_TREATMENT_TYPES.has(s._type)) return s
+            if (allowed && !allowed.has(s._type)) return s
             if (s._type === 'spotlight') {
               return {
                 ...s,
@@ -898,6 +936,23 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
     }
   }, [currentSection, brochure.pages, currentPageIndex, currentSectionKey])
 
+  // Compute the per-type bulk-apply group for the currently selected section
+  // (e.g. all section headings, all spotlights). The button only renders when
+  // there's more than one section in the group — applying to a group of one
+  // is a no-op.
+  const imageTreatmentGroup = useMemo(() => {
+    if (!currentSection) return null
+    const group = findImageTreatmentGroup(currentSection._type)
+    if (!group) return null
+    let count = 0
+    for (const page of brochure.pages) {
+      for (const s of page.sections) {
+        if (group.types.includes(s._type)) count++
+      }
+    }
+    return { ...group, count }
+  }, [currentSection, brochure.pages])
+
   return (
     <div className="editor-root">
       <EditorTopbar
@@ -974,6 +1029,7 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
                 context={propertiesContext}
                 onChange={handleSectionChange}
                 onApplyImageTreatmentToAll={handleApplyImageTreatmentToAll}
+                imageTreatmentGroup={imageTreatmentGroup}
                 brandContext={{
                   accentColor: effectiveAccent,
                   backgroundColor: brochure.backgroundColor,

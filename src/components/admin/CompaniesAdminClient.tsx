@@ -33,7 +33,7 @@ export function CompaniesAdminClient({ companies }: Props) {
         <div>
           <h1 className="library-title">Companies</h1>
           <div className="library-subtitle">
-            {companies.length} total · brochures with no company stay on the canonical host
+            {companies.length} total · brochures with no company stay on the Grand Prix Grand Tours host
           </div>
         </div>
         <div className="library-header-actions">

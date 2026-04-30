@@ -7,16 +7,27 @@ type Props = {
 }
 
 /**
- * Shared field wrapper — label above, optional description beneath the label,
- * then the actual control. Used by all Field* components for consistency.
+ * Shared field wrapper — label with an optional hoverable info icon that
+ * surfaces the description as a tooltip, then the actual control.
+ * Used by all Field* components for consistency.
  */
 export function FieldLabel({ label, description, htmlFor, children }: Props) {
   return (
     <div className="field-group">
       <label className="field-label" htmlFor={htmlFor}>
-        {label}
+        <span className="field-label-text">{label}</span>
+        {description ? (
+          <span
+            className="field-label-info"
+            tabIndex={0}
+            role="img"
+            aria-label={description}
+            data-tooltip={description}
+          >
+            ⓘ
+          </span>
+        ) : null}
       </label>
-      {description ? <div className="field-description">{description}</div> : null}
       {children}
     </div>
   )

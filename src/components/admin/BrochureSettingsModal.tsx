@@ -412,11 +412,11 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                 />
                 <FieldSelect
                   label="Host company"
-                  description="Which subdomain serves this brochure. Leave on canonical to host on brochures.grandprixgrandtours.com."
+                  description="Which subdomain serves this brochure. Leave on Grand Prix Grand Tours to host on brochures.grandprixgrandtours.com."
                   value={companyId ?? ''}
                   onChange={(v) => setCompanyId(v || undefined)}
                   options={[
-                    { value: '', label: 'None — canonical host' },
+                    { value: '', label: 'Grand Prix Grand Tours' },
                     ...companies.map((c) => ({
                       value: c._id,
                       label: `${c.name} (${c.domain})`,

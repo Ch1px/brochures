@@ -36,12 +36,16 @@ type Props = {
     totalSections: number
   } | null
   onChange: (update: Partial<Section>) => void
-  onApplyImageTreatmentToAll?: (treatment: {
-    overlayStrength?: string
-    overlayColor?: string
-    mediaGrayscale?: string
-    mediaBlur?: string
-  }) => void
+  onApplyImageTreatmentToAll?: (
+    treatment: {
+      overlayStrength?: string
+      overlayColor?: string
+      mediaGrayscale?: string
+      mediaBlur?: string
+    },
+    typeFilter?: string[],
+  ) => void
+  imageTreatmentGroup?: { types: string[]; label: string; count: number } | null
   brandContext?: BrandContext
   onAddCustomColor?: (name: string, hex: string) => void
   accentColor?: string
@@ -67,6 +71,7 @@ export function PropertiesPanel({
   context,
   onChange,
   onApplyImageTreatmentToAll,
+  imageTreatmentGroup,
   brandContext,
   onAddCustomColor,
   accentColor,
@@ -134,6 +139,7 @@ export function PropertiesPanel({
             section={section as Exclude<Section, SectionFooter>}
             onChange={onChange}
             onApplyImageTreatmentToAll={onApplyImageTreatmentToAll}
+            imageTreatmentGroup={imageTreatmentGroup}
             brandContext={brandContext}
             onAddCustomColor={onAddCustomColor}
           />

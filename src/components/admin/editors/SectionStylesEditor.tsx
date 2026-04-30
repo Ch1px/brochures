@@ -3,20 +3,23 @@
 import type { Section, SectionFooter } from '@/types/brochure'
 import type { BrandContext } from '@/lib/brandColorTokens'
 import { FieldBrandColor } from '../fields/FieldBrandColor'
-import { FieldSelect } from '../fields/FieldSelect'
-import { FieldBoolean } from '../fields/FieldBoolean'
+import { FieldStyleList, type StyleEntry } from '../fields/FieldStyleList'
 
 type StylableSection = Exclude<Section, SectionFooter>
 
 type Props = {
   section: StylableSection
   onChange: (update: Partial<Section>) => void
-  onApplyImageTreatmentToAll?: (treatment: {
-    overlayStrength?: string
-    overlayColor?: string
-    mediaGrayscale?: string
-    mediaBlur?: string
-  }) => void
+  onApplyImageTreatmentToAll?: (
+    treatment: {
+      overlayStrength?: string
+      overlayColor?: string
+      mediaGrayscale?: string
+      mediaBlur?: string
+    },
+    typeFilter?: string[],
+  ) => void
+  imageTreatmentGroup?: { types: string[]; label: string; count: number } | null
   brandContext?: BrandContext
   onAddCustomColor?: (name: string, hex: string) => void
 }
@@ -111,7 +114,7 @@ const OVERLAY_DEFAULT_MEDIUM = new Set([
   'linkedCards',
 ])
 
-export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentToAll, brandContext, onAddCustomColor }: Props) {
+export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentToAll, imageTreatmentGroup, brandContext, onAddCustomColor }: Props) {
   const config = STYLE_CONFIG[section._type]
   if (!config) return null
 
@@ -137,7 +140,9 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
     return `rgba(${r}, ${g}, ${b}, 0.75)`
   })()
 
-  const hasColorFields = config.eyebrow || config.title || config.body || config.accent
+  // The Colours group always renders — even sections without text-colour
+  // overrides still expose Section background (and Overlay colour where applicable).
+  const hasColorFields = true
 
   const supportsContentAlign =
     section._type === 'intro' ||
@@ -149,152 +154,227 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
       {supportsContentAlign && (
         <>
           <div className="field-section-heading">Layout</div>
-          <FieldSelect
-            label="Content alignment"
-            description="Horizontal alignment of the eyebrow, title, body and CTA."
-            value={(s.contentAlign as string) ?? ''}
-            onChange={(v) => anyChange({ contentAlign: v || undefined })}
-            options={[
-              { value: '', label: 'Left (default)' },
-              { value: 'center', label: 'Center' },
-              { value: 'right', label: 'Right' },
-            ]}
+          <FieldStyleList
+            entries={[{
+              kind: 'select',
+              key: 'contentAlign',
+              label: 'Content alignment',
+              icon: '⇆',
+              value: (s.contentAlign as string) || undefined,
+              onChange: (v) => anyChange({ contentAlign: v || undefined }),
+              options: [
+                { value: '', label: 'Left (default)' },
+                { value: 'center', label: 'Center' },
+                { value: 'right', label: 'Right' },
+              ],
+            } satisfies StyleEntry]}
           />
         </>
       )}
       {hasColorFields ? (
         <>
           <div className="field-section-heading">Colours</div>
-          {config.accent && (
-            <FieldBrandColor
-              label="Accent colour"
-              description="Overrides the brochure accent for this section — eyebrows, CTAs, decorative elements."
-              value={s.accentColor as string | undefined}
-              onChange={(v) => anyChange({ accentColor: v })}
-              fallback={accentFallback}
-              brandContext={brandContext}
-              onAddCustomColor={onAddCustomColor}
-            />
-          )}
-          {config.eyebrow && (
-            <FieldBrandColor
-              label="Eyebrow colour"
-              description="Override the eyebrow text colour."
-              value={s.eyebrowColor as string | undefined}
-              onChange={(v) => anyChange({ eyebrowColor: v })}
-              fallback={accentFallback}
-              brandContext={brandContext}
-              onAddCustomColor={onAddCustomColor}
-            />
-          )}
-          {config.title && (
-            <FieldBrandColor
-              label="Title colour"
-              description="Override the title / heading text colour."
-              value={s.titleColor as string | undefined}
-              onChange={(v) => anyChange({ titleColor: v })}
-              fallback={titleFallback}
-              brandContext={brandContext}
-              onAddCustomColor={onAddCustomColor}
-            />
-          )}
-          {config.body && (
-            <FieldBrandColor
-              label="Body text colour"
-              description="Override the body, tagline, or subtitle colour. Defaults to the Text colour at 75% opacity."
-              value={s.bodyColor as string | undefined}
-              onChange={(v) => anyChange({ bodyColor: v })}
-              fallback={mutedFallback}
-              brandContext={brandContext}
-              onAddCustomColor={onAddCustomColor}
-            />
-          )}
+          <FieldStyleList
+            entries={[
+              ...(config.accent
+                ? [{
+                    kind: 'color',
+                    key: 'accent',
+                    label: 'Accent',
+                    description: 'Overrides the brochure accent for this section — eyebrows, CTAs, decorative elements.',
+                    value: s.accentColor as string | undefined,
+                    onChange: (v) => anyChange({ accentColor: v }),
+                    fallback: accentFallback,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.eyebrow
+                ? [{
+                    kind: 'color',
+                    key: 'eyebrow',
+                    label: 'Eyebrow',
+                    description: 'Override the eyebrow text colour.',
+                    value: s.eyebrowColor as string | undefined,
+                    onChange: (v) => anyChange({ eyebrowColor: v }),
+                    fallback: accentFallback,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.title
+                ? [{
+                    kind: 'color',
+                    key: 'title',
+                    label: 'Title',
+                    description: 'Override the title / heading text colour.',
+                    value: s.titleColor as string | undefined,
+                    onChange: (v) => anyChange({ titleColor: v }),
+                    fallback: titleFallback,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.body
+                ? [{
+                    kind: 'color',
+                    key: 'body',
+                    label: 'Body',
+                    description: 'Override the body, tagline, or subtitle colour. Defaults to the Text colour at 75% opacity.',
+                    value: s.bodyColor as string | undefined,
+                    onChange: (v) => anyChange({ bodyColor: v }),
+                    fallback: mutedFallback,
+                  } satisfies StyleEntry]
+                : []),
+              {
+                kind: 'color',
+                key: 'background',
+                label: 'Section background',
+                description: 'Override the page background for this section.',
+                value: section.background,
+                onChange: (v) => anyChange({ background: v }),
+                fallback: brandContext?.backgroundColor || (brandContext?.theme === 'light' ? '#f6f5f1' : '#161618'),
+              } satisfies StyleEntry,
+            ]}
+            brandContext={brandContext}
+            onAddCustomColor={onAddCustomColor}
+          />
         </>
       ) : null}
 
-      <div className="field-section-heading">Text sizes</div>
-      {config.title && (
-        <FieldSelect
-          label="Title text size"
-          description="Override the title size for this section."
-          value={(s.titleScale as string) ?? ''}
-          onChange={(v) => anyChange({ titleScale: v || undefined })}
-          options={SCALE_OPTIONS}
-        />
-      )}
-      {config.eyebrow && (
-        <FieldSelect
-          label="Eyebrow text size"
-          description="Override the eyebrow size for this section."
-          value={(s.eyebrowScale as string) ?? ''}
-          onChange={(v) => anyChange({ eyebrowScale: v || undefined })}
-          options={SCALE_OPTIONS}
-        />
-      )}
-      {config.body && (
-        <FieldSelect
-          label="Body text size"
-          description="Override the body/tagline size for this section."
-          value={(s.bodyScale as string) ?? ''}
-          onChange={(v) => anyChange({ bodyScale: v || undefined })}
-          options={SCALE_OPTIONS}
-        />
-      )}
+      {config.title || config.eyebrow || config.body ? (
+        <>
+          <div className="field-section-heading">Text sizes</div>
+          <FieldStyleList
+            entries={[
+              ...(config.title
+                ? [{
+                    kind: 'select',
+                    key: 'title',
+                    label: 'Title',
+                    icon: 'A',
+                    value: (s.titleScale as string) || undefined,
+                    onChange: (v) => anyChange({ titleScale: v || undefined }),
+                    options: SCALE_OPTIONS,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.eyebrow
+                ? [{
+                    kind: 'select',
+                    key: 'eyebrow',
+                    label: 'Eyebrow',
+                    icon: 'A',
+                    value: (s.eyebrowScale as string) || undefined,
+                    onChange: (v) => anyChange({ eyebrowScale: v || undefined }),
+                    options: SCALE_OPTIONS,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.body
+                ? [{
+                    kind: 'select',
+                    key: 'body',
+                    label: 'Body',
+                    icon: 'A',
+                    value: (s.bodyScale as string) || undefined,
+                    onChange: (v) => anyChange({ bodyScale: v || undefined }),
+                    options: SCALE_OPTIONS,
+                  } satisfies StyleEntry]
+                : []),
+            ]}
+          />
+        </>
+      ) : null}
 
       {config.overlay || config.grayscale || config.blur || config.parallax ? (
         <>
           <div className="field-section-heading">{section._type === 'spotlight' ? 'Background image' : 'Images'}</div>
-          {config.overlay && (
-            <FieldSelect
-              label="Overlay strength"
-              description="Controls the overlay opacity over the background image."
-              value={(s.overlayStrength as string) ?? (OVERLAY_DEFAULT_MEDIUM.has(section._type) ? 'medium' : 'none')}
-              onChange={(v) => anyChange({ overlayStrength: v })}
-              options={OVERLAY_OPTIONS}
-            />
-          )}
-          {config.overlay && (
-            <FieldBrandColor
-              label="Overlay colour"
-              description="Override the overlay tint for this section. Defaults to the brochure background, or near-black if that background is light."
-              value={s.overlayColor as string | undefined}
-              onChange={(v) => anyChange({ overlayColor: v })}
-              fallback={brandContext?.backgroundColor || '#000000'}
-              brandContext={brandContext}
-              onAddCustomColor={onAddCustomColor}
-            />
-          )}
-          {config.grayscale && (
-            <FieldSelect
-              label="Image greyscale"
-              description="Desaturate the section's images."
-              value={(s.mediaGrayscale as string) ?? ''}
-              onChange={(v) => anyChange({ mediaGrayscale: v || undefined })}
-              options={GRAYSCALE_OPTIONS}
-            />
-          )}
-          {config.blur && (
-            <FieldSelect
-              label="Image blur"
-              description="Soften the section's images."
-              value={(s.mediaBlur as string) ?? ''}
-              onChange={(v) => anyChange({ mediaBlur: v || undefined })}
-              options={BLUR_OPTIONS}
-            />
-          )}
-          {config.parallax && (
-            <FieldBoolean
-              label="Parallax background"
-              description="Background drifts slower than content as the page scrolls."
-              value={s.backgroundParallax as boolean | undefined}
-              onChange={(v) => anyChange({ backgroundParallax: v })}
-            />
-          )}
+          <FieldStyleList
+            brandContext={brandContext}
+            onAddCustomColor={onAddCustomColor}
+            entries={[
+              ...(config.overlay
+                ? [{
+                    kind: 'select',
+                    key: 'overlayStrength',
+                    label: 'Overlay strength',
+                    icon: '◐',
+                    value: (s.overlayStrength as string) ?? (OVERLAY_DEFAULT_MEDIUM.has(section._type) ? 'medium' : 'none'),
+                    onChange: (v: string | undefined) => anyChange({ overlayStrength: v ?? 'none' }),
+                    options: OVERLAY_OPTIONS,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.overlay
+                ? [{
+                    kind: 'color',
+                    key: 'overlayColor',
+                    label: 'Overlay colour',
+                    description: 'Override the overlay tint for this section.',
+                    icon: '◐',
+                    value: s.overlayColor as string | undefined,
+                    onChange: (v) => anyChange({ overlayColor: v }),
+                    fallback: brandContext?.backgroundColor || '#000000',
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.grayscale
+                ? [{
+                    kind: 'select',
+                    key: 'mediaGrayscale',
+                    label: 'Image greyscale',
+                    icon: '◑',
+                    value: (s.mediaGrayscale as string) || undefined,
+                    onChange: (v: string | undefined) => anyChange({ mediaGrayscale: v || undefined }),
+                    options: GRAYSCALE_OPTIONS,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.blur
+                ? [{
+                    kind: 'select',
+                    key: 'mediaBlur',
+                    label: 'Image blur',
+                    icon: '◌',
+                    value: (s.mediaBlur as string) || undefined,
+                    onChange: (v: string | undefined) => anyChange({ mediaBlur: v || undefined }),
+                    options: BLUR_OPTIONS,
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.parallax
+                ? [{
+                    kind: 'toggle',
+                    key: 'backgroundParallax',
+                    label: 'Parallax background',
+                    icon: '⇅',
+                    value: s.backgroundParallax as boolean | undefined,
+                    onChange: (v) => anyChange({ backgroundParallax: v }),
+                  } satisfies StyleEntry]
+                : []),
+            ]}
+          />
           {(config.overlay || config.grayscale || config.blur) && onApplyImageTreatmentToAll ? (
-            <div className="field-group" style={{ marginTop: 6 }}>
+            <div className="apply-to-all-row">
+              {imageTreatmentGroup && imageTreatmentGroup.count > 1 ? (
+                <button
+                  type="button"
+                  className="apply-to-all-link"
+                  title={`Copy these image settings to every ${imageTreatmentGroup.label.replace(/s$/, '')} in the brochure (${imageTreatmentGroup.count} sections). Use Undo to revert.`}
+                  onClick={() => {
+                    if (
+                      !window.confirm(
+                        `Apply this section\u2019s overlay, colour, greyscale and blur to all ${imageTreatmentGroup.count} ${imageTreatmentGroup.label} in the brochure? Existing values will be overwritten. (Use Undo to revert.)`
+                      )
+                    )
+                      return
+                    onApplyImageTreatmentToAll(
+                      {
+                        overlayStrength: s.overlayStrength as string | undefined,
+                        overlayColor: s.overlayColor as string | undefined,
+                        mediaGrayscale: s.mediaGrayscale as string | undefined,
+                        mediaBlur: s.mediaBlur as string | undefined,
+                      },
+                      imageTreatmentGroup.types,
+                    )
+                  }}
+                >
+                  Apply to all {imageTreatmentGroup.label}
+                </button>
+              ) : null}
               <button
                 type="button"
-                className="field-btn"
+                className="apply-to-all-link"
+                title="Copy these image settings to every other image-bearing section in the brochure. Use Undo to revert."
                 onClick={() => {
                   if (
                     !window.confirm(
@@ -310,11 +390,8 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
                   })
                 }}
               >
-                Apply to all images in brochure
+                Apply to all images
               </button>
-              <div className="field-description">
-                Copies the four image-treatment fields above to every other image-bearing section.
-              </div>
             </div>
           ) : null}
         </>
@@ -323,49 +400,51 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
       {section._type === 'spotlight' ? (
         <>
           <div className="field-section-heading">Foreground image</div>
-          <FieldSelect
-            label="Overlay strength"
-            description="Tints just the foreground card image — independent of the background overlay."
-            value={(s.foregroundOverlayStrength as string) ?? 'none'}
-            onChange={(v) => anyChange({ foregroundOverlayStrength: v })}
-            options={OVERLAY_OPTIONS}
-          />
-          <FieldBrandColor
-            label="Overlay colour"
-            description="Override the foreground overlay tint. Defaults to the brochure background."
-            value={s.foregroundOverlayColor as string | undefined}
-            onChange={(v) => anyChange({ foregroundOverlayColor: v })}
-            fallback={brandContext?.backgroundColor || '#000000'}
+          <FieldStyleList
             brandContext={brandContext}
             onAddCustomColor={onAddCustomColor}
-          />
-          <FieldSelect
-            label="Image greyscale"
-            description="Desaturate just the foreground card image."
-            value={(s.foregroundMediaGrayscale as string) ?? ''}
-            onChange={(v) => anyChange({ foregroundMediaGrayscale: v || undefined })}
-            options={GRAYSCALE_OPTIONS}
-          />
-          <FieldSelect
-            label="Image blur"
-            description="Soften just the foreground card image."
-            value={(s.foregroundMediaBlur as string) ?? ''}
-            onChange={(v) => anyChange({ foregroundMediaBlur: v || undefined })}
-            options={BLUR_OPTIONS}
+            entries={[
+              {
+                kind: 'select',
+                key: 'fgOverlayStrength',
+                label: 'Overlay strength',
+                icon: '◐',
+                value: (s.foregroundOverlayStrength as string) ?? 'none',
+                onChange: (v) => anyChange({ foregroundOverlayStrength: v ?? 'none' }),
+                options: OVERLAY_OPTIONS,
+              } satisfies StyleEntry,
+              {
+                kind: 'color',
+                key: 'fgOverlayColor',
+                label: 'Overlay colour',
+                description: 'Override the foreground card overlay tint.',
+                icon: '◐',
+                value: s.foregroundOverlayColor as string | undefined,
+                onChange: (v) => anyChange({ foregroundOverlayColor: v }),
+                fallback: brandContext?.backgroundColor || '#000000',
+              } satisfies StyleEntry,
+              {
+                kind: 'select',
+                key: 'fgGrayscale',
+                label: 'Image greyscale',
+                icon: '◑',
+                value: (s.foregroundMediaGrayscale as string) || undefined,
+                onChange: (v) => anyChange({ foregroundMediaGrayscale: v || undefined }),
+                options: GRAYSCALE_OPTIONS,
+              } satisfies StyleEntry,
+              {
+                kind: 'select',
+                key: 'fgBlur',
+                label: 'Image blur',
+                icon: '◌',
+                value: (s.foregroundMediaBlur as string) || undefined,
+                onChange: (v) => anyChange({ foregroundMediaBlur: v || undefined }),
+                options: BLUR_OPTIONS,
+              } satisfies StyleEntry,
+            ]}
           />
         </>
       ) : null}
-
-      <div className="field-section-heading">Background</div>
-      <FieldBrandColor
-        label="Section background"
-        description="Override the page background for this section. Pick a brand or custom colour, or type a 6-digit hex."
-        value={section.background}
-        onChange={(value) => anyChange({ background: value })}
-        fallback={brandContext?.backgroundColor || (brandContext?.theme === 'light' ? '#f6f5f1' : '#161618')}
-        brandContext={brandContext}
-        onAddCustomColor={onAddCustomColor}
-      />
     </>
   )
 }

@@ -98,8 +98,10 @@ export async function saveBrochure(
  * Separate from saveBrochure() because slug needs a uniqueness check and
  * these fields aren't part of the autosave write path.
  *
- * Slug rule: no other brochure document may already hold the new slug.
- * Allowed to match our own document's current slug (noop change).
+ * Slug rule: scoped per host company. No other brochure on the same host
+ * (same `company` ref, or both unset for the GPGT canonical host) may hold
+ * the new slug. The same slug across different companies is allowed because
+ * each company has its own subdomain.
  */
 export type BrochureSettingsUpdate = {
   slug?: string
@@ -152,12 +154,32 @@ export async function updateBrochureSettings(
       if (!/^[a-z0-9-]+$/.test(slug)) {
         return { ok: false, error: 'Slug can only contain lowercase letters, numbers, and hyphens' }
       }
+      // Resolve the host company this brochure will live on after the update —
+      // either the new companyId in the same payload, or the existing ref on
+      // the document. Empty string represents the GPGT canonical host.
+      let effectiveCompanyId = ''
+      if (updates.companyId !== undefined) {
+        effectiveCompanyId = updates.companyId ?? ''
+      } else {
+        const current = await sanityWriteClient.fetch<{ company?: { _ref?: string } } | null>(
+          `*[_id == $id][0]{ company }`,
+          { id }
+        )
+        effectiveCompanyId = current?.company?._ref ?? ''
+      }
       const conflict = await sanityWriteClient.fetch<number>(
-        `count(*[_type == "brochure" && slug.current == $slug && _id != $id && _id != $draftId])`,
-        { slug, id, draftId: `drafts.${id}` }
+        `count(*[_type == "brochure" && slug.current == $slug && _id != $id && _id != $draftId
+          && (
+            ($companyId == "" && !defined(company))
+            || ($companyId != "" && company._ref == $companyId)
+          )])`,
+        { slug, id, draftId: `drafts.${id}`, companyId: effectiveCompanyId }
       )
       if (conflict > 0) {
-        return { ok: false, error: `Slug "${slug}" is already used by another brochure` }
+        return {
+          ok: false,
+          error: `Slug "${slug}" is already used by another brochure on this host`,
+        }
       }
     }
 
@@ -315,10 +337,30 @@ export async function createBrochure(input: {
   companyId?: string
 }): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   try {
+    const slug = input.slug.trim()
+    if (!slug) return { ok: false, error: 'Slug cannot be empty' }
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return { ok: false, error: 'Slug can only contain lowercase letters, numbers, and hyphens' }
+    }
+    const companyId = input.companyId ?? ''
+    const conflict = await sanityWriteClient.fetch<number>(
+      `count(*[_type == "brochure" && slug.current == $slug
+        && (
+          ($companyId == "" && !defined(company))
+          || ($companyId != "" && company._ref == $companyId)
+        )])`,
+      { slug, companyId }
+    )
+    if (conflict > 0) {
+      return {
+        ok: false,
+        error: `Slug "${slug}" is already used by another brochure on this host`,
+      }
+    }
     const doc = await sanityWriteClient.create({
       _type: 'brochure',
       title: input.title,
-      slug: { _type: 'slug', current: input.slug },
+      slug: { _type: 'slug', current: slug },
       season: input.season,
       event: input.event ?? '',
       status: 'draft',

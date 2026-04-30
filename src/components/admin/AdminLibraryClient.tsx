@@ -216,7 +216,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
                 onClick={() =>
                   setCompanyFilter(companyFilter === CANONICAL_COMPANY_ID ? '' : CANONICAL_COMPANY_ID)
                 }
-                title="Brochures hosted on the canonical domain"
+                title="Brochures hosted on the Grand Prix Grand Tours domain"
               >
                 Grand Prix Grand Tours
                 <span className="library-filter-pill-count">{canonicalCount}</span>

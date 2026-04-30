@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import type { CircuitDrawing, SectionCircuitMap, StatItem } from '@/types/brochure'
-import { isBrandToken, type BrandContext } from '@/lib/brandColorTokens'
+import { isBrandToken, resolveColor, tokenLabel, type BrandContext } from '@/lib/brandColorTokens'
 import { nanokey } from '@/lib/nanokey'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { FieldInput, FieldRichText, FieldObjectArray, FieldLabel } from '../fields'
@@ -158,17 +158,21 @@ export function CircuitMapEditor({
           <div className="map-editor-section">
             <div className="map-editor-section-label">Colour overrides</div>
             <ul className="recolor-overrides-list">
-              {groupOverridesByColor(overrides).map((group) => (
+              {groupOverridesByColor(overrides).map((group) => {
+                const ctx = brandContext ?? { accentColor: '#cf212a', theme: 'dark' as const }
+                const resolved = isBrandToken(group.color) ? resolveColor(group.color, ctx) : group.color
+                const label = tokenLabel(group.color, ctx) ?? group.color
+                return (
                 <li key={group.color} className="recolor-overrides-item">
                   <button
                     type="button"
                     className="recolor-overrides-swatch is-button"
-                    style={{ background: group.color }}
+                    style={{ background: resolved }}
                     onClick={() => onPickByColor?.(group.color)}
-                    title={`Select ${group.count} element${group.count > 1 ? 's' : ''} using ${group.color}`}
-                    aria-label={`Select elements using ${group.color}`}
+                    title={`Select ${group.count} element${group.count > 1 ? 's' : ''} using ${label}`}
+                    aria-label={`Select elements using ${label}`}
                   />
-                  <span className="recolor-overrides-hex">{group.color}</span>
+                  <span className="recolor-overrides-hex">{label}</span>
                   <span className="recolor-overrides-count">
                     {group.count} {group.count === 1 ? 'element' : 'elements'}
                   </span>
@@ -186,7 +190,8 @@ export function CircuitMapEditor({
                     Reset
                   </button>
                 </li>
-              ))}
+                )
+              })}
               <li>
                 <button
                   type="button"

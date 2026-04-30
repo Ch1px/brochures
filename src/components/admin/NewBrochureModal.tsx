@@ -217,14 +217,14 @@ export function NewBrochureModal({
               <label className="field-label">Host company</label>
               <div className="field-description">
                 Determines which domain serves this brochure. Leave on{' '}
-                <em>Canonical</em> to host on the main GPGT domain.
+                <em>Grand Prix Grand Tours</em> to host on the main GPGT domain.
               </div>
               <select
                 className="field-input field-select"
                 value={companyId}
                 onChange={(e) => setCompanyId(e.target.value)}
               >
-                <option value="">Canonical (brochures.grandprixgrandtours.com)</option>
+                <option value="">Grand Prix Grand Tours (brochures.grandprixgrandtours.com)</option>
                 {companies.map((c) => (
                   <option key={c._id} value={c._id}>
                     {c.name} — {c.domain}

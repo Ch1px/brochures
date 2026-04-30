@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { FieldLabel } from './FieldLabel'
 
 type ItemWithKey = { _key: string }
@@ -38,6 +38,8 @@ export function FieldObjectArray<T extends ItemWithKey>({
 }: Props<T>) {
   const items = value ?? []
   const atMax = typeof maxItems === 'number' && items.length >= maxItems
+  const [expandedKey, setExpandedKey] = useState<string | null>(null)
+  const toggle = (key: string) => setExpandedKey((cur) => (cur === key ? null : key))
 
   function update(index: number, partial: Partial<T>) {
     onChange(items.map((it, i) => (i === index ? { ...it, ...partial } : it)))
@@ -54,19 +56,39 @@ export function FieldObjectArray<T extends ItemWithKey>({
   }
   function add() {
     if (atMax) return
-    onChange([...items, createNew()])
+    const next = createNew()
+    onChange([...items, next])
+    setExpandedKey(next._key)
   }
 
   return (
     <FieldLabel label={label} description={description}>
       <div className="field-object-array">
-        {items.map((item, i) => (
-          <div key={item._key} className="field-object-card">
-            <div className="field-object-card-header">
+        {items.map((item, i) => {
+          const isOpen = expandedKey === item._key
+          return (
+          <div key={item._key} className={`field-object-card${isOpen ? ' open' : ''}`}>
+            <div
+              className="field-object-card-header"
+              onClick={() => toggle(item._key)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  toggle(item._key)
+                }
+              }}
+            >
+              <span className={`field-object-card-chevron${isOpen ? ' open' : ''}`} aria-hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 6 15 12 9 18" />
+                </svg>
+              </span>
               <span className="field-object-card-title">
                 {itemTitle ? itemTitle(i, item) : `Item ${String(i + 1).padStart(2, '0')}`}
               </span>
-              <div className="field-object-card-actions">
+              <div className="field-object-card-actions" onClick={(e) => e.stopPropagation()}>
                 <button
                   type="button"
                   className="field-icon-btn"
@@ -102,11 +124,14 @@ export function FieldObjectArray<T extends ItemWithKey>({
                 </button>
               </div>
             </div>
-            <div className="field-object-card-body">
-              {renderItem(item, (p) => update(i, p), i)}
-            </div>
+            {isOpen ? (
+              <div className="field-object-card-body">
+                {renderItem(item, (p) => update(i, p), i)}
+              </div>
+            ) : null}
           </div>
-        ))}
+          )
+        })}
         <button
           type="button"
           className="field-list-add"

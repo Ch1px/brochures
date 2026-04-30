@@ -2,6 +2,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { notFound } from 'next/navigation'
 import { Outfit } from 'next/font/google'
 import { AdminThemeProvider } from '@/components/admin/AdminThemeProvider'
+import './brochures/[id]/edit/editor.css'
 
 const outfit = Outfit({
   subsets: ['latin'],
