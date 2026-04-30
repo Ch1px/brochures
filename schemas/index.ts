@@ -1,4 +1,5 @@
 import brochure from './brochure'
+import company from './company'
 import page from './page'
 import { sectionSchemas } from './sections'
 
@@ -12,4 +13,4 @@ import { sectionSchemas } from './sections'
  *     ...
  *   })
  */
-export const schemaTypes = [brochure, page, ...sectionSchemas]
+export const schemaTypes = [brochure, company, page, ...sectionSchemas]

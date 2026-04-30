@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { sanityClient } from '@/lib/sanity/client'
-import { BROCHURE_BY_SLUG, BROCHURE_BY_SLUG_PREVIEW } from '@/lib/sanity/queries'
+import {
+  BROCHURE_BY_SLUG_ANY_COMPANY,
+  BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW,
+} from '@/lib/sanity/queries'
 import { signPreviewToken, verifyPreviewToken } from '@/lib/previewToken'
 import { launchBrowser } from '@/lib/pdf/browser'
 import type { Brochure } from '@/types/brochure'
@@ -39,7 +42,11 @@ export async function GET(req: Request, { params }: RouteContext) {
     ? (await verifyPreviewToken(supplied, slug)) !== null
     : false
 
-  const query = isPreview ? BROCHURE_BY_SLUG_PREVIEW : BROCHURE_BY_SLUG
+  // Tenant scoping is bypassed here: the PDF endpoint runs server-side and
+  // slugs are globally unique across companies, so we look up the brochure
+  // without a host context and let Puppeteer render it via the public route
+  // (where host-based scoping does apply).
+  const query = isPreview ? BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW : BROCHURE_BY_SLUG_ANY_COMPANY
   const brochure = await sanityClient.fetch<Brochure | null>(query, { slug })
   if (!brochure) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (!isPreview && brochure.status !== 'published') {

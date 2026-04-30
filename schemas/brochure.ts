@@ -112,8 +112,16 @@ export default defineType({
       name: 'featured',
       type: 'boolean',
       description:
-        'If true, brochures.grandprixgrandtours.com root redirects to this brochure. Only one brochure should be featured at a time.',
+        'If true, the brochure\'s host root redirects to it. Only one brochure should be featured per host at a time.',
       initialValue: false,
+      group: 'meta',
+    }),
+    defineField({
+      name: 'company',
+      type: 'reference',
+      description:
+        'Hosts this brochure on the referenced company\'s subdomain instead of the canonical brochures.grandprixgrandtours.com. Leave blank for canonical.',
+      to: [{ type: 'company' }],
       group: 'meta',
     }),
 

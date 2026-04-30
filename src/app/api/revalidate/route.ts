@@ -1,18 +1,28 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import crypto from 'node:crypto'
+import { invalidateHostMap } from '@/lib/companies/hostMap'
 
 /**
- * Sanity webhook receiver. Configure in Sanity:
- *   - URL: https://brochures.grandprixgrandtours.com/api/revalidate
- *   - HTTP method: POST
- *   - Trigger on: Create, Update, Delete
- *   - Filter: _type == "brochure"
- *   - Projection: { slug, status, _id }
- *   - Secret: set as SANITY_REVALIDATE_SECRET in this app's env
+ * Sanity webhook receiver. Configure two webhooks in Sanity:
  *
- * The secret is sent by Sanity as the `sanity-webhook-signature` header.
- * We verify the HMAC-SHA256 of the raw body matches before revalidating.
+ *   1. Brochure changes
+ *      - URL: https://brochures.grandprixgrandtours.com/api/revalidate
+ *      - Filter: _type == "brochure"
+ *      - Projection: { _id, _type, slug, status }
+ *
+ *   2. Company changes
+ *      - URL: https://brochures.grandprixgrandtours.com/api/revalidate
+ *      - Filter: _type == "company"
+ *      - Projection: { _id, _type, domain }
+ *
+ * Both share `SANITY_REVALIDATE_SECRET`. Sanity signs as
+ * `sanity-webhook-signature: t=<timestamp>,v1=<hash>` against the raw body.
+ *
+ * Note: the host map cache lives per Edge isolate in middleware. Calling
+ * `invalidateHostMap()` here only affects the Node runtime's in-memory copy
+ * (which middleware doesn't share). Middleware isolates eat the 5-min TTL.
+ * This is acceptable for an internal tool with rare company changes.
  */
 
 export async function POST(req: Request) {
@@ -39,22 +49,36 @@ export async function POST(req: Request) {
   }
 
   // Parse the body
-  let body: { slug?: { current?: string }; _id?: string; status?: string }
+  let body: {
+    _id?: string
+    _type?: string
+    slug?: { current?: string }
+    status?: string
+    domain?: string
+  }
   try {
     body = JSON.parse(raw)
   } catch {
     return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const slug = body.slug?.current
+  const revalidated: string[] = []
 
-  // Always revalidate the root (featured-brochure redirect may have changed)
-  revalidatePath('/')
-
-  // Revalidate the specific brochure if we have a slug
-  if (slug) {
-    revalidatePath(`/${slug}`)
+  if (body._type === 'company') {
+    invalidateHostMap()
+    revalidatePath('/')
+    revalidated.push('/', 'host-map')
+    return NextResponse.json({ ok: true, revalidated })
   }
 
-  return NextResponse.json({ ok: true, revalidated: slug ? ['/', `/${slug}`] : ['/'] })
+  // Default: brochure changes.
+  const slug = body.slug?.current
+  revalidatePath('/')
+  revalidated.push('/')
+  if (slug) {
+    revalidatePath(`/${slug}`)
+    revalidated.push(`/${slug}`)
+  }
+
+  return NextResponse.json({ ok: true, revalidated })
 }

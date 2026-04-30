@@ -1,18 +1,63 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { sanityClient } from '@/lib/sanity/client'
-import { FEATURED_BROCHURE_SLUG } from '@/lib/sanity/queries'
+import {
+  COMPANY_BY_ID,
+  COMPANY_FEATURED_BROCHURE_SLUG,
+  FEATURED_BROCHURE_SLUG,
+} from '@/lib/sanity/queries'
+import type { Company } from '@/types/brochure'
 
-// Revalidate the featured-brochure lookup every 60 seconds.
-export const revalidate = 60
+// Reads request headers, so this route is dynamic per host. No ISR — Sanity
+// CDN caches the underlying GROQ responses anyway.
+export const dynamic = 'force-dynamic'
+
+type CompanyForHolding = Pick<
+  Company,
+  '_id' | 'displayName' | 'website' | 'accentColor'
+> & {
+  featuredBrochure?: { slug?: string; status?: string }
+}
 
 export default async function RootPage() {
-  const featured = await sanityClient.fetch<{ slug: string } | null>(FEATURED_BROCHURE_SLUG)
+  const h = await headers()
+  const companyId = h.get('x-gpgt-company')
 
-  if (featured?.slug) {
-    redirect(`/${featured.slug}`)
+  if (companyId) {
+    const company = await sanityClient.fetch<CompanyForHolding | null>(
+      COMPANY_BY_ID,
+      { companyId }
+    )
+
+    // Prefer a brochure self-flagging as featured for this company. Fall back
+    // to the company's manual featuredBrochure ref if it exists and is
+    // published. Otherwise show the company-branded holding page.
+    const selfFeatured = await sanityClient.fetch<{ slug: string } | null>(
+      COMPANY_FEATURED_BROCHURE_SLUG,
+      { companyId }
+    )
+    if (selfFeatured?.slug) redirect(`/${selfFeatured.slug}`)
+
+    const refFeatured = company?.featuredBrochure
+    if (refFeatured?.slug && refFeatured.status === 'published') {
+      redirect(`/${refFeatured.slug}`)
+    }
+
+    return <HoldingPage company={company} />
   }
 
-  // Fallback if no featured brochure is set — minimal holding page.
+  const featured = await sanityClient.fetch<{ slug: string } | null>(FEATURED_BROCHURE_SLUG)
+  if (featured?.slug) redirect(`/${featured.slug}`)
+
+  return <HoldingPage company={null} />
+}
+
+function HoldingPage({ company }: { company: CompanyForHolding | null }) {
+  const accent = company?.accentColor || '#e10600'
+  const displayName = company?.displayName || 'Grand Prix Grand Tours'
+  const website = company?.website || 'https://grandprixgrandtours.com'
+  const websiteLabel = website.replace(/^https?:\/\//, '').replace(/\/$/, '')
+
   return (
     <main
       style={{
@@ -29,15 +74,15 @@ export default async function RootPage() {
     >
       <div>
         <h1 style={{ marginBottom: 12, fontWeight: 900, letterSpacing: '0.02em' }}>
-          Grand Prix Grand Tours
+          {displayName}
         </h1>
         <p style={{ opacity: 0.6, fontSize: 14 }}>
           No brochure featured yet. Visit{' '}
           <a
-            href="https://grandprixgrandtours.com"
-            style={{ color: '#e10600', textDecoration: 'none' }}
+            href={website}
+            style={{ color: accent, textDecoration: 'none' }}
           >
-            grandprixgrandtours.com
+            {websiteLabel}
           </a>
         </p>
       </div>

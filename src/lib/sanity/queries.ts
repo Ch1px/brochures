@@ -10,8 +10,18 @@ import { groq } from 'next-sanity'
  * _updatedAt)` falls back to _updatedAt for docs that were published before
  * publishedAt started being stamped.
  */
+/**
+ * Tenant-aware variants of BROCHURE_BY_SLUG.
+ *
+ * `$companyId` is either a Sanity document id (child-host request, scoped to
+ * that company) or an empty string (canonical host). The empty-string path
+ * matches only brochures with no `company` ref, so canonical never serves a
+ * brochure that belongs to a child company and vice versa.
+ */
 export const BROCHURE_BY_SLUG = groq`
-  *[_type == "brochure" && slug.current == $slug && status == "published"] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
+  *[_type == "brochure" && slug.current == $slug && status == "published"
+    && (($companyId == "" && !defined(company)) || company._ref == $companyId)
+  ] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
     _id,
     title,
     slug,
@@ -56,7 +66,9 @@ export const BROCHURE_BY_SLUG = groq`
  * Also ordered newest-first so duplicate-slug cases resolve deterministically.
  */
 export const BROCHURE_BY_SLUG_PREVIEW = groq`
-  *[_type == "brochure" && slug.current == $slug] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
+  *[_type == "brochure" && slug.current == $slug
+    && (($companyId == "" && !defined(company)) || company._ref == $companyId)
+  ] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
     _id,
     title,
     slug,
@@ -97,12 +109,149 @@ export const BROCHURE_BY_SLUG_PREVIEW = groq`
 `
 
 /**
- * The featured brochure — drives the subdomain-root redirect.
- * Only returns if the brochure is also published.
+ * Variant of BROCHURE_BY_SLUG that ignores the company filter. Used by
+ * server-only callers that don't have a host context (e.g. /api/export PDF
+ * pipeline) and where slugs are globally unique. Don't expose this through
+ * a public route — it bypasses tenant scoping by design.
+ */
+export const BROCHURE_BY_SLUG_ANY_COMPANY = groq`
+  *[_type == "brochure" && slug.current == $slug && status == "published"
+  ] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
+    _id,
+    title,
+    slug,
+    season,
+    event,
+    status,
+    theme,
+    accentColor,
+    backgroundColor,
+    textColor,
+    fontOverrides,
+    customFonts,
+    titleScale,
+    eyebrowScale,
+    taglineScale,
+    customColors,
+    navColor,
+    textureImage,
+    hideTexture,
+    logo,
+    publishedAt,
+    company,
+    "ogImage": seo.ogImage,
+    "seo": {
+      "metaTitle": coalesce(seo.metaTitle, title),
+      "metaDescription": seo.metaDescription,
+      "ogImage": seo.ogImage,
+      "noIndex": seo.noIndex
+    },
+    "leadCapture": leadCapture,
+    pages[]{
+      _key,
+      name,
+      sections[]{
+        ...
+      }
+    }
+  }
+`
+
+export const BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW = groq`
+  *[_type == "brochure" && slug.current == $slug
+  ] | order(coalesce(publishedAt, _updatedAt) desc)[0]{
+    _id,
+    title,
+    slug,
+    season,
+    event,
+    status,
+    theme,
+    accentColor,
+    backgroundColor,
+    textColor,
+    fontOverrides,
+    customFonts,
+    titleScale,
+    eyebrowScale,
+    taglineScale,
+    customColors,
+    navColor,
+    textureImage,
+    hideTexture,
+    logo,
+    publishedAt,
+    company,
+    "ogImage": seo.ogImage,
+    "seo": {
+      "metaTitle": coalesce(seo.metaTitle, title),
+      "metaDescription": seo.metaDescription,
+      "ogImage": seo.ogImage,
+      "noIndex": true
+    },
+    "leadCapture": leadCapture,
+    pages[]{
+      _key,
+      name,
+      sections[]{
+        ...
+      }
+    }
+  }
+`
+
+/**
+ * The featured brochure on the canonical host. Only returns brochures with no
+ * `company` ref (canonical-only) and published status.
  */
 export const FEATURED_BROCHURE_SLUG = groq`
-  *[_type == "brochure" && featured == true && status == "published"][0]{
+  *[_type == "brochure" && featured == true && status == "published" && !defined(company)][0]{
     "slug": slug.current
+  }
+`
+
+/**
+ * The featured brochure for a specific company host. Returns only published
+ * brochures referencing the given company. Falls back to the company's
+ * `featuredBrochure` reference if no brochure self-flags as featured.
+ */
+export const COMPANY_FEATURED_BROCHURE_SLUG = groq`
+  *[_type == "brochure" && featured == true && status == "published"
+    && company._ref == $companyId][0]{
+    "slug": slug.current
+  }
+`
+
+/**
+ * Lightweight projection of every company that has a domain set. Consumed by
+ * the host->company map in middleware.
+ */
+export const ALL_COMPANIES_FOR_HOSTMAP = groq`
+  *[_type == "company" && defined(domain)]{
+    _id,
+    domain,
+    displayName,
+    accentColor
+  }
+`
+
+/**
+ * Single company by id, including branding the holding page needs.
+ */
+export const COMPANY_BY_ID = groq`
+  *[_type == "company" && _id == $companyId][0]{
+    _id,
+    name,
+    "slug": slug,
+    domain,
+    displayName,
+    website,
+    logo,
+    accentColor,
+    featuredBrochure->{
+      "slug": slug.current,
+      status
+    }
   }
 `
 

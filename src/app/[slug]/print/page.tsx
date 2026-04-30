@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation'
 import { sanityClient } from '@/lib/sanity/client'
-import { BROCHURE_BY_SLUG, BROCHURE_BY_SLUG_PREVIEW } from '@/lib/sanity/queries'
+import {
+  BROCHURE_BY_SLUG_ANY_COMPANY,
+  BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW,
+} from '@/lib/sanity/queries'
 import { verifyPreviewToken } from '@/lib/previewToken'
 import type { Brochure } from '@/types/brochure'
 import { BrochurePrintView } from '@/components/brochure/BrochurePrintView'
@@ -27,8 +30,13 @@ async function resolvePreview(slug: string, token: string | undefined): Promise<
   return payload !== null
 }
 
+// Print view ignores tenant scoping. Slugs are globally unique across
+// companies and the route is no-index, so we serve the matching brochure
+// regardless of which host hit /[slug]/print. This lets the PDF pipeline
+// (which runs on whatever host issued the export) render brochures owned by
+// any company without rewriting the URL host first.
 async function getBrochure(slug: string, isPreview: boolean): Promise<Brochure | null> {
-  const query = isPreview ? BROCHURE_BY_SLUG_PREVIEW : BROCHURE_BY_SLUG
+  const query = isPreview ? BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW : BROCHURE_BY_SLUG_ANY_COMPANY
   return sanityClient.fetch<Brochure | null>(query, { slug })
 }
 

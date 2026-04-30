@@ -645,6 +645,7 @@ export type Brochure = {
   logo?: SanityImage
   publishedAt?: string
   featured?: boolean
+  company?: { _ref: string; _type: 'reference' }
   ogImage?: SanityImage
   seo?: {
     metaTitle?: string
@@ -658,4 +659,29 @@ export type Brochure = {
     destinationEmail?: string
   }
   pages: Page[]
+}
+
+/**
+ * Company — child-company tenant whose brochures live on a dedicated host.
+ * Mirrors `schemas/company.ts`. Brochures with no company ref belong to the
+ * canonical host.
+ */
+export type Company = {
+  _id: string
+  name: string
+  slug?: { current: string }
+  domain: string
+  displayName: string
+  website?: string
+  logo?: SanityImage
+  accentColor?: string
+  featuredBrochure?: { _ref: string; _type: 'reference' }
+}
+
+/** Lightweight projection used by the host->company map. */
+export type CompanyHostEntry = {
+  _id: string
+  domain: string
+  displayName: string
+  accentColor?: string
 }
