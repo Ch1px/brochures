@@ -688,13 +688,15 @@ function DomainStatusBlock({
           color: '#ff8a80',
         }}
       >
-        Couldn&apos;t check status: {status.message}{' '}
+        <div style={{ marginBottom: 6 }}>
+          <strong>Vercel error:</strong> {status.message}
+        </div>
         <button
           type="button"
           onClick={onRefresh}
-          style={{ marginLeft: 6, color: 'inherit', textDecoration: 'underline', background: 'none', border: 0, cursor: 'pointer' }}
+          style={{ color: 'inherit', textDecoration: 'underline', background: 'none', border: 0, cursor: 'pointer', fontSize: 11 }}
         >
-          Retry
+          Retry status check
         </button>
       </div>
     )

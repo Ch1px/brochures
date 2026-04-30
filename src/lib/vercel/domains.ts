@@ -77,18 +77,38 @@ export async function addDomain(host: string): Promise<VercelResult> {
 
   if (res.ok) return { ok: true, data: undefined }
 
-  let body: { error?: { code?: string; message?: string; project?: { id?: string } } } = {}
+  // Vercel's 409 body for `domain_already_in_use` has changed shape across
+  // API versions: sometimes `error.project` is `{ id }`, sometimes a bare
+  // string ID, sometimes `error.projectId`. Read all of them.
+  type ConflictBody = {
+    error?: {
+      code?: string
+      message?: string
+      projectId?: string
+      project?: string | { id?: string }
+    }
+  }
+  let body: ConflictBody = {}
   try { body = await res.json() } catch { /* ignore */ }
   const code = body.error?.code
   const message = body.error?.message ?? `Vercel returned ${res.status}`
 
   if (res.status === 409 && code === 'domain_already_in_use') {
-    if (body.error?.project?.id === env.projectId) {
+    const ownerId =
+      body.error?.projectId ??
+      (typeof body.error?.project === 'string'
+        ? body.error.project
+        : body.error?.project?.id)
+
+    if (ownerId && ownerId === env.projectId) {
       return { ok: true, data: undefined }
     }
+    // Either Vercel didn't tell us the owner, or it's a different project.
+    // Surface enough info so the admin can find and detach it.
+    const ownerHint = ownerId ? ` (project: ${ownerId})` : ''
     return {
       ok: false,
-      error: `Domain "${host}" is already attached to a different Vercel project. Detach it there first.`,
+      error: `Domain "${host}" is already attached to a different Vercel project${ownerHint}. Detach it there first, or fix VERCEL_PROJECT_ID if it's pointing at the wrong project.`,
       code,
     }
   }
