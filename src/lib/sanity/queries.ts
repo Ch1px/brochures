@@ -43,6 +43,7 @@ export const BROCHURE_BY_SLUG = groq`
     hideTexture,
     logo,
     publishedAt,
+    "companyBranding": company->{_id, name, accentColor, logo},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -90,6 +91,7 @@ export const BROCHURE_BY_SLUG_PREVIEW = groq`
     hideTexture,
     logo,
     publishedAt,
+    "companyBranding": company->{_id, name, accentColor, logo},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -139,6 +141,7 @@ export const BROCHURE_BY_SLUG_ANY_COMPANY = groq`
     logo,
     publishedAt,
     company,
+    "companyBranding": company->{_id, name, accentColor, logo},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -182,6 +185,7 @@ export const BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW = groq`
     logo,
     publishedAt,
     company,
+    "companyBranding": company->{_id, name, accentColor, logo},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -241,13 +245,18 @@ export const ALL_COMPANIES_FOR_ADMIN = groq`
 `
 
 /**
- * Companies, projected for the brochure-editor picker dropdown.
+ * Companies, projected for the brochure-editor picker dropdown. Includes
+ * the company's branding defaults (accentColor + logo) so the editor's
+ * Settings → Branding tab can preview inherited fallbacks live when the
+ * admin reassigns a brochure's host company.
  */
 export const COMPANIES_FOR_PICKER = groq`
   *[_type == "company"] | order(name asc) {
     _id,
     name,
-    domain
+    domain,
+    accentColor,
+    logo
   }
 `
 
@@ -299,7 +308,7 @@ export const ALL_BROCHURES = groq`
     featured,
     "pageCount": count(pages),
     "ogImage": seo.ogImage,
-    "company": company->{_id, name, accentColor}
+    "company": company->{_id, name, accentColor, domain}
   }
 `
 

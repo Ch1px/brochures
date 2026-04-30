@@ -19,6 +19,7 @@ import { FieldBoolean } from './fields/FieldBoolean'
 import { FieldSelect } from './fields/FieldSelect'
 import { FieldColor } from './fields/FieldColor'
 import { FieldImage } from './fields/FieldImage'
+import { urlForSection } from '@/lib/sanity/image'
 
 type Props = {
   open: boolean
@@ -49,6 +50,10 @@ type Props = {
     hideTexture: boolean
     logo: SanityImage | undefined
     companyId: string | undefined
+    /** Snapshot of the newly-assigned company's branding (or undefined when
+     *  the brochure is canonical). Lets the editor refresh the live-fallback
+     *  preview without waiting for a re-fetch. */
+    companyBranding: Brochure['companyBranding'] | undefined
   }) => void
 }
 
@@ -281,10 +286,28 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
         hideTexture,
         logo,
         companyId,
+        companyBranding: selectedCompany
+          ? {
+              _id: selectedCompany._id,
+              name: selectedCompany.name,
+              accentColor: selectedCompany.accentColor,
+              logo: selectedCompany.logo,
+            }
+          : undefined,
       })
       onClose()
     })
   }
+
+  // ───────── Inherited branding from the selected host company ─────────
+  // When the brochure has a company assigned, its accent and logo act as
+  // defaults (Branding tab fallback / placeholder). Empty brochure-level
+  // values inherit live; an explicit value here overrides the company.
+  const selectedCompany = companyId ? companies.find((c) => c._id === companyId) ?? null : null
+  const inheritedAccent = selectedCompany?.accentColor || undefined
+  const inheritedLogoUrl = selectedCompany?.logo
+    ? urlForSection(selectedCompany.logo, 400) ?? undefined
+    : undefined
 
   // ───────── Scale preset options (shared) ─────────
   const scaleOptions = [
@@ -396,12 +419,23 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
             {activeTab === 'branding' && (
               <>
                 <SectionHeader label="Colours" />
+                {selectedCompany ? (
+                  <div className="settings-inherit-hint">
+                    Empty fields inherit from <strong>{selectedCompany.name}</strong>. Set a value to override the company default.
+                  </div>
+                ) : null}
                 <div className="settings-subgroup-label">Brand colours</div>
                 <div className="brand-colors-compact">
                   <FieldColor
                     label="Accent"
+                    description={
+                      !accentColor && inheritedAccent
+                        ? `Inherited from ${selectedCompany?.name}`
+                        : undefined
+                    }
                     value={accentColor}
                     onChange={setAccentColor}
+                    fallback={inheritedAccent || '#e10600'}
                   />
                   <FieldColor
                     label="Title"
@@ -492,11 +526,15 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                 <div className="logo-image-field">
                   <FieldImage
                     label="Logo"
-                    description="Replaces the GPGT logo in the brochure nav. Leave blank to use the default."
+                    description={
+                      !logo && inheritedLogoUrl
+                        ? `Inherited from ${selectedCompany?.name}. Upload to override.`
+                        : 'Replaces the GPGT logo in the brochure nav. Leave blank to use the default.'
+                    }
                     value={logo}
                     onChange={setLogo}
                     previewWidth={400}
-                    defaultPreview="/textures/Grand_Prix_Logo_Vector_Editable 5.png"
+                    defaultPreview={inheritedLogoUrl ?? '/textures/Grand_Prix_Logo_Vector_Editable 5.png'}
                   />
                 </div>
 

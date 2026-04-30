@@ -11,9 +11,18 @@ import type { Brochure, CustomFont, FontOverrides, SanityImage } from '@/types/b
  * editing we'd switch to more granular array operations (insert/unset by _key).
  */
 
-/** Fetch a brochure for editing (includes drafts via previewDrafts perspective). */
+/** Fetch a brochure for editing (includes drafts via previewDrafts perspective).
+ * Spreads the raw doc and adds a `companyBranding` projection so the editor
+ * preview can fall back to company-level accent / logo when the brochure
+ * doesn't set its own. */
 export async function fetchBrochureForEdit(id: string): Promise<Brochure | null> {
-  return sanityWriteClient.fetch<Brochure | null>(`*[_id == $id][0]`, { id })
+  return sanityWriteClient.fetch<Brochure | null>(
+    `*[_id == $id][0]{
+      ...,
+      "companyBranding": company->{_id, name, accentColor, logo}
+    }`,
+    { id }
+  )
 }
 
 /**
@@ -290,6 +299,8 @@ export async function createBrochure(input: {
   slug: string
   season: string
   event?: string
+  /** Optional host-company ref. Falsy = canonical host. */
+  companyId?: string
 }): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   try {
     const doc = await sanityWriteClient.create({
@@ -301,6 +312,9 @@ export async function createBrochure(input: {
       status: 'draft',
       featured: false,
       pages: [],
+      ...(input.companyId
+        ? { company: { _type: 'reference', _ref: input.companyId } }
+        : {}),
     })
     return { ok: true, id: doc._id }
   } catch (err) {
@@ -309,14 +323,28 @@ export async function createBrochure(input: {
   }
 }
 
-/** Duplicate a brochure — copies pages/sections but resets status and slug. */
+/**
+ * Duplicate a brochure — copies pages/sections but resets status and slug.
+ * Company assignment defaults to the source's; pass `companyId: null` to
+ * explicitly drop it (canonical host) or a new ref to reassign.
+ */
 export async function duplicateBrochure(
   id: string,
-  overrides?: { title?: string; slug?: string; season?: string; event?: string }
+  overrides?: {
+    title?: string
+    slug?: string
+    season?: string
+    event?: string
+    companyId?: string | null
+  }
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   try {
     const src = await sanityWriteClient.fetch<Brochure | null>(`*[_id == $id][0]`, { id })
     if (!src) return { ok: false, error: 'Source brochure not found' }
+    const resolvedCompanyId =
+      overrides?.companyId === null
+        ? null
+        : overrides?.companyId ?? src.company?._ref ?? null
     const doc = await sanityWriteClient.create({
       _type: 'brochure',
       title: overrides?.title?.trim() || `${src.title} (copy)`,
@@ -349,6 +377,9 @@ export async function duplicateBrochure(
       pages: src.pages ?? [],
       seo: src.seo,
       leadCapture: src.leadCapture,
+      ...(resolvedCompanyId
+        ? { company: { _type: 'reference', _ref: resolvedCompanyId } }
+        : {}),
     })
     return { ok: true, id: doc._id }
   } catch (err) {

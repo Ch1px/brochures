@@ -10,13 +10,21 @@ export type DuplicateSource = {
   slug: string
   season: string
   event?: string
+  /** Source's host-company. Pre-selected on open so duplicates inherit by default. */
+  companyId?: string | null
 }
+
+type CompanyOption = { _id: string; name: string; domain: string }
 
 type Props = {
   open: boolean
   onClose: () => void
   /** When set, the modal runs in duplicate mode and prefills from the source. */
   duplicateFrom?: DuplicateSource
+  /** Available host companies for the picker. */
+  companies?: CompanyOption[]
+  /** Pre-select this company. Used when "+ New" is launched from a company filter. */
+  defaultCompanyId?: string
 }
 
 function slugify(input: string): string {
@@ -35,7 +43,13 @@ function slugify(input: string): string {
  * lets the admin rename, and calls duplicateBrochureAction. Always redirects
  * to the editor on success.
  */
-export function NewBrochureModal({ open, onClose, duplicateFrom }: Props) {
+export function NewBrochureModal({
+  open,
+  onClose,
+  duplicateFrom,
+  companies = [],
+  defaultCompanyId,
+}: Props) {
   const router = useRouter()
   const isDuplicate = Boolean(duplicateFrom)
   const [title, setTitle] = useState('')
@@ -43,6 +57,8 @@ export function NewBrochureModal({ open, onClose, duplicateFrom }: Props) {
   const [slugDirty, setSlugDirty] = useState(false)
   const [season, setSeason] = useState('2026')
   const [event, setEvent] = useState('')
+  // '' = canonical (no company). Otherwise the company _id.
+  const [companyId, setCompanyId] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -56,6 +72,7 @@ export function NewBrochureModal({ open, onClose, duplicateFrom }: Props) {
       setSlugDirty(false)
       setSeason('2026')
       setEvent('')
+      setCompanyId('')
       setError(null)
       return
     }
@@ -65,9 +82,12 @@ export function NewBrochureModal({ open, onClose, duplicateFrom }: Props) {
       setSlugDirty(true)
       setSeason(duplicateFrom.season)
       setEvent(duplicateFrom.event ?? '')
+      setCompanyId(duplicateFrom.companyId ?? '')
       setError(null)
+    } else {
+      setCompanyId(defaultCompanyId ?? '')
     }
-  }, [open, duplicateFrom])
+  }, [open, duplicateFrom, defaultCompanyId])
 
   // Auto-derive slug from title unless the user has edited it manually
   useEffect(() => {
@@ -98,12 +118,15 @@ export function NewBrochureModal({ open, onClose, duplicateFrom }: Props) {
             slug: slug.trim(),
             season: season.trim(),
             event: event.trim() || undefined,
+            // null = explicitly canonical, a string = reassign, undefined = keep src
+            companyId: companyId || null,
           })
         : await createBrochureAction({
             title: title.trim(),
             slug: slug.trim(),
             season: season.trim(),
             event: event.trim() || undefined,
+            companyId: companyId || undefined,
           })
       if (res.ok) {
         router.push(`/admin/brochures/${res.id}/edit`)
@@ -188,6 +211,28 @@ export function NewBrochureModal({ open, onClose, duplicateFrom }: Props) {
               />
             </div>
           </div>
+
+          {companies.length > 0 ? (
+            <div className="field-group">
+              <label className="field-label">Host company</label>
+              <div className="field-description">
+                Determines which domain serves this brochure. Leave on{' '}
+                <em>Canonical</em> to host on the main GPGT domain.
+              </div>
+              <select
+                className="field-input field-select"
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+              >
+                <option value="">Canonical (brochures.grandprixgrandtours.com)</option>
+                {companies.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} — {c.domain}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
 
           {error ? <div className="field-error">{error}</div> : null}
         </div>

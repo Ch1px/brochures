@@ -9,6 +9,7 @@ import { LogoMark } from './LogoMark'
 import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
+import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
 
 type Props = {
   brochure: Brochure
@@ -42,7 +43,11 @@ export function BrochureStaticView({ brochure }: Props) {
   const pages = brochure.pages ?? []
   const total = pages.length
   const theme = brochure.theme ?? 'dark'
-  const accentStyle = accentColorVars(brochure.accentColor)
+  // Effective branding falls back to the host company's defaults when the
+  // brochure-level field is unset. See `lib/brochureBranding.ts`.
+  const effectiveAccent = resolvedAccentColor(brochure)
+  const effectiveLogo = resolvedLogo(brochure)
+  const accentStyle = accentColorVars(effectiveAccent)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
   const fontStyle = fontOverrideVars(brochure.fontOverrides)
@@ -68,7 +73,7 @@ export function BrochureStaticView({ brochure }: Props) {
   }
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
       <GoogleFontsLink url={fontsUrl} />
       <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
       <div
@@ -79,7 +84,7 @@ export function BrochureStaticView({ brochure }: Props) {
       >
         <nav className="brochure-nav" data-nav-ctx="public">
           <div className="brochure-nav-brand">
-            <LogoMark logo={brochure.logo} theme={theme} className="brochure-nav-brand-logo" />
+            <LogoMark logo={effectiveLogo} theme={theme} className="brochure-nav-brand-logo" />
             <span className="brochure-nav-brand-name">{brochure.title}</span>
           </div>
 

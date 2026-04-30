@@ -2,18 +2,21 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import type { Brochure, BrochureStatus, BrochureTheme } from '@/types/brochure'
 import type { SaveStatus } from '@/hooks/useAutosave'
+import type { CompanyOption } from './BrochureEditor'
 import {
   setBrochureStatusAction,
   setFeaturedBrochureAction,
   generatePreviewLinkAction,
   deleteBrochureAction,
 } from '@/lib/sanity/actions'
+import { brochureHost } from '@/lib/brochureHost'
 
 type Props = {
   brochure: Brochure
+  companies: CompanyOption[]
   saveStatus: SaveStatus
   onTitleChange: (title: string) => void
   onStatusChange: (status: BrochureStatus) => void
@@ -28,13 +31,25 @@ const STATUS_LABEL: Record<BrochureStatus, string> = {
   archived: 'Archived',
 }
 
-export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChange, onThemeChange, onOpenSettings }: Props) {
+export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, onStatusChange, onThemeChange, onOpenSettings }: Props) {
   const router = useRouter()
   const theme: BrochureTheme = brochure.theme ?? 'dark'
   const [pending, startTransition] = useTransition()
   const [publishMenu, setPublishMenu] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<'idle' | 'generating' | 'copied' | 'error'>('idle')
   const [htmlExportStatus, setHtmlExportStatus] = useState<'idle' | 'generating' | 'error'>('idle')
+
+  // Resolve the host this brochure is served from. Uses the assigned company's
+  // domain when set, else the canonical GPGT host. Drives the host badge and
+  // every public/preview URL we hand the admin so what they share matches what
+  // the visitor sees.
+  const companyDomain = useMemo(() => {
+    const ref = brochure.company?._ref
+    if (!ref) return null
+    return companies.find((c) => c._id === ref)?.domain ?? null
+  }, [brochure.company?._ref, companies])
+  const host = brochureHost(companyDomain)
+  const publicUrl = `https://${host}/${brochure.slug.current}`
 
   function handleStatus(next: BrochureStatus) {
     setPublishMenu(false)
@@ -142,7 +157,10 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
         setTimeout(() => setPreviewStatus('idle'), 2000)
         return
       }
-      const fullUrl = `${window.location.origin}${res.url}`
+      // res.url is `/${slug}?preview=...`. Anchor it on the brochure's actual
+      // public host so the recipient sees the same domain (and lead-capture
+      // context) the live visitor would.
+      const fullUrl = `https://${host}${res.url}`
       await navigator.clipboard.writeText(fullUrl)
       setPreviewStatus('copied')
       setTimeout(() => setPreviewStatus('idle'), 1800)
@@ -166,6 +184,7 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder="Brochure title"
         />
+        <HostBadge host={host} slug={brochure.slug.current} isCompany={Boolean(companyDomain)} onClick={onOpenSettings} />
         <SaveIndicator status={saveStatus} />
       </div>
 
@@ -262,9 +281,10 @@ export function EditorTopbar({ brochure, saveStatus, onTitleChange, onStatusChan
         {brochure.status === 'published' ? (
           <a
             className="editor-topbar-btn primary"
-            href={`/${brochure.slug.current}`}
+            href={publicUrl}
             target="_blank"
             rel="noreferrer"
+            title={`Open ${host}/${brochure.slug.current}`}
           >
             View live ↗
           </a>
@@ -282,6 +302,35 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
       <span className="editor-save-dot" style={{ background: color }} />
       <span>{label}</span>
     </div>
+  )
+}
+
+function HostBadge({
+  host,
+  slug,
+  isCompany,
+  onClick,
+}: {
+  host: string
+  slug: string
+  isCompany: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      className="editor-host-badge"
+      onClick={onClick}
+      title={`Served at ${host}/${slug} — click to change host in Settings`}
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+      <span className="editor-host-badge-host">{host}</span>
+      {isCompany ? <span className="editor-host-badge-tag">company</span> : null}
+    </button>
   )
 }
 

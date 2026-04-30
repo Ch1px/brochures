@@ -100,6 +100,7 @@ export async function createBrochureAction(input: {
   slug: string
   season: string
   event?: string
+  companyId?: string
 }) {
   await assertAdmin()
   const result = await createBrochureMutation(input)
@@ -109,7 +110,13 @@ export async function createBrochureAction(input: {
 
 export async function duplicateBrochureAction(
   id: string,
-  overrides?: { title?: string; slug?: string; season?: string; event?: string }
+  overrides?: {
+    title?: string
+    slug?: string
+    season?: string
+    event?: string
+    companyId?: string | null
+  }
 ) {
   await assertAdmin()
   const result = await duplicateBrochureMutation(id, overrides)

@@ -11,6 +11,7 @@ import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, titleColorVars, eyebrowStyleVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
+import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
 
 type Props = {
   brochure: Brochure
@@ -118,7 +119,11 @@ export function PreviewStage({
   // ───────── Normal render ─────────
 
   const theme = brochure.theme ?? 'dark'
-  const accentStyle = accentColorVars(brochure.accentColor)
+  // Effective branding falls back to the host company's defaults when the
+  // brochure-level field is unset. See `lib/brochureBranding.ts`.
+  const effectiveAccent = resolvedAccentColor(brochure)
+  const effectiveLogo = resolvedLogo(brochure)
+  const accentStyle = accentColorVars(effectiveAccent)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
   const titleStyle = titleColorVars(brochure.titleColor)
@@ -129,7 +134,7 @@ export function PreviewStage({
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme, editorMode: true, onInlineEdit, onInlineMediaEdit, onRequestMapEdit, recolor, annotations: annotationsProp }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme, editorMode: true, onInlineEdit, onInlineMediaEdit, onRequestMapEdit, recolor, annotations: annotationsProp }}>
     <GoogleFontsLink url={fontsUrl} />
     <CustomFontFaces customFonts={brochure.customFonts} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />

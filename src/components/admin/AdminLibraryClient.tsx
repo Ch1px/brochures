@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
 import { AiGenerateModal } from './AiGenerateModal'
 import { deleteBrochureAction } from '@/lib/sanity/actions'
+import { CANONICAL_HOST, brochurePublicUrl as brochurePublicUrlLib } from '@/lib/brochureHost'
 
 type BrochureRow = {
   _id: string
@@ -17,11 +18,19 @@ type BrochureRow = {
   publishedAt?: string
   featured?: boolean
   pageCount: number
-  company?: { _id: string; name: string; accentColor?: string } | null
+  company?: { _id: string; name: string; accentColor?: string; domain?: string } | null
 }
+
+/** Public URL where this brochure is served (company host or canonical). */
+function brochurePublicUrl(brochure: BrochureRow): string {
+  return brochurePublicUrlLib(brochure.slug, brochure.company?.domain)
+}
+
+export type CompanyOption = { _id: string; name: string; domain: string }
 
 type Props = {
   brochures: BrochureRow[]
+  companies: CompanyOption[]
 }
 
 /** Sentinel value for the "Canonical (no company)" filter pill. */
@@ -39,16 +48,39 @@ const STATUS_OPTIONS = [
  * Client wrapper for the admin library. Handles filtering, search,
  * "New brochure" modal, and per-card "Duplicate" action.
  */
-export function AdminLibraryClient({ brochures }: Props) {
+export function AdminLibraryClient({ brochures, companies: companyOptions }: Props) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [deletePending, startDeleteTransition] = useTransition()
   const [newOpen, setNewOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
   const [duplicateSource, setDuplicateSource] = useState<DuplicateSource | null>(null)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [seasonFilter, setSeasonFilter] = useState('')
-  const [companyFilter, setCompanyFilter] = useState('')
+  // Filters are mirrored into ?q=&status=&season=&company= so refresh and
+  // deep-links preserve the view.
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '')
+  const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') ?? '')
+  const [seasonFilter, setSeasonFilter] = useState(() => searchParams.get('season') ?? '')
+  const [companyFilter, setCompanyFilter] = useState(() => searchParams.get('company') ?? '')
+
+  // Push filter changes back into the URL (replaceState — no history spam).
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (search.trim()) params.set('q', search.trim())
+    if (statusFilter) params.set('status', statusFilter)
+    if (seasonFilter) params.set('season', seasonFilter)
+    if (companyFilter) params.set('company', companyFilter)
+    const qs = params.toString()
+    const next = qs ? `${pathname}?${qs}` : pathname
+    window.history.replaceState(null, '', next)
+  }, [search, statusFilter, seasonFilter, companyFilter, pathname])
+
+  function clearFilters() {
+    setSearch('')
+    setStatusFilter('')
+    setSeasonFilter('')
+    setCompanyFilter('')
+  }
 
   const seasons = useMemo(() => {
     const s = new Set(brochures.map((b) => b.season).filter(Boolean))
@@ -217,6 +249,22 @@ export function AdminLibraryClient({ brochures }: Props) {
           {paginated.map((b) => (
             <div key={b._id} className="library-card">
               <div className="library-card-actions">
+                {b.status === 'published' ? (
+                  <a
+                    className="library-card-action"
+                    href={brochurePublicUrl(b)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    title={`Open ${brochurePublicUrl(b).replace(/^https?:\/\//, '')}`}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                  </a>
+                ) : null}
                 <button
                   className="library-card-action"
                   onClick={(e) => {
@@ -228,6 +276,7 @@ export function AdminLibraryClient({ brochures }: Props) {
                       slug: b.slug,
                       season: b.season,
                       event: b.event,
+                      companyId: b.company?._id ?? null,
                     })
                   }}
                   title="Duplicate"
@@ -296,7 +345,9 @@ export function AdminLibraryClient({ brochures }: Props) {
                   {b.event ? (
                     <div className="library-card-event">{b.event}</div>
                   ) : null}
-                  <div className="library-card-slug">/{b.slug}</div>
+                  <div className="library-card-slug">
+                    {(b.company?.domain || CANONICAL_HOST) + '/' + b.slug}
+                  </div>
                 </div>
               </Link>
             </div>
@@ -339,7 +390,7 @@ export function AdminLibraryClient({ brochures }: Props) {
         {filtered.length === 0 && brochures.length > 0 ? (
           <div className="library-empty">
             No brochures match your filters.{' '}
-            <button className="library-empty-reset" onClick={() => { setSearch(''); setStatusFilter(''); setSeasonFilter('') }}>
+            <button className="library-empty-reset" onClick={clearFilters}>
               Clear filters
             </button>
           </div>
@@ -355,11 +406,21 @@ export function AdminLibraryClient({ brochures }: Props) {
         ) : null}
       </div>
 
-      <NewBrochureModal open={newOpen} onClose={() => setNewOpen(false)} />
+      <NewBrochureModal
+        open={newOpen}
+        onClose={() => setNewOpen(false)}
+        companies={companyOptions}
+        // Pre-select the currently filtered company (if any) so creating from
+        // a filtered view inherits the obvious assignment.
+        defaultCompanyId={
+          companyFilter && companyFilter !== CANONICAL_COMPANY_ID ? companyFilter : undefined
+        }
+      />
       <NewBrochureModal
         open={duplicateSource !== null}
         onClose={() => setDuplicateSource(null)}
         duplicateFrom={duplicateSource ?? undefined}
+        companies={companyOptions}
       />
       <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} />
     </>

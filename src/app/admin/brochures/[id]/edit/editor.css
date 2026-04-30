@@ -96,6 +96,47 @@
   transition: background 0.15s;
 }
 
+.editor-host-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  border: 1px solid var(--chrome-border);
+  background: var(--chrome-raised);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: var(--chrome-text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.editor-host-badge:hover {
+  border-color: var(--chrome-border-strong);
+  color: var(--chrome-text);
+}
+.editor-host-badge svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.65;
+}
+.editor-host-badge-host {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: var(--chrome-text);
+}
+.editor-host-badge-tag {
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: rgba(225, 6, 0, 0.14);
+  color: var(--brand-red);
+  letter-spacing: 0.18em;
+  font-size: 9px;
+}
+
 .editor-theme-toggle {
   display: inline-flex;
   border: 1px solid var(--chrome-border);
@@ -1878,6 +1919,21 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--chrome-text);
+}
+.settings-inherit-hint {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  background: rgba(225, 6, 0, 0.06);
+  border: 1px solid rgba(225, 6, 0, 0.18);
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--chrome-text-secondary);
+}
+.settings-inherit-hint strong {
+  color: var(--chrome-text);
+  font-weight: 600;
 }
 .settings-font-row {
   display: grid;

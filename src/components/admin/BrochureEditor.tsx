@@ -9,6 +9,7 @@ import type {
   BrochureTheme,
   CircuitDrawing,
   ColorOverride,
+  SanityImage,
   Section,
   SectionCircuitMap,
 } from '@/types/brochure'
@@ -34,6 +35,8 @@ export type CompanyOption = {
   _id: string
   name: string
   domain: string
+  accentColor?: string
+  logo?: SanityImage
 }
 
 type Props = {
@@ -825,6 +828,7 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
     <div className="editor-root">
       <EditorTopbar
         brochure={brochure}
+        companies={companies}
         saveStatus={saveStatus}
         onTitleChange={handleTitleChange}
         onStatusChange={handleStatusChange}
@@ -985,6 +989,10 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
             company: updates.companyId
               ? { _type: 'reference', _ref: updates.companyId }
               : undefined,
+            // Refresh the decoded company-branding snapshot so the live-
+            // fallback resolver picks up the new accent/logo immediately,
+            // without waiting for a refetch.
+            companyBranding: updates.companyBranding,
           }))
         }
       />

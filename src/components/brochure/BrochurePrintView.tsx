@@ -9,6 +9,7 @@ import { TextureOverride } from './TextureOverride'
 import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
+import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
 
 type Props = {
   brochure: Brochure
@@ -26,7 +27,9 @@ export function BrochurePrintView({ brochure }: Props) {
   const sections = pages.flatMap((p) => p.sections ?? []).filter((s) => s._type !== 'footer')
   const total = sections.length
   const theme = brochure.theme ?? 'dark'
-  const accentStyle = accentColorVars(brochure.accentColor)
+  const effectiveAccent = resolvedAccentColor(brochure)
+  const effectiveLogo = resolvedLogo(brochure)
+  const accentStyle = accentColorVars(effectiveAccent)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
   const fontStyle = fontOverrideVars(brochure.fontOverrides)
@@ -36,7 +39,7 @@ export function BrochurePrintView({ brochure }: Props) {
   useFitSectionsToPages()
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: brochure.accentColor, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: brochure.logo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
       <GoogleFontsLink url={fontsUrl} />
       <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
       <div className="brochure-print-root" data-theme={theme} data-custom-bg={brochure.backgroundColor ? '' : undefined} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}>

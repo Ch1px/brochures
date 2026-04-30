@@ -646,6 +646,18 @@ export type Brochure = {
   publishedAt?: string
   featured?: boolean
   company?: { _ref: string; _type: 'reference' }
+  /**
+   * Decoded snapshot of the referenced company's branding. Populated by
+   * GROQ projections that follow `company->{...}` so the reader and editor
+   * preview can fall back to company defaults when the brochure-level field
+   * is unset. NOT a persisted field — write paths must not include it.
+   */
+  companyBranding?: {
+    _id?: string
+    name?: string
+    accentColor?: string
+    logo?: SanityImage
+  }
   ogImage?: SanityImage
   seo?: {
     metaTitle?: string
