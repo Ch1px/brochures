@@ -21,6 +21,21 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
   const variantClass = data._type === 'coverCentered' ? 'page-cover-centered' : ''
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
+  const supImageUrl = urlForSection(data.supImage, 600)
+  const titleImageUrl = urlForSection(data.titleImage, 1600)
+  const titleAccentImageUrl = urlForSection(data.titleAccentImage, 1200)
+  const supImageStyle =
+    typeof data.supImageScale === 'number'
+      ? ({ ['--cover-sup-image-scale' as never]: String(data.supImageScale) })
+      : undefined
+  const titleImageStyle =
+    typeof data.titleImageScale === 'number'
+      ? ({ ['--cover-title-image-scale' as never]: String(data.titleImageScale) })
+      : undefined
+  const titleAccentImageStyle =
+    typeof data.titleAccentImageScale === 'number'
+      ? ({ ['--cover-title-accent-image-scale' as never]: String(data.titleAccentImageScale) })
+      : undefined
 
   return (
     <section className={`section page-cover ${variantClass} cover-overlay-${data.overlayStrength ?? 'medium'}`} data-section-id={data._key}>
@@ -93,10 +108,29 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
         </div>
 
         <div className="page-cover-center">
-          {(data.sup || editorMode) ? <InlineEditable sectionKey={data._key} field="sup"><div className="cover-sup">{data.sup}</div></InlineEditable> : null}
+          {supImageUrl ? (
+            <div className="cover-sup cover-sup-image" style={supImageStyle}>
+              <img src={supImageUrl} alt="" draggable={false} />
+            </div>
+          ) : (data.sup || editorMode) ? (
+            <InlineEditable sectionKey={data._key} field="sup"><div className="cover-sup">{data.sup}</div></InlineEditable>
+          ) : null}
           <h1 className="cover-title">
-            <InlineEditable sectionKey={data._key} field="title"><span>{data.title}</span></InlineEditable>
-            {(data.titleAccent || editorMode) ? (
+            {titleImageUrl ? (
+              <span className="cover-title-image" style={titleImageStyle}>
+                <img src={titleImageUrl} alt={data.title || ''} draggable={false} />
+              </span>
+            ) : (
+              <InlineEditable sectionKey={data._key} field="title"><span>{data.title}</span></InlineEditable>
+            )}
+            {titleAccentImageUrl ? (
+              <>
+                <br />
+                <span className="cover-title-accent cover-title-accent-image" style={titleAccentImageStyle}>
+                  <img src={titleAccentImageUrl} alt="" draggable={false} />
+                </span>
+              </>
+            ) : (data.titleAccent || editorMode) ? (
               <>
                 <br />
                 <InlineEditable sectionKey={data._key} field="titleAccent"><span className="cover-title-accent">{data.titleAccent || ''}</span></InlineEditable>

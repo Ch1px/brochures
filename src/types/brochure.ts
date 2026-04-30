@@ -64,8 +64,14 @@ export type SectionCover = {
   edition?: string
   brandMark?: string
   sup?: string
+  supImage?: SanityImage
+  supImageScale?: number
   title: string
+  titleImage?: SanityImage
+  titleImageScale?: number
   titleAccent?: string
+  titleAccentImage?: SanityImage
+  titleAccentImageScale?: number
   tag?: string
   cta?: string
   ctaHref?: string

@@ -1,7 +1,18 @@
 'use client'
 
 import type { SectionCover } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldImage, FieldVideo } from '../fields'
+import { FieldInput, FieldTextarea, FieldImage, FieldVideo, FieldSelect } from '../fields'
+
+const IMAGE_SCALE_OPTIONS = [
+  { value: '', label: 'Default' },
+  { value: '0.5', label: '50%' },
+  { value: '0.75', label: '75%' },
+  { value: '1', label: '100%' },
+  { value: '1.25', label: '125%' },
+  { value: '1.5', label: '150%' },
+  { value: '2', label: '200%' },
+  { value: '2.5', label: '250%' },
+]
 
 type Props = {
   section: SectionCover
@@ -14,25 +25,67 @@ export function CoverEditor({ section, onChange }: Props) {
       <div className="field-section-heading">Title & Copy</div>
       <FieldInput
         label="Supertitle"
-        description="Small line above the title, e.g. 'Formula 1'."
+        description={section.supImage ? 'Hidden — supertitle image is in use.' : "Small line above the title, e.g. 'Formula 1'."}
         value={section.sup}
         onChange={(sup) => onChange({ sup })}
         placeholder="Formula 1"
       />
+      <FieldImage
+        label="Supertitle image (optional)"
+        description="Replaces the supertitle text with an image (e.g. a small logo). PNG with transparent background recommended."
+        value={section.supImage}
+        onChange={(supImage) => onChange({ supImage })}
+      />
+      {section.supImage ? (
+        <FieldSelect
+          label="Supertitle image size"
+          value={typeof section.supImageScale === 'number' ? String(section.supImageScale) : ''}
+          onChange={(v) => onChange({ supImageScale: v ? Number(v) : undefined })}
+          options={IMAGE_SCALE_OPTIONS}
+        />
+      ) : null}
       <FieldInput
         label="Title"
-        description="The main cover headline, e.g. 'Monaco'."
+        description={section.titleImage ? 'Hidden — title image is in use. Kept for SEO/alt text.' : "The main cover headline, e.g. 'Monaco'."}
         value={section.title}
         onChange={(title) => onChange({ title })}
         placeholder="Monaco"
       />
+      <FieldImage
+        label="Title image (optional)"
+        description="Replaces the title text with an image (e.g. an event lockup). PNG with transparent background recommended."
+        value={section.titleImage}
+        onChange={(titleImage) => onChange({ titleImage })}
+      />
+      {section.titleImage ? (
+        <FieldSelect
+          label="Title image size"
+          value={typeof section.titleImageScale === 'number' ? String(section.titleImageScale) : ''}
+          onChange={(v) => onChange({ titleImageScale: v ? Number(v) : undefined })}
+          options={IMAGE_SCALE_OPTIONS}
+        />
+      ) : null}
       <FieldInput
         label="Title accent"
-        description="Second line in script font with accent colour, e.g. 'Grand Prix'."
+        description={section.titleAccentImage ? 'Hidden — title accent image is in use.' : "Second line in script font with accent colour, e.g. 'Grand Prix'."}
         value={section.titleAccent}
         onChange={(titleAccent) => onChange({ titleAccent })}
         placeholder="Grand Prix"
       />
+      <FieldImage
+        label="Title accent image (optional)"
+        description="Replaces the title accent with an image (e.g. a script-style logomark)."
+        value={section.titleAccentImage}
+        onChange={(titleAccentImage) => onChange({ titleAccentImage })}
+      />
+      {section.titleAccentImage ? (
+        <FieldSelect
+          label="Title accent image size"
+          value={typeof section.titleAccentImageScale === 'number' ? String(section.titleAccentImageScale) : ''}
+          onChange={(v) => onChange({ titleAccentImageScale: v ? Number(v) : undefined })}
+          options={IMAGE_SCALE_OPTIONS}
+        />
+      ) : null}
       <FieldTextarea
         label="Tagline"
         description="Supporting text beneath the title. Keep it to 1–2 lines."
