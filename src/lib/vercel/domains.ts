@@ -192,19 +192,40 @@ export async function getDomainConfig(host: string): Promise<VercelResult<Domain
     }
   }
 
+  // Vercel's /v6/domains/{host}/config response uses ranked records for the
+  // recommended fields: e.g. `recommendedCNAME: [{ rank: 1, value: "..." }]`.
+  // Extract a flat string list. Some responses occasionally use a bare object
+  // or a plain string, so handle all three shapes defensively.
+  type RankedRecord = { rank?: number; value?: string }
   const config = (await configRes.json()) as {
     misconfigured?: boolean
-    recommendedCNAME?: string
-    recommendedIPv4?: string[]
+    recommendedCNAME?: string | RankedRecord | RankedRecord[]
+    recommendedIPv4?: string | RankedRecord | RankedRecord[]
   }
+
+  function flattenRanked(input: string | RankedRecord | RankedRecord[] | undefined): string[] {
+    if (!input) return []
+    if (typeof input === 'string') return [input]
+    if (Array.isArray(input)) {
+      return input
+        .slice()
+        .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+        .map((r) => r.value)
+        .filter((v): v is string => typeof v === 'string' && v.length > 0)
+    }
+    return typeof input.value === 'string' ? [input.value] : []
+  }
+
+  const cnames = flattenRanked(config.recommendedCNAME)
+  const ipv4s = flattenRanked(config.recommendedIPv4)
 
   return {
     ok: true,
     data: {
       misconfigured: Boolean(config.misconfigured),
       verified,
-      recommendedCNAME: config.recommendedCNAME ?? 'cname.vercel-dns.com',
-      recommendedIPv4: config.recommendedIPv4,
+      recommendedCNAME: cnames[0] ?? 'cname.vercel-dns.com',
+      recommendedIPv4: ipv4s.length > 0 ? ipv4s : undefined,
     },
   }
 }
