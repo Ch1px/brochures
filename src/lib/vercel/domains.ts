@@ -137,6 +137,12 @@ export async function getDomainConfig(host: string): Promise<VercelResult<Domain
   })
 
   if (!res.ok) {
+    // 404 here means "domain isn't on this Vercel project". The caller can
+    // recover by offering to attach it, so use a distinct code rather than
+    // surfacing a raw "Not Found" string.
+    if (res.status === 404) {
+      return { ok: false, error: 'Domain not attached to project', code: 'not_attached' }
+    }
     let body: { error?: { code?: string; message?: string } } = {}
     try { body = await res.json() } catch { /* ignore */ }
     return {

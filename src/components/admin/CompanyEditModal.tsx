@@ -7,6 +7,7 @@ import {
   updateCompanyAction,
   deleteCompanyAction,
   getDomainStatusAction,
+  attachDomainAction,
   uploadImageAction,
 } from '@/lib/sanity/actions'
 import { urlForSection } from '@/lib/sanity/image'
@@ -60,6 +61,8 @@ type DomainStatusState =
   | { kind: 'idle' }
   | { kind: 'loading' }
   | { kind: 'unconfigured' }
+  | { kind: 'not_attached' }
+  | { kind: 'attaching' }
   | { kind: 'error'; message: string }
   | {
       kind: 'ok'
@@ -148,16 +151,22 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
         setDomainStatus({ kind: 'error', message: res.error })
         return
       }
-      if (!res.configured) {
+      if ('configured' in res && !res.configured) {
         setDomainStatus({ kind: 'unconfigured' })
         return
       }
-      setDomainStatus({
-        kind: 'ok',
-        verified: res.status.verified,
-        misconfigured: res.status.misconfigured,
-        recommendedCNAME: res.status.recommendedCNAME,
-      })
+      if ('notAttached' in res && res.notAttached) {
+        setDomainStatus({ kind: 'not_attached' })
+        return
+      }
+      if ('status' in res) {
+        setDomainStatus({
+          kind: 'ok',
+          verified: res.status.verified,
+          misconfigured: res.status.misconfigured,
+          recommendedCNAME: res.status.recommendedCNAME,
+        })
+      }
     })
   }, [open, source])
 
@@ -195,16 +204,35 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
         setDomainStatus({ kind: 'error', message: res.error })
         return
       }
-      if (!res.configured) {
+      if ('configured' in res && !res.configured) {
         setDomainStatus({ kind: 'unconfigured' })
         return
       }
-      setDomainStatus({
-        kind: 'ok',
-        verified: res.status.verified,
-        misconfigured: res.status.misconfigured,
-        recommendedCNAME: res.status.recommendedCNAME,
-      })
+      if ('notAttached' in res && res.notAttached) {
+        setDomainStatus({ kind: 'not_attached' })
+        return
+      }
+      if ('status' in res) {
+        setDomainStatus({
+          kind: 'ok',
+          verified: res.status.verified,
+          misconfigured: res.status.misconfigured,
+          recommendedCNAME: res.status.recommendedCNAME,
+        })
+      }
+    })
+  }
+
+  function handleAttachDomain() {
+    const host = source?.domain
+    if (!host) return
+    setDomainStatus({ kind: 'attaching' })
+    attachDomainAction(host).then((res) => {
+      if (!res.ok) {
+        setDomainStatus({ kind: 'error', message: res.error })
+        return
+      }
+      refreshDomainStatus()
     })
   }
 
@@ -348,6 +376,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
                 status={domainStatus}
                 host={source!.domain}
                 onRefresh={refreshDomainStatus}
+                onAttach={handleAttachDomain}
               />
             </div>
           ) : null}
@@ -517,10 +546,12 @@ function DomainStatusBlock({
   status,
   host,
   onRefresh,
+  onAttach,
 }: {
   status: DomainStatusState
   host: string
   onRefresh: () => void
+  onAttach: () => void
 }) {
   const subdomain = host.split('.')[0] || 'brochures'
   const baseStyle: React.CSSProperties = {
@@ -534,6 +565,41 @@ function DomainStatusBlock({
     return (
       <div style={{ ...baseStyle, background: 'var(--chrome-raised)', color: 'var(--chrome-text-tertiary)' }}>
         Checking DNS…
+      </div>
+    )
+  }
+  if (status.kind === 'attaching') {
+    return (
+      <div style={{ ...baseStyle, background: 'var(--chrome-raised)', color: 'var(--chrome-text-tertiary)' }}>
+        Attaching to Vercel…
+      </div>
+    )
+  }
+  if (status.kind === 'not_attached') {
+    return (
+      <div
+        style={{
+          ...baseStyle,
+          background: 'rgba(255, 180, 0, 0.06)',
+          border: '1px solid rgba(255, 180, 0, 0.25)',
+          color: 'var(--chrome-text-secondary)',
+        }}
+      >
+        <div style={{ color: '#ffcb66', marginBottom: 6 }}>
+          ⚠ Not attached to Vercel
+        </div>
+        <div style={{ marginBottom: 8 }}>
+          This domain isn&apos;t on the Vercel project yet — likely because the
+          Vercel API env vars weren&apos;t set when the company was created.
+        </div>
+        <button
+          type="button"
+          className="editor-topbar-btn primary"
+          onClick={onAttach}
+          style={{ fontSize: 11 }}
+        >
+          Attach now
+        </button>
       </div>
     )
   }

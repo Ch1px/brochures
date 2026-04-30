@@ -440,22 +440,38 @@ export async function deleteCompanyAction(
 
 /**
  * Fetch DNS verification status for a company host. Used by CompanyEditModal
- * to render the verified / pending / misconfigured indicator and CNAME hints.
+ * to render the verified / pending / misconfigured / not-attached indicator
+ * and CNAME hints.
  */
 export async function getDomainStatusAction(
   host: string
 ): Promise<
   | { ok: true; configured: true; status: DomainConfig }
   | { ok: true; configured: false }
+  | { ok: true; notAttached: true }
   | { ok: false; error: string }
 > {
   await assertAdmin()
   const result = await getDomainConfig(host)
   if (!result.ok) {
     if (result.code === 'not_configured') return { ok: true, configured: false }
+    if (result.code === 'not_attached') return { ok: true, notAttached: true }
     return { ok: false, error: result.error }
   }
   return { ok: true, configured: true, status: result.data }
+}
+
+/**
+ * Attach a domain to the Vercel project on demand. Used as a recovery action
+ * when the company was created without Vercel env vars set.
+ */
+export async function attachDomainAction(
+  host: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  await assertAdmin()
+  const result = await addDomain(host)
+  if (!result.ok) return { ok: false, error: result.error }
+  return { ok: true }
 }
 
 /**
