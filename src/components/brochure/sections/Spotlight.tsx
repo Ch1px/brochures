@@ -23,9 +23,9 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
 
   return (
     <section
-      className={`section page-spotlight overlay-${data.overlayStrength ?? 'medium'}${
-        data.showForegroundImage === false ? ' no-foreground' : ''
-      }`}
+      className={`section page-spotlight overlay-${data.overlayStrength ?? 'medium'} fg-overlay-${
+        data.foregroundOverlayStrength ?? 'none'
+      }${data.showForegroundImage === false ? ' no-foreground' : ''}`}
       data-section-id={data._key}
     >
       <SpotlightBackground

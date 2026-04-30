@@ -243,7 +243,7 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
 
       {config.overlay || config.grayscale || config.blur || config.parallax ? (
         <>
-          <div className="field-section-heading">Images</div>
+          <div className="field-section-heading">{section._type === 'spotlight' ? 'Background image' : 'Images'}</div>
           {config.overlay && (
             <FieldSelect
               label="Overlay strength"
@@ -317,6 +317,42 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
               </div>
             </div>
           ) : null}
+        </>
+      ) : null}
+
+      {section._type === 'spotlight' ? (
+        <>
+          <div className="field-section-heading">Foreground image</div>
+          <FieldSelect
+            label="Overlay strength"
+            description="Tints just the foreground card image — independent of the background overlay."
+            value={(s.foregroundOverlayStrength as string) ?? 'none'}
+            onChange={(v) => anyChange({ foregroundOverlayStrength: v })}
+            options={OVERLAY_OPTIONS}
+          />
+          <FieldBrandColor
+            label="Overlay colour"
+            description="Override the foreground overlay tint. Defaults to the brochure background."
+            value={s.foregroundOverlayColor as string | undefined}
+            onChange={(v) => anyChange({ foregroundOverlayColor: v })}
+            fallback={brandContext?.backgroundColor || '#000000'}
+            brandContext={brandContext}
+            onAddCustomColor={onAddCustomColor}
+          />
+          <FieldSelect
+            label="Image greyscale"
+            description="Desaturate just the foreground card image."
+            value={(s.foregroundMediaGrayscale as string) ?? ''}
+            onChange={(v) => anyChange({ foregroundMediaGrayscale: v || undefined })}
+            options={GRAYSCALE_OPTIONS}
+          />
+          <FieldSelect
+            label="Image blur"
+            description="Soften just the foreground card image."
+            value={(s.foregroundMediaBlur as string) ?? ''}
+            onChange={(v) => anyChange({ foregroundMediaBlur: v || undefined })}
+            options={BLUR_OPTIONS}
+          />
         </>
       ) : null}
 

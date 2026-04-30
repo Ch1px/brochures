@@ -80,6 +80,54 @@ export default defineType({
       description: 'Override the overlay tint for this section. Hex format (e.g. #0a0a0c) or a brand token like "var:bg". Leave blank to inherit from the brochure background.',
     }),
     ...imageMediaFields,
+    defineField({
+      name: 'foregroundOverlayStrength',
+      title: 'Foreground overlay strength',
+      type: 'string',
+      description: 'Overlay tint applied to the foreground card image, independent of the section background.',
+      options: {
+        list: [
+          { title: 'None (default)', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'foregroundOverlayColor',
+      title: 'Foreground overlay colour',
+      type: 'string',
+      description: 'Override the foreground overlay tint. Hex format (e.g. #0a0a0c) or a brand token like "var:bg". Leave blank to inherit from the brochure background.',
+    }),
+    defineField({
+      name: 'foregroundMediaGrayscale',
+      title: 'Foreground image greyscale',
+      type: 'string',
+      description: 'Desaturate just the foreground card image.',
+      options: {
+        list: [
+          { title: 'None (default)', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Full', value: 'full' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'foregroundMediaBlur',
+      title: 'Foreground image blur',
+      type: 'string',
+      description: 'Soften just the foreground card image.',
+      options: {
+        list: [
+          { title: 'None (default)', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+      },
+    }),
     ...sectionStyleFields,
     backgroundField,
   ],

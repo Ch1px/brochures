@@ -518,6 +518,11 @@ export type SectionSpotlight = {
   overlayColor?: string
   mediaGrayscale?: MediaGrayscale
   mediaBlur?: MediaBlur
+  /** Foreground card image treatments, independent of the background. */
+  foregroundOverlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  foregroundOverlayColor?: string
+  foregroundMediaGrayscale?: MediaGrayscale
+  foregroundMediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string

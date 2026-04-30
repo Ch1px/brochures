@@ -1012,6 +1012,7 @@
   .page-spotlight-image-frame {
     position: absolute;
     inset: 0;
+    z-index: 2;
     border: 1px solid rgba(255, 255, 255, 0.14);
     pointer-events: none;
   }
@@ -1019,6 +1020,7 @@
     position: absolute;
     bottom: 14px;
     left: 14px;
+    z-index: 2;
     font-family: var(--font-mono);
     font-size: 9px;
     letter-spacing: 0.22em;
@@ -4885,6 +4887,37 @@
   }
   .page-spotlight-bg {
     filter: grayscale(var(--media-grayscale, 0)) blur(var(--media-blur, 0));
+  }
+
+  /* Spotlight only — the foreground card has its own image-treatment vars
+     so admins can tune background and foreground independently. Overrides
+     the global `.media-bg-layer, .media-video` filter for descendants of
+     `.page-spotlight-image`. */
+  .page-spotlight-image .media-bg-layer,
+  .page-spotlight-image .media-video {
+    filter: grayscale(var(--fg-media-grayscale, 0)) blur(var(--fg-media-blur, 0));
+  }
+
+  /* Spotlight foreground overlay — flat tint on top of the foreground card
+     image, sitting below the frame border (`.page-spotlight-image-frame`)
+     and above the bg-layer / video. */
+  .fg-overlay-light .page-spotlight-image::before,
+  .fg-overlay-medium .page-spotlight-image::before,
+  .fg-overlay-strong .page-spotlight-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .fg-overlay-light .page-spotlight-image::before {
+    background: rgba(var(--fg-overlay-base-rgb, var(--overlay-base-rgb, 0, 0, 0)), 0.20);
+  }
+  .fg-overlay-medium .page-spotlight-image::before {
+    background: rgba(var(--fg-overlay-base-rgb, var(--overlay-base-rgb, 0, 0, 0)), 0.40);
+  }
+  .fg-overlay-strong .page-spotlight-image::before {
+    background: rgba(var(--fg-overlay-base-rgb, var(--overlay-base-rgb, 0, 0, 0)), 0.60);
   }
 
   /* Flat uniform overlay layered on ::before. ::after is reserved for

@@ -126,6 +126,23 @@ function sectionStyleCss(
   const blur = typeof s.mediaBlur === 'string' ? blurMap[s.mediaBlur] : null
   if (blur) vars.push(`--media-blur:${blur}`)
 
+  // Spotlight only — independent foreground image treatments. Emitted as
+  // separate vars; CSS overrides --media-grayscale / --media-blur on
+  // `.page-spotlight-image` so the foreground card uses these instead.
+  if (section._type === 'spotlight') {
+    const fgGray = typeof s.foregroundMediaGrayscale === 'string' ? grayMap[s.foregroundMediaGrayscale] : null
+    if (fgGray) vars.push(`--fg-media-grayscale:${fgGray}`)
+    const fgBlur = typeof s.foregroundMediaBlur === 'string' ? blurMap[s.foregroundMediaBlur] : null
+    if (fgBlur) vars.push(`--fg-media-blur:${fgBlur}`)
+    const fgOverlay = resolveFieldColor(s.foregroundOverlayColor, brandCtx)
+    if (fgOverlay) {
+      const r = parseInt(fgOverlay.slice(1, 3), 16)
+      const g = parseInt(fgOverlay.slice(3, 5), 16)
+      const b = parseInt(fgOverlay.slice(5, 7), 16)
+      vars.push(`--fg-overlay-base-rgb:${r}, ${g}, ${b}`)
+    }
+  }
+
   // Scale overrides — override the brochure-wide --X-scale vars for this section
   const ts = resolveScale(s.titleScale)
   if (ts) vars.push(`--title-scale:${ts}`)
