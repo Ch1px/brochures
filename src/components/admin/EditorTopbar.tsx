@@ -41,6 +41,7 @@ type Props = {
   saveStatus: SaveStatus
   onTitleChange: (title: string) => void
   onStatusChange: (status: BrochureStatus) => void
+  onFeatureChange: (featured: boolean) => void
   onThemeChange: (theme: BrochureTheme) => void
   onOpenSettings: () => void
 }
@@ -59,7 +60,7 @@ const STATUS_DOT: Record<BrochureStatus, string> = {
   archived: '#64748b',
 }
 
-export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, onStatusChange, onThemeChange, onOpenSettings }: Props) {
+export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, onStatusChange, onFeatureChange, onThemeChange, onOpenSettings }: Props) {
   const router = useRouter()
   const theme: BrochureTheme = brochure.theme ?? 'dark'
   const [pending, startTransition] = useTransition()
@@ -105,7 +106,8 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
 
   function handleFeature() {
     startTransition(async () => {
-      await setFeaturedBrochureAction(brochure._id)
+      const res = await setFeaturedBrochureAction(brochure._id)
+      if (res.ok) onFeatureChange(true)
     })
   }
 

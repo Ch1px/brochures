@@ -415,6 +415,10 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
     setBrochure((prev) => ({ ...prev, status }))
   }, [])
 
+  const handleFeatureChange = useCallback((featured: boolean) => {
+    setBrochure((prev) => ({ ...prev, featured }))
+  }, [])
+
   const handleThemeChange = useCallback((theme: BrochureTheme) => {
     setBrochure((prev) => ({ ...prev, theme }))
   }, [])
@@ -961,6 +965,7 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
         saveStatus={saveStatus}
         onTitleChange={handleTitleChange}
         onStatusChange={handleStatusChange}
+        onFeatureChange={handleFeatureChange}
         onThemeChange={handleThemeChange}
         onOpenSettings={() => setSettingsOpen(true)}
       />
