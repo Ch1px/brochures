@@ -101,10 +101,14 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
 
       <div className="page-cover-inner">
         <div className="page-cover-top">
-          <div className="cover-brand-lockup">
-            {(data.brandMark || editorMode) ? <InlineEditable sectionKey={data._key} field="brandMark"><div className="lockup-mark">{data.brandMark}</div></InlineEditable> : null}
-          </div>
-          {(data.edition || editorMode) ? <InlineEditable sectionKey={data._key} field="edition"><div className="cover-edition">{data.edition}</div></InlineEditable> : null}
+          {data.brandMark ? (
+            <div className="cover-brand-lockup">
+              <InlineEditable sectionKey={data._key} field="brandMark"><div className="lockup-mark">{data.brandMark}</div></InlineEditable>
+            </div>
+          ) : <div />}
+          {data.edition ? (
+            <InlineEditable sectionKey={data._key} field="edition"><div className="cover-edition">{data.edition}</div></InlineEditable>
+          ) : null}
         </div>
 
         <div className="page-cover-center">
