@@ -28,10 +28,12 @@ export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
     <section
       className={`section page-section-heading ${variantClass} sh-overlay-${data.overlayStrength ?? 'medium'}`.trim()}
       data-section-id={data._key}
-      style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
     >
       <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
+        <div
+          className="page-section-heading-bg"
+          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
+        />
       </InlineMedia>
       {videoUrl ? (
         <video

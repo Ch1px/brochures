@@ -1,6 +1,7 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
 import { sectionStyleFields } from './_shared/sectionStyleFields'
+import { imageTreatmentFields } from './_shared/imageTreatmentFields'
 
 export default defineType({
   name: 'galleryDuo',
@@ -23,6 +24,7 @@ export default defineType({
       of: [{ type: 'string' }],
       validation: (Rule) => Rule.max(2),
     }),
+    ...imageTreatmentFields,
     ...sectionStyleFields,
     backgroundField,
   ],

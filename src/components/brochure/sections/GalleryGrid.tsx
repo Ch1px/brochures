@@ -33,7 +33,7 @@ export function GalleryGrid({ data, pageNum, total, showFolio }: Props) {
   const rows = tiles.length <= 3 ? 1 : 2
 
   return (
-    <section className="section page-gallery-grid" data-section-id={data._key}>
+    <section className={`section page-gallery-grid section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-grid-inner">
         <GalleryHeader eyebrow={data.eyebrow} title={data.title} sectionKey={data._key} />
@@ -41,10 +41,12 @@ export function GalleryGrid({ data, pageNum, total, showFolio }: Props) {
           {tiles.map(({ url, index }) =>
             url ? (
               <InlineMedia key={index} sectionKey={data._key} field={`images.${index}`} hasImage={Boolean(url)}>
-              <div
-                className="gallery-item"
-                style={{ backgroundImage: `url('${url}')` }}
-              />
+                <div className="gallery-item">
+                  <div
+                    className="media-bg-layer"
+                    style={{ backgroundImage: `url('${url}')` }}
+                  />
+                </div>
               </InlineMedia>
             ) : (
               <InlineMedia key={index} sectionKey={data._key} field={`images.${index}`} hasImage={false}>

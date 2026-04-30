@@ -24,7 +24,7 @@ export type BrandContext = {
   customColors?: { _key: string; name: string; hex: string }[]
 }
 
-const DEFAULT_ACCENT = '#e10600'
+const DEFAULT_ACCENT = '#cf212a'
 const DEFAULT_BG_DARK = '#161618'
 const DEFAULT_BG_LIGHT = '#f6f5f1'
 const DEFAULT_TEXT_DARK = '#ffffff'

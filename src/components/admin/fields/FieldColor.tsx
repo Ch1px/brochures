@@ -6,7 +6,7 @@ import { FieldLabel } from './FieldLabel'
 type Props = {
   label: string
   description?: string
-  /** Hex like `#e10600`. Empty string / undefined means "use platform default". */
+  /** Hex like `#cf212a`. Empty string / undefined means "use platform default". */
   value: string | undefined
   onChange: (value: string | undefined) => void
   /** Hex shown in the swatch when no value is set. Defaults to the platform brand red. */
@@ -21,7 +21,7 @@ const HEX_RE = /^#[0-9a-fA-F]{6}$/
  * Calls `onChange(undefined)` when cleared so the consumer can distinguish
  * "use the default" from a stored hex value.
  */
-export function FieldColor({ label, description, value, onChange, fallback = '#e10600' }: Props) {
+export function FieldColor({ label, description, value, onChange, fallback = '#cf212a' }: Props) {
   const id = useId()
   const [draft, setDraft] = useState(value ?? '')
 

@@ -21,7 +21,7 @@ export function Packages({ data, pageNum, total, showFolio }: Props) {
   const packages = (data.packages ?? []).slice(0, 3)
 
   return (
-    <section className="section page-packages" data-section-id={data._key}>
+    <section className={`section page-packages section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-packages-inner">
         <div className="packages-header">

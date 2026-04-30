@@ -23,7 +23,7 @@ export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
   const captions = data.captions ?? []
 
   return (
-    <section className="section page-gallery-duo" data-section-id={data._key}>
+    <section className={`section page-gallery-duo section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-duo-inner">
         <GalleryHeader eyebrow={data.eyebrow} title={data.title} sectionKey={data._key} />
@@ -36,8 +36,13 @@ export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
               <InlineMedia key={i} sectionKey={data._key} field={`images.${i}`} hasImage={Boolean(url)}>
               <div
                 className={`gallery-duo-item ${!url ? 'gallery-placeholder' : ''}`.trim()}
-                style={url ? { backgroundImage: `url('${url}')` } : undefined}
               >
+                {url ? (
+                  <div
+                    className="media-bg-layer"
+                    style={{ backgroundImage: `url('${url}')` }}
+                  />
+                ) : null}
                 {!url ? (
                   <span
                     style={{

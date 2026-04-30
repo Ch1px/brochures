@@ -16,7 +16,7 @@
  *   // save `themed` to Sanity's circuitMap.svg text field
  */
 
-export const DEFAULT_BRAND_RED = '#e10600'
+export const DEFAULT_BRAND_RED = '#cf212a'
 
 type CircuitTheme = 'dark' | 'light'
 

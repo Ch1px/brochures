@@ -55,6 +55,9 @@ export type SanityFile = {
 
 // --- Section types (discriminated union by _type) ---
 
+export type MediaGrayscale = 'none' | 'light' | 'medium' | 'full'
+export type MediaBlur = 'none' | 'light' | 'medium' | 'strong'
+
 export type SectionCover = {
   _key: string
   _type: 'cover' | 'coverCentered'
@@ -71,6 +74,8 @@ export type SectionCover = {
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   titleColor?: string
   bodyColor?: string
@@ -93,6 +98,10 @@ export type SectionIntro = {
   video?: SanityFile
   caption?: string
   contentAlign?: 'left' | 'center' | 'right'
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -115,6 +124,10 @@ export type SectionContentImage = {
   video?: SanityFile
   caption?: string
   contentAlign?: 'left' | 'center' | 'right'
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -137,6 +150,8 @@ export type SectionSectionHeading = {
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -161,6 +176,10 @@ export type SectionFeatures = {
     text?: string
     image?: SanityImage
   }>
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   titleColor?: string
   bodyColor?: string
@@ -180,6 +199,10 @@ export type SectionImageHero = {
   ctaHref?: string
   image: SanityImage
   video?: SanityFile
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -228,6 +251,10 @@ export type SectionPackages = {
     featured?: boolean
     features?: string[]
   }>
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -261,6 +288,10 @@ export type SectionGalleryEditorial = {
   _type: 'galleryEditorial'
   title: string
   images?: SanityImage[]
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   titleColor?: string
   titleScale?: TextScalePreset
@@ -274,6 +305,10 @@ export type SectionGalleryGrid = {
   eyebrow?: string
   title: string
   images?: SanityImage[]
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -290,6 +325,10 @@ export type SectionGalleryDuo = {
   title: string
   images?: SanityImage[]
   captions?: string[]
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -306,6 +345,10 @@ export type SectionGalleryHero = {
   title: string
   caption?: string
   images?: SanityImage[]
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -323,6 +366,10 @@ export type SectionQuoteProfile = {
   photo?: SanityImage
   quote: string
   body?: string
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -347,6 +394,8 @@ export type SectionClosing = {
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -467,6 +516,8 @@ export type SectionSpotlight = {
   backgroundParallax?: boolean
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -492,6 +543,10 @@ export type SectionLinkedCards = {
   eyebrow?: string
   title?: string
   cards: LinkedCardItem[]
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
   background?: string
   eyebrowColor?: string
   titleColor?: string

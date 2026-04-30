@@ -43,7 +43,7 @@ export const SECTION_PREVIEW_HTML: Record<Section['_type'], string> = {
   quoteProfile:
     '<div class="mini-quote-profile"><div></div><div><div class="q"></div><div class="b"></div><div class="b"></div><div class="b"></div></div></div>',
   circuitMap:
-    '<div class="mini-circuit"><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><path d="M10 25 Q 20 10 40 15 T 70 20 Q 72 30 60 35 L 30 38 Q 15 38 10 25 Z" fill="none" stroke="#e10600" stroke-width="2"/></svg><div class="mini-circuit-stats"><div></div><div></div><div></div></div></div>',
+    '<div class="mini-circuit"><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><path d="M10 25 Q 20 10 40 15 T 70 20 Q 72 30 60 35 L 30 38 Q 15 38 10 25 Z" fill="none" stroke="#cf212a" stroke-width="2"/></svg><div class="mini-circuit-stats"><div></div><div></div><div></div></div></div>',
   closing:
     '<div class="mini-closing"><div class="t">Take your<br/>seat</div><div class="b"></div></div>',
   spotlight:

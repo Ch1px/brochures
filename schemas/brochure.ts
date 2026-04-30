@@ -131,12 +131,12 @@ export default defineType({
       type: 'string',
       title: 'Accent colour',
       description:
-        'Overrides the platform brand red for this brochure. Hex format (e.g. #1a8cd8). Leave blank for the default (#e10600).',
+        'Overrides the platform brand red for this brochure. Hex format (e.g. #1a8cd8). Leave blank for the default (#cf212a).',
       validation: (Rule) =>
         Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
           value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
             ? true
-            : 'Must be a 6-digit hex colour like #e10600'
+            : 'Must be a 6-digit hex colour like #cf212a'
         ),
       group: 'branding',
     }),

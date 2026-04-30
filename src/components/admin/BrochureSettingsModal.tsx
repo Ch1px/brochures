@@ -445,7 +445,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                     }
                     value={accentColor}
                     onChange={setAccentColor}
-                    fallback={inheritedAccent || '#e10600'}
+                    fallback={inheritedAccent || '#cf212a'}
                   />
                   <FieldColor
                     label="Title"
@@ -483,7 +483,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                       >
                         <input
                           type="color"
-                          value={c.hex || '#e10600'}
+                          value={c.hex || '#cf212a'}
                           onChange={(e) => setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, hex: e.target.value } : p))}
                           aria-label={`${c.name || 'Custom'} colour picker`}
                         />
@@ -504,7 +504,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                             const v = e.target.value.trim()
                             setCustomColors((prev) => prev.map((p) => p._key === c._key ? { ...p, hex: v } : p))
                           }}
-                          placeholder="#e10600"
+                          placeholder="#cf212a"
                           spellCheck={false}
                           maxLength={7}
                         />
@@ -527,7 +527,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                 <button
                   type="button"
                   className="field-btn"
-                  onClick={() => setCustomColors((prev) => [...prev, { _key: nanokey(), name: '', hex: '#e10600' }])}
+                  onClick={() => setCustomColors((prev) => [...prev, { _key: nanokey(), name: '', hex: '#cf212a' }])}
                 >
                   + Add colour
                 </button>

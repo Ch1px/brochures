@@ -22,7 +22,7 @@ export function QuoteProfile({ data, pageNum, total, showFolio }: Props) {
   const photoUrl = urlForSection(data.photo, 600)
 
   return (
-    <section className="section page-quote-profile" data-section-id={data._key}>
+    <section className={`section page-quote-profile section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-quote-profile-inner">
         <div className="quote-profile-left">
@@ -31,10 +31,14 @@ export function QuoteProfile({ data, pageNum, total, showFolio }: Props) {
             {(data.name || editorMode) ? <InlineEditable sectionKey={data._key} field="name"><div className="quote-profile-name">{data.name || ''}</div></InlineEditable> : null}
           </div>
           <InlineMedia sectionKey={data._key} field="photo" hasImage={Boolean(photoUrl)}>
-          <div
-            className="quote-profile-photo"
-            style={photoUrl ? { backgroundImage: `url('${photoUrl}')` } : undefined}
-          />
+          <div className="quote-profile-photo">
+            {photoUrl ? (
+              <div
+                className="media-bg-layer"
+                style={{ backgroundImage: `url('${photoUrl}')` }}
+              />
+            ) : null}
+          </div>
           </InlineMedia>
         </div>
         <div className="quote-profile-right">

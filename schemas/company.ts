@@ -80,7 +80,7 @@ export default defineType({
         Rule.regex(/^#[0-9a-fA-F]{6}$/, { name: 'hex colour' }).custom((value) =>
           value === undefined || value === '' || /^#[0-9a-fA-F]{6}$/.test(value)
             ? true
-            : 'Must be a 6-digit hex colour like #e10600'
+            : 'Must be a 6-digit hex colour like #cf212a'
         ),
     }),
     defineField({

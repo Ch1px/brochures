@@ -289,7 +289,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       return
     }
     if (accentColor && !/^#[0-9a-fA-F]{6}$/.test(accentColor)) {
-      setError('Accent colour must be a 6-digit hex (e.g. #e10600).')
+      setError('Accent colour must be a 6-digit hex (e.g. #cf212a).')
       return
     }
     setError(null)
@@ -521,7 +521,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
                 className="field-input"
                 value={accentColor}
                 onChange={(e) => setAccentColor(e.target.value)}
-                placeholder="#e10600"
+                placeholder="#cf212a"
                 spellCheck={false}
               />
             </div>
@@ -644,7 +644,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
                   className="editor-topbar-btn"
                   onClick={handleDelete}
                   disabled={pending || logoUploading}
-                  style={{ marginRight: 'auto', color: '#e10600' }}
+                  style={{ marginRight: 'auto', color: '#cf212a' }}
                 >
                   {confirmDelete ? 'Click again to confirm' : 'Delete'}
                 </button>

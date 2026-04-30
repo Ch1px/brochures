@@ -27,7 +27,7 @@ type Props = {
   onClose: () => void
 }
 
-const FALLBACK_DEFAULT = '#e10600'
+const FALLBACK_DEFAULT = '#cf212a'
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
 /**

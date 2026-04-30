@@ -8,7 +8,7 @@ import { sectionStyleFields } from './_shared/sectionStyleFields'
  * and stores the themed SVG XML as a string on this field.
  *
  * Colour remap reference (applied client-side on upload):
- *   #EF4444 → #e10600  (brand red)
+ *   #cf212a → #cf212a  (brand red)
  *   #96A3B5 → rgba(255,255,255,0.7)
  *   #64748B → rgba(255,255,255,0.35)
  *   #FDE68A → #ffffff

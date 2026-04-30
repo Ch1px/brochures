@@ -41,8 +41,8 @@
     --chrome-text-tertiary: rgba(255, 255, 255, 0.42);
     --chrome-text-muted: rgba(255, 255, 255, 0.24);
 
-    --brand-red: #e10600;
-    --brand-red-hover: #ff1a14;
+    --brand-red: #cf212a;
+    --brand-red-hover: #dd242d;
     --brand-red-glow: rgba(225, 6, 0, 0.35);
     --brand-red-dim: rgba(225, 6, 0, 0.12);
     --brand-on-accent: #fff;
@@ -355,7 +355,7 @@
     border-left: 1px solid var(--chrome-border);
     display: flex; flex-direction: column;
   }
-  .properties { flex: 1; overflow-y: auto; padding: 20px; }
+  .properties { flex: 1; overflow-y: auto; padding: 20px; padding-top: 0px; }
 
   .properties-empty { padding: 60px 20px; text-align: center; color: var(--chrome-text-muted); font-size: 12px; }
   .properties-empty svg { width: 40px; height: 40px; margin-bottom: 16px; opacity: 0.3; }
@@ -869,6 +869,7 @@
     background-size: cover;
     background-position: center;
     background-color: var(--chrome-raised);
+    overflow: hidden;
   }
   .page-intro-right-frame { position: absolute; inset: 0; border: 1px solid var(--page-border); z-index: 1; pointer-events: none; }
 
@@ -1162,9 +1163,18 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.75) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(var(--overlay-base-rgb, 0, 0, 0), var(--lc-grad-top, 0)) 0%,
+      rgba(var(--overlay-base-rgb, 0, 0, 0), var(--lc-grad-mid, 0)) 20%,
+      rgba(var(--overlay-base-rgb, 0, 0, 0), var(--lc-grad-bot, 0.75)) 100%
+    );
     pointer-events: none;
   }
+  .page-linked-cards.lc-overlay-none   { --lc-grad-top: 0;    --lc-grad-mid: 0;    --lc-grad-bot: 0.15; }
+  .page-linked-cards.lc-overlay-light  { --lc-grad-top: 0;    --lc-grad-mid: 0;    --lc-grad-bot: 0.45; }
+  .page-linked-cards.lc-overlay-medium { --lc-grad-top: 0;    --lc-grad-mid: 0;    --lc-grad-bot: 0.75; }
+  .page-linked-cards.lc-overlay-strong { --lc-grad-top: 0.25; --lc-grad-mid: 0.15; --lc-grad-bot: 0.92; }
   .linked-card-body {
     position: relative;
     z-index: 1;
@@ -1673,8 +1683,9 @@
   .gallery-item {
     background-size: cover; background-position: center;
     background-color: var(--chrome-raised);
-   
+
     position: relative;
+    overflow: hidden;
   }
   .gallery-grid > .gallery-item:nth-child(1) { grid-row: span 2; }
   .gallery-grid > .gallery-item:nth-child(4) { grid-column: span 2; }
@@ -4825,6 +4836,116 @@
       transform: none;
       transition: none;
     }
+  }
+
+  /* ============================================================
+     PER-SECTION IMAGE TREATMENTS
+     Greyscale, blur and a flat overlay tint can be set per-section
+     via the Styles tab. The bg-image is hosted on an inner
+     `.media-bg-layer` child of each wrapper so the filter stays
+     scoped to the image — the overlay colour and any ::after
+     gradient on the wrapper are siblings of `.media-bg-layer` and
+     are never desaturated/blurred. Overlay alpha is class-driven
+     via `.section-media-overlay-*`.
+     ============================================================ */
+
+  /* Inner image layer — filtered, sized to fill its wrapper. */
+  .media-bg-layer {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: grayscale(var(--media-grayscale, 0)) blur(var(--media-blur, 0));
+  }
+
+  /* Package <img> can't host an inner div the same way, so apply the
+     filter directly. The image bleeds beyond its wrapper via negative
+     margins, so an overlay layer wouldn't fit cleanly anyway. */
+  .package-image {
+    filter: grayscale(var(--media-grayscale, 0)) blur(var(--media-blur, 0));
+  }
+
+  /* Existing dedicated bg divs for sectionHeading and spotlight — no
+     ::after gradient on the bg div itself, so the filter can sit
+     directly on the wrapper without leaking into overlays. */
+  .page-section-heading-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(var(--media-grayscale, 0)) blur(var(--media-blur, 0));
+  }
+  .page-spotlight-bg {
+    filter: grayscale(var(--media-grayscale, 0)) blur(var(--media-blur, 0));
+  }
+
+  /* Flat uniform overlay layered on ::before. ::after is reserved for
+     existing per-section gradients (features, gallery-item, image-hero,
+     quote-profile-photo). Packages don't get an overlay layer — the
+     `<img>` extends beyond its wrapper via negative margins, so a
+     wrapper-bounded ::before would mismatch the visible image area. */
+  .section-media-overlay-light .page-intro-right::before,
+  .section-media-overlay-light .feature-card-bg::before,
+  .section-media-overlay-light .page-image-hero-bg::before,
+  .section-media-overlay-light .gallery-item::before,
+  .section-media-overlay-light .gallery-duo-item::before,
+  .section-media-overlay-light .gallery-hero-lead::before,
+  .section-media-overlay-light .gallery-hero-thumb::before,
+  .section-media-overlay-light .quote-profile-photo::before,
+  .section-media-overlay-medium .page-intro-right::before,
+  .section-media-overlay-medium .feature-card-bg::before,
+  .section-media-overlay-medium .page-image-hero-bg::before,
+  .section-media-overlay-medium .gallery-item::before,
+  .section-media-overlay-medium .gallery-duo-item::before,
+  .section-media-overlay-medium .gallery-hero-lead::before,
+  .section-media-overlay-medium .gallery-hero-thumb::before,
+  .section-media-overlay-medium .quote-profile-photo::before,
+  .section-media-overlay-strong .page-intro-right::before,
+  .section-media-overlay-strong .feature-card-bg::before,
+  .section-media-overlay-strong .page-image-hero-bg::before,
+  .section-media-overlay-strong .gallery-item::before,
+  .section-media-overlay-strong .gallery-duo-item::before,
+  .section-media-overlay-strong .gallery-hero-lead::before,
+  .section-media-overlay-strong .gallery-hero-thumb::before,
+  .section-media-overlay-strong .quote-profile-photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .section-media-overlay-light .page-intro-right::before,
+  .section-media-overlay-light .feature-card-bg::before,
+  .section-media-overlay-light .page-image-hero-bg::before,
+  .section-media-overlay-light .gallery-item::before,
+  .section-media-overlay-light .gallery-duo-item::before,
+  .section-media-overlay-light .gallery-hero-lead::before,
+  .section-media-overlay-light .gallery-hero-thumb::before,
+  .section-media-overlay-light .quote-profile-photo::before {
+    background: rgba(var(--overlay-base-rgb, 0, 0, 0), 0.20);
+  }
+  .section-media-overlay-medium .page-intro-right::before,
+  .section-media-overlay-medium .feature-card-bg::before,
+  .section-media-overlay-medium .page-image-hero-bg::before,
+  .section-media-overlay-medium .gallery-item::before,
+  .section-media-overlay-medium .gallery-duo-item::before,
+  .section-media-overlay-medium .gallery-hero-lead::before,
+  .section-media-overlay-medium .gallery-hero-thumb::before,
+  .section-media-overlay-medium .quote-profile-photo::before {
+    background: rgba(var(--overlay-base-rgb, 0, 0, 0), 0.40);
+  }
+  .section-media-overlay-strong .page-intro-right::before,
+  .section-media-overlay-strong .feature-card-bg::before,
+  .section-media-overlay-strong .page-image-hero-bg::before,
+  .section-media-overlay-strong .gallery-item::before,
+  .section-media-overlay-strong .gallery-duo-item::before,
+  .section-media-overlay-strong .gallery-hero-lead::before,
+  .section-media-overlay-strong .gallery-hero-thumb::before,
+  .section-media-overlay-strong .quote-profile-photo::before {
+    background: rgba(var(--overlay-base-rgb, 0, 0, 0), 0.60);
   }
 
   /* ============================================================

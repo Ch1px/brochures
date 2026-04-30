@@ -485,7 +485,7 @@ function AnnotationColorPopover({
 
   const isToken = value ? isBrandToken(value) : false
   const resolvedValue = value && isToken ? resolveColor(value, brandContext) : value
-  const swatchValue = resolvedValue && HEX_RE.test(resolvedValue) ? resolvedValue : '#e10600'
+  const swatchValue = resolvedValue && HEX_RE.test(resolvedValue) ? resolvedValue : '#cf212a'
 
   const commit = (next: string) => {
     if (HEX_RE.test(next)) onChange(next.toLowerCase())

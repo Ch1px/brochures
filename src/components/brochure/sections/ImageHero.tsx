@@ -25,7 +25,7 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
   const gradId = `imhg1-${data._key}`
 
   return (
-    <section className="section page-image-hero" data-section-id={data._key}>
+    <section className={`section page-image-hero section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       {!imageUrl ? (
         <svg
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', color: 'var(--brand-red)' }}
@@ -58,10 +58,13 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
       ) : null}
 
       <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
-        <div
-          className="page-image-hero-bg"
-          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-        >
+        <div className="page-image-hero-bg">
+          {imageUrl ? (
+            <div
+              className="media-bg-layer"
+              style={{ backgroundImage: `url('${imageUrl}')` }}
+            />
+          ) : null}
           {videoUrl ? (
             <video
               className="media-video"

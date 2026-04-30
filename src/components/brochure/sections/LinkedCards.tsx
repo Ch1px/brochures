@@ -17,7 +17,7 @@ export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
   const cards = (data.cards ?? []).slice(0, 4)
 
   return (
-    <section className="section page-linked-cards" data-section-id={data._key}>
+    <section className={`section page-linked-cards lc-overlay-${data.overlayStrength ?? 'medium'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-linked-cards-inner">
         {(data.eyebrow || data.title || editorMode) ? (
@@ -33,11 +33,15 @@ export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
             return (
               <div key={card._key} className="linked-card">
                 <InlineMedia sectionKey={data._key} field={`cards.${i}.image`} hasImage={Boolean(imageUrl)}>
-                  <div
-                    className="linked-card-bg"
-                    style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-                  >
-                    {!imageUrl ? <ImagePlaceholderSVG /> : null}
+                  <div className="linked-card-bg">
+                    {imageUrl ? (
+                      <div
+                        className="media-bg-layer"
+                        style={{ backgroundImage: `url('${imageUrl}')` }}
+                      />
+                    ) : (
+                      <ImagePlaceholderSVG />
+                    )}
                   </div>
                 </InlineMedia>
                 <div className="linked-card-body">

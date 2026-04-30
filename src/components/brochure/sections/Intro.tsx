@@ -20,7 +20,7 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
 
   return (
-    <section className="section page-intro" data-section-id={data._key}>
+    <section className={`section page-intro section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-intro-inner">
         <div className="page-intro-left" data-align={data.contentAlign || undefined}>
@@ -45,10 +45,13 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
         <div className="page-intro-right-wrap">
           <div className="image-offset-frame" aria-hidden="true" />
           <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
-            <div
-              className="page-intro-right"
-              style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-            >
+            <div className="page-intro-right">
+              {imageUrl ? (
+                <div
+                  className="media-bg-layer"
+                  style={{ backgroundImage: `url('${imageUrl}')` }}
+                />
+              ) : null}
               {videoUrl ? (
                 <video
                   className="media-video"

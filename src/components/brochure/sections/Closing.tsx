@@ -33,10 +33,11 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
     >
       {imageUrl ? (
         <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
-          <div
-            className="page-closing-bg"
-            style={{ backgroundImage: `url('${imageUrl}')` }}
-          >
+          <div className="page-closing-bg">
+            <div
+              className="media-bg-layer"
+              style={{ backgroundImage: `url('${imageUrl}')` }}
+            />
             {videoUrl ? (
               <video
                 className="media-video"

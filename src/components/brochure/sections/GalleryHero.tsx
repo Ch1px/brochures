@@ -24,15 +24,20 @@ export function GalleryHero({ data, pageNum, total, showFolio }: Props) {
   const leadUrl = urlForSection(leadImg, 2000)
 
   return (
-    <section className="section page-gallery-hero" data-section-id={data._key}>
+    <section className={`section page-gallery-hero section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-hero-inner">
         <GalleryHeader eyebrow={data.eyebrow} title={data.title} sectionKey={data._key} />
         <InlineMedia sectionKey={data._key} field="images.0" hasImage={Boolean(leadUrl)}>
         <div
           className={`gallery-hero-lead ${!leadUrl ? 'gallery-placeholder' : ''}`.trim()}
-          style={leadUrl ? { backgroundImage: `url('${leadUrl}')` } : undefined}
         >
+          {leadUrl ? (
+            <div
+              className="media-bg-layer"
+              style={{ backgroundImage: `url('${leadUrl}')` }}
+            />
+          ) : null}
           {!leadUrl ? (
             <span
               style={{
@@ -58,10 +63,12 @@ export function GalleryHero({ data, pageNum, total, showFolio }: Props) {
             if (url) {
               return (
                 <InlineMedia key={i} sectionKey={data._key} field={`images.${i + 1}`} hasImage={Boolean(url)}>
-                <div
-                  className="gallery-hero-thumb"
-                  style={{ backgroundImage: `url('${url}')` }}
-                />
+                  <div className="gallery-hero-thumb">
+                    <div
+                      className="media-bg-layer"
+                      style={{ backgroundImage: `url('${url}')` }}
+                    />
+                  </div>
                 </InlineMedia>
               )
             }

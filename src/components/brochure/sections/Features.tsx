@@ -24,7 +24,7 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
   const cards = (data.cards ?? []).slice(0, 3)
 
   return (
-    <section className="section page-features" data-section-id={data._key}>
+    <section className={`section page-features section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-features-inner">
         <div className="features-header">
@@ -41,11 +41,15 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
             return (
               <div key={card._key} className="feature-card">
                 <InlineMedia sectionKey={data._key} field={`cards.${i}.image`} hasImage={Boolean(imageUrl)}>
-                  <div
-                    className="feature-card-bg"
-                    style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-                  >
-                    {!imageUrl ? <ImagePlaceholderSVG /> : null}
+                  <div className="feature-card-bg">
+                    {imageUrl ? (
+                      <div
+                        className="media-bg-layer"
+                        style={{ backgroundImage: `url('${imageUrl}')` }}
+                      />
+                    ) : (
+                      <ImagePlaceholderSVG />
+                    )}
                   </div>
                 </InlineMedia>
                 <div className="feature-card-body">

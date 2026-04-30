@@ -22,7 +22,7 @@ export function GalleryEditorial({ data, pageNum, total, showFolio }: Props) {
   const images = (data.images ?? []).slice(0, 4)
 
   return (
-    <section className="section page-gallery" data-section-id={data._key}>
+    <section className={`section page-gallery section-media-overlay-${data.overlayStrength ?? 'none'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-inner">
         <div className="gallery-header">
@@ -35,10 +35,12 @@ export function GalleryEditorial({ data, pageNum, total, showFolio }: Props) {
             if (url) {
               return (
                 <InlineMedia key={i} sectionKey={data._key} field={`images.${i}`} hasImage={Boolean(url)}>
-                <div
-                  className="gallery-item"
-                  style={{ backgroundImage: `url('${url}')` }}
-                />
+                  <div className="gallery-item">
+                    <div
+                      className="media-bg-layer"
+                      style={{ backgroundImage: `url('${url}')` }}
+                    />
+                  </div>
                 </InlineMedia>
               )
             }

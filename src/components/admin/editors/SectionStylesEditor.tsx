@@ -3,7 +3,6 @@
 import type { Section, SectionFooter } from '@/types/brochure'
 import type { BrandContext } from '@/lib/brandColorTokens'
 import { FieldBrandColor } from '../fields/FieldBrandColor'
-import { FieldBackground } from '../fields/FieldBackground'
 import { FieldSelect } from '../fields/FieldSelect'
 import { FieldBoolean } from '../fields/FieldBoolean'
 
@@ -28,34 +27,36 @@ const STYLE_CONFIG: Record<
     body: boolean
     accent: boolean
     overlay: boolean
+    grayscale: boolean
+    blur: boolean
     parallax: boolean
   }
 > = {
-  cover:                    { eyebrow: false, title: true,  body: true,  accent: true,  overlay: true,  parallax: false },
-  coverCentered:            { eyebrow: false, title: true,  body: true,  accent: true,  overlay: true,  parallax: false },
-  intro:                    { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  contentImage:             { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  imageContent:             { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  sectionHeading:           { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  parallax: false },
-  sectionHeadingCentered:   { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  parallax: false },
-  features:                 { eyebrow: false, title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  imageHero:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  stats:                    { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, parallax: false },
-  packages:                 { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, parallax: false },
-  itinerary:                { eyebrow: false, title: true,  body: false, accent: true,  overlay: false, parallax: false },
-  galleryEditorial:         { eyebrow: false, title: true,  body: false, accent: false, overlay: false, parallax: false },
-  galleryGrid:              { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, parallax: false },
-  galleryDuo:               { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, parallax: false },
-  galleryHero:              { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, parallax: false },
-  quoteProfile:             { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  closing:                  { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  parallax: false },
-  circuitMap:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  spotlight:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  parallax: true  },
-  textCenter:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  ctaBanner:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  linkedCards:              { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  logoWall:                 { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
-  logoStrip:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, parallax: false },
+  cover:                    { eyebrow: false, title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  coverCentered:            { eyebrow: false, title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  intro:                    { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  contentImage:             { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  imageContent:             { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  sectionHeading:           { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  sectionHeadingCentered:   { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  features:                 { eyebrow: false, title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  imageHero:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  stats:                    { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  packages:                 { eyebrow: true,  title: true,  body: false, accent: true,  overlay: false, grayscale: true,  blur: true,  parallax: false },
+  itinerary:                { eyebrow: false, title: true,  body: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  galleryEditorial:         { eyebrow: false, title: true,  body: false, accent: false, overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  galleryGrid:              { eyebrow: true,  title: true,  body: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  galleryDuo:               { eyebrow: true,  title: true,  body: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  galleryHero:              { eyebrow: true,  title: true,  body: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  quoteProfile:             { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  closing:                  { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  circuitMap:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  spotlight:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: true  },
+  textCenter:               { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  ctaBanner:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  linkedCards:              { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  logoWall:                 { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  logoStrip:                { eyebrow: true,  title: true,  body: true,  accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
 }
 
 const SCALE_OPTIONS = [
@@ -74,6 +75,36 @@ const OVERLAY_OPTIONS = [
   { value: 'strong', label: 'Strong' },
 ]
 
+const GRAYSCALE_OPTIONS = [
+  { value: '', label: 'None (default)' },
+  { value: 'light', label: 'Light' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'full', label: 'Full' },
+]
+
+const BLUR_OPTIONS = [
+  { value: '', label: 'None (default)' },
+  { value: 'light', label: 'Light' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'strong', label: 'Strong' },
+]
+
+/**
+ * Sections where the overlay/cover historically defaulted to 'medium'
+ * (cover, closing, sectionHeading, spotlight, linkedCards). For newcomers
+ * the default is 'none' so adding image controls doesn't change the
+ * existing visual.
+ */
+const OVERLAY_DEFAULT_MEDIUM = new Set([
+  'cover',
+  'coverCentered',
+  'sectionHeading',
+  'sectionHeadingCentered',
+  'closing',
+  'spotlight',
+  'linkedCards',
+])
+
 export function SectionStylesEditor({ section, onChange, brandContext, onAddCustomColor }: Props) {
   const config = STYLE_CONFIG[section._type]
   if (!config) return null
@@ -86,7 +117,7 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
   // Derive sensible fallbacks for each field from the brand context.
   // Title prefers the brochure-level Title override; both Title and Body fall
   // back to brochure-level Text and finally the theme default.
-  const accentFallback = brandContext?.accentColor || '#e10600'
+  const accentFallback = brandContext?.accentColor || '#cf212a'
   const themeTextFallback = brandContext?.theme === 'light' ? '#161618' : '#ffffff'
   const textFallback = brandContext?.textColor || themeTextFallback
   const titleFallback = brandContext?.titleColor || textFallback
@@ -204,14 +235,14 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
         />
       )}
 
-      {config.overlay || config.parallax ? (
+      {config.overlay || config.grayscale || config.blur || config.parallax ? (
         <>
-          <div className="field-section-heading">Overlay</div>
+          <div className="field-section-heading">Images</div>
           {config.overlay && (
             <FieldSelect
               label="Overlay strength"
               description="Controls the overlay opacity over the background image."
-              value={(s.overlayStrength as string) ?? 'medium'}
+              value={(s.overlayStrength as string) ?? (OVERLAY_DEFAULT_MEDIUM.has(section._type) ? 'medium' : 'none')}
               onChange={(v) => anyChange({ overlayStrength: v })}
               options={OVERLAY_OPTIONS}
             />
@@ -227,6 +258,24 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
               onAddCustomColor={onAddCustomColor}
             />
           )}
+          {config.grayscale && (
+            <FieldSelect
+              label="Image greyscale"
+              description="Desaturate the section's images."
+              value={(s.mediaGrayscale as string) ?? ''}
+              onChange={(v) => anyChange({ mediaGrayscale: v || undefined })}
+              options={GRAYSCALE_OPTIONS}
+            />
+          )}
+          {config.blur && (
+            <FieldSelect
+              label="Image blur"
+              description="Soften the section's images."
+              value={(s.mediaBlur as string) ?? ''}
+              onChange={(v) => anyChange({ mediaBlur: v || undefined })}
+              options={BLUR_OPTIONS}
+            />
+          )}
           {config.parallax && (
             <FieldBoolean
               label="Parallax background"
@@ -239,11 +288,14 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
       ) : null}
 
       <div className="field-section-heading">Background</div>
-      <FieldBackground
+      <FieldBrandColor
         label="Section background"
-        description='Override the page background for this section. Pick a colour, type a hex/rgba value, or choose "None" for transparent.'
+        description="Override the page background for this section. Pick a brand or custom colour, or type a 6-digit hex."
         value={section.background}
         onChange={(value) => anyChange({ background: value })}
+        fallback={brandContext?.backgroundColor || (brandContext?.theme === 'light' ? '#f6f5f1' : '#161618')}
+        brandContext={brandContext}
+        onAddCustomColor={onAddCustomColor}
       />
     </>
   )

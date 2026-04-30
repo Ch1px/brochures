@@ -13,7 +13,7 @@ import {
 type Props = {
   label: string
   description?: string
-  /** Hex like `#e10600`, a brand token like `var:accent`, or undefined. */
+  /** Hex like `#cf212a`, a brand token like `var:accent`, or undefined. */
   value: string | undefined
   onChange: (value: string | undefined) => void
   /** Hex shown in the swatch when no value is set. */
@@ -32,7 +32,7 @@ export function FieldBrandColor({
   description,
   value,
   onChange,
-  fallback = '#e10600',
+  fallback = '#cf212a',
   brandContext,
   onAddCustomColor,
 }: Props) {

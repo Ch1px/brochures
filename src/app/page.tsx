@@ -53,7 +53,7 @@ export default async function RootPage() {
 }
 
 function HoldingPage({ company }: { company: CompanyForHolding | null }) {
-  const accent = company?.accentColor || '#e10600'
+  const accent = company?.accentColor || '#cf212a'
   const displayName = company?.displayName || 'Grand Prix Grand Tours'
   const website = company?.website || 'https://grandprixgrandtours.com'
   const websiteLabel = website.replace(/^https?:\/\//, '').replace(/\/$/, '')

@@ -139,7 +139,7 @@ brochure {
   status ('draft'|'published'|'unpublished'|'archived'),
   publishedAt, featured,
   theme ('dark'|'light'),
-  accentColor (hex like '#e10600'; overrides --brand-red for this brochure),
+  accentColor (hex like '#cf212a'; overrides --brand-red for this brochure),
   logo (image; overrides the GPGT nav logo for this brochure),
   seo { metaTitle, metaDescription, ogImage, noIndex },
   leadCapture { hubspotFormId, hubspotPortalId, destinationEmail },
@@ -273,7 +273,7 @@ Yes, 11 files. Yes, this could be abstracted. No, don't abstract it without a st
 All editor chrome CSS uses tokens defined at `:root` in `globals.css`:
 
 ```
---brand-red        #e10600     primary accent
+--brand-red        #cf212a    primary accent
 --brand-red-hover  #c20500     button hover
 --chrome-bg        deep dark   editor root background
 --chrome-surface   dark panel  side panels

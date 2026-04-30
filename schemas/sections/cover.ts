@@ -1,6 +1,7 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
 import { sectionStyleFields } from './_shared/sectionStyleFields'
+import { imageMediaFields } from './_shared/imageTreatmentFields'
 
 export default defineType({
   name: 'cover',
@@ -62,6 +63,7 @@ export default defineType({
       type: 'string',
       description: 'Override the overlay tint for this section. Hex format (e.g. #0a0a0c) or a brand token like "var:bg". Leave blank to inherit from the brochure background.',
     }),
+    ...imageMediaFields,
     ...sectionStyleFields,
     backgroundField,
   ],

@@ -512,7 +512,7 @@ function DrawingsOverlay({
       }
     >
       {drawings.map((dr) => {
-        const stroke = dr.color ? resolveColor(dr.color, brandCtx) : '#e10600'
+        const stroke = dr.color ? resolveColor(dr.color, brandCtx) : '#cf212a'
         const sw = dr.strokeWidth || 1
         let dasharray: string | undefined
         if (dr.dash === 'dotted') dasharray = `0 ${(sw * 2).toFixed(2)}`

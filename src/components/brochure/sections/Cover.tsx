@@ -25,10 +25,13 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
   return (
     <section className={`section page-cover ${variantClass} cover-overlay-${data.overlayStrength ?? 'medium'}`} data-section-id={data._key}>
       <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
-        <div
-          className="page-cover-bg"
-          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-        >
+        <div className="page-cover-bg">
+          {imageUrl ? (
+            <div
+              className="media-bg-layer"
+              style={{ backgroundImage: `url('${imageUrl}')` }}
+            />
+          ) : null}
           {videoUrl ? (
             <video
               className="media-video"

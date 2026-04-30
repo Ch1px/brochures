@@ -118,6 +118,14 @@ function sectionStyleCss(
     vars.push(`--overlay-base-rgb:${r}, ${g}, ${b}`)
   }
 
+  // Image treatments — desaturate and/or blur all images in the section.
+  const grayMap: Record<string, string> = { light: '0.3', medium: '0.6', full: '1' }
+  const blurMap: Record<string, string> = { light: '2px', medium: '6px', strong: '12px' }
+  const gray = typeof s.mediaGrayscale === 'string' ? grayMap[s.mediaGrayscale] : null
+  if (gray) vars.push(`--media-grayscale:${gray}`)
+  const blur = typeof s.mediaBlur === 'string' ? blurMap[s.mediaBlur] : null
+  if (blur) vars.push(`--media-blur:${blur}`)
+
   // Scale overrides — override the brochure-wide --X-scale vars for this section
   const ts = resolveScale(s.titleScale)
   if (ts) vars.push(`--title-scale:${ts}`)
@@ -210,7 +218,6 @@ function renderSection({ section, pageNum, total, showFolio }: Props) {
 export function SectionRenderer(props: Props) {
   const branding = useBrochureBranding()
   const element = renderSection(props)
-  const bg = sanitizeBackground(props.section.background)
   const brandCtx: BrandContext = {
     accentColor: branding.accentColor,
     backgroundColor: branding.backgroundColor,
@@ -219,6 +226,13 @@ export function SectionRenderer(props: Props) {
     theme: branding.theme,
     customColors: branding.customColors,
   }
+  // Background may be a brand token (e.g. var:accent) or a literal value
+  // ('transparent', '#hex', 'rgba(...)'). Tokens resolve via brandCtx; literals
+  // pass through sanitizeBackground for safety.
+  const rawBg = props.section.background
+  const bg = rawBg && isBrandToken(rawBg)
+    ? resolveColor(rawBg, brandCtx)
+    : sanitizeBackground(rawBg)
   const colorCss = sectionStyleCss(props.section, brandCtx)
 
   if (!bg && !colorCss) return element

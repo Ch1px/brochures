@@ -1,6 +1,7 @@
 import { defineType, defineField } from 'sanity'
 import { backgroundField } from './_shared/backgroundField'
 import { sectionStyleFields } from './_shared/sectionStyleFields'
+import { imageMediaFields } from './_shared/imageTreatmentFields'
 
 export default defineType({
   name: 'linkedCards',
@@ -32,6 +33,27 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'overlayStrength',
+      type: 'string',
+      title: 'Overlay strength',
+      description: 'Controls the overlay opacity over each card image. Default: medium.',
+      options: {
+        list: [
+          { title: 'None', value: 'none' },
+          { title: 'Light', value: 'light' },
+          { title: 'Medium (default)', value: 'medium' },
+          { title: 'Strong', value: 'strong' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'overlayColor',
+      title: 'Overlay colour',
+      type: 'string',
+      description: 'Override the overlay tint for the cards. Hex format (e.g. #0a0a0c) or a brand token like "var:bg". Leave blank to inherit from the brochure background.',
+    }),
+    ...imageMediaFields,
     ...sectionStyleFields,
     backgroundField,
   ],

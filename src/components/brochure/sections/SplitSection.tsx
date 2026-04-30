@@ -41,10 +41,13 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
     <div className={`page-intro-right-wrap${reversed ? ' reversed' : ''}`}>
       <div className="image-offset-frame" aria-hidden="true" />
       <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
-        <div
-          className="page-intro-right"
-          style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-        >
+        <div className="page-intro-right">
+          {imageUrl ? (
+            <div
+              className="media-bg-layer"
+              style={{ backgroundImage: `url('${imageUrl}')` }}
+            />
+          ) : null}
           {videoUrl ? (
             <video
               className="media-video"
@@ -66,7 +69,7 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
 
   return (
     <section
-      className={`section page-intro ${reversed ? 'page-intro-reversed' : ''}`.trim()}
+      className={`section page-intro section-media-overlay-${data.overlayStrength ?? 'none'} ${reversed ? 'page-intro-reversed' : ''}`.trim()}
       data-section-id={data._key}
     >
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
