@@ -102,6 +102,9 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   const [warning, setWarning] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [domainStatus, setDomainStatus] = useState<DomainStatusState>({ kind: 'idle' })
+  // Set after a successful create so the modal stays open and pivots to a
+  // DNS-setup view instead of bouncing the admin back to the list.
+  const [createdInfo, setCreatedInfo] = useState<{ id: string; domain: string } | null>(null)
   const [pending, startTransition] = useTransition()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -125,6 +128,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       setWarning(null)
       setConfirmDelete(false)
       setDomainStatus({ kind: 'idle' })
+      setCreatedInfo(null)
       return
     }
     if (source) {
@@ -158,11 +162,16 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
     if (!displayNameDirty) setDisplayName(name)
   }, [name, displayNameDirty])
 
-  // In edit mode, fetch DNS status when the modal opens.
+  // Active host being managed in the modal — `source` for edit, `createdInfo`
+  // immediately after a successful create.
+  const activeHost = source?.domain ?? createdInfo?.domain ?? null
+
+  // Fetch DNS status when an active host appears (edit mode opening, or just
+  // after successful create).
   useEffect(() => {
-    if (!open || !source) return
+    if (!open || !activeHost) return
     setDomainStatus({ kind: 'loading' })
-    getDomainStatusAction(source.domain).then((res) => {
+    getDomainStatusAction(activeHost).then((res) => {
       if (!res.ok) {
         setDomainStatus({ kind: 'error', message: res.error })
         return
@@ -184,7 +193,29 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
         })
       }
     })
-  }, [open, source])
+  }, [open, activeHost])
+
+  // Auto-poll DNS while waiting for the admin to add the CNAME at the
+  // registrar. Stops once fully verified or on a hard error/unconfigured state.
+  const isPendingVerification =
+    domainStatus.kind === 'ok' && (!domainStatus.verified || domainStatus.misconfigured)
+  useEffect(() => {
+    if (!open || !activeHost || !isPendingVerification) return
+    const id = setInterval(() => {
+      getDomainStatusAction(activeHost).then((res) => {
+        if (!res.ok) return
+        if ('status' in res) {
+          setDomainStatus({
+            kind: 'ok',
+            verified: res.status.verified,
+            misconfigured: res.status.misconfigured,
+            recommendedCNAME: res.status.recommendedCNAME,
+          })
+        }
+      })
+    }, 10000)
+    return () => clearInterval(id)
+  }, [open, activeHost, isPendingVerification])
 
   useEffect(() => {
     if (!open) return
@@ -212,7 +243,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   }
 
   function refreshDomainStatus() {
-    const host = source?.domain
+    const host = activeHost
     if (!host) return
     setDomainStatus({ kind: 'loading' })
     getDomainStatusAction(host).then((res) => {
@@ -240,7 +271,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   }
 
   function handleAttachDomain() {
-    const host = source?.domain
+    const host = activeHost
     if (!host) return
     setDomainStatus({ kind: 'attaching' })
     attachDomainAction(host).then((res) => {
@@ -273,22 +304,27 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       logo: logo ?? null,
     }
     startTransition(async () => {
-      const res = isEdit
-        ? await updateCompanyAction(source!._id, input)
-        : await createCompanyAction(input)
-      if (res.ok) {
-        if (res.warning) {
-          setWarning(res.warning)
-          // Refresh status so the user can see DNS state immediately.
-          if (isEdit) refreshDomainStatus()
-          // Don't auto-close — let the admin read the warning.
-          router.refresh()
-        } else {
-          router.refresh()
-          onClose()
+      if (isEdit) {
+        const res = await updateCompanyAction(source!._id, input)
+        if (!res.ok) {
+          setError(res.error)
+          return
         }
+        if (res.warning) setWarning(res.warning)
+        router.refresh()
+        if (res.warning) refreshDomainStatus()
+        else onClose()
       } else {
-        setError(res.error)
+        const res = await createCompanyAction(input)
+        if (!res.ok) {
+          setError(res.error)
+          return
+        }
+        if (res.warning) setWarning(res.warning)
+        router.refresh()
+        // Pivot to DNS-setup view in the same modal. Status fetch fires from
+        // the activeHost effect now that createdInfo is set.
+        setCreatedInfo({ id: res.id, domain: input.domain })
       }
     })
   }
@@ -324,9 +360,15 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       <div className="add-section-modal new-brochure-modal" onClick={(e) => e.stopPropagation()}>
         <header className="add-section-modal-header">
           <div>
-            <div className="add-section-modal-eyebrow">{isEdit ? 'Edit' : 'New'}</div>
+            <div className="add-section-modal-eyebrow">
+              {createdInfo ? 'Created' : isEdit ? 'Edit' : 'New'}
+            </div>
             <h2 className="add-section-modal-title">
-              {isEdit ? source!.name : 'Create a company'}
+              {createdInfo
+                ? `${name || 'Company created'} — set up DNS`
+                : isEdit
+                ? source!.name
+                : 'Create a company'}
             </h2>
           </div>
           <button
@@ -344,6 +386,16 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
         </header>
 
         <div className="new-brochure-body">
+          {createdInfo ? (
+            <CreatedSummary
+              name={name}
+              host={createdInfo.domain}
+              displayName={displayName}
+              accentColor={accentColor}
+              logoUrl={logo ? urlForSection(logo, 200) ?? null : null}
+            />
+          ) : (
+          <>
           <div className="field-group">
             <label className="field-label">Company name</label>
             <input
@@ -435,18 +487,6 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
               </div>
             ) : null}
           </div>
-
-          {isEdit ? (
-            <div className="field-group">
-              <label className="field-label">DNS status</label>
-              <DomainStatusBlock
-                status={domainStatus}
-                host={source!.domain}
-                onRefresh={refreshDomainStatus}
-                onAttach={handleAttachDomain}
-              />
-            </div>
-          ) : null}
 
           <div className="field-group">
             <label className="field-label">Display name</label>
@@ -556,6 +596,20 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
               </div>
             </div>
           </div>
+          </>
+          )}
+
+          {(isEdit || createdInfo) && activeHost ? (
+            <div className="field-group">
+              <label className="field-label">DNS status</label>
+              <DomainStatusBlock
+                status={domainStatus}
+                host={activeHost}
+                onRefresh={refreshDomainStatus}
+                onAttach={handleAttachDomain}
+              />
+            </div>
+          ) : null}
 
           {warning ? (
             <div
@@ -575,30 +629,42 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
         </div>
 
         <footer className="new-brochure-footer">
-          {isEdit ? (
+          {createdInfo ? (
             <button
-              className="editor-topbar-btn"
-              onClick={handleDelete}
-              disabled={pending || logoUploading}
-              style={{ marginRight: 'auto', color: '#e10600' }}
+              className="editor-topbar-btn primary"
+              onClick={onClose}
+              style={{ marginLeft: 'auto' }}
             >
-              {confirmDelete ? 'Click again to confirm' : 'Delete'}
+              Done
             </button>
-          ) : null}
-          <button
-            className="editor-topbar-btn"
-            onClick={onClose}
-            disabled={pending || logoUploading}
-          >
-            Cancel
-          </button>
-          <button
-            className="editor-topbar-btn primary"
-            onClick={handleSubmit}
-            disabled={pending || logoUploading}
-          >
-            {pending ? (isEdit ? 'Saving…' : 'Creating…') : isEdit ? 'Save' : 'Create'}
-          </button>
+          ) : (
+            <>
+              {isEdit ? (
+                <button
+                  className="editor-topbar-btn"
+                  onClick={handleDelete}
+                  disabled={pending || logoUploading}
+                  style={{ marginRight: 'auto', color: '#e10600' }}
+                >
+                  {confirmDelete ? 'Click again to confirm' : 'Delete'}
+                </button>
+              ) : null}
+              <button
+                className="editor-topbar-btn"
+                onClick={onClose}
+                disabled={pending || logoUploading}
+              >
+                Cancel
+              </button>
+              <button
+                className="editor-topbar-btn primary"
+                onClick={handleSubmit}
+                disabled={pending || logoUploading}
+              >
+                {pending ? (isEdit ? 'Saving…' : 'Creating…') : isEdit ? 'Save' : 'Create'}
+              </button>
+            </>
+          )}
         </footer>
       </div>
     </div>
@@ -745,28 +811,134 @@ function DomainStatusBlock({
       <div
         style={{
           background: 'var(--chrome-bg)',
-          padding: '8px 10px',
+          padding: '10px 12px',
           borderRadius: 4,
           fontFamily: 'var(--font-mono, monospace)',
           fontSize: 11,
           color: 'var(--chrome-text)',
+          display: 'grid',
+          gridTemplateColumns: '60px 1fr auto',
+          rowGap: 6,
+          columnGap: 10,
+          alignItems: 'center',
         }}
       >
-        Type: <strong>CNAME</strong>
-        <br />
-        Name: <strong>{subdomain}</strong>
-        <br />
-        Value: <strong>{cname}</strong>
+        <span style={{ color: 'var(--chrome-text-tertiary)' }}>Type</span>
+        <strong>CNAME</strong>
+        <span />
+        <span style={{ color: 'var(--chrome-text-tertiary)' }}>Name</span>
+        <strong style={{ overflowWrap: 'anywhere' }}>{subdomain}</strong>
+        <CopyButton value={subdomain} />
+        <span style={{ color: 'var(--chrome-text-tertiary)' }}>Value</span>
+        <strong style={{ overflowWrap: 'anywhere' }}>{cname}</strong>
+        <CopyButton value={cname} />
       </div>
-      <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 11, color: 'var(--chrome-text-tertiary)' }}>
+          Auto-checks every 10s — verifies as soon as the record propagates.
+        </span>
         <button
           type="button"
           onClick={onRefresh}
           style={{ color: 'inherit', textDecoration: 'underline', background: 'none', border: 0, cursor: 'pointer', fontSize: 11 }}
         >
-          Refresh status
+          Check now
         </button>
       </div>
+    </div>
+  )
+}
+
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(value)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1200)
+        } catch {
+          /* ignore */
+        }
+      }}
+      style={{
+        background: 'var(--chrome-raised)',
+        border: '1px solid var(--chrome-border)',
+        color: 'var(--chrome-text-secondary)',
+        padding: '3px 8px',
+        borderRadius: 4,
+        fontSize: 10,
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+      }}
+    >
+      {copied ? 'Copied' : 'Copy'}
+    </button>
+  )
+}
+
+function CreatedSummary({
+  name,
+  host,
+  displayName,
+  accentColor,
+  logoUrl,
+}: {
+  name: string
+  host: string
+  displayName: string
+  accentColor: string
+  logoUrl: string | null
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        gap: 14,
+        alignItems: 'center',
+        padding: '12px 14px',
+        background: 'rgba(0, 200, 100, 0.06)',
+        border: '1px solid rgba(0, 200, 100, 0.25)',
+        borderRadius: 8,
+        marginBottom: 4,
+      }}
+    >
+      {logoUrl ? (
+        <img
+          src={logoUrl}
+          alt=""
+          style={{
+            width: 44,
+            height: 44,
+            objectFit: 'contain',
+            background: 'var(--chrome-raised)',
+            borderRadius: 6,
+            padding: 4,
+            flexShrink: 0,
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 6,
+            background: accentColor || 'var(--chrome-raised)',
+            flexShrink: 0,
+          }}
+        />
+      )}
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--chrome-text)' }}>
+          {displayName || name}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--chrome-text-secondary)', overflowWrap: 'anywhere' }}>
+          {host}
+        </div>
+      </div>
+      <div style={{ fontSize: 11, color: '#7ee2a8', whiteSpace: 'nowrap' }}>✓ Saved</div>
     </div>
   )
 }

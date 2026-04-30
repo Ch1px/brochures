@@ -41,7 +41,17 @@
       "Bash(mkdir -p /c/Users/dangl/.claude/marketplaces)",
       "Bash(git clone *)",
       "Read(//c/Users/dangl/.claude/marketplaces/andrej-karpathy-skills//**)",
-      "Read(//c/Users/dangl/.claude/marketplaces/andrej-karpathy-skills/**)"
+      "Read(//c/Users/dangl/.claude/marketplaces/andrej-karpathy-skills/**)",
+      "Bash(curl -sI -L https://brochures.grandstandtickets.com/italian-grand-prix)",
+      "Bash(curl -sI -L \"https://brochures.grandstandtickets.com/italian-grand-prix\")",
+      "Bash(curl -s -L \"https://brochures.grandstandtickets.com/italian-grand-prix\" -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\")",
+      "Bash(curl -sIL --connect-timeout 10 \"http://brochures.grandstandtickets.com/\")",
+      "Bash(curl -sIL --connect-timeout 10 -k \"https://brochures.grandstandtickets.com/\")",
+      "Bash(nslookup brochures.grandstandtickets.com 8.8.8.8)",
+      "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=CNAME\")",
+      "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=A\")",
+      "Bash(curl -s \"https://dns.google/resolve?name=grandstandtickets.com&type=CAA\")",
+      "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=CAA\")"
     ]
   }
 }
