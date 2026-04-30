@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { sanityClient } from '@/lib/sanity/client'
-import { BROCHURE_BY_SLUG, BROCHURE_BY_SLUG_PREVIEW } from '@/lib/sanity/queries'
+import {
+  BROCHURE_BY_SLUG_ANY_COMPANY,
+  BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW,
+} from '@/lib/sanity/queries'
 import { signPreviewToken, verifyPreviewToken } from '@/lib/previewToken'
 import { launchBrowser } from '@/lib/pdf/browser'
 import {
@@ -51,7 +54,7 @@ export async function GET(req: Request, { params }: RouteContext) {
     ? (await verifyPreviewToken(supplied, slug)) !== null
     : false
 
-  const query = isPreview ? BROCHURE_BY_SLUG_PREVIEW : BROCHURE_BY_SLUG
+  const query = isPreview ? BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW : BROCHURE_BY_SLUG_ANY_COMPANY
   const brochure = await sanityClient.fetch<Brochure | null>(query, { slug })
   if (!brochure) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (!isPreview && brochure.status !== 'published') {
@@ -80,10 +83,30 @@ export async function GET(req: Request, { params }: RouteContext) {
       pageErrors.push(err.stack || err.message)
     })
     page.on('requestfailed', (r) => {
+      // Media aborts are intentional (see interception below) — don't pollute diagnostics.
+      if (r.resourceType() === 'media') return
       httpFailures.push({ status: 0, url: `${r.url()} (${r.failure()?.errorText ?? 'failed'})` })
     })
     page.on('response', (res) => {
       if (res.status() >= 400) httpFailures.push({ status: res.status(), url: res.url() })
+    })
+
+    // Streaming videos prevent `networkidle0` from ever firing (continuous
+    // bytes keep the connection counted as "active"). The exported file
+    // can't carry video anyway — the poster image is what survives — so
+    // abort media streams up-front. This also keeps memory pressure down
+    // during render for brochures with many video sections.
+    await page.setRequestInterception(true)
+    page.on('request', async (req) => {
+      const original = req.url()
+      if (
+        req.resourceType() === 'media' ||
+        /^https:\/\/cdn\.sanity\.io\/files\/.+\.(mp4|webm|mov|m4v)(\?|$)/i.test(original)
+      ) {
+        try { await req.abort() } catch {}
+        return
+      }
+      try { await req.continue() } catch {}
     })
 
     // Render at a desktop-width viewport so layout-sensitive container

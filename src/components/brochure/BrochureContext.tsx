@@ -27,6 +27,12 @@ export type BrochureBranding = {
    *  use this to keep authoring affordances (numbered placeholders for empty
    *  gallery slots, etc.) that should not appear on the public site. */
   editorMode?: boolean
+  /** True when rendered for the offline HTML export (`/[slug]/static-export`).
+   *  Section components use this to disable runtime-only behaviour such as
+   *  lazy-loaded videos — the offline file has no React runtime to attach
+   *  src after mount, and media URLs are aborted by Puppeteer anyway. The
+   *  poster image (`.media-bg-layer`) takes the video's place. */
+  staticExport?: boolean
   /** Editor-only: inline text edit from the preview. Called when the user
    *  commits an inline edit (blur or Escape). */
   onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void

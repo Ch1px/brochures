@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useBrochureBranding } from './BrochureContext'
 
 type Props = {
   src: string
@@ -27,8 +28,30 @@ type Props = {
  * section comes into view and the source attaches.
  */
 export function LazyVideo({ src, poster, className, rootMargin = '600px' }: Props) {
+  const { staticExport } = useBrochureBranding()
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [active, setActive] = useState(false)
+
+  // In static-export mode (offline HTML capture) the runtime that would
+  // attach src after IntersectionObserver fires is stripped. Render the
+  // <video> eagerly with src + autoplay so the offline file plays when
+  // viewed online and falls back to the poster when viewed offline (browsers
+  // render the poster as soon as the src request fails). `preload="metadata"`
+  // keeps initial load light when many videos are present.
+  if (staticExport) {
+    return (
+      <video
+        className={className}
+        src={src}
+        poster={poster}
+        muted
+        loop
+        autoPlay
+        playsInline
+        preload="metadata"
+      />
+    )
+  }
 
   useEffect(() => {
     const el = videoRef.current

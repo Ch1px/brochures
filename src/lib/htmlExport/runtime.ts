@@ -167,6 +167,48 @@ const RUNTIME_SOURCE = /* js */ `(() => {
       if (!navEl.contains(e.target)) closeMenu();
     });
 
+    // ---- Circuit map content-frame sync ----
+    // CircuitMap.tsx computes the .circuit-map-content-frame box
+    // (left/top/width/height) in a useEffect to letterbox-match the inlined
+    // SVG (xMidYMid meet). When Puppeteer captures the page, those values
+    // are frozen at the capture viewport (1440x900). Recompute them here
+    // so annotations track the SVG when the offline file is opened at any
+    // size.
+    function syncCircuitMapFrames() {
+      const wraps = document.querySelectorAll('.circuit-map-svg-wrap');
+      for (let i = 0; i < wraps.length; i++) {
+        const wrap = wraps[i];
+        const svg = wrap.querySelector('svg');
+        const frame = wrap.querySelector('.circuit-map-content-frame');
+        if (!svg || !frame) continue;
+        let vb = svg.getAttribute('viewBox');
+        if (!vb) {
+          const w = svg.getAttribute('width') || '1000';
+          const h = svg.getAttribute('height') || '600';
+          vb = '0 0 ' + w + ' ' + h;
+        }
+        const parts = vb.trim().split(/[\\s,]+/).map(Number);
+        if (parts.length !== 4) continue;
+        const vbW = parts[2], vbH = parts[3];
+        if (!(vbW > 0 && vbH > 0)) continue;
+        const ar = vbW / vbH;
+        const r = wrap.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) continue;
+        const wrapAr = r.width / r.height;
+        let cw, ch;
+        if (wrapAr > ar) { ch = r.height; cw = ch * ar; }
+        else { cw = r.width; ch = cw / ar; }
+        const left = (r.width - cw) / 2;
+        const top = (r.height - ch) / 2;
+        frame.style.left = left + 'px';
+        frame.style.top = top + 'px';
+        frame.style.width = cw + 'px';
+        frame.style.height = ch + 'px';
+      }
+    }
+    syncCircuitMapFrames();
+    window.addEventListener('resize', syncCircuitMapFrames);
+
     // ---- Fade-up animations (mirrors AnimatedSection.tsx) ----
     const targets = document.querySelectorAll(ANIMATABLE);
     syncVisibility(targets);

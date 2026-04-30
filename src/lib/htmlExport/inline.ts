@@ -61,6 +61,7 @@ export async function extractStylesheets(): Promise<string> {
 }
 
 const SANITY_URL_RE = /https?:\/\/cdn\.sanity\.io\/[^\s"'`)<>]+/g
+const SANITY_VIDEO_RE = /^https?:\/\/cdn\.sanity\.io\/files\/.+\.(mp4|webm|mov|m4v)(\?|$)/i
 
 /**
  * Find every Sanity CDN URL in the HTML, fetch each one, base64-encode
@@ -72,7 +73,13 @@ const SANITY_URL_RE = /https?:\/\/cdn\.sanity\.io\/[^\s"'`)<>]+/g
  * rest of the file still works.
  */
 export async function inlineSanityImages(html: string): Promise<string> {
-  const urls = Array.from(new Set(html.match(SANITY_URL_RE) ?? []))
+  // Skip video files — base64-inlining a 20MB mp4 would balloon the file and
+  // most browsers won't play data-URI video reliably anyway. Video URLs stay
+  // in the markup so they play when the file is viewed online; offline,
+  // browsers render the poster image instead.
+  const urls = Array.from(new Set(html.match(SANITY_URL_RE) ?? [])).filter(
+    (u) => !SANITY_VIDEO_RE.test(u),
+  )
   if (urls.length === 0) return html
 
   const cache = new Map<string, string>()

@@ -5,10 +5,12 @@ import { SectionRenderer } from './SectionRenderer'
 import { BrochureBrandingProvider } from './BrochureContext'
 import { GoogleFontsLink } from './GoogleFontsLink'
 import { TextureOverride } from './TextureOverride'
+import { CustomFontFaces } from './CustomFontFaces'
 import { LogoMark } from './LogoMark'
 import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars, overlayBaseVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
+import { textScaleVars } from '@/lib/textScale'
 import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
 
 type Props = {
@@ -53,9 +55,10 @@ export function BrochureStaticView({ brochure }: Props) {
   const titleStyle = titleColorVars(brochure.titleColor)
   const titleStyle2 = titleStyleVars(brochure.titleItalic, brochure.titleTransform)
   const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
-  const fontStyle = fontOverrideVars(brochure.fontOverrides)
+  const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
   const navStyle = navColorVars(brochure.navColor)
   const overlayStyle = overlayBaseVars(brochure.backgroundColor)
+  const scaleStyle = textScaleVars(brochure)
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   if (total === 0) {
@@ -77,14 +80,15 @@ export function BrochureStaticView({ brochure }: Props) {
   }
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme, staticExport: true }}>
       <GoogleFontsLink url={fontsUrl} />
+      <CustomFontFaces customFonts={brochure.customFonts} />
       <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
       <div
         className="preview-mode visible"
         data-theme={theme}
         data-custom-bg={brochure.backgroundColor ? '' : undefined}
-        style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle }}
+        style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle, ...scaleStyle }}
       >
         <nav className="brochure-nav" data-nav-ctx="public">
           <div className="brochure-nav-brand">
@@ -155,13 +159,19 @@ export function BrochureStaticView({ brochure }: Props) {
                   style={{ width: '100vw' }}
                 >
                   {page.sections.map((section) => (
-                    <SectionRenderer
-                      key={section._key}
-                      section={section}
-                      pageNum={pageNum}
-                      total={total}
-                      showFolio={section._type === 'footer' ? false : showFolio}
-                    />
+                    // Wrapper mirrors AnimatedSection.tsx — `display: contents`
+                    // means it generates no box but is still a real DOM node,
+                    // which makes the `.brochure-page > :only-child > .section`
+                    // CSS rule apply on single-section pages so the section
+                    // fills the slide instead of collapsing to content height.
+                    <div key={section._key} style={{ display: 'contents' }}>
+                      <SectionRenderer
+                        section={section}
+                        pageNum={pageNum}
+                        total={total}
+                        showFolio={section._type === 'footer' ? false : showFolio}
+                      />
+                    </div>
                   ))}
                 </div>
               )
@@ -169,44 +179,37 @@ export function BrochureStaticView({ brochure }: Props) {
           </div>
         </div>
 
+        {/* DOM mirrors BrochureReader.tsx — runtime hooks (`data-prev`,
+            `data-next`, `data-counter-current`) layered on top so the offline
+            runtime can wire up the same interactivity. */}
         <div className="preview-mode-nav">
-          <button
-            className="preview-mode-nav-btn"
-            data-prev
-            disabled
-            aria-label="Previous page"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
           <div className="preview-mode-counter">
-            <span className="current" data-counter-current>
-              {String(1).padStart(2, '0')}
-            </span>
-            <span style={{ opacity: 0.4 }}>/</span>
-            <span data-counter-total>{String(total).padStart(2, '0')}</span>
+            <span data-counter-current>{String(1).padStart(2, '0')}</span>
+            <span className="preview-mode-counter-sep">/</span>
+            {String(total).padStart(2, '0')}
           </div>
-          <div className="preview-mode-dots">
-            {pages.map((p, i) => (
-              <button
-                key={p._key}
-                className={`preview-mode-dot ${i === 0 ? 'active' : ''}`}
-                data-page-link={i}
-                aria-label={`Go to page ${i + 1}`}
-              />
-            ))}
+          <div className="preview-mode-nav-buttons">
+            <button
+              className="preview-mode-nav-btn"
+              data-prev
+              disabled
+              aria-label="Previous page"
+            >
+              <svg viewBox="0 0 40 40" fill="currentColor" width="24" height="24" aria-hidden>
+                <path d="m20 33.4l-13.4-13.4 13.4-13.4 2.3 2.4-9.3 9.4h20.4v3.2h-20.4l9.3 9.4z" />
+              </svg>
+            </button>
+            <button
+              className="preview-mode-nav-btn"
+              data-next
+              aria-label="Next page"
+              {...(total <= 1 ? { disabled: true } : {})}
+            >
+              <svg viewBox="0 0 40 40" fill="currentColor" width="24" height="24" aria-hidden>
+                <path d="m20 6.6l13.4 13.4-13.4 13.4-2.3-2.4 9.3-9.4h-20.4v-3.2h20.4l-9.3-9.4z" />
+              </svg>
+            </button>
           </div>
-          <button
-            className="preview-mode-nav-btn"
-            data-next
-            aria-label="Next page"
-            {...(total <= 1 ? { disabled: true } : {})}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
         </div>
       </div>
     </BrochureBrandingProvider>
