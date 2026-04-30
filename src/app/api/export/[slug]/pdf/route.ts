@@ -79,6 +79,9 @@ export async function GET(req: Request, { params }: RouteContext) {
       pageErrors.push(err.stack || err.message)
     })
     page.on('requestfailed', (r) => {
+      // Suppress media aborts we issue ourselves to keep PDFs lean — these
+      // are intentional, not real failures.
+      if (r.resourceType() === 'media') return
       httpFailures.push({ status: 0, url: `${r.url()} (${r.failure()?.errorText ?? 'failed'})` })
     })
     page.on('response', (res) => {
@@ -96,42 +99,56 @@ export async function GET(req: Request, { params }: RouteContext) {
     // are inconsistently handled across Chromium builds for CSS background-
     // image fetches — responding with bytes against the original URL is the
     // robust path.
-    if (compress) {
-      await page.setRequestInterception(true)
-      page.on('request', async (req) => {
-        const original = req.url()
-        if (!original.startsWith('https://cdn.sanity.io/images/')) {
-          try { await req.continue() } catch {}
+    // Always intercept so we can abort streaming media (videos) which would
+    // otherwise prevent `networkidle0` from ever firing. PDFs can't embed
+    // video — the poster image (already a separate request) covers any
+    // visual fallback we need.
+    await page.setRequestInterception(true)
+    page.on('request', async (req) => {
+      const original = req.url()
+
+      // Abort video file streams from the Sanity CDN (and any other media
+      // resource type Chromium classifies as media — this catches <video>
+      // sources whatever URL pattern they use).
+      if (
+        req.resourceType() === 'media' ||
+        /^https:\/\/cdn\.sanity\.io\/files\/.+\.(mp4|webm|mov|m4v)(\?|$)/i.test(original)
+      ) {
+        try { await req.abort() } catch {}
+        return
+      }
+
+      if (!compress || !original.startsWith('https://cdn.sanity.io/images/')) {
+        try { await req.continue() } catch {}
+        return
+      }
+      try {
+        const u = new URL(original)
+        const w = Number(u.searchParams.get('w') ?? '0')
+        if (!w || w > PDF_MAX_IMAGE_WIDTH) {
+          u.searchParams.set('w', String(PDF_MAX_IMAGE_WIDTH))
+        }
+        u.searchParams.set('q', String(PDF_IMAGE_QUALITY))
+        u.searchParams.set('fm', 'jpg')
+
+        const upstream = await fetch(u.toString())
+        if (!upstream.ok) {
+          await req.continue()
           return
         }
-        try {
-          const u = new URL(original)
-          const w = Number(u.searchParams.get('w') ?? '0')
-          if (!w || w > PDF_MAX_IMAGE_WIDTH) {
-            u.searchParams.set('w', String(PDF_MAX_IMAGE_WIDTH))
-          }
-          u.searchParams.set('q', String(PDF_IMAGE_QUALITY))
-          u.searchParams.set('fm', 'jpg')
-
-          const upstream = await fetch(u.toString())
-          if (!upstream.ok) {
-            await req.continue()
-            return
-          }
-          const body = Buffer.from(await upstream.arrayBuffer())
-          await req.respond({
-            status: upstream.status,
-            headers: {
-              'content-type': upstream.headers.get('content-type') ?? 'image/jpeg',
-              'cache-control': 'public, max-age=3600',
-            },
-            body,
-          })
-        } catch {
-          try { await req.continue() } catch {}
-        }
-      })
-    }
+        const body = Buffer.from(await upstream.arrayBuffer())
+        await req.respond({
+          status: upstream.status,
+          headers: {
+            'content-type': upstream.headers.get('content-type') ?? 'image/jpeg',
+            'cache-control': 'public, max-age=3600',
+          },
+          body,
+        })
+      } catch {
+        try { await req.continue() } catch {}
+      }
+    })
 
     // Match the printed sheet pixel size at 96dpi so layout settles before
     // Chromium reflows for the @page rule. 297mm × 210mm ≈ 1123 × 794.

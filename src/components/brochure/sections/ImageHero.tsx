@@ -4,6 +4,7 @@ import { RichBody } from '../RichBody'
 import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
+import { LazyVideo } from '../LazyVideo'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -66,15 +67,7 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
             />
           ) : null}
           {videoUrl ? (
-            <video
-              className="media-video"
-              src={videoUrl}
-              poster={imageUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
+            <LazyVideo className="media-video" src={videoUrl} poster={imageUrl} />
           ) : null}
         </div>
       </InlineMedia>

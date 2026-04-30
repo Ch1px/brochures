@@ -5,6 +5,7 @@ import { RichBody } from '../RichBody'
 import { SectionCTA } from '../SectionCTA'
 import { SpotlightBackground } from './SpotlightBackground'
 import { InlineEditable } from '../InlineEditable'
+import { LazyVideo } from '../LazyVideo'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -82,15 +83,7 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
               />
             ) : null}
             {videoUrl ? (
-              <video
-                className="media-video"
-                src={videoUrl}
-                poster={imageUrl}
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
+              <LazyVideo className="media-video" src={videoUrl} poster={imageUrl} />
             ) : null}
             <div className="page-spotlight-image-frame" />
             {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}

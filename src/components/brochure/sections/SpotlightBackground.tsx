@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { LazyVideo } from '../LazyVideo'
 
 type Props = {
   imageUrl?: string
@@ -70,15 +71,7 @@ export function SpotlightBackground({ imageUrl, videoUrl, parallax }: Props) {
       style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
     >
       {videoUrl ? (
-        <video
-          className="media-video"
-          src={videoUrl}
-          poster={imageUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
+        <LazyVideo className="media-video" src={videoUrl} poster={imageUrl} />
       ) : null}
     </div>
   )

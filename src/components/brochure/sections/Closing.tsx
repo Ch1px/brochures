@@ -3,6 +3,7 @@ import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
+import { LazyVideo } from '../LazyVideo'
 import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
@@ -39,15 +40,7 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
               style={{ backgroundImage: `url('${imageUrl}')` }}
             />
             {videoUrl ? (
-              <video
-                className="media-video"
-                src={videoUrl}
-                poster={imageUrl}
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
+              <LazyVideo className="media-video" src={videoUrl} poster={imageUrl} />
             ) : null}
           </div>
         </InlineMedia>
