@@ -150,54 +150,61 @@ export async function getDomainConfig(host: string): Promise<VercelResult<Domain
   const env = readEnv()
   if (!env) return { ok: false, error: 'Vercel not configured', code: 'not_configured' }
 
-  const url = `https://api.vercel.com/v9/projects/${env.projectId}/domains/${encodeURIComponent(host)}/config${teamQuery(env)}`
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: authHeaders(env),
-  })
+  // 1. Confirm the domain is attached to this project. A 404 here is the
+  //    real "not attached" signal — the caller can recover by offering to
+  //    attach it.
+  const projectDomainUrl = `https://api.vercel.com/v9/projects/${env.projectId}/domains/${encodeURIComponent(host)}${teamQuery(env)}`
+  const projectRes = await fetch(projectDomainUrl, { headers: authHeaders(env) })
 
-  if (!res.ok) {
-    // 404 here means "domain isn't on this Vercel project". The caller can
-    // recover by offering to attach it, so use a distinct code rather than
-    // surfacing a raw "Not Found" string.
-    if (res.status === 404) {
+  if (!projectRes.ok) {
+    if (projectRes.status === 404) {
       return { ok: false, error: 'Domain not attached to project', code: 'not_attached' }
     }
     let body: { error?: { code?: string; message?: string } } = {}
-    try { body = await res.json() } catch { /* ignore */ }
+    try { body = await projectRes.json() } catch { /* ignore */ }
     return {
       ok: false,
-      error: body.error?.message ?? `Vercel returned ${res.status}`,
+      error: body.error?.message ?? `Vercel returned ${projectRes.status}`,
       code: body.error?.code,
     }
   }
 
-  const data = (await res.json()) as {
-    misconfigured?: boolean
-    cnames?: string[]
-    aValues?: string[]
-    recommendedCNAME?: string
-    recommendedIPv4?: string[]
+  const projectDomain = (await projectRes.json()) as { verified?: boolean }
+  const verified = Boolean(projectDomain.verified)
+
+  // 2. Fetch DNS configuration. This endpoint is *global* (not project-scoped)
+  //    and lives on /v6, not /v9. Hitting the wrong URL was the root cause of
+  //    spurious "not attached" reports immediately after attachment.
+  const configUrl = `https://api.vercel.com/v6/domains/${encodeURIComponent(host)}/config${teamQuery(env)}`
+  const configRes = await fetch(configUrl, { headers: authHeaders(env) })
+
+  // The config endpoint sometimes lags right after attachment. Treat any
+  // non-200 here as "verified state only, no DNS hints" rather than a hard
+  // failure — we already know the domain is attached.
+  if (!configRes.ok) {
+    return {
+      ok: true,
+      data: {
+        misconfigured: !verified,
+        verified,
+        recommendedCNAME: 'cname.vercel-dns.com',
+      },
+    }
   }
 
-  // A second hit on /domains/{host} tells us whether SSL provisioning has
-  // verified ownership. Without this we can't distinguish "DNS pointed but
-  // cert still issuing" from "fully live".
-  const ownershipUrl = `https://api.vercel.com/v9/projects/${env.projectId}/domains/${encodeURIComponent(host)}${teamQuery(env)}`
-  const ownershipRes = await fetch(ownershipUrl, { headers: authHeaders(env) })
-  let verified = false
-  if (ownershipRes.ok) {
-    const ownershipData = (await ownershipRes.json()) as { verified?: boolean }
-    verified = Boolean(ownershipData.verified)
+  const config = (await configRes.json()) as {
+    misconfigured?: boolean
+    recommendedCNAME?: string
+    recommendedIPv4?: string[]
   }
 
   return {
     ok: true,
     data: {
-      misconfigured: Boolean(data.misconfigured),
+      misconfigured: Boolean(config.misconfigured),
       verified,
-      recommendedCNAME: data.recommendedCNAME ?? 'cname.vercel-dns.com',
-      recommendedIPv4: data.recommendedIPv4,
+      recommendedCNAME: config.recommendedCNAME ?? 'cname.vercel-dns.com',
+      recommendedIPv4: config.recommendedIPv4,
     },
   }
 }
