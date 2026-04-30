@@ -93,6 +93,22 @@ export function eyebrowStyleVars(
 }
 
 /**
+ * Per-brochure title style overrides. Controls italic and text-transform
+ * on display-font title elements (section headings, cover headlines, etc.).
+ */
+export function titleStyleVars(
+  italic?: boolean,
+  transform?: string | null,
+): CSSProperties | undefined {
+  const vars: Record<string, string> = {}
+  if (italic === true) vars['--title-font-style'] = 'italic'
+  if (italic === false) vars['--title-font-style'] = 'normal'
+  if (transform) vars['--title-text-transform'] = transform
+  if (Object.keys(vars).length === 0) return undefined
+  return vars as unknown as CSSProperties
+}
+
+/**
  * Per-brochure nav background override. Sets `--nav-bg` from a single hex.
  * Returns `undefined` when no override is set.
  */

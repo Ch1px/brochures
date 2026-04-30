@@ -633,6 +633,8 @@ export type Brochure = {
   bodyColor?: string
   eyebrowItalic?: boolean
   eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  titleItalic?: boolean
+  titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
   fontOverrides?: FontOverrides
   customFonts?: CustomFont[]
   titleScale?: TextScalePreset

@@ -5568,3 +5568,33 @@
     --font-display: 'Formula1', 'Titillium Web', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
+
+  /* ====================================================================
+     SECTION TITLE STYLE OVERRIDES
+     --------------------------------------------------------------------
+     The title rules earlier in this file hard-code `text-transform:
+     uppercase` and `font-style: normal`. To allow per-brochure overrides
+     via Settings → Typography → Title (Style + Letter case), we re-apply
+     those properties from CSS variables here. Defaults match the
+     historical look (uppercase, upright). When `titleStyleVars()` sets
+     the inline custom property on the brochure root, it cascades and
+     overrides the default keyword.
+     ================================================================== */
+  .circuit-map-title,
+  .closing-title,
+  .cover-title,
+  .features-title,
+  .gallery-title,
+  .gallery-variant-title,
+  .image-hero-title,
+  .intro-title,
+  .itinerary-title,
+  .linked-cards-title,
+  .logos-title,
+  .packages-title,
+  .section-heading-title,
+  .stats-title,
+  .text-center-title {
+    font-style: var(--title-font-style, normal);
+    text-transform: var(--title-text-transform, uppercase);
+  }

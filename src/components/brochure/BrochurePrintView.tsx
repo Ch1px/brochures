@@ -7,7 +7,7 @@ import { BrochureBrandingProvider } from './BrochureContext'
 import { GoogleFontsLink } from './GoogleFontsLink'
 import { TextureOverride } from './TextureOverride'
 import { accentColorVars } from '@/lib/accentColor'
-import { backgroundColorVars, textColorVars, navColorVars } from '@/lib/themeColorVars'
+import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
 
@@ -32,6 +32,9 @@ export function BrochurePrintView({ brochure }: Props) {
   const accentStyle = accentColorVars(effectiveAccent)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
   const textStyle = textColorVars(brochure.textColor)
+  const titleStyle = titleColorVars(brochure.titleColor)
+  const titleStyle2 = titleStyleVars(brochure.titleItalic, brochure.titleTransform)
+  const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
   const fontStyle = fontOverrideVars(brochure.fontOverrides)
   const navStyle = navColorVars(brochure.navColor)
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
@@ -42,7 +45,7 @@ export function BrochurePrintView({ brochure }: Props) {
     <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
       <GoogleFontsLink url={fontsUrl} />
       <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
-      <div className="brochure-print-root" data-theme={theme} data-custom-bg={brochure.backgroundColor ? '' : undefined} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...fontStyle, ...navStyle }}>
+      <div className="brochure-print-root" data-theme={theme} data-custom-bg={brochure.backgroundColor ? '' : undefined} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle }}>
         {sections.map((section, i) => {
           const pageNum = i + 1
           const showFolio = i > 0

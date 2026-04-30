@@ -39,6 +39,8 @@ type Props = {
     bodyColor: string | undefined
     eyebrowItalic: boolean | undefined
     eyebrowTransform: string | undefined
+    titleItalic: boolean | undefined
+    titleTransform: string | undefined
     fontOverrides: FontOverrides | undefined
     customFonts: CustomFont[] | undefined
     titleScale: TextScalePreset | undefined
@@ -95,6 +97,8 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
   const [bodyColor, setBodyColor] = useState<string | undefined>(brochure.bodyColor)
   const [eyebrowItalic, setEyebrowItalic] = useState<boolean | undefined>(brochure.eyebrowItalic)
   const [eyebrowTransform, setEyebrowTransform] = useState<string | undefined>(brochure.eyebrowTransform)
+  const [titleItalic, setTitleItalic] = useState<boolean | undefined>(brochure.titleItalic)
+  const [titleTransform, setTitleTransform] = useState<string | undefined>(brochure.titleTransform)
   const [fontDisplay, setFontDisplay] = useState<string | undefined>(brochure.fontOverrides?.display)
   const [fontDisplayWeight, setFontDisplayWeight] = useState<string | undefined>(brochure.fontOverrides?.displayWeight)
   const [fontScript, setFontScript] = useState<string | undefined>(brochure.fontOverrides?.script)
@@ -139,6 +143,8 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
     setBodyColor(brochure.bodyColor)
     setEyebrowItalic(brochure.eyebrowItalic)
     setEyebrowTransform(brochure.eyebrowTransform)
+    setTitleItalic(brochure.titleItalic)
+    setTitleTransform(brochure.titleTransform)
     setFontDisplay(brochure.fontOverrides?.display)
     setFontDisplayWeight(brochure.fontOverrides?.displayWeight)
     setFontScript(brochure.fontOverrides?.script)
@@ -231,6 +237,8 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
           bodyColor: bodyColor ?? null,
           eyebrowItalic: eyebrowItalic ?? null,
           eyebrowTransform: eyebrowTransform ?? null,
+          titleItalic: titleItalic ?? null,
+          titleTransform: titleTransform ?? null,
           fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
             ? {
                 display: fontDisplay || undefined,
@@ -273,6 +281,8 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
         bodyColor,
         eyebrowItalic,
         eyebrowTransform,
+        titleItalic,
+        titleTransform,
         fontOverrides: (fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight || fontBody || fontBodyWeight || fontMono || fontMonoWeight)
           ? { display: fontDisplay, displayWeight: fontDisplayWeight, script: fontScript, scriptWeight: fontScriptWeight, body: fontBody, bodyWeight: fontBodyWeight, mono: fontMono, monoWeight: fontMonoWeight }
           : undefined,
@@ -605,11 +615,38 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                   description="Headlines and display text"
                   previewText="Monaco Grand Prix"
                   previewSize={28}
+                  previewItalic={titleItalic ?? false}
+                  previewUppercase={titleTransform === 'uppercase' || titleTransform === undefined}
+                  previewTransform={titleTransform ?? 'uppercase'}
                   fontSlug={fontDisplay}
                   fontWeight={fontDisplayWeight}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontDisplay(v || undefined); setFontDisplayWeight(undefined) }}
                   onWeightChange={(v) => setFontDisplayWeight(v || undefined)}
+                  extraControls={
+                    <>
+                      <FieldSelect
+                        label="Style"
+                        value={titleItalic === true ? 'italic' : 'upright'}
+                        onChange={(v) => setTitleItalic(v === 'italic' ? true : undefined)}
+                        options={[
+                          { value: 'upright', label: 'Upright' },
+                          { value: 'italic', label: 'Italic' },
+                        ]}
+                      />
+                      <FieldSelect
+                        label="Letter case"
+                        value={titleTransform ?? ''}
+                        onChange={(v) => setTitleTransform(v || undefined)}
+                        options={[
+                          { value: '', label: 'Uppercase (default)' },
+                          { value: 'none', label: 'As typed' },
+                          { value: 'lowercase', label: 'lowercase' },
+                          { value: 'capitalize', label: 'Capitalize' },
+                        ]}
+                      />
+                    </>
+                  }
                 />
                 <FontCard
                   role="script"

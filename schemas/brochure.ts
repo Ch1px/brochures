@@ -205,6 +205,28 @@ export default defineType({
       group: 'branding',
     }),
     defineField({
+      name: 'titleItalic',
+      type: 'boolean',
+      title: 'Italic titles',
+      description: 'When true, section titles render italic.',
+      group: 'branding',
+    }),
+    defineField({
+      name: 'titleTransform',
+      type: 'string',
+      title: 'Title text transform',
+      description: 'Controls casing of section titles. Default: Uppercase.',
+      options: {
+        list: [
+          { title: 'None (as typed)', value: 'none' },
+          { title: 'Uppercase', value: 'uppercase' },
+          { title: 'Lowercase', value: 'lowercase' },
+          { title: 'Capitalize', value: 'capitalize' },
+        ],
+      },
+      group: 'branding',
+    }),
+    defineField({
       name: 'fontOverrides',
       type: 'object',
       title: 'Font overrides',

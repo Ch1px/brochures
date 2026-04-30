@@ -986,6 +986,8 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
             bodyColor: updates.bodyColor,
             eyebrowItalic: updates.eyebrowItalic,
             eyebrowTransform: updates.eyebrowTransform as Brochure['eyebrowTransform'],
+            titleItalic: updates.titleItalic,
+            titleTransform: updates.titleTransform as Brochure['titleTransform'],
             fontOverrides: updates.fontOverrides,
             customFonts: updates.customFonts,
             titleScale: updates.titleScale,

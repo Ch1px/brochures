@@ -73,6 +73,8 @@ export async function saveBrochure(
       | 'bodyColor'
       | 'eyebrowItalic'
       | 'eyebrowTransform'
+      | 'titleItalic'
+      | 'titleTransform'
       | 'fontOverrides'
       | 'customColors'
       | 'navColor'
@@ -110,6 +112,8 @@ export type BrochureSettingsUpdate = {
   bodyColor?: string | null
   eyebrowItalic?: boolean | null
   eyebrowTransform?: string | null
+  titleItalic?: boolean | null
+  titleTransform?: string | null
   fontOverrides?: FontOverrides | null
   customFonts?: CustomFont[] | null
   titleScale?: string | null
@@ -198,6 +202,14 @@ export async function updateBrochureSettings(
     if (updates.eyebrowTransform !== undefined) {
       if (!updates.eyebrowTransform || updates.eyebrowTransform === null) unset.push('eyebrowTransform')
       else patch.eyebrowTransform = updates.eyebrowTransform
+    }
+    if (updates.titleItalic !== undefined) {
+      if (updates.titleItalic === null) unset.push('titleItalic')
+      else patch.titleItalic = updates.titleItalic
+    }
+    if (updates.titleTransform !== undefined) {
+      if (!updates.titleTransform || updates.titleTransform === null) unset.push('titleTransform')
+      else patch.titleTransform = updates.titleTransform
     }
     if (updates.fontOverrides !== undefined) {
       if (updates.fontOverrides === null) unset.push('fontOverrides')
@@ -364,6 +376,8 @@ export async function duplicateBrochure(
       bodyColor: src.bodyColor,
       eyebrowItalic: src.eyebrowItalic,
       eyebrowTransform: src.eyebrowTransform,
+      titleItalic: src.titleItalic,
+      titleTransform: src.titleTransform,
       fontOverrides: src.fontOverrides,
       customFonts: src.customFonts,
       titleScale: src.titleScale,
