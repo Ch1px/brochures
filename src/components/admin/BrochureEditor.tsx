@@ -440,6 +440,12 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
   // greyscale, blur) from the current section to every other image-bearing
   // section in the brochure. Raw values are propagated — undefined included —
   // so the source section becomes the single source of truth.
+  //
+  // Spotlight is a special case: it has independent foreground-image fields
+  // that don't fall back to the section-level vars. To keep "Apply to all"
+  // visually consistent, the bulk action mirrors the four values onto the
+  // foreground fields too. Admins who want a different foreground treatment
+  // can override it after via the Spotlight section's Styles tab.
   const handleApplyImageTreatmentToAll = useCallback(
     (treatment: {
       overlayStrength?: string
@@ -451,11 +457,20 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
         ...prev,
         pages: prev.pages.map((page) => ({
           ...page,
-          sections: page.sections.map((s) =>
-            IMAGE_TREATMENT_TYPES.has(s._type)
-              ? ({ ...s, ...treatment } as Section)
-              : s
-          ),
+          sections: page.sections.map((s) => {
+            if (!IMAGE_TREATMENT_TYPES.has(s._type)) return s
+            if (s._type === 'spotlight') {
+              return {
+                ...s,
+                ...treatment,
+                foregroundOverlayStrength: treatment.overlayStrength,
+                foregroundOverlayColor: treatment.overlayColor,
+                foregroundMediaGrayscale: treatment.mediaGrayscale,
+                foregroundMediaBlur: treatment.mediaBlur,
+              } as Section
+            }
+            return { ...s, ...treatment } as Section
+          }),
         })),
       }))
     },
