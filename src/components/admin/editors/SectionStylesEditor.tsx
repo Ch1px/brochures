@@ -11,6 +11,12 @@ type StylableSection = Exclude<Section, SectionFooter>
 type Props = {
   section: StylableSection
   onChange: (update: Partial<Section>) => void
+  onApplyImageTreatmentToAll?: (treatment: {
+    overlayStrength?: string
+    overlayColor?: string
+    mediaGrayscale?: string
+    mediaBlur?: string
+  }) => void
   brandContext?: BrandContext
   onAddCustomColor?: (name: string, hex: string) => void
 }
@@ -105,7 +111,7 @@ const OVERLAY_DEFAULT_MEDIUM = new Set([
   'linkedCards',
 ])
 
-export function SectionStylesEditor({ section, onChange, brandContext, onAddCustomColor }: Props) {
+export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentToAll, brandContext, onAddCustomColor }: Props) {
   const config = STYLE_CONFIG[section._type]
   if (!config) return null
 
@@ -284,6 +290,33 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
               onChange={(v) => anyChange({ backgroundParallax: v })}
             />
           )}
+          {(config.overlay || config.grayscale || config.blur) && onApplyImageTreatmentToAll ? (
+            <div className="field-group" style={{ marginTop: 6 }}>
+              <button
+                type="button"
+                className="field-btn"
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      'Apply this section\u2019s overlay, colour, greyscale and blur to every other image-bearing section in the brochure? Existing values on those sections will be overwritten. (Use Undo to revert.)'
+                    )
+                  )
+                    return
+                  onApplyImageTreatmentToAll({
+                    overlayStrength: s.overlayStrength as string | undefined,
+                    overlayColor: s.overlayColor as string | undefined,
+                    mediaGrayscale: s.mediaGrayscale as string | undefined,
+                    mediaBlur: s.mediaBlur as string | undefined,
+                  })
+                }}
+              >
+                Apply to all images in brochure
+              </button>
+              <div className="field-description">
+                Copies the four image-treatment fields above to every other image-bearing section.
+              </div>
+            </div>
+          ) : null}
         </>
       ) : null}
 

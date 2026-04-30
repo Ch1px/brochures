@@ -218,7 +218,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
                 }
                 title="Brochures hosted on the canonical domain"
               >
-                Canonical
+                Grand Prix Grand Tours
                 <span className="library-filter-pill-count">{canonicalCount}</span>
               </button>
               {companies.map((c) => {

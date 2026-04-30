@@ -32,6 +32,33 @@ import { RecolorPopover } from './RecolorPopover'
 import { SaveToast } from './SaveToast'
 import { CollapseButton, CollapsedRail, ResizeHandle } from './EditorLayoutControls'
 
+/**
+ * Section types that expose image-treatment controls (overlay, greyscale,
+ * blur). Used by the bulk "Apply to all" action to avoid writing the four
+ * fields onto sections that don't render any image (logos, stats, footer,
+ * itinerary, textCenter, ctaBanner, circuitMap).
+ */
+const IMAGE_TREATMENT_TYPES = new Set<string>([
+  'cover',
+  'coverCentered',
+  'intro',
+  'contentImage',
+  'imageContent',
+  'sectionHeading',
+  'sectionHeadingCentered',
+  'features',
+  'imageHero',
+  'packages',
+  'galleryEditorial',
+  'galleryGrid',
+  'galleryDuo',
+  'galleryHero',
+  'quoteProfile',
+  'closing',
+  'spotlight',
+  'linkedCards',
+])
+
 export type CompanyOption = {
   _id: string
   name: string
@@ -407,6 +434,32 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
       }))
     },
     [currentSectionKey]
+  )
+
+  // Bulk-apply the four image-treatment fields (overlay strength + colour,
+  // greyscale, blur) from the current section to every other image-bearing
+  // section in the brochure. Raw values are propagated — undefined included —
+  // so the source section becomes the single source of truth.
+  const handleApplyImageTreatmentToAll = useCallback(
+    (treatment: {
+      overlayStrength?: string
+      overlayColor?: string
+      mediaGrayscale?: string
+      mediaBlur?: string
+    }) => {
+      setBrochure((prev) => ({
+        ...prev,
+        pages: prev.pages.map((page) => ({
+          ...page,
+          sections: page.sections.map((s) =>
+            IMAGE_TREATMENT_TYPES.has(s._type)
+              ? ({ ...s, ...treatment } as Section)
+              : s
+          ),
+        })),
+      }))
+    },
+    [setBrochure]
   )
 
   // Inline text edit from the preview stage — applies a field path update
@@ -905,6 +958,7 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
                 section={currentSection}
                 context={propertiesContext}
                 onChange={handleSectionChange}
+                onApplyImageTreatmentToAll={handleApplyImageTreatmentToAll}
                 brandContext={{
                   accentColor: effectiveAccent,
                   backgroundColor: brochure.backgroundColor,

@@ -4849,14 +4849,19 @@
      via `.section-media-overlay-*`.
      ============================================================ */
 
-  /* Inner image layer — filtered, sized to fill its wrapper. */
+  /* Inner image / video layer — filtered, sized to fill its wrapper.
+     `.media-video` lives as a sibling of `.media-bg-layer` (the image acts
+     as a poster behind the video, both share the same treatment). */
+  .media-bg-layer,
+  .media-video {
+    filter: grayscale(var(--media-grayscale, 0)) blur(var(--media-blur, 0));
+  }
   .media-bg-layer {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    filter: grayscale(var(--media-grayscale, 0)) blur(var(--media-blur, 0));
   }
 
   /* Package <img> can't host an inner div the same way, so apply the
