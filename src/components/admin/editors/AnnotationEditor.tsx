@@ -236,11 +236,47 @@ export function AnnotationEditor({
                       </>
                     ) : null}
                     {a.kind === 'image' ? (
-                      <FieldImage
-                        label="Image"
-                        value={(selected as Annotation & { kind: 'image' }).image}
-                        onChange={(image) => updateAnnotation(a._key, { image } as Partial<Annotation>)}
-                      />
+                      <>
+                        <FieldImage
+                          label="Image"
+                          value={(selected as Annotation & { kind: 'image' }).image}
+                          onChange={(image) => updateAnnotation(a._key, { image } as Partial<Annotation>)}
+                        />
+                        <FieldSelect
+                          label="Border radius"
+                          value={String((selected as Annotation & { kind: 'image' }).borderRadius ?? '')}
+                          onChange={(v) => updateAnnotation(a._key, { borderRadius: v ? Number(v) : undefined } as Partial<Annotation>)}
+                          options={[
+                            { value: '', label: 'None (default)' },
+                            { value: '4', label: 'Small' },
+                            { value: '12', label: 'Medium' },
+                            { value: '24', label: 'Large' },
+                            { value: '50', label: 'Round' },
+                          ]}
+                        />
+                        <FieldSelect
+                          label="Greyscale"
+                          value={(selected as Annotation & { kind: 'image' }).mediaGrayscale ?? ''}
+                          onChange={(v) => updateAnnotation(a._key, { mediaGrayscale: (v || undefined) as 'none' | 'light' | 'medium' | 'full' | undefined } as Partial<Annotation>)}
+                          options={[
+                            { value: '', label: 'None (default)' },
+                            { value: 'light', label: 'Light' },
+                            { value: 'medium', label: 'Medium' },
+                            { value: 'full', label: 'Full' },
+                          ]}
+                        />
+                        <FieldSelect
+                          label="Blur"
+                          value={(selected as Annotation & { kind: 'image' }).mediaBlur ?? ''}
+                          onChange={(v) => updateAnnotation(a._key, { mediaBlur: (v || undefined) as 'none' | 'light' | 'medium' | 'strong' | undefined } as Partial<Annotation>)}
+                          options={[
+                            { value: '', label: 'None (default)' },
+                            { value: 'light', label: 'Light' },
+                            { value: 'medium', label: 'Medium' },
+                            { value: 'strong', label: 'Strong' },
+                          ]}
+                        />
+                      </>
                     ) : null}
                     {a.kind === 'pin' ? (
                       <>

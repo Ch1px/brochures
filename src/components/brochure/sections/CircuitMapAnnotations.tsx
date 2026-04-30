@@ -361,13 +361,27 @@ function AnnotationImageContent({ annotation: a }: { annotation: Annotation & { 
   if (!url) {
     return <div className="circuit-map-annotation-image-placeholder">Image</div>
   }
+  const grayscale = a.mediaGrayscale === 'light' ? 0.3
+    : a.mediaGrayscale === 'medium' ? 0.6
+    : a.mediaGrayscale === 'full' ? 1
+    : 0
+  const blur = a.mediaBlur === 'light' ? 2
+    : a.mediaBlur === 'medium' ? 6
+    : a.mediaBlur === 'strong' ? 12
+    : 0
+  const filter = grayscale === 0 && blur === 0 ? undefined
+    : `grayscale(${grayscale}) blur(${blur}px)`
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={url}
       alt=""
       className="circuit-map-annotation-image-img"
-      style={{ width: a.width ? `${a.width}cqi` : '10cqi' }}
+      style={{
+        width: a.width ? `${a.width}cqi` : '10cqi',
+        borderRadius: typeof a.borderRadius === 'number' ? `${a.borderRadius}%` : undefined,
+        filter,
+      }}
       draggable={false}
     />
   )

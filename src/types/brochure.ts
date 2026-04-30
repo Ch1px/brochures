@@ -438,6 +438,10 @@ export type AnnotationImage = AnnotationBase & {
   kind: 'image'
   image?: SanityImage
   width?: number
+  /** Border radius as a percent of min dimension. 0 = square, 50 = circle. */
+  borderRadius?: number
+  mediaGrayscale?: 'none' | 'light' | 'medium' | 'full'
+  mediaBlur?: 'none' | 'light' | 'medium' | 'strong'
 }
 
 export type AnnotationPin = AnnotationBase & {
