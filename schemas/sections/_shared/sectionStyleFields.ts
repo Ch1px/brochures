@@ -35,6 +35,13 @@ export const sectionStyleFields = [
       'Override the accent colour (brand red) for this section — affects eyebrows, CTAs, decorative elements. Hex format. Leave blank for the brochure default.',
   }),
   defineField({
+    name: 'titleAccentColor',
+    title: 'Title accent colour',
+    type: 'string',
+    description:
+      'Override the title accent (script-font emphasis) colour. Hex format or brand token. Defaults to the section accent. Only used by cover sections.',
+  }),
+  defineField({
     name: 'titleScale',
     title: 'Title text size',
     type: 'string',

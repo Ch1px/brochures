@@ -86,6 +86,7 @@ export type SectionCover = {
   titleColor?: string
   bodyColor?: string
   accentColor?: string
+  titleAccentColor?: string
   titleScale?: TextScalePreset
   eyebrowScale?: TextScalePreset
   bodyScale?: TextScalePreset

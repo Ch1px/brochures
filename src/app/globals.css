@@ -634,7 +634,7 @@
     font-family: var(--font-script);
     font-weight: var(--font-script-weight, 400);
     font-style: var(--eyebrow-font-style, italic);
-    color: var(--section-accent-color, var(--brand-red));
+    color: var(--section-title-accent-color, var(--section-accent-color, var(--brand-red)));
     text-transform: var(--eyebrow-text-transform, none);
     letter-spacing: 0;
     font-size: calc(var(--title-accent-scale, 1) * 1.05em);

@@ -1,5 +1,6 @@
 import 'server-only'
 import { sanityWriteClient } from './client'
+import { cloneWithNewKeys } from '../nanokey'
 import type { Brochure, CustomFont, FontOverrides, SanityImage } from '@/types/brochure'
 
 /**
@@ -430,7 +431,13 @@ export async function duplicateBrochure(
       textureImage: src.textureImage,
       hideTexture: src.hideTexture,
       logo: src.logo,
-      pages: src.pages ?? [],
+      // Re-key pages, sections, and any nested array items so the duplicate
+      // doesn't share `_key`s with the source. Shared section keys across
+      // brochures cause the SectionRenderer's `[data-section-id="..."]` style
+      // blocks to collide whenever multiple brochures render on the same
+      // page (e.g. the admin library cards), bleeding accent/title overrides
+      // from one brochure into another.
+      pages: src.pages ? cloneWithNewKeys(src.pages) : [],
       seo: src.seo,
       leadCapture: src.leadCapture,
       ...(resolvedCompanyId

@@ -110,6 +110,8 @@ function sectionStyleCss(
   if (body) vars.push(`--section-body-color:${body}`)
   const accent = resolveFieldColor(s.accentColor, brandCtx)
   if (accent) vars.push(`--section-accent-color:${accent}`)
+  const titleAccent = resolveFieldColor(s.titleAccentColor, brandCtx)
+  if (titleAccent) vars.push(`--section-title-accent-color:${titleAccent}`)
   const overlay = resolveFieldColor(s.overlayColor, brandCtx)
   if (overlay) {
     const r = parseInt(overlay.slice(1, 3), 16)

@@ -211,6 +211,17 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
                     fallback: titleFallback,
                   } satisfies StyleEntry]
                 : []),
+              ...(config.titleAccent
+                ? [{
+                    kind: 'color',
+                    key: 'titleAccent',
+                    label: 'Title accent',
+                    description: 'Override the title accent (script-font emphasis) colour. Defaults to the section accent.',
+                    value: s.titleAccentColor as string | undefined,
+                    onChange: (v) => anyChange({ titleAccentColor: v }),
+                    fallback: accentFallback,
+                  } satisfies StyleEntry]
+                : []),
               ...(config.body
                 ? [{
                     kind: 'color',
