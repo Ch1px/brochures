@@ -13,6 +13,7 @@ import {
   deleteBrochureAction,
 } from '@/lib/sanity/actions'
 import { brochureHost } from '@/lib/brochureHost'
+import { AdminThemeToggle } from './AdminThemeToggle'
 
 type Props = {
   brochure: Brochure
@@ -189,6 +190,7 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
       </div>
 
       <div className="editor-topbar-right">
+        <AdminThemeToggle />
         <div className="editor-theme-toggle" role="group" aria-label="Brochure theme">
           <button
             type="button"

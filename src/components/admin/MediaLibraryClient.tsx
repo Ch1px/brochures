@@ -6,6 +6,7 @@ import Link from 'next/link'
 import type { ImageAssetRow } from '@/lib/sanity/actions'
 import { deleteImageAssetAction } from '@/lib/sanity/actions'
 import { urlFor } from '@/lib/sanity/image'
+import { AdminThemeToggle } from './AdminThemeToggle'
 
 type Props = {
   assets: ImageAssetRow[]
@@ -97,6 +98,7 @@ export function MediaLibraryClient({ assets }: Props) {
           <div className="library-subtitle">{assets.length} assets</div>
         </div>
         <div className="library-header-actions">
+          <AdminThemeToggle />
           <Link href="/admin" className="library-header-btn">
             Brochures
           </Link>

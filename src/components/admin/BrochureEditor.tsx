@@ -880,6 +880,10 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
             annotations={annotationContext}
             onInlineEdit={handleInlineEdit}
             onInlineMediaEdit={handleInlineMediaEdit}
+            previewDevice={layout.previewDevice}
+            previewWidth={layout.previewWidth}
+            onPreviewDeviceChange={layout.setPreviewDevice}
+            onPreviewWidthChange={layout.setPreviewWidth}
           />
         </main>
 

@@ -5411,3 +5411,160 @@
       max-width: 50%;
     }
   }
+
+  /* ====================================================================
+     ADMIN CHROME — lowercase typography pass
+     --------------------------------------------------------------------
+     The original chrome typography uses tracked caps (text-transform:
+     uppercase + wide letter-spacing) for a Formula1-style accent. Per
+     design preference, the admin UI now reads in normal sentence/title
+     case. This block overrides the existing rules in one place rather
+     than editing each one — it's contained, easy to revert, and keeps
+     the brochure rendering classes (`.cover-*`, `.intro-*`, section
+     eyebrows/titles, etc.) untouched.
+     The letter-spacing is also normalised to a subtle 0.01em on the
+     same selectors so lowercase letters don't wide-track and read like
+     "h o m e p a g e".
+     ================================================================== */
+  .brand-name,
+  .brand-sub,
+  .brochure-title-input,
+  .save-indicator,
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .panel-title,
+  .page-counter,
+  .page-item-type,
+  .add-page-btn,
+  .preview-empty-title,
+  .props-name,
+  .props-type,
+  .props-type-badge,
+  .props-section-label,
+  .field-label,
+  .field-group-title,
+  .checkbox-row span,
+  .image-meta,
+  .library-title,
+  .library-card-thumb-text,
+  .library-card-title,
+  .library-card-meta,
+  .library-new-card-label,
+  .modal-title,
+  .page-type-card-name,
+  .media-asset-card-meta,
+  .media-asset-card-name,
+  .companies-title,
+  .company-card-name,
+  .company-card-meta {
+    text-transform: none;
+    letter-spacing: 0.01em;
+  }
+
+  /* ====================================================================
+     ADMIN CHROME — light mode
+     --------------------------------------------------------------------
+     Overrides the dark-mode chrome tokens defined at `:root`. The
+     attribute is applied on `<html>` by `AdminThemeProvider` (mounted by
+     /admin/layout.tsx) and removed when the user navigates to a public
+     route, so the brochure reader is never themed.
+     ================================================================== */
+  [data-admin-theme="light"] {
+    --chrome-bg: #f4f4f6;
+    --chrome-surface: #ffffff;
+    --chrome-elevated: #f9f9fb;
+    --chrome-raised: #ffffff;
+    --chrome-border: rgba(0, 0, 0, 0.08);
+    --chrome-border-strong: rgba(0, 0, 0, 0.18);
+    --chrome-text: #161618;
+    --chrome-text-secondary: rgba(0, 0, 0, 0.7);
+    --chrome-text-tertiary: rgba(0, 0, 0, 0.5);
+    --chrome-text-muted: rgba(0, 0, 0, 0.32);
+  }
+
+  /* Scrollbars — the dark theme uses white-with-alpha, which would be
+     invisible on a light surface. Flip to black-with-alpha. */
+  [data-admin-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.16);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  [data-admin-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.32);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Hover states sprinkled across the chrome use rgba(255,255,255, X) for
+     a subtle lift on dark surfaces. On light, those become invisible —
+     swap to a near-black tint of equivalent alpha. */
+  [data-admin-theme="light"] .btn-ghost:hover,
+  [data-admin-theme="light"] .btn:hover,
+  [data-admin-theme="light"] .page-item:hover,
+  [data-admin-theme="light"] .editor-topbar-btn:hover,
+  [data-admin-theme="light"] .library-header-btn:hover,
+  [data-admin-theme="light"] .library-card-action:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  [data-admin-theme="light"] .brochure-title-input:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  [data-admin-theme="light"] .brochure-title-input:focus {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  /* Drop shadows around the preview frame and modals are darker on a
+     light background — the existing rgba(0,0,0,0.5) is fine but a bit
+     heavy. Soften slightly so it doesn't feel like a black blob. */
+  [data-admin-theme="light"] .preview-stage-frame {
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Theme toggle button — sun/moon icon. Uses chrome tokens so it
+     follows the active theme automatically. */
+  .admin-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1px solid var(--chrome-border);
+    background: transparent;
+    color: var(--chrome-text-secondary);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+  }
+  .admin-theme-toggle:hover {
+    color: var(--chrome-text);
+    border-color: var(--chrome-border-strong);
+  }
+
+  /* ====================================================================
+     ADMIN CHROME — default font (Outfit)
+     --------------------------------------------------------------------
+     Loaded via next/font in /admin/layout.tsx and exposed as
+     `--font-admin`. We re-point the chrome font tokens at it under the
+     `[data-admin-theme]` scope (always present while admin is mounted)
+     so every chrome element inherits Outfit. The brochure preview frame
+     resets the tokens back to their original values, keeping Formula1
+     and Titillium for the actual brochure design.
+     ================================================================== */
+  .admin-app {
+    --font-body: var(--font-admin), system-ui, -apple-system, Segoe UI, sans-serif;
+    --font-condensed: var(--font-admin), system-ui, -apple-system, Segoe UI, sans-serif;
+    --font-display: var(--font-admin), system-ui, -apple-system, Segoe UI, sans-serif;
+    --font-mono: var(--font-admin), system-ui, -apple-system, Segoe UI, sans-serif;
+    font-family: var(--font-admin), system-ui, -apple-system, Segoe UI, sans-serif;
+  }
+  /* Reset on the preview frame only — `fontOverrideVars` applies inline
+     styles here, so .brochure-page (its child) must inherit naturally
+     instead of being re-forced back to Formula1. */
+  .admin-app .preview-stage-frame {
+    --font-body: 'Titillium Web', sans-serif;
+    --font-condensed: 'Barlow Condensed', sans-serif;
+    --font-display: 'Formula1', 'Titillium Web', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }

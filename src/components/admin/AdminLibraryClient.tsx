@@ -7,6 +7,7 @@ import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
 import { AiGenerateModal } from './AiGenerateModal'
 import { deleteBrochureAction } from '@/lib/sanity/actions'
 import { CANONICAL_HOST, brochurePublicUrl as brochurePublicUrlLib } from '@/lib/brochureHost'
+import { AdminThemeToggle } from './AdminThemeToggle'
 
 type BrochureRow = {
   _id: string
@@ -149,7 +150,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
           <div className="library-subtitle">{brochures.length} total</div>
         </div>
         <div className="library-header-actions">
-
+          <AdminThemeToggle />
           <Link href="/admin/companies" className="library-header-btn">
             Companies
           </Link>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import type { AnnotationKind, Brochure } from '@/types/brochure'
 import { SectionRenderer } from '../brochure/SectionRenderer'
 import { BrochureBrandingProvider } from '../brochure/BrochureContext'
@@ -12,6 +12,7 @@ import { backgroundColorVars, textColorVars, titleColorVars, eyebrowStyleVars, n
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
 import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
+import { PREVIEW_DEVICE_WIDTHS, type PreviewDevice } from '@/hooks/useEditorLayout'
 
 type Props = {
   brochure: Brochure
@@ -53,6 +54,10 @@ type Props = {
   onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void
   onInlineMediaEdit?: (sectionKey: string, fieldPath: string, value: unknown) => void
   onRequestMapEdit?: () => void
+  previewDevice: PreviewDevice
+  previewWidth: number
+  onPreviewDeviceChange: (device: PreviewDevice) => void
+  onPreviewWidthChange: (width: number) => void
 }
 
 /**
@@ -77,10 +82,44 @@ export function PreviewStage({
   onInlineEdit,
   onInlineMediaEdit,
   onRequestMapEdit,
+  previewDevice,
+  previewWidth,
+  onPreviewDeviceChange,
+  onPreviewWidthChange,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null)
   const page = brochure.pages[currentPageIndex]
   const total = brochure.pages.length
+
+  // Width applied to the frame positioner. For preset devices we use the
+  // canonical width; for 'custom' the user has dragged the grip to a value.
+  const effectiveFrameWidth =
+    previewDevice === 'custom' ? previewWidth : PREVIEW_DEVICE_WIDTHS[previewDevice]
+
+  const handleGripDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      const startX = e.clientX
+      const startWidth = effectiveFrameWidth
+      const onMove = (ev: MouseEvent) => {
+        // Symmetric resize: dragging the right edge by N expands the
+        // centred frame by 2N (both edges move out by N).
+        const delta = ev.clientX - startX
+        onPreviewWidthChange(startWidth + delta * 2)
+      }
+      const onUp = () => {
+        window.removeEventListener('mousemove', onMove)
+        window.removeEventListener('mouseup', onUp)
+        document.body.style.userSelect = ''
+        document.body.style.cursor = ''
+      }
+      window.addEventListener('mousemove', onMove)
+      window.addEventListener('mouseup', onUp)
+      document.body.style.userSelect = 'none'
+      document.body.style.cursor = 'col-resize'
+    },
+    [effectiveFrameWidth, onPreviewWidthChange]
+  )
 
   // Scroll the selected section into view when the selection changes
   // (e.g. user clicks a section in the left panel)
@@ -139,19 +178,31 @@ export function PreviewStage({
     <CustomFontFaces customFonts={brochure.customFonts} />
     <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
     <div className="preview-stage-wrap">
-      <div className="preview-stage-label">
-        <span className="preview-stage-label-num">
-          {String(currentPageIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-        </span>
-        <span className="preview-stage-label-name">{page.name}</span>
+      <div className="preview-stage-toolbar">
+        <div className="preview-stage-label">
+          <span className="preview-stage-label-num">
+            {String(currentPageIndex + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </span>
+          <span className="preview-stage-label-name">{page.name}</span>
+        </div>
+        <PreviewDeviceToggle
+          device={previewDevice}
+          width={effectiveFrameWidth}
+          onChange={onPreviewDeviceChange}
+        />
       </div>
-      <div
-        className="preview-stage-frame"
-        data-theme={theme}
-        data-custom-bg={brochure.backgroundColor ? '' : undefined}
-        style={{ ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...eyebrowStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
-        ref={frameRef}
-      >
+      <div className="preview-stage-frame-area">
+        <div
+          className="preview-stage-frame-positioner"
+          style={{ maxWidth: `${effectiveFrameWidth}px` }}
+        >
+          <div
+            className="preview-stage-frame"
+            data-theme={theme}
+            data-custom-bg={brochure.backgroundColor ? '' : undefined}
+            style={{ ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...eyebrowStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
+            ref={frameRef}
+          >
         <div className="brochure-page" style={{ width: '100%' }}>
           {page.sections.map((section) => {
             const isSelected = currentSectionKey === section._key
@@ -186,10 +237,84 @@ export function PreviewStage({
               </div>
             )
           })}
+            </div>
+          </div>
+          <div
+            className="preview-stage-resize-grip"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize preview frame"
+            onMouseDown={handleGripDown}
+            title={`${Math.round(effectiveFrameWidth)}px`}
+          />
         </div>
       </div>
     </div>
     </BrochureBrandingProvider>
+  )
+}
+
+type DeviceToggleProps = {
+  device: PreviewDevice
+  width: number
+  onChange: (device: PreviewDevice) => void
+}
+
+function PreviewDeviceToggle({ device, width, onChange }: DeviceToggleProps) {
+  const presets: { id: PreviewDevice; label: string; icon: React.ReactNode }[] = [
+    {
+      id: 'desktop',
+      label: 'Desktop',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
+          <rect x="1.5" y="2.5" width="13" height="9" rx="1" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M5 14h6M8 12v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      ),
+    },
+    {
+      id: 'tablet',
+      label: 'Tablet',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
+          <rect x="3" y="1.5" width="10" height="13" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <circle cx="8" cy="12.5" r="0.6" fill="currentColor" />
+        </svg>
+      ),
+    },
+    {
+      id: 'mobile',
+      label: 'Mobile',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
+          <rect x="4.5" y="1.5" width="7" height="13" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <circle cx="8" cy="12.5" r="0.5" fill="currentColor" />
+        </svg>
+      ),
+    },
+  ]
+  return (
+    <div className="preview-device-toggle" role="group" aria-label="Preview device">
+      {presets.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          className={`preview-device-toggle-btn${device === p.id ? ' active' : ''}`}
+          onClick={() => onChange(p.id)}
+          title={p.label}
+          aria-pressed={device === p.id}
+          aria-label={p.label}
+        >
+          {p.icon}
+        </button>
+      ))}
+      <span
+        className={`preview-device-width${device === 'custom' ? ' active' : ''}`}
+        title={device === 'custom' ? 'Custom width — drag the grip to resize' : `${Math.round(width)}px`}
+      >
+        {Math.round(width)}px
+      </span>
+    </div>
   )
 }
 

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CompanyEditModal, type CompanyFormSource } from './CompanyEditModal'
 import { urlForSection } from '@/lib/sanity/image'
 import type { SanityImage } from '@/types/brochure'
+import { AdminThemeToggle } from './AdminThemeToggle'
 
 export type CompanyRow = {
   _id: string
@@ -36,6 +37,7 @@ export function CompaniesAdminClient({ companies }: Props) {
           </div>
         </div>
         <div className="library-header-actions">
+          <AdminThemeToggle />
           <Link href="/admin" className="library-header-btn">
             Brochures
           </Link>

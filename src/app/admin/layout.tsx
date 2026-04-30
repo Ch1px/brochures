@@ -1,5 +1,14 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { notFound } from 'next/navigation'
+import { Outfit } from 'next/font/google'
+import { AdminThemeProvider } from '@/components/admin/AdminThemeProvider'
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  variable: '--font-admin',
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+})
 
 /**
  * Admin layout — double-gate on top of middleware:
@@ -8,6 +17,11 @@ import { notFound } from 'next/navigation'
  *    If not, responds 404 rather than 403 — less information leaked to intruders.
  *
  * Allowlist is comma-separated in ADMIN_EMAIL_ALLOWLIST env var.
+ *
+ * Wraps in AdminThemeProvider so the dark/light chrome preference applies
+ * across every admin page (editor, library, companies, media). The provider
+ * adds `data-admin-theme` to <html> on mount and removes it on unmount, so
+ * public routes (/[slug]) never see the attribute.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser()
@@ -22,5 +36,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     notFound()
   }
 
-  return <>{children}</>
+  return (
+    <AdminThemeProvider>
+      <div className={`admin-app ${outfit.variable}`}>{children}</div>
+    </AdminThemeProvider>
+  )
 }

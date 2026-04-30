@@ -82,8 +82,8 @@
   gap: 6px;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
   padding-left: 10px;
   border-left: 1px solid var(--chrome-border);
@@ -106,7 +106,7 @@
   background: var(--chrome-raised);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.02em;
   text-transform: lowercase;
   color: var(--chrome-text-secondary);
   white-space: nowrap;
@@ -124,7 +124,7 @@
 }
 .editor-host-badge-host {
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   text-transform: none;
   color: var(--chrome-text);
 }
@@ -133,7 +133,7 @@
   border-radius: 2px;
   background: rgba(225, 6, 0, 0.14);
   color: var(--brand-red);
-  letter-spacing: 0.18em;
+  letter-spacing: 0.02em;
   font-size: 9px;
 }
 
@@ -148,8 +148,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
   background: transparent;
   border: 0;
@@ -172,8 +172,8 @@
   border-radius: 2px;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
   white-space: nowrap;
 }
@@ -183,8 +183,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   border: 1px solid var(--chrome-border);
   border-radius: 3px;
   color: var(--chrome-text-secondary);
@@ -232,8 +232,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
   background: transparent;
   border: none;
@@ -306,8 +306,8 @@
   padding: 0 8px 0 16px;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
   border-bottom: 1px solid var(--chrome-border);
 }
@@ -317,7 +317,7 @@
   padding: 24px;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-muted);
   line-height: 1.6;
 }
@@ -404,8 +404,8 @@
 .editor-panel-rail-label {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
 }
@@ -450,7 +450,7 @@
   color: var(--brand-red);
   padding-bottom: 10px;
   font-size: 10px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.02em;
 }
 .editor-page-group.drag-target .editor-section-list-collapsed::after {
   content: ' — drop here';
@@ -503,15 +503,15 @@
   padding: 4px 12px 6px 46px;
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-muted);
 }
 
 .editor-page-num {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
   flex-shrink: 0;
   width: 20px;
@@ -522,8 +522,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -538,8 +538,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
   border-radius: 2px;
   outline: none;
@@ -658,7 +658,7 @@
 .editor-section-num {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
   flex-shrink: 0;
   width: 18px;
@@ -689,8 +689,8 @@
   color: var(--chrome-text-tertiary);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   text-align: left;
   cursor: pointer;
   border-radius: 2px;
@@ -717,8 +717,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
   border-radius: 3px;
   transition: all 0.1s;
@@ -750,7 +750,7 @@
 .preview-stage-label-num {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
 }
 .preview-stage-label-name {
@@ -762,12 +762,48 @@
   color: var(--chrome-text-secondary);
 }
 
+/* The toolbar replaces the old single .preview-stage-label row — it now
+   holds the page label on the left and the device-preview toggle on the
+   right. */
+.preview-stage-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 4px;
+}
+
+/* Stage row that hosts the centred frame positioner and the drag grip.
+   `flex: 1; min-height: 0` keeps the height-chain unbroken (frame still
+   relies on filling its parent vertically). */
+.preview-stage-frame-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  position: relative;
+}
+
+/* Centred, width-constrained wrapper around the frame. Driven by inline
+   `max-width` from the device-toggle / drag-grip state. The grip pins to
+   its right edge so the grip naturally tracks the frame's right side. */
+.preview-stage-frame-positioner {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  transition: max-width 0.18s ease;
+}
+
 .preview-stage-frame {
   flex: 1;
   min-height: 0;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
   aspect-ratio: 16 / 10;
   background: #000;
   border-radius: 4px;
@@ -779,6 +815,83 @@
   container-name: brochure-frame;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   position: relative;
+}
+
+/* Drag grip on the right edge of the frame. Symmetric resize: dragging
+   right by N expands the centred frame's width by 2N (handled in JS), so
+   the visual feels like grabbing the frame's edge. */
+.preview-stage-resize-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -8px;
+  width: 12px;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.preview-stage-resize-grip::before {
+  content: '';
+  width: 3px;
+  height: 32px;
+  border-radius: 2px;
+  background: var(--chrome-border-strong);
+  transition: background 0.12s, height 0.12s;
+}
+.preview-stage-resize-grip:hover::before,
+.preview-stage-resize-grip:active::before {
+  background: var(--brand-red);
+  height: 48px;
+}
+
+/* Device-preset toggle in the stage toolbar. Three icon buttons (desktop /
+   tablet / mobile) plus a live width readout that goes "active" when the
+   user has dragged the grip into a custom width. */
+.preview-device-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-border);
+  border-radius: 6px;
+}
+.preview-device-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--chrome-text-tertiary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+}
+.preview-device-toggle-btn:hover {
+  color: var(--chrome-text);
+  background: var(--chrome-surface);
+}
+.preview-device-toggle-btn.active {
+  background: var(--chrome-bg);
+  color: var(--brand-red);
+  box-shadow: inset 0 0 0 1px var(--chrome-border-strong);
+}
+.preview-device-width {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--chrome-text-tertiary);
+  padding: 0 8px 0 6px;
+  min-width: 56px;
+  text-align: center;
+}
+.preview-device-width.active {
+  color: var(--brand-red);
 }
 
 /* When the frame is shorter than 16:10 would make it, cap the aspect ratio
@@ -840,14 +953,14 @@
   font-family: var(--font-condensed);
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
 }
 .preview-stage-empty-hint {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
   max-width: 360px;
   line-height: 1.6;
@@ -902,8 +1015,8 @@
 .add-section-modal-eyebrow {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
   margin-bottom: 6px;
 }
@@ -986,8 +1099,8 @@
   font-family: var(--font-condensed);
   font-weight: 700;
   font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
 }
 
@@ -1030,16 +1143,16 @@
   font-family: var(--font-condensed);
   font-weight: 700;
   font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
 }
 .properties-context {
   margin-top: 4px;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .properties-tabs {
@@ -1056,8 +1169,8 @@
   padding: 9px 0 8px;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
   background: none;
   border: none;
@@ -1106,14 +1219,14 @@
   font-family: var(--font-condensed);
   font-weight: 700;
   font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
 }
 .properties-empty-hint {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
   line-height: 1.55;
   max-width: 240px;
@@ -1219,8 +1332,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
   transition: all 0.12s;
 }
@@ -1236,7 +1349,7 @@
 .inline-media-status {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.02em;
   color: var(--brand-red);
   animation: pulse 1s ease-in-out infinite;
 }
@@ -1252,7 +1365,7 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1307,8 +1420,8 @@
 .field-section-heading {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--brand-red);
   margin: 16px 0 8px;
 }
@@ -1321,13 +1434,13 @@
 .field-label {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .field-label-inline {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  text-transform: none;
+  letter-spacing: 0.02em;
   cursor: pointer;
 }
 .field-description {
@@ -1386,8 +1499,8 @@
   border-radius: 3px;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
   transition: border-color 0.1s, color 0.1s, background 0.1s;
 }
@@ -1463,8 +1576,8 @@
 .field-image-empty {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .field-image-actions {
@@ -1482,8 +1595,8 @@
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
   transition: all 0.1s;
 }
@@ -1556,8 +1669,8 @@
   color: var(--chrome-text-tertiary);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
   transition: all 0.1s;
   text-align: left;
@@ -1598,8 +1711,8 @@
 .field-object-card-title {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1641,8 +1754,8 @@
 .field-image-slot-label {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .field-image-slot-preview {
@@ -1664,8 +1777,8 @@
 .field-image-slot-empty {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .field-image-slot-actions {
@@ -1676,7 +1789,7 @@
 .field-image-slot-actions .field-btn {
   font-size: 9px;
   padding: 5px 6px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.02em;
 }
 .field-image-slot-actions .field-icon-btn {
   width: 24px;
@@ -1719,7 +1832,7 @@
   align-self: flex-start;
   margin-top: 4px;
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.02em;
   padding: 5px 10px;
 }
 .texture-hidden-card {
@@ -1735,8 +1848,8 @@
 .texture-hidden-label {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
 }
 
@@ -1751,8 +1864,8 @@
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
   pointer-events: none;
 }
@@ -1771,8 +1884,8 @@
   -webkit-backdrop-filter: blur(2px);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: #fff;
 }
 .field-image-loading-dot {
@@ -1790,14 +1903,14 @@
 .field-error {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   color: #ff5555;
   line-height: 1.45;
   padding: 4px 0 0;
 }
 .field-error-compact {
   font-size: 9px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
 }
 
 /* ----- CIRCUIT MAP SVG UPLOAD ----- */
@@ -1872,8 +1985,8 @@
   font-family: var(--font-condensed);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   text-align: left;
   color: var(--chrome-text-secondary);
   cursor: pointer;
@@ -1903,8 +2016,8 @@
   border-bottom: 1px solid var(--chrome-border);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
 }
 .settings-section-header:first-child {
@@ -1916,8 +2029,8 @@
   font-family: var(--font-condensed);
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
 }
 .settings-inherit-hint {
@@ -1967,15 +2080,15 @@
   font-family: var(--font-condensed);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
 }
 .font-card-desc {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .font-card-controls {
@@ -1991,7 +2104,7 @@
 }
 .font-card-controls .field-label {
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
 }
 .font-card-custom-section {
@@ -2009,7 +2122,7 @@
   flex: 1;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2033,8 +2146,8 @@
   flex: 1;
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
 }
 .font-card-add-weight select {
@@ -2044,7 +2157,7 @@
   padding: 0 16px 10px;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.02em;
   color: var(--brand-red);
   animation: pulse 1s ease-in-out infinite;
 }
@@ -2185,8 +2298,8 @@
   color: var(--chrome-text-secondary);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   cursor: pointer;
   transition: border-color 0.1s, color 0.1s;
 }
@@ -2227,8 +2340,8 @@
 .field-color-hex {
   flex: 1;
   font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  text-transform: none;
+  letter-spacing: 0.02em;
 }
 .field-color-reset {
   flex-shrink: 0;
@@ -2236,8 +2349,8 @@
 .field-color-hint {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .field-color-default-chip {
@@ -2249,8 +2362,8 @@
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-secondary);
 }
 
@@ -2311,14 +2424,14 @@
   flex-shrink: 0;
   padding: 2px 6px;
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.02em;
 }
 .brand-colors-compact .field-color-reset {
   order: 4;
   flex-shrink: 0;
   padding: 3px 8px;
   font-size: 10px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
 }
 
 /* Brand colour swatches (FieldBrandColor) */
@@ -2331,8 +2444,8 @@
 .field-brand-swatches-label {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .field-brand-swatches-grid {
@@ -2363,8 +2476,8 @@
   border: none;
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--brand-red);
   cursor: pointer;
   margin-left: 8px;
@@ -2393,8 +2506,8 @@
 .field-brand-swatches-active {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--brand-red);
   margin-top: 4px;
 }
@@ -2448,13 +2561,13 @@
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--chrome-text);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.04em;
 }
 .recolor-overrides-count {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
   margin-left: auto;
 }
@@ -2483,8 +2596,8 @@
   font-family: var(--font-condensed);
   font-weight: 700;
   font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text);
 }
 .recolor-popover-id {
@@ -2531,7 +2644,7 @@
   background: var(--chrome-raised);
   border: 1px solid var(--chrome-border);
   border-radius: 3px;
-  text-transform: uppercase;
+  text-transform: none;
   outline: none;
   transition: border-color 0.12s;
 }
@@ -2547,8 +2660,8 @@
 .recolor-popover-recents-label {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--chrome-text-tertiary);
 }
 .recolor-popover-recents-grid {
@@ -2576,15 +2689,15 @@
 .recolor-popover-token-label {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--brand-red);
   margin-top: 4px;
 }
 .recolor-popover-hint {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   color: var(--chrome-text-tertiary);
   line-height: 1.5;
 }
@@ -2672,7 +2785,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
+  text-transform: none;
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
