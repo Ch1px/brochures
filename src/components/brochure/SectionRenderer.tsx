@@ -110,6 +110,13 @@ function sectionStyleCss(
   if (body) vars.push(`--section-body-color:${body}`)
   const accent = resolveFieldColor(s.accentColor, brandCtx)
   if (accent) vars.push(`--section-accent-color:${accent}`)
+  const overlay = resolveFieldColor(s.overlayColor, brandCtx)
+  if (overlay) {
+    const r = parseInt(overlay.slice(1, 3), 16)
+    const g = parseInt(overlay.slice(3, 5), 16)
+    const b = parseInt(overlay.slice(5, 7), 16)
+    vars.push(`--overlay-base-rgb:${r}, ${g}, ${b}`)
+  }
 
   // Scale overrides — override the brochure-wide --X-scale vars for this section
   const ts = resolveScale(s.titleScale)

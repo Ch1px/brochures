@@ -558,7 +558,7 @@
   .page-cover-bg::after {
     content: ''; position: absolute; inset: 0;
     background:
-      linear-gradient(180deg, rgba(0,0,0,var(--cover-grad-top, 0.3)) 0%, rgba(0,0,0,var(--cover-grad-mid, 0.1)) 35%, rgba(0,0,0,var(--cover-grad-bot, 0.85)) 100%),
+      linear-gradient(180deg, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--cover-grad-top, 0.3)) 0%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--cover-grad-mid, 0.1)) 35%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--cover-grad-bot, 0.85)) 100%),
       radial-gradient(circle at 30% 70%, color-mix(in srgb, var(--section-accent-color, var(--brand-red)) 15%, transparent) 0%, transparent 60%);
   }
   .page-cover.cover-overlay-none   { --cover-brightness: 0.9;  --cover-grad-top: 0.05; --cover-grad-mid: 0;    --cover-grad-bot: 0.15; }
@@ -940,9 +940,9 @@
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(8, 8, 10, var(--overlay-top, 0.72)) 0%,
-      rgba(8, 8, 10, var(--overlay-mid, 0.62)) 50%,
-      rgba(8, 8, 10, var(--overlay-bot, 0.82)) 100%
+      rgba(var(--overlay-base-rgb, 8, 8, 10), var(--overlay-top, 0.72)) 0%,
+      rgba(var(--overlay-base-rgb, 8, 8, 10), var(--overlay-mid, 0.62)) 50%,
+      rgba(var(--overlay-base-rgb, 8, 8, 10), var(--overlay-bot, 0.82)) 100%
     );
     pointer-events: none;
     z-index: 1;
@@ -1707,7 +1707,7 @@
   .page-closing-bg::after {
     content: ''; position: absolute; inset: 0;
     background:
-      linear-gradient(180deg, rgba(0,0,0,var(--closing-grad-top, 0.3)) 0%, rgba(0,0,0,var(--closing-grad-mid, 0.1)) 35%, rgba(0,0,0,var(--closing-grad-bot, 0.85)) 100%);
+      linear-gradient(180deg, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--closing-grad-top, 0.3)) 0%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--closing-grad-mid, 0.1)) 35%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--closing-grad-bot, 0.85)) 100%);
   }
   .page-closing.closing-overlay-none   { --closing-brightness: 0.9;  --closing-grad-top: 0.05; --closing-grad-mid: 0;    --closing-grad-bot: 0.15; }
   .page-closing.closing-overlay-light  { --closing-brightness: 0.7;  --closing-grad-top: 0.15; --closing-grad-mid: 0.05; --closing-grad-bot: 0.5;  }
@@ -1833,8 +1833,8 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(0,0,0,var(--sh-grad-left, 0.75)) 0%, rgba(0,0,0,var(--sh-grad-mid, 0.45)) 45%, rgba(0,0,0,var(--sh-grad-right, 0.25)) 100%),
-      linear-gradient(180deg, rgba(0,0,0,var(--sh-grad-top, 0.25)) 0%, rgba(0,0,0,var(--sh-grad-center, 0.1)) 40%, rgba(0,0,0,var(--sh-grad-bot, 0.55)) 100%);
+      linear-gradient(90deg, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--sh-grad-left, 0.75)) 0%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--sh-grad-mid, 0.45)) 45%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--sh-grad-right, 0.25)) 100%),
+      linear-gradient(180deg, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--sh-grad-top, 0.25)) 0%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--sh-grad-center, 0.1)) 40%, rgba(var(--overlay-base-rgb, 0, 0, 0),var(--sh-grad-bot, 0.55)) 100%);
     z-index: 1;
     pointer-events: none;
   }
@@ -4849,15 +4849,16 @@
     --body-text-muted: rgba(11, 11, 13, 0.75);
   }
 
-  /* Image-overlay sections (cover, section heading, image hero, closing)
-     are designed around dark text-on-photo treatments. They look bad in
-     light mode, so they keep the dark tokens even when the brochure
-     theme is light. */
-  [data-theme="light"] .page-cover,
-  [data-theme="light"] .page-image-hero,
-  [data-theme="light"] .page-section-heading,
-  [data-theme="light"] .page-closing,
-  [data-theme="light"] .page-spotlight {
+  /* Image-overlay sections (cover, section heading, image hero, closing,
+     spotlight) are designed around dark text-on-photo treatments. The
+     overlay gradients are always dark (rgba(0,0,0,...)), so the text on
+     top must always be light — regardless of brochure theme or custom
+     title/text colour overrides. */
+  .page-cover,
+  .page-image-hero,
+  .page-section-heading,
+  .page-closing,
+  .page-spotlight {
     --page-bg: #161618;
     --page-bg-alt: #131316;
     --page-text: #ffffff;

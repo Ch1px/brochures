@@ -210,10 +210,21 @@ export function SectionStylesEditor({ section, onChange, brandContext, onAddCust
           {config.overlay && (
             <FieldSelect
               label="Overlay strength"
-              description="Controls the dark overlay over the background image."
+              description="Controls the overlay opacity over the background image."
               value={(s.overlayStrength as string) ?? 'medium'}
               onChange={(v) => anyChange({ overlayStrength: v })}
               options={OVERLAY_OPTIONS}
+            />
+          )}
+          {config.overlay && (
+            <FieldBrandColor
+              label="Overlay colour"
+              description="Override the overlay tint for this section. Defaults to the brochure background, or near-black if that background is light."
+              value={s.overlayColor as string | undefined}
+              onChange={(v) => anyChange({ overlayColor: v })}
+              fallback={brandContext?.backgroundColor || '#000000'}
+              brandContext={brandContext}
+              onAddCustomColor={onAddCustomColor}
             />
           )}
           {config.parallax && (

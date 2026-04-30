@@ -109,6 +109,29 @@ export function titleStyleVars(
 }
 
 /**
+ * Brochure-level overlay base colour, derived from the brochure background.
+ * Image-overlay sections (cover, section heading, spotlight, closing) tint
+ * their dark gradient with this value so the overlay integrates with the
+ * brand palette. When the background is light (luminance > 0.5) we fall
+ * back to near-black, since a light overlay can't keep text legible against
+ * a busy photograph.
+ *
+ * Emits `--overlay-base-rgb` as a comma-separated triple so it can be
+ * composed inside `rgba(var(--overlay-base-rgb), <alpha>)`.
+ */
+export function overlayBaseVars(hex?: string | null): CSSProperties | undefined {
+  if (!hex) return undefined
+  const normalised = hex.trim()
+  if (!HEX_RE.test(normalised)) return undefined
+  const rgb = hexToRgb(normalised)
+  const isLight = relativeLuminance(rgb) > 0.5
+  const r = isLight ? 0 : rgb.r
+  const g = isLight ? 0 : rgb.g
+  const b = isLight ? 0 : rgb.b
+  return { ['--overlay-base-rgb' as string]: `${r}, ${g}, ${b}` } as CSSProperties
+}
+
+/**
  * Per-brochure nav background override. Sets `--nav-bg` from a single hex.
  * Returns `undefined` when no override is set.
  */

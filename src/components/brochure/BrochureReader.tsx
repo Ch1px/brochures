@@ -9,7 +9,7 @@ import { GoogleFontsLink } from './GoogleFontsLink'
 import { TextureOverride } from './TextureOverride'
 import { CustomFontFaces } from './CustomFontFaces'
 import { accentColorVars } from '@/lib/accentColor'
-import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars } from '@/lib/themeColorVars'
+import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars, overlayBaseVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
 import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
@@ -110,6 +110,7 @@ export function BrochureReader({ brochure }: Props) {
   const titleStyle2 = titleStyleVars(brochure.titleItalic, brochure.titleTransform)
   const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
   const navStyle = navColorVars(brochure.navColor)
+  const overlayStyle = overlayBaseVars(brochure.backgroundColor)
   const scaleStyle = textScaleVars(brochure)
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
@@ -122,7 +123,7 @@ export function BrochureReader({ brochure }: Props) {
       className="preview-mode visible"
       data-theme={theme}
       data-custom-bg={brochure.backgroundColor ? '' : undefined}
-      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...scaleStyle }}
+      style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle, ...scaleStyle }}
     >
       <BrochureNav
         brand={brochure.title}

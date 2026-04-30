@@ -70,6 +70,7 @@ export type SectionCover = {
   image?: SanityImage
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
   background?: string
   titleColor?: string
   bodyColor?: string
@@ -135,6 +136,7 @@ export type SectionSectionHeading = {
   image?: SanityImage
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -344,6 +346,7 @@ export type SectionClosing = {
   image?: SanityImage
   video?: SanityFile
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
   background?: string
   eyebrowColor?: string
   titleColor?: string
@@ -463,6 +466,7 @@ export type SectionSpotlight = {
   backgroundVideo?: SanityFile
   backgroundParallax?: boolean
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
   background?: string
   eyebrowColor?: string
   titleColor?: string

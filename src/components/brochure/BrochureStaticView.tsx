@@ -7,7 +7,7 @@ import { GoogleFontsLink } from './GoogleFontsLink'
 import { TextureOverride } from './TextureOverride'
 import { LogoMark } from './LogoMark'
 import { accentColorVars } from '@/lib/accentColor'
-import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars } from '@/lib/themeColorVars'
+import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars, overlayBaseVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
 
@@ -55,6 +55,7 @@ export function BrochureStaticView({ brochure }: Props) {
   const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
   const fontStyle = fontOverrideVars(brochure.fontOverrides)
   const navStyle = navColorVars(brochure.navColor)
+  const overlayStyle = overlayBaseVars(brochure.backgroundColor)
   const fontsUrl = googleFontsUrl(brochure.fontOverrides)
 
   if (total === 0) {
@@ -83,7 +84,7 @@ export function BrochureStaticView({ brochure }: Props) {
         className="preview-mode visible"
         data-theme={theme}
         data-custom-bg={brochure.backgroundColor ? '' : undefined}
-        style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle }}
+        style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle }}
       >
         <nav className="brochure-nav" data-nav-ctx="public">
           <div className="brochure-nav-brand">

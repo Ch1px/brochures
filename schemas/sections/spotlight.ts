@@ -72,6 +72,12 @@ export default defineType({
         layout: 'radio',
       },
     }),
+    defineField({
+      name: 'overlayColor',
+      title: 'Overlay colour',
+      type: 'string',
+      description: 'Override the overlay tint for this section. Hex format (e.g. #0a0a0c) or a brand token like "var:bg". Leave blank to inherit from the brochure background.',
+    }),
     ...sectionStyleFields,
     backgroundField,
   ],
