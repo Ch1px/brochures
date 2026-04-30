@@ -40,18 +40,21 @@ function slugify(input: string): string {
     .slice(0, 80)
 }
 
-/**
- * Convert whatever the user typed in the "Root domain" field into the actual
- * host the brochure pages render on. Strips protocol/path/port and prepends
- * `brochures.` unless the input already starts with it.
- */
-function deriveHost(input: string): string {
-  const cleaned = input
+/** Strip protocol / path / port and lowercase. */
+function cleanHost(input: string): string {
+  return input
     .trim()
     .toLowerCase()
     .replace(/^https?:\/\//, '')
     .replace(/\/.*$/, '')
     .replace(/:\d+$/, '')
+}
+
+/**
+ * Default mode: take a root domain and prepend `brochures.` (idempotently).
+ */
+function deriveDefaultHost(rootDomain: string): string {
+  const cleaned = cleanHost(rootDomain)
   if (!cleaned) return ''
   if (cleaned.startsWith('brochures.')) return cleaned
   return `brochures.${cleaned}`
@@ -83,9 +86,12 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [slugDirty, setSlugDirty] = useState(false)
-  // What the user types in the "Root domain" field. We always re-derive
-  // the actual host from this value before submitting.
-  const [domainInput, setDomainInput] = useState('')
+  // Two-mode hosting domain input. Default mode auto-prepends `brochures.`;
+  // custom mode accepts whatever full host the admin types (e.g. when GPGT
+  // controls DNS for a subdomain like `textbook.grandstandtickets.com`).
+  const [domainMode, setDomainMode] = useState<'default' | 'custom'>('default')
+  const [rootDomain, setRootDomain] = useState('')
+  const [customHost, setCustomHost] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [displayNameDirty, setDisplayNameDirty] = useState(false)
   const [website, setWebsite] = useState('')
@@ -99,14 +105,17 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   const [pending, startTransition] = useTransition()
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const derivedHost = deriveHost(domainInput)
+  const derivedHost =
+    domainMode === 'default' ? deriveDefaultHost(rootDomain) : cleanHost(customHost)
 
   useEffect(() => {
     if (!open) {
       setName('')
       setSlug('')
       setSlugDirty(false)
-      setDomainInput('')
+      setDomainMode('default')
+      setRootDomain('')
+      setCustomHost('')
       setDisplayName('')
       setDisplayNameDirty(false)
       setWebsite('')
@@ -122,10 +131,17 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       setName(source.name)
       setSlug(source.slug ?? '')
       setSlugDirty(true)
-      // Show whatever's stored — user can always edit. We don't strip the
-      // `brochures.` prefix because then a re-save would re-derive the same
-      // value and the input would feel "magic".
-      setDomainInput(source.domain)
+      // Detect mode from the stored host: hosts that begin with `brochures.`
+      // round-trip through default mode; anything else is custom.
+      if (source.domain.startsWith('brochures.')) {
+        setDomainMode('default')
+        setRootDomain(source.domain.slice('brochures.'.length))
+        setCustomHost(source.domain)
+      } else {
+        setDomainMode('custom')
+        setCustomHost(source.domain)
+        setRootDomain('')
+      }
       setDisplayName(source.displayName)
       setDisplayNameDirty(true)
       setWebsite(source.website ?? '')
@@ -340,19 +356,70 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
           </div>
 
           <div className="field-group">
-            <label className="field-label">Root domain</label>
+            <label className="field-label">Hosting domain</label>
             <div className="field-description">
-              Their primary domain (e.g. <code>grandstandtickets.com</code>). We&apos;ll host
-              this company&apos;s brochures on the <code>brochures.</code> subdomain
-              automatically.
+              Default uses the <code>brochures.</code> subdomain on the company&apos;s
+              own domain. Switch to custom if GPGT controls DNS for a different
+              subdomain (e.g. <code>textbook.grandstandtickets.com</code>).
             </div>
-            <input
-              className="field-input"
-              value={domainInput}
-              onChange={(e) => setDomainInput(e.target.value.toLowerCase())}
-              placeholder="grandstandtickets.com"
-              spellCheck={false}
-            />
+            <div
+              role="radiogroup"
+              aria-label="Domain mode"
+              style={{ display: 'flex', gap: 6, marginBottom: 10 }}
+            >
+              <button
+                type="button"
+                role="radio"
+                aria-checked={domainMode === 'default'}
+                className={`library-filter-pill${domainMode === 'default' ? ' active' : ''}`}
+                onClick={() => {
+                  if (domainMode === 'default') return
+                  // Switching from custom → default: try to populate the root
+                  // by stripping the first label of whatever was in custom.
+                  if (!rootDomain && customHost) {
+                    const labels = customHost.split('.')
+                    if (labels.length >= 3) setRootDomain(labels.slice(1).join('.'))
+                  }
+                  setDomainMode('default')
+                }}
+              >
+                Default — brochures.&lt;root&gt;
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={domainMode === 'custom'}
+                className={`library-filter-pill${domainMode === 'custom' ? ' active' : ''}`}
+                onClick={() => {
+                  if (domainMode === 'custom') return
+                  // Switching default → custom: pre-fill the custom field
+                  // with the derived host so admin can edit from there.
+                  if (!customHost && rootDomain) {
+                    setCustomHost(deriveDefaultHost(rootDomain))
+                  }
+                  setDomainMode('custom')
+                }}
+              >
+                Custom subdomain
+              </button>
+            </div>
+            {domainMode === 'default' ? (
+              <input
+                className="field-input"
+                value={rootDomain}
+                onChange={(e) => setRootDomain(e.target.value.toLowerCase())}
+                placeholder="grandstandtickets.com"
+                spellCheck={false}
+              />
+            ) : (
+              <input
+                className="field-input"
+                value={customHost}
+                onChange={(e) => setCustomHost(e.target.value.toLowerCase())}
+                placeholder="textbook.grandstandtickets.com"
+                spellCheck={false}
+              />
+            )}
             {derivedHost ? (
               <div
                 style={{
