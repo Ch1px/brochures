@@ -309,13 +309,27 @@ export async function setBrochureStatus(
   }
 }
 
-/** Set the featured flag. Unset it on any other brochure first so only one is featured. */
+/**
+ * Set the featured flag. Featured is scoped per host: only one brochure can be
+ * featured per company, and only one across the canonical (no-company) host.
+ * Unsets `featured` on other brochures sharing the same scope as the target,
+ * leaving brochures on other hosts untouched.
+ */
 export async function setFeaturedBrochure(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    // Unset featured on all other brochures
-    const others = await sanityWriteClient.fetch<{ _id: string }[]>(
-      `*[_type == "brochure" && featured == true && _id != $id]{ _id }`,
+    const target = await sanityWriteClient.fetch<{ company?: { _ref: string } } | null>(
+      `*[_type == "brochure" && _id == $id][0]{ company }`,
       { id }
+    )
+    if (!target) return { ok: false, error: 'Brochure not found' }
+    const companyRef = target.company?._ref ?? null
+
+    // Match siblings by host scope: same company ref, or both no company.
+    const others = await sanityWriteClient.fetch<{ _id: string }[]>(
+      `*[_type == "brochure" && featured == true && _id != $id
+        && (($companyRef == null && !defined(company)) || company._ref == $companyRef)
+      ]{ _id }`,
+      { id, companyRef }
     )
     const tx = sanityWriteClient.transaction()
     for (const o of others) tx.patch(o._id, { set: { featured: false } })
