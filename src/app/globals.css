@@ -6042,6 +6042,35 @@
     --font-mono: var(--font-admin), system-ui, -apple-system, Segoe UI, sans-serif;
     font-family: var(--font-admin), system-ui, -apple-system, Segoe UI, sans-serif;
   }
+  /* ====================================================================
+     ADMIN CHROME — accent override
+     --------------------------------------------------------------------
+     The brochure brand accent is red (`--brand-red` family at `:root`).
+     For the admin UI we want a calmer, Figma-style blue so chrome cues
+     (focus rings, primary buttons, active page/section pills, hover
+     borders) read as tool affordances rather than brand surfaces.
+
+     We override the four `--brand-red*` tokens at `.admin-app` scope.
+     Every admin-chrome rule already references these via `var(...)`, so
+     the swap is automatic with no per-rule edits. The brochure itself
+     is then opted out below by resetting the tokens back inside
+     `.preview-stage-frame` — that way brochures with no `accentColor`
+     still render with the platform red, and brochures with a custom
+     accent still win via `accentStyle` inline styles on the frame.
+     ================================================================== */
+  .admin-app {
+    --brand-red: #3b82f6;
+    --brand-red-hover: #60a5fa;
+    --brand-red-glow: rgba(59, 130, 246, 0.35);
+    --brand-red-dim: rgba(59, 130, 246, 0.12);
+  }
+  [data-admin-theme="light"] .admin-app {
+    --brand-red: #2563eb;
+    --brand-red-hover: #3b82f6;
+    --brand-red-glow: rgba(37, 99, 235, 0.32);
+    --brand-red-dim: rgba(37, 99, 235, 0.1);
+  }
+
   /* Reset on the preview frame only — `fontOverrideVars` applies inline
      styles here, so .brochure-page (its child) must inherit naturally
      instead of being re-forced back to Formula1. */
@@ -6050,6 +6079,19 @@
     --font-condensed: 'Barlow Condensed', sans-serif;
     --font-display: 'Formula1', 'Titillium Web', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  /* Brand-red reset on every admin surface that renders actual brochure
+     content (editor preview, library card mini-thumbs). Keeps the
+     brochure default accent red even though the surrounding admin chrome
+     uses the blue accent above. Inline `accentStyle` from a brochure's
+     own custom accent still wins via specificity. */
+  .admin-app .preview-stage-frame,
+  .admin-app .library-card-mini-frame {
+    --brand-red: #cf212a;
+    --brand-red-hover: #dd242d;
+    --brand-red-glow: rgba(225, 6, 0, 0.35);
+    --brand-red-dim: rgba(225, 6, 0, 0.12);
   }
 
   /* ====================================================================

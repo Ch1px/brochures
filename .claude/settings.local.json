@@ -51,7 +51,9 @@
       "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=CNAME\")",
       "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=A\")",
       "Bash(curl -s \"https://dns.google/resolve?name=grandstandtickets.com&type=CAA\")",
-      "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=CAA\")"
+      "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=CAA\")",
+      "Bash(awk 'NR==30,/===== BROCHURE PAGE STYLES/{print NR\": \"$0}' \"C:/brochures/src/app/globals.css\")",
+      "Bash(awk 'NR>=70 && NR<=120' \"C:/brochures/src/app/globals.css\")"
     ]
   }
 }
