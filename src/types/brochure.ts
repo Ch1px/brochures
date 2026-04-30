@@ -708,6 +708,7 @@ export type Brochure = {
   season: string
   event?: string
   status: BrochureStatus
+  lastEditedBy?: { name?: string; email?: string }
   theme?: BrochureTheme
   accentColor?: string
   backgroundColor?: string

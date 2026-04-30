@@ -32,6 +32,7 @@ import { RecolorPopover } from './RecolorPopover'
 import { SaveToast } from './SaveToast'
 import { CollapseButton, CollapsedRail, ResizeHandle } from './EditorLayoutControls'
 import { LiveblocksProvider, RoomProvider, roomIdForBrochure } from '@/lib/liveblocks'
+import { PeerPresenceProvider } from './PeerPresenceProvider'
 
 /**
  * Section types that expose image-treatment controls (overlay, greyscale,
@@ -128,7 +129,10 @@ export function BrochureEditor(props: Props) {
   if (!liveblocksEnabled) return <BrochureEditorInner {...props} />
   return (
     <LiveblocksProvider>
-      <RoomProvider id={roomIdForBrochure(initialBrochure._id)} initialPresence={{}}>
+      <RoomProvider
+        id={roomIdForBrochure(initialBrochure._id)}
+        initialPresence={{ cursor: null, selectedSectionKey: null, currentPageKey: null }}
+      >
         <BrochureEditorInner {...props} />
       </RoomProvider>
     </LiveblocksProvider>
@@ -976,6 +980,11 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
   }, [currentSection, brochure.pages])
 
   return (
+    <PeerPresenceProvider
+      selectedSectionKey={currentSectionKey}
+      currentPageKey={brochure.pages[currentPageIndex]?._key ?? null}
+      liveblocksEnabled={liveblocksEnabled}
+    >
     <div className="editor-root">
       <EditorTopbar
         brochure={brochure}
@@ -1031,6 +1040,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
             previewWidth={layout.previewWidth}
             onPreviewDeviceChange={layout.setPreviewDevice}
             onPreviewWidthChange={layout.setPreviewWidth}
+            liveblocksEnabled={liveblocksEnabled}
           />
         </main>
 
@@ -1159,5 +1169,6 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
       />
       <SaveToast status={saveStatus} />
     </div>
+    </PeerPresenceProvider>
   )
 }

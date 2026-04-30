@@ -117,6 +117,18 @@ export default defineType({
       group: 'meta',
     }),
     defineField({
+      name: 'lastEditedBy',
+      type: 'object',
+      description:
+        'Stamped automatically by the editor on each save. Read-only — do not edit by hand.',
+      readOnly: true,
+      group: 'meta',
+      fields: [
+        defineField({ name: 'name', type: 'string' }),
+        defineField({ name: 'email', type: 'string' }),
+      ],
+    }),
+    defineField({
       name: 'company',
       type: 'reference',
       description:

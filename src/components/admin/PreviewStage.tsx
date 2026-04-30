@@ -13,6 +13,8 @@ import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
 import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
 import { PREVIEW_DEVICE_WIDTHS, type PreviewDevice } from '@/hooks/useEditorLayout'
+import { OthersCursors } from './OthersCursors'
+import { usePeerSelections } from './PeerPresenceContext'
 
 type Props = {
   brochure: Brochure
@@ -58,6 +60,11 @@ type Props = {
   previewWidth: number
   onPreviewDeviceChange: (device: PreviewDevice) => void
   onPreviewWidthChange: (width: number) => void
+  /** When true, render Tier 2 presence overlays (live cursors over
+   *  the frame, peer-selection outline + name pill inside the hitbox
+   *  of any section another admin currently has selected). Cursor
+   *  broadcasting also lives in `OthersCursors`. */
+  liveblocksEnabled: boolean
 }
 
 /**
@@ -86,10 +93,16 @@ export function PreviewStage({
   previewWidth,
   onPreviewDeviceChange,
   onPreviewWidthChange,
+  liveblocksEnabled,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null)
   const page = brochure.pages[currentPageIndex]
   const total = brochure.pages.length
+  // Map of `_key` → peers currently selecting that section. The
+  // context value is reference-stable across cursor moves (see
+  // PeerPresenceProvider), so reading it here doesn't cause
+  // PreviewStage to re-render on every peer mousemove.
+  const peerSelections = usePeerSelections()
 
   // Width applied to the frame positioner. For preset devices we use the
   // canonical width; for 'custom' the user has dragged the grip to a value.
@@ -209,11 +222,20 @@ export function PreviewStage({
           {page.sections.map((section) => {
             const isSelected = currentSectionKey === section._key
             const isFooter = section._type === 'footer'
+            // Peer presence: outline the section in the first peer's
+            // colour. Multiple peers on the same section get one
+            // outline (their colours all match topbar avatars so
+            // operators can disambiguate from there); the page-panel
+            // dot stack shows every peer individually.
+            const peers = peerSelections[section._key]
+            const peerColor = peers && peers.length > 0 ? peers[0].color : undefined
             return (
               <div
                 key={section._key}
                 className={`preview-section-hitbox ${isSelected ? 'selected' : ''}`.trim()}
                 data-section-key={section._key}
+                data-peer-selected={peerColor ? '' : undefined}
+                style={peerColor ? ({ ['--peer-color' as string]: peerColor } as React.CSSProperties) : undefined}
                 onClick={() => setCurrentSectionKey(section._key)}
                 role="button"
                 tabIndex={0}
@@ -240,6 +262,12 @@ export function PreviewStage({
             )
           })}
             </div>
+            {liveblocksEnabled ? (
+              <OthersCursors
+                frameRef={frameRef}
+                currentPageKey={page._key ?? null}
+              />
+            ) : null}
           </div>
           <div
             className="preview-stage-resize-grip"

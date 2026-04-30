@@ -13,12 +13,35 @@
 /**
  * Per-user mutable state broadcast to other clients in the room.
  *
- * Empty in Tier 1 — identity (name, avatar, colour) rides on the
- * server-signed `userInfo` instead, so peers can't spoof their
- * identity by mutating presence. Tier 2 will add `cursor` and
- * `selectedSectionKey` here.
+ * Identity (name, avatar, colour) lives on the server-signed
+ * `userInfo` instead, so peers can't spoof their identity by mutating
+ * presence — see `UserMeta` below.
+ *
+ * - `cursor` is normalised to (0,1) of the preview frame's
+ *   *scroll-content* dimensions, not the visible viewport. This means
+ *   a peer with a tall page that's scrolled past section 1 still
+ *   broadcasts the correct semantic position even if the local user
+ *   has a different window size. Null when the cursor leaves the
+ *   preview area.
+ * - `selectedSectionKey` is the brochure section the peer currently
+ *   has focused in the right-hand properties panel; we render a
+ *   coloured outline + name pill inside that section's preview hitbox
+ *   and a coloured dot next to its row in the pages panel.
  */
-export type Presence = Record<string, never>
+export type Presence = {
+  cursor: { x: number; y: number } | null
+  selectedSectionKey: string | null
+  /**
+   * `_key` of the page the local user is currently viewing in the
+   * preview stage. Used to filter peer cursors so we only render
+   * them when peers are looking at the same page — without this,
+   * A's cursor coords (normalised to page 1) would render at the
+   * same relative position over page 2 in B's view, which is
+   * misleading. Page `_key` is stable across reorderings; index is
+   * not, which is why we use the key here.
+   */
+  currentPageKey: string | null
+}
 
 /** Document-shared storage. Empty in Tier 1 (no co-editing). */
 export type Storage = Record<string, never>

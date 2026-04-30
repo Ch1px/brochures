@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useClerk } from '@clerk/nextjs'
 import {
   FileText,
   Building2,
@@ -9,8 +11,13 @@ import {
   ExternalLink,
   ChevronDown,
   SlidersHorizontal,
+  Settings,
+  Sun,
+  Moon,
+  LogOut,
 } from 'lucide-react'
 import { AdminThemeToggle } from './AdminThemeToggle'
+import { useAdminTheme } from './AdminThemeProvider'
 import { CANONICAL_HOST } from '@/lib/brochureHost'
 
 type NavItem = {
@@ -58,24 +65,13 @@ export function AdminShell({ user, recents, children }: Props) {
   const isActive = (href: string) =>
     href === '/admin' ? pathname === '/admin' : pathname.startsWith(href)
 
-  const activeLabel = NAV_ITEMS.find((n) => isActive(n.href))?.label ?? 'Admin'
-
   const initial = (user.name ?? user.email ?? 'A').trim().charAt(0).toUpperCase()
   const displayName = user.name?.trim() || user.email || 'Signed in'
 
   return (
     <div className="admin-shell">
       <aside className="admin-shell-sidebar">
-        <button
-          type="button"
-          className="admin-shell-identity"
-          title={user.email ?? undefined}
-          aria-label={`Signed in as ${displayName}`}
-        >
-          <span className="admin-shell-identity-avatar" aria-hidden>{initial}</span>
-          <span className="admin-shell-identity-name">{displayName}</span>
-          <ChevronDown size={13} strokeWidth={2} className="admin-shell-identity-caret" aria-hidden />
-        </button>
+        <IdentityMenu user={user} initial={initial} displayName={displayName} />
 
         <div className="admin-shell-sidebar-scroll">
           <ShellSection label="Workspace">
@@ -124,9 +120,7 @@ export function AdminShell({ user, recents, children }: Props) {
       </aside>
 
       <header className="admin-shell-topbar">
-        <div className="admin-shell-topbar-left">
-          <span className="admin-shell-section">{activeLabel}</span>
-        </div>
+        <div className="admin-shell-topbar-left" />
         <div className="admin-shell-topbar-right">
           <Link
             className="admin-shell-icon-btn"
@@ -158,6 +152,119 @@ export function AdminShell({ user, recents, children }: Props) {
       </header>
 
       <main className="admin-shell-main">{children}</main>
+    </div>
+  )
+}
+
+/**
+ * Identity row + dropdown menu. The button is the trigger; on click a
+ * popover anchored beneath it shows account info, account-settings link
+ * (Clerk's user-profile modal), inline theme toggle, and sign out.
+ *
+ * Dismissed by: click outside, ESC, or selecting any item.
+ */
+function IdentityMenu({
+  user,
+  initial,
+  displayName,
+}: {
+  user: { name: string | null; email: string | null }
+  initial: string
+  displayName: string
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
+  const clerk = useClerk()
+  const { theme, toggle: toggleTheme } = useAdminTheme()
+
+  useEffect(() => {
+    if (!open) return
+    function onPointer(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const themeNext = theme === 'dark' ? 'light' : 'dark'
+  const themeNextLabel = theme === 'dark' ? 'Light mode' : 'Dark mode'
+  const ThemeIcon = theme === 'dark' ? Sun : Moon
+
+  return (
+    <div className="admin-shell-identity-wrap" ref={wrapRef}>
+      <button
+        type="button"
+        className={`admin-shell-identity${open ? ' open' : ''}`}
+        title={user.email ?? undefined}
+        aria-label={`Signed in as ${displayName}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="admin-shell-identity-avatar" aria-hidden>{initial}</span>
+        <span className="admin-shell-identity-name">{displayName}</span>
+        <ChevronDown size={13} strokeWidth={2} className="admin-shell-identity-caret" aria-hidden />
+      </button>
+
+      {open ? (
+        <div className="admin-shell-menu" role="menu">
+          <div className="admin-shell-menu-header">
+            <div className="admin-shell-menu-name">{displayName}</div>
+            {user.email ? <div className="admin-shell-menu-email">{user.email}</div> : null}
+          </div>
+
+          <div className="admin-shell-menu-sep" role="separator" />
+
+          <button
+            type="button"
+            className="admin-shell-menu-item"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              clerk.openUserProfile()
+            }}
+          >
+            <Settings size={14} strokeWidth={2} aria-hidden />
+            <span>Account settings</span>
+          </button>
+
+          <button
+            type="button"
+            className="admin-shell-menu-item"
+            role="menuitem"
+            aria-label={`Switch to ${themeNext} mode`}
+            onClick={() => {
+              toggleTheme()
+              setOpen(false)
+            }}
+          >
+            <ThemeIcon size={14} strokeWidth={2} aria-hidden />
+            <span>{themeNextLabel}</span>
+          </button>
+
+          <div className="admin-shell-menu-sep" role="separator" />
+
+          <button
+            type="button"
+            className="admin-shell-menu-item danger"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              clerk.signOut({ redirectUrl: '/' })
+            }}
+          >
+            <LogOut size={14} strokeWidth={2} aria-hidden />
+            <span>Sign out</span>
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }

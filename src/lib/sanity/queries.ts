@@ -348,6 +348,7 @@ export const ALL_BROCHURES = groq`
     status,
     publishedAt,
     featured,
+    lastEditedBy,
     // Brochure-level branding — pulled so the admin library card can render
     // the actual cover section through SectionRenderer (mini live preview).
     theme,

@@ -93,13 +93,19 @@ export async function saveBrochure(
       | 'logo'
     >
   >,
-  expectedRev?: string
+  expectedRev?: string,
+  editor?: { name?: string; email: string }
 ): Promise<SaveBrochureResult> {
   try {
     const patch = expectedRev
       ? sanityWriteClient.patch(id, { ifRevisionID: expectedRev })
       : sanityWriteClient.patch(id)
-    const doc = await patch.set(updates).commit<{ _rev: string }>({ autoGenerateArrayKeys: true })
+    // Stamp lastEditedBy alongside the content update so admins can see
+    // who saved each brochure last. Omitted if Clerk gave us no email.
+    const stamped = editor?.email
+      ? { ...updates, lastEditedBy: { name: editor.name, email: editor.email } }
+      : updates
+    const doc = await patch.set(stamped).commit<{ _rev: string }>({ autoGenerateArrayKeys: true })
     return { ok: true, rev: doc._rev }
   } catch (err) {
     const statusCode =

@@ -15,6 +15,7 @@ type BrochureRow = MiniBrochure & {
   publishedAt?: string
   featured?: boolean
   pageCount: number
+  lastEditedBy?: { name?: string; email?: string }
   company?: { _id: string; name: string; accentColor?: string; domain?: string; logo?: Brochure['logo'] } | null
 }
 

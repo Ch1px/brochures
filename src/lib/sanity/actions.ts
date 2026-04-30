@@ -46,6 +46,22 @@ async function assertAdmin() {
   }
 }
 
+/**
+ * Pull a `{ name, email }` shape for stamping the brochure's
+ * `lastEditedBy` field. Called after `assertAdmin()` so we know the user
+ * exists and is allowlisted; falls back gracefully if Clerk's name fields
+ * are empty (some users only have an email).
+ */
+async function getEditor(): Promise<{ name?: string; email: string }> {
+  const user = await currentUser()
+  const email = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? ''
+  const name =
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() ||
+    user?.username ||
+    undefined
+  return { name, email }
+}
+
 export async function saveBrochureAction(
   id: string,
   updates: Partial<
@@ -78,7 +94,8 @@ export async function saveBrochureAction(
   expectedRev?: string
 ): Promise<SaveBrochureResult> {
   await assertAdmin()
-  return saveBrochureMutation(id, updates, expectedRev)
+  const editor = await getEditor()
+  return saveBrochureMutation(id, updates, expectedRev, editor)
 }
 
 export async function setBrochureStatusAction(

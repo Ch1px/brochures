@@ -156,6 +156,117 @@
 .admin-shell-identity:hover {
   background: var(--chrome-elevated);
 }
+.admin-shell-identity.open {
+  background: var(--chrome-elevated);
+}
+.admin-shell-identity.open .admin-shell-identity-caret {
+  transform: rotate(180deg);
+}
+.admin-shell-identity-caret {
+  transition: transform 0.15s, color 0.12s;
+}
+
+/* Identity dropdown menu — anchored beneath the identity row. */
+.admin-shell-identity-wrap {
+  position: relative;
+}
+.admin-shell-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--chrome-surface);
+  border: 1px solid var(--chrome-border-strong);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.08);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 200px;
+  animation: admin-shell-menu-in 0.12s ease-out;
+}
+@keyframes admin-shell-menu-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.admin-shell-menu-header {
+  padding: 8px 10px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.admin-shell-menu-name {
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--chrome-text);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-shell-menu-email {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  color: var(--chrome-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-shell-menu-sep {
+  height: 1px;
+  background: var(--chrome-border);
+  margin: 2px 0;
+}
+
+.admin-shell-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--chrome-text-secondary);
+  font-family: var(--font-condensed);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+}
+.admin-shell-menu-item svg {
+  color: var(--chrome-text-tertiary);
+  flex-shrink: 0;
+  transition: color 0.12s;
+}
+.admin-shell-menu-item:hover {
+  color: var(--chrome-text);
+  background: var(--chrome-elevated);
+}
+.admin-shell-menu-item:hover svg {
+  color: var(--chrome-text-secondary);
+}
+.admin-shell-menu-item.danger {
+  color: #ff5555;
+}
+.admin-shell-menu-item.danger svg {
+  color: #ff5555;
+}
+.admin-shell-menu-item.danger:hover {
+  background: rgba(255, 85, 85, 0.1);
+  color: #ff5555;
+}
+.admin-shell-menu-item.danger:hover svg {
+  color: #ff5555;
+}
 
 .admin-shell-identity-avatar {
   width: 22px;

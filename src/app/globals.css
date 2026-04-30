@@ -3743,16 +3743,6 @@
     height: 100%;
     overflow: hidden;
   }
-  /* Tiny accent bar across the bottom — keeps a hint of brand identity
-     even when the cover image fills the frame. Sits on the inner wrap so
-     it picks up the same resolved accent that the mini preview uses. */
-  .library-card-thumb-wrap .library-card-mini-wrap::after {
-    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--card-accent, var(--brand-red));
-    z-index: 3;
-    pointer-events: none;
-  }
   /* Text-only fallback when the brochure has no cover section yet. The
      --card-accent var is set inline per card so each thumb tints to its
      brochure's accent. */

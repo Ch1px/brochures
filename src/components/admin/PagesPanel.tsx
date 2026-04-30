@@ -22,6 +22,7 @@ import { CSS } from '@dnd-kit/utilities'
 import type { Brochure, Page, Section } from '@/types/brochure'
 import { labelFor } from '@/lib/sectionLabels'
 import { cloneWithNewKeys, nanokey } from '@/lib/nanokey'
+import { PagesPanelPeerDot } from './PeerSelectionMarkers'
 
 type Props = {
   brochure: Brochure
@@ -614,6 +615,7 @@ function SortableSection({
       <DragHandle attributes={attributes} listeners={listeners} />
       <span className="editor-section-num">{String(sectionIndex + 1).padStart(2, '0')}</span>
       <span className="editor-section-type">{labelFor(section._type)}</span>
+      <PagesPanelPeerDot sectionKey={section._key} />
       <div className="editor-section-item-actions" onClick={(e) => e.stopPropagation()}>
         <IconBtn label="Duplicate" onClick={onDuplicate}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">

@@ -28,6 +28,7 @@ const client = createClient({
 export const {
   RoomProvider,
   useOthers,
+  useOthersMapped,
   useSelf,
   useUpdateMyPresence,
   useRoom,

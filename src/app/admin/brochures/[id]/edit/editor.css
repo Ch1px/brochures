@@ -207,6 +207,92 @@
   border-color: var(--chrome-border-strong);
 }
 
+/* ─────────────────────────────────────────────────────────────────
+   Tier 2 presence — live cursors over the preview frame and
+   coloured outlines on sections currently focused by other admins.
+   The cursor layer sits inside .preview-stage-frame so peer cursors
+   scroll with brochure content and stay attached to the section
+   they're hovering, even when the local viewport is scrolled
+   elsewhere.
+   ───────────────────────────────────────────────────────────────── */
+.preview-cursors-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+.preview-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  /* The arrow's tip is drawn near (3, 2) of the SVG viewBox; nudging
+     the whole element by (-3, -2) puts the tip exactly on the
+     broadcast coordinate rather than the SVG's top-left corner. */
+  margin-left: -3px;
+  margin-top: -2px;
+  will-change: transform;
+}
+.preview-cursor-arrow {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  flex: 0 0 auto;
+}
+.preview-cursor-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: var(--font-condensed);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  white-space: nowrap;
+  margin-top: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  /* Sit slightly to the right of the arrow tip so the pill doesn't
+     overlap the cursor itself. */
+  transform: translateX(4px);
+}
+
+/* Peer-selection outline — coloured dashed outline on the section
+   element when another admin currently has it selected, mirroring
+   the local-user `.selected` pattern. We can't position an overlay
+   inside the hitbox because it's `display: contents` (no box of its
+   own), so outlining the inner <section> is the only clean way.
+
+   Local selection (solid red) wins over peer selection (dashed) when
+   both are present — the local user's "I'm here" affordance reads as
+   primary. The peer's name isn't rendered next to the section in v1;
+   it appears as a coloured dot in PagesPanel and the peer's avatar
+   in the topbar carries the same colour, which is enough
+   correspondence for our 3-admin scale. */
+.preview-section-hitbox[data-peer-selected]:not(.selected) > section.section {
+  outline-color: var(--peer-color, #888);
+  outline-style: dashed;
+  outline-width: 2px;
+  outline-offset: -2px;
+}
+
+/* Pages-panel coloured dot for sections a peer has selected. Stack
+   multiple dots horizontally on the rare case two peers share a
+   section. */
+.peer-pages-dot-stack {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  flex: 0 0 auto;
+}
+.peer-pages-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 1.5px var(--chrome-surface);
+}
+
 @keyframes editor-spin-slow { to { transform: rotate(360deg); } }
 .editor-spin-slow { animation: editor-spin-slow 1.6s linear infinite; }
 

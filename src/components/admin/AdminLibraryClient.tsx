@@ -33,7 +33,15 @@ type BrochureRow = MiniBrochure & {
   publishedAt?: string
   featured?: boolean
   pageCount: number
+  lastEditedBy?: { name?: string; email?: string }
   company?: { _id: string; name: string; accentColor?: string; domain?: string; logo?: Brochure['logo'] } | null
+}
+
+function editorLabel(by: { name?: string; email?: string } | undefined): string | null {
+  if (!by) return null
+  if (by.name?.trim()) return by.name.trim().split(/\s+/)[0]
+  if (by.email) return by.email.split('@')[0]
+  return null
 }
 
 function relativeTime(iso: string | undefined | null): string {
@@ -300,7 +308,13 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
                       <span>{b.status}</span>
                     </span>
                     <span className="library-card-meta-sep" aria-hidden>·</span>
-                    <span className="library-card-meta-text">Edited {relativeTime(b._updatedAt)}</span>
+                    <span
+                      className="library-card-meta-text"
+                      title={b.lastEditedBy?.email ?? undefined}
+                    >
+                      Edited {relativeTime(b._updatedAt)}
+                      {editorLabel(b.lastEditedBy) ? ` by ${editorLabel(b.lastEditedBy)}` : ''}
+                    </span>
                   </div>
                 </div>
               </Link>
