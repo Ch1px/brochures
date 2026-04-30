@@ -304,7 +304,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
                   <div className="library-card-title" title={b.title}>{b.title}</div>
                   <div className="library-card-meta">
                     <span className={`library-card-status ${b.status}`}>
-                      <span className="library-card-status-dot" style={{ background: STATUS_DOT[b.status] }} />
+                      
                       <span>{b.status}</span>
                     </span>
                     <span className="library-card-meta-sep" aria-hidden>·</span>

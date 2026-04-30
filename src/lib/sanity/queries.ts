@@ -320,6 +320,32 @@ export const COMPANY_BY_ID = groq`
 `
 
 /**
+ * Combined index for the admin shell's ⌘K command palette. Pulls just
+ * the fields needed to surface a result (title/name + the bit of meta
+ * shown beside it) — kept cheap so it can ship to the client on every
+ * admin page. Filtering is done client-side in the palette.
+ */
+export const SEARCH_INDEX_FOR_SHELL = groq`{
+  "brochures": *[_type == "brochure"] | order(coalesce(publishedAt, _createdAt) desc) {
+    _id,
+    title,
+    "slug": slug.current,
+    season,
+    event,
+    status
+  },
+  "companies": *[_type == "company"] | order(name asc) {
+    _id,
+    name,
+    domain
+  },
+  "media": *[_type == "sanity.imageAsset"] | order(_createdAt desc) [0...100] {
+    _id,
+    "filename": originalFilename
+  }
+}`
+
+/**
  * Top 5 brochures by last edit, minimal fields, for the admin shell's
  * "Recent" sidebar section. Excludes archived so old brochures don't
  * crowd it out.

@@ -15,9 +15,11 @@ import {
   Sun,
   Moon,
   LogOut,
+  Search,
 } from 'lucide-react'
 import { AdminThemeToggle } from './AdminThemeToggle'
 import { useAdminTheme } from './AdminThemeProvider'
+import { AdminSearchPalette, type SearchIndex } from './AdminSearchPalette'
 import { CANONICAL_HOST } from '@/lib/brochureHost'
 
 type NavItem = {
@@ -50,6 +52,7 @@ export type RecentBrochure = {
 type Props = {
   user: { name: string | null; email: string | null }
   recents: RecentBrochure[]
+  searchIndex: SearchIndex
   children: React.ReactNode
 }
 
@@ -58,8 +61,9 @@ type Props = {
  * media). The brochure editor route is *not* nested under this shell —
  * it has its own three-pane layout.
  */
-export function AdminShell({ user, recents, children }: Props) {
+export function AdminShell({ user, recents, searchIndex, children }: Props) {
   const pathname = usePathname() ?? '/admin'
+  const [searchOpen, setSearchOpen] = useState(false)
 
   // Active state: exact match for /admin (brochures), prefix match for nested routes
   const isActive = (href: string) =>
@@ -67,6 +71,25 @@ export function AdminShell({ user, recents, children }: Props) {
 
   const initial = (user.name ?? user.email ?? 'A').trim().charAt(0).toUpperCase()
   const displayName = user.name?.trim() || user.email || 'Signed in'
+
+  // Global ⌘K / Ctrl+K to open the search palette, plus Esc to close. The
+  // mod-key check covers Mac (metaKey) and Windows/Linux (ctrlKey) without
+  // needing useragent sniffing.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const mod = e.metaKey || e.ctrlKey
+      if (mod && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setSearchOpen((v) => !v)
+        return
+      }
+      if (e.key === 'Escape' && searchOpen) {
+        setSearchOpen(false)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [searchOpen])
 
   return (
     <div className="admin-shell">
@@ -117,11 +140,36 @@ export function AdminShell({ user, recents, children }: Props) {
             </ShellSection>
           ) : null}
         </div>
+
+        <div className="admin-shell-sidebar-footer">
+          {/* Latest update — hardcoded for now. Edit the message in this
+              file when something ships. Easy to swap to a Sanity-backed
+              field or a markdown changelog later if needed. */}
+          <div className="admin-shell-update">
+            <div className="admin-shell-update-label">Latest update</div>
+            <div className="admin-shell-update-text">
+              Updated my title to developer because I vibe code. Was politely informed this is the same energy as updating my title to salesperson because I own a phone.
+            </div>
+          </div>
+        </div>
       </aside>
 
       <header className="admin-shell-topbar">
         <div className="admin-shell-topbar-left" />
         <div className="admin-shell-topbar-right">
+          <button
+            type="button"
+            className="admin-shell-search-trigger"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+            title="Search (⌘K)"
+          >
+            <Search size={14} strokeWidth={2} aria-hidden />
+            <span className="admin-shell-search-trigger-label">Search…</span>
+            <span className="admin-shell-search-trigger-kbd" aria-hidden>
+              <kbd>⌘</kbd><kbd>K</kbd>
+            </span>
+          </button>
           <Link
             className="admin-shell-icon-btn"
             href="/studio"
@@ -152,6 +200,12 @@ export function AdminShell({ user, recents, children }: Props) {
       </header>
 
       <main className="admin-shell-main">{children}</main>
+
+      <AdminSearchPalette
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        index={searchIndex}
+      />
     </div>
   )
 }
