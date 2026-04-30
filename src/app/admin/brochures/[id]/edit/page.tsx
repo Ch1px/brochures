@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { fetchBrochureForEdit } from '@/lib/sanity/mutations'
-import { BrochureEditor } from '@/components/admin/BrochureEditor'
+import { sanityWriteClient } from '@/lib/sanity/client'
+import { COMPANIES_FOR_PICKER } from '@/lib/sanity/queries'
+import { BrochureEditor, type CompanyOption } from '@/components/admin/BrochureEditor'
 
 type Params = { id: string }
 
@@ -8,9 +10,12 @@ export const dynamic = 'force-dynamic'
 
 export default async function EditBrochurePage({ params }: { params: Promise<Params> }) {
   const { id } = await params
-  const brochure = await fetchBrochureForEdit(id)
+  const [brochure, companies] = await Promise.all([
+    fetchBrochureForEdit(id),
+    sanityWriteClient.fetch<CompanyOption[]>(COMPANIES_FOR_PICKER),
+  ])
   if (!brochure) notFound()
-  return <BrochureEditor initialBrochure={brochure} />
+  return <BrochureEditor initialBrochure={brochure} companies={companies} />
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }) {

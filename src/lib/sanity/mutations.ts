@@ -111,6 +111,11 @@ export type BrochureSettingsUpdate = {
   textureImage?: SanityImage | null
   hideTexture?: boolean | null
   logo?: SanityImage | null
+  /**
+   * Sanity document id of the owning company, or `null`/`""` to clear the
+   * reference (returns the brochure to the canonical host).
+   */
+  companyId?: string | null
   seo?: {
     metaTitle?: string
     metaDescription?: string
@@ -225,6 +230,10 @@ export async function updateBrochureSettings(
     if (updates.logo !== undefined) {
       if (updates.logo === null) unset.push('logo')
       else patch.logo = updates.logo
+    }
+    if (updates.companyId !== undefined) {
+      if (!updates.companyId) unset.push('company')
+      else patch.company = { _type: 'reference', _ref: updates.companyId }
     }
 
     let tx = sanityWriteClient.patch(id)
@@ -366,6 +375,141 @@ export async function deleteBrochure(id: string): Promise<{ ok: true } | { ok: f
     return { ok: true }
   } catch (err) {
     console.error('deleteBrochure failed:', err)
+    return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
+  }
+}
+
+// ── Company mutations ────────────────────────────────────────────────────
+
+export type CompanyInput = {
+  name: string
+  slug: string
+  domain: string
+  displayName: string
+  website?: string
+  accentColor?: string
+  logo?: SanityImage | null
+  featuredBrochureId?: string | null
+}
+
+function normaliseDomain(domain: string): string {
+  return domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+}
+
+async function isDomainTakenByOther(domain: string, excludeId?: string): Promise<boolean> {
+  const result = await sanityWriteClient.fetch<{ _id: string } | null>(
+    `*[_type == "company" && domain == $domain && _id != $excludeId][0]{_id}`,
+    { domain, excludeId: excludeId ?? '__none__' }
+  )
+  return result !== null
+}
+
+export async function fetchCompanyForEdit(id: string) {
+  return sanityWriteClient.fetch<{
+    _id: string
+    name: string
+    slug?: { current: string }
+    domain: string
+    displayName: string
+    website?: string
+    accentColor?: string
+    logo?: SanityImage
+    featuredBrochure?: { _ref: string; _type: 'reference' }
+  } | null>(`*[_id == $id][0]`, { id })
+}
+
+export async function createCompany(
+  input: CompanyInput
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  try {
+    const domain = normaliseDomain(input.domain)
+    if (!domain) return { ok: false, error: 'Domain is required' }
+    if (await isDomainTakenByOther(domain)) {
+      return { ok: false, error: `Another company is already using ${domain}` }
+    }
+    const doc = await sanityWriteClient.create({
+      _type: 'company',
+      name: input.name.trim(),
+      slug: { _type: 'slug', current: input.slug.trim() },
+      domain,
+      displayName: input.displayName.trim(),
+      website: input.website?.trim() || undefined,
+      accentColor: input.accentColor?.trim() || undefined,
+      logo: input.logo ?? undefined,
+      featuredBrochure: input.featuredBrochureId
+        ? { _type: 'reference', _ref: input.featuredBrochureId }
+        : undefined,
+    })
+    return { ok: true, id: doc._id }
+  } catch (err) {
+    console.error('createCompany failed:', err)
+    return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
+  }
+}
+
+export async function updateCompany(
+  id: string,
+  input: CompanyInput
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const domain = normaliseDomain(input.domain)
+    if (!domain) return { ok: false, error: 'Domain is required' }
+    if (await isDomainTakenByOther(domain, id)) {
+      return { ok: false, error: `Another company is already using ${domain}` }
+    }
+    // Use unset for the optional fields so clearing them removes the property
+    // rather than persisting `null`.
+    const set: Record<string, unknown> = {
+      name: input.name.trim(),
+      slug: { _type: 'slug', current: input.slug.trim() },
+      domain,
+      displayName: input.displayName.trim(),
+    }
+    const unset: string[] = []
+
+    if (input.website?.trim()) set.website = input.website.trim()
+    else unset.push('website')
+
+    if (input.accentColor?.trim()) set.accentColor = input.accentColor.trim()
+    else unset.push('accentColor')
+
+    if (input.logo) set.logo = input.logo
+    else unset.push('logo')
+
+    if (input.featuredBrochureId) {
+      set.featuredBrochure = { _type: 'reference', _ref: input.featuredBrochureId }
+    } else {
+      unset.push('featuredBrochure')
+    }
+
+    await sanityWriteClient.patch(id).set(set).unset(unset).commit()
+    return { ok: true }
+  } catch (err) {
+    console.error('updateCompany failed:', err)
+    return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
+  }
+}
+
+export async function deleteCompany(
+  id: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    // Block deletion when brochures still reference this company. Without
+    // this, the brochures' `company` ref would dangle silently.
+    const refs = await sanityWriteClient.fetch<number>(
+      `count(*[_type == "brochure" && references($id)])`,
+      { id }
+    )
+    if (refs > 0) {
+      return {
+        ok: false,
+        error: `${refs} brochure${refs === 1 ? '' : 's'} still reference this company. Reassign them first.`,
+      }
+    }
+    await sanityWriteClient.delete(id)
+    return { ok: true }
+  } catch (err) {
+    console.error('deleteCompany failed:', err)
     return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
   }
 }

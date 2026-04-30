@@ -14,8 +14,15 @@ import {
   uploadImageAsset,
   uploadFileAsset,
   fetchBrochureForEdit,
+  createCompany as createCompanyMutation,
+  updateCompany as updateCompanyMutation,
+  deleteCompany as deleteCompanyMutation,
+  fetchCompanyForEdit,
   type BrochureSettingsUpdate,
+  type CompanyInput,
 } from './mutations'
+import { invalidateHostMap } from '@/lib/companies/hostMap'
+import { addDomain, removeDomain, getDomainConfig, type DomainConfig } from '@/lib/vercel/domains'
 import { signPreviewToken } from '../previewToken'
 import { generateBrochure, type GenerateInput, type GenerateUsage } from '../ai/generator'
 import { seedLibraryImages, type SeedResult } from '../ai/imageLibrary'
@@ -335,6 +342,120 @@ export async function generateBrochureAction(
 export async function seedLibraryImagesAction(): Promise<SeedResult> {
   await assertAdmin()
   return seedLibraryImages()
+}
+
+// ── Company actions ────────────────────────────────────────────────────
+
+/**
+ * Company create/update/delete actions also mirror the host on Vercel:
+ * Sanity is the source of truth for the company list, and Vercel is mirrored
+ * to match. If the Vercel call fails we still return `ok: true` (the Sanity
+ * record exists) but include a `warning` so the UI can surface it.
+ *
+ * Drift only matters when serving traffic — a missing Vercel domain shows up
+ * as a 404 on the subdomain. Re-saving the company retries the attachment.
+ */
+
+function normaliseHostInput(domain: string): string {
+  return domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+}
+
+export async function createCompanyAction(
+  input: CompanyInput
+): Promise<{ ok: true; id: string; warning?: string } | { ok: false; error: string }> {
+  await assertAdmin()
+  const result = await createCompanyMutation(input)
+  if (!result.ok) return result
+
+  invalidateHostMap()
+  revalidatePath('/admin/companies')
+  revalidatePath('/')
+
+  const host = normaliseHostInput(input.domain)
+  const vercel = await addDomain(host)
+  const warning =
+    vercel.ok || vercel.code === 'not_configured' ? undefined : `Vercel: ${vercel.error}`
+  return { ok: true, id: result.id, warning }
+}
+
+export async function updateCompanyAction(
+  id: string,
+  input: CompanyInput
+): Promise<{ ok: true; warning?: string } | { ok: false; error: string }> {
+  await assertAdmin()
+
+  // Read existing host so we know whether to detach the old one from Vercel.
+  const existing = await fetchCompanyForEdit(id)
+  const previousHost = existing?.domain
+  const nextHost = normaliseHostInput(input.domain)
+
+  const result = await updateCompanyMutation(id, input)
+  if (!result.ok) return result
+
+  invalidateHostMap()
+  revalidatePath('/admin/companies')
+  revalidatePath('/')
+
+  let warning: string | undefined
+  if (previousHost && previousHost !== nextHost) {
+    const removed = await removeDomain(previousHost)
+    if (!removed.ok && removed.code !== 'not_configured') {
+      warning = `Vercel: failed to detach old domain ${previousHost}: ${removed.error}`
+    }
+  }
+  if (!previousHost || previousHost !== nextHost) {
+    const added = await addDomain(nextHost)
+    if (!added.ok && added.code !== 'not_configured') {
+      warning = warning
+        ? `${warning}; failed to attach ${nextHost}: ${added.error}`
+        : `Vercel: ${added.error}`
+    }
+  }
+  return { ok: true, warning }
+}
+
+export async function deleteCompanyAction(
+  id: string
+): Promise<{ ok: true; warning?: string } | { ok: false; error: string }> {
+  await assertAdmin()
+
+  const existing = await fetchCompanyForEdit(id)
+  const host = existing?.domain
+
+  const result = await deleteCompanyMutation(id)
+  if (!result.ok) return result
+
+  invalidateHostMap()
+  revalidatePath('/admin/companies')
+
+  let warning: string | undefined
+  if (host) {
+    const removed = await removeDomain(host)
+    if (!removed.ok && removed.code !== 'not_configured') {
+      warning = `Vercel: failed to detach ${host}: ${removed.error}`
+    }
+  }
+  return { ok: true, warning }
+}
+
+/**
+ * Fetch DNS verification status for a company host. Used by CompanyEditModal
+ * to render the verified / pending / misconfigured indicator and CNAME hints.
+ */
+export async function getDomainStatusAction(
+  host: string
+): Promise<
+  | { ok: true; configured: true; status: DomainConfig }
+  | { ok: true; configured: false }
+  | { ok: false; error: string }
+> {
+  await assertAdmin()
+  const result = await getDomainConfig(host)
+  if (!result.ok) {
+    if (result.code === 'not_configured') return { ok: true, configured: false }
+    return { ok: false, error: result.error }
+  }
+  return { ok: true, configured: true, status: result.data }
 }
 
 /**

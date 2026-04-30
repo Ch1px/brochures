@@ -3288,6 +3288,20 @@
     color: var(--brand-red);
     margin-left: 6px;
   }
+  .library-card-company {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    margin-left: 6px;
+    border-radius: 3px;
+    border: 1px solid var(--chrome-border);
+    background: var(--chrome-raised);
+    color: var(--chrome-text-secondary);
+    vertical-align: middle;
+  }
   .library-card-event {
     font-family: var(--font-mono);
     font-size: 10px;

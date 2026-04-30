@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import type { Brochure, CustomColor, CustomFont, CustomFontWeight, FontOverrides, SanityImage, TextScalePreset } from '@/types/brochure'
+import type { CompanyOption } from './BrochureEditor'
 import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
 import { nanokey } from '@/lib/nanokey'
 import {
@@ -22,6 +23,7 @@ import { FieldImage } from './fields/FieldImage'
 type Props = {
   open: boolean
   brochure: Brochure
+  companies: CompanyOption[]
   onClose: () => void
   onSaved: (updates: {
     slug: { _type: 'slug'; current: string }
@@ -46,6 +48,7 @@ type Props = {
     textureImage: SanityImage | undefined
     hideTexture: boolean
     logo: SanityImage | undefined
+    companyId: string | undefined
   }) => void
 }
 
@@ -69,7 +72,7 @@ const TABS: { key: SettingsTab; label: string }[] = [
  *   SEO        — meta title, meta description, noIndex
  *   Lead       — HubSpot portal/form, destination email
  */
-export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Props) {
+export function BrochureSettingsModal({ open, brochure, companies, onClose, onSaved }: Props) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general')
   const [slug, setSlug] = useState(brochure.slug.current)
   const [season, setSeason] = useState(brochure.season)
@@ -106,6 +109,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
   const [textureImage, setTextureImage] = useState<SanityImage | undefined>(brochure.textureImage)
   const [hideTexture, setHideTexture] = useState(Boolean(brochure.hideTexture))
   const [logo, setLogo] = useState<SanityImage | undefined>(brochure.logo)
+  const [companyId, setCompanyId] = useState<string | undefined>(brochure.company?._ref)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -147,6 +151,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
     setTextureImage(brochure.textureImage)
     setHideTexture(Boolean(brochure.hideTexture))
     setLogo(brochure.logo)
+    setCompanyId(brochure.company?._ref)
     setError(null)
   }, [open, brochure])
 
@@ -242,6 +247,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
           textureImage: textureImage ?? null,
           hideTexture: hideTexture || null,
           logo: logo ?? null,
+          companyId: companyId ?? null,
         },
         brochure.slug.current
       )
@@ -274,6 +280,7 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
         textureImage,
         hideTexture,
         logo,
+        companyId,
       })
       onClose()
     })
@@ -369,6 +376,19 @@ export function BrochureSettingsModal({ open, brochure, onClose, onSaved }: Prop
                   value={slug}
                   onChange={(v) => setSlug(v.toLowerCase())}
                   placeholder="italian-grand-prix"
+                />
+                <FieldSelect
+                  label="Host company"
+                  description="Which subdomain serves this brochure. Leave on canonical to host on brochures.grandprixgrandtours.com."
+                  value={companyId ?? ''}
+                  onChange={(v) => setCompanyId(v || undefined)}
+                  options={[
+                    { value: '', label: 'None — canonical host' },
+                    ...companies.map((c) => ({
+                      value: c._id,
+                      label: `${c.name} (${c.domain})`,
+                    })),
+                  ]}
                 />
               </>
             )}

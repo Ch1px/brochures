@@ -12,6 +12,7 @@ type BrochureRow = {
   publishedAt?: string
   featured?: boolean
   pageCount: number
+  company?: { _id: string; name: string; accentColor?: string } | null
 }
 
 export const dynamic = 'force-dynamic'

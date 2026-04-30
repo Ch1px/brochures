@@ -17,11 +17,15 @@ type BrochureRow = {
   publishedAt?: string
   featured?: boolean
   pageCount: number
+  company?: { _id: string; name: string; accentColor?: string } | null
 }
 
 type Props = {
   brochures: BrochureRow[]
 }
+
+/** Sentinel value for the "Canonical (no company)" filter pill. */
+const CANONICAL_COMPANY_ID = '__canonical__'
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All' },
@@ -44,16 +48,35 @@ export function AdminLibraryClient({ brochures }: Props) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [seasonFilter, setSeasonFilter] = useState('')
+  const [companyFilter, setCompanyFilter] = useState('')
 
   const seasons = useMemo(() => {
     const s = new Set(brochures.map((b) => b.season).filter(Boolean))
     return Array.from(s).sort().reverse()
   }, [brochures])
 
+  const companies = useMemo(() => {
+    const map = new Map<string, { _id: string; name: string; accentColor?: string }>()
+    for (const b of brochures) {
+      if (b.company?._id) map.set(b.company._id, b.company)
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name))
+  }, [brochures])
+
+  const canonicalCount = useMemo(
+    () => brochures.filter((b) => !b.company).length,
+    [brochures],
+  )
+
   const filtered = useMemo(() => {
     let list = brochures
     if (statusFilter) list = list.filter((b) => b.status === statusFilter)
     if (seasonFilter) list = list.filter((b) => b.season === seasonFilter)
+    if (companyFilter === CANONICAL_COMPANY_ID) {
+      list = list.filter((b) => !b.company)
+    } else if (companyFilter) {
+      list = list.filter((b) => b.company?._id === companyFilter)
+    }
     if (search.trim()) {
       const q = search.trim().toLowerCase()
       list = list.filter(
@@ -64,7 +87,7 @@ export function AdminLibraryClient({ brochures }: Props) {
       )
     }
     return list
-  }, [brochures, statusFilter, seasonFilter, search])
+  }, [brochures, statusFilter, seasonFilter, companyFilter, search])
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: brochures.length }
@@ -78,7 +101,7 @@ export function AdminLibraryClient({ brochures }: Props) {
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   // Reset to page 0 when filters change
-  const filterKey = `${statusFilter}|${seasonFilter}|${search}`
+  const filterKey = `${statusFilter}|${seasonFilter}|${companyFilter}|${search}`
   const prevFilterKey = useRef(filterKey)
   if (prevFilterKey.current !== filterKey) {
     prevFilterKey.current = filterKey
@@ -95,6 +118,9 @@ export function AdminLibraryClient({ brochures }: Props) {
         </div>
         <div className="library-header-actions">
 
+          <Link href="/admin/companies" className="library-header-btn">
+            Companies
+          </Link>
           <Link href="/admin/media" className="library-header-btn">
             Media
           </Link>
@@ -147,6 +173,39 @@ export function AdminLibraryClient({ brochures }: Props) {
                   {s}
                 </button>
               ))}
+            </>
+          ) : null}
+          {companies.length > 0 ? (
+            <>
+              <span className="library-filter-divider" />
+              <button
+                className={`library-filter-pill${companyFilter === CANONICAL_COMPANY_ID ? ' active' : ''}`}
+                onClick={() =>
+                  setCompanyFilter(companyFilter === CANONICAL_COMPANY_ID ? '' : CANONICAL_COMPANY_ID)
+                }
+                title="Brochures hosted on the canonical domain"
+              >
+                Canonical
+                <span className="library-filter-pill-count">{canonicalCount}</span>
+              </button>
+              {companies.map((c) => {
+                const count = brochures.filter((b) => b.company?._id === c._id).length
+                return (
+                  <button
+                    key={c._id}
+                    className={`library-filter-pill${companyFilter === c._id ? ' active' : ''}`}
+                    onClick={() => setCompanyFilter(companyFilter === c._id ? '' : c._id)}
+                    style={
+                      companyFilter === c._id && c.accentColor
+                        ? { borderColor: c.accentColor, color: c.accentColor }
+                        : undefined
+                    }
+                  >
+                    {c.name}
+                    <span className="library-filter-pill-count">{count}</span>
+                  </button>
+                )
+              })}
             </>
           ) : null}
         </div>
@@ -214,6 +273,23 @@ export function AdminLibraryClient({ brochures }: Props) {
                     <span>
                       <span className={`library-card-status ${b.status}`}>{b.status}</span>
                       {b.featured ? <span className="library-card-featured">Featured</span> : null}
+                      {b.company ? (
+                        <span
+                          className="library-card-company"
+                          style={
+                            b.company.accentColor
+                              ? {
+                                  background: `${b.company.accentColor}1f`,
+                                  color: b.company.accentColor,
+                                  borderColor: `${b.company.accentColor}66`,
+                                }
+                              : undefined
+                          }
+                          title={`Hosted on ${b.company.name}`}
+                        >
+                          {b.company.name}
+                        </span>
+                      ) : null}
                     </span>
                     <span>{b.season} · {b.pageCount} {b.pageCount === 1 ? 'page' : 'pages'}</span>
                   </div>

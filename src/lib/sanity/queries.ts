@@ -223,6 +223,35 @@ export const COMPANY_FEATURED_BROCHURE_SLUG = groq`
 `
 
 /**
+ * Every company, projected for the admin list view.
+ */
+export const ALL_COMPANIES_FOR_ADMIN = groq`
+  *[_type == "company"] | order(name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    domain,
+    displayName,
+    website,
+    accentColor,
+    logo,
+    "featuredBrochure": featuredBrochure->{_id, title, "slug": slug.current},
+    "brochureCount": count(*[_type == "brochure" && references(^._id)])
+  }
+`
+
+/**
+ * Companies, projected for the brochure-editor picker dropdown.
+ */
+export const COMPANIES_FOR_PICKER = groq`
+  *[_type == "company"] | order(name asc) {
+    _id,
+    name,
+    domain
+  }
+`
+
+/**
  * Lightweight projection of every company that has a domain set. Consumed by
  * the host->company map in middleware.
  */
@@ -269,7 +298,8 @@ export const ALL_BROCHURES = groq`
     publishedAt,
     featured,
     "pageCount": count(pages),
-    "ogImage": seo.ogImage
+    "ogImage": seo.ogImage,
+    "company": company->{_id, name, accentColor}
   }
 `
 

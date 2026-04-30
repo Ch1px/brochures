@@ -30,8 +30,15 @@ import { RecolorPopover } from './RecolorPopover'
 import { SaveToast } from './SaveToast'
 import { CollapseButton, CollapsedRail, ResizeHandle } from './EditorLayoutControls'
 
+export type CompanyOption = {
+  _id: string
+  name: string
+  domain: string
+}
+
 type Props = {
   initialBrochure: Brochure
+  companies: CompanyOption[]
 }
 
 /**
@@ -50,7 +57,7 @@ type Props = {
  *   2E.2 — PropertiesPanel complex editors (features, stats, packages, itinerary, galleries, quote, circuit)
  *   2F — image/SVG upload integration
  */
-export function BrochureEditor({ initialBrochure }: Props) {
+export function BrochureEditor({ initialBrochure, companies }: Props) {
   const { brochure, setBrochure, undo, redo } = useBrochureHistory(initialBrochure)
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
   const [currentSectionKey, setCurrentSectionKey] = useState<string | null>(null)
@@ -948,6 +955,7 @@ export function BrochureEditor({ initialBrochure }: Props) {
       <BrochureSettingsModal
         open={settingsOpen}
         brochure={brochure}
+        companies={companies}
         onClose={() => setSettingsOpen(false)}
         onSaved={(updates) =>
           setBrochure((prev) => ({
@@ -974,6 +982,9 @@ export function BrochureEditor({ initialBrochure }: Props) {
             textureImage: updates.textureImage,
             hideTexture: updates.hideTexture,
             logo: updates.logo,
+            company: updates.companyId
+              ? { _type: 'reference', _ref: updates.companyId }
+              : undefined,
           }))
         }
       />
