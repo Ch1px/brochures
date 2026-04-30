@@ -1,8 +1,10 @@
 import { sanityWriteClient } from '@/lib/sanity/client'
 import { ALL_BROCHURES, COMPANIES_FOR_PICKER } from '@/lib/sanity/queries'
 import { AdminLibraryClient } from '@/components/admin/AdminLibraryClient'
+import type { MiniBrochure } from '@/components/admin/MiniCoverPreview'
+import type { Brochure } from '@/types/brochure'
 
-type BrochureRow = {
+type BrochureRow = MiniBrochure & {
   _id: string
   title: string
   slug: string
@@ -12,7 +14,7 @@ type BrochureRow = {
   publishedAt?: string
   featured?: boolean
   pageCount: number
-  company?: { _id: string; name: string; accentColor?: string; domain?: string } | null
+  company?: { _id: string; name: string; accentColor?: string; domain?: string; logo?: Brochure['logo'] } | null
 }
 
 type CompanyOption = { _id: string; name: string; domain: string }

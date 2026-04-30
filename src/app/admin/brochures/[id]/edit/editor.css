@@ -34,24 +34,83 @@
   gap: 10px;
 }
 
-.editor-topbar-back {
-  width: 34px;
-  height: 34px;
-  display: flex;
+/* Generic icon-only square button — used for back arrow and every action
+   icon in the topbar right cluster. Hover lifts to brand red, active state
+   tints filled (e.g. featured star), success/error mirror save indicator. */
+.editor-icon-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--chrome-border);
-  border-radius: 3px;
-  color: var(--chrome-text-secondary);
-  text-decoration: none;
-  transition: all 0.12s;
   flex-shrink: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--chrome-text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
 }
-.editor-topbar-back:hover {
+.editor-icon-btn:hover:not(:disabled) {
+  color: var(--brand-red);
+  background: rgba(225, 6, 0, 0.08);
+}
+.editor-icon-btn:focus-visible {
+  outline: none;
   border-color: var(--brand-red);
   color: var(--brand-red);
 }
-.editor-topbar-back svg { width: 16px; height: 16px; }
+.editor-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.editor-icon-btn.active {
+  color: #f5b400;
+}
+.editor-icon-btn.success { color: #4ade80; }
+.editor-icon-btn.error { color: #ff5555; }
+
+@keyframes editor-spin { to { transform: rotate(360deg); } }
+.editor-spin { animation: editor-spin 0.9s linear infinite; }
+
+.editor-topbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--chrome-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Icon segmented control — used for the brochure dark/light theme toggle. */
+.editor-icon-segment {
+  display: inline-flex;
+  border: 1px solid var(--chrome-border);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 32px;
+}
+.editor-icon-segment-btn {
+  width: 32px;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: var(--chrome-text-secondary);
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+}
+.editor-icon-segment-btn + .editor-icon-segment-btn {
+  border-left: 1px solid var(--chrome-border);
+}
+.editor-icon-segment-btn:hover:not(.active) {
+  color: var(--chrome-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+.editor-icon-segment-btn.active {
+  background: var(--brand-red);
+  color: #fff;
+}
 
 .editor-topbar-title {
   flex: 1;
@@ -76,117 +135,133 @@
   background: var(--chrome-raised);
 }
 
+/* Save indicator — subtle chip with state-tinted icon + label. Sits next to
+   the title, no heavy border so it reads as ambient status, not a button. */
 .editor-save-indicator {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 10px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 4px;
+  font-family: var(--font-condensed);
+  font-weight: 600;
+  font-size: 11px;
   letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--chrome-text-tertiary);
-  padding-left: 10px;
-  border-left: 1px solid var(--chrome-border);
   white-space: nowrap;
+  background: var(--chrome-raised);
+  color: var(--chrome-text-secondary);
+  transition: color 0.15s, background 0.15s;
 }
-.editor-save-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  transition: background 0.15s;
-}
+.editor-save-indicator.status-saved   { color: #4ade80; background: rgba(74, 222, 128, 0.08); }
+.editor-save-indicator.status-saving  { color: #60a5fa; background: rgba(96, 165, 250, 0.08); }
+.editor-save-indicator.status-unsaved { color: #ffb340; background: rgba(255, 179, 64, 0.10); }
+.editor-save-indicator.status-error   { color: #ff5555; background: rgba(255, 85, 85, 0.10); }
 
+@keyframes editor-spin-slow { to { transform: rotate(360deg); } }
+.editor-spin-slow { animation: editor-spin-slow 1.6s linear infinite; }
+
+/* Host badge — shows the full public URL preview (host / slug) and opens
+   Settings on click. Slug is dimmed so the host (the part the admin is most
+   likely to switch via Settings) reads as the primary label. */
 .editor-host-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 2px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 4px;
   border: 1px solid var(--chrome-border);
   background: var(--chrome-raised);
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.02em;
+  font-size: 11px;
+  letter-spacing: 0.01em;
   text-transform: lowercase;
   color: var(--chrome-text-secondary);
   white-space: nowrap;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
+  max-width: 380px;
+  overflow: hidden;
 }
 .editor-host-badge:hover {
   border-color: var(--chrome-border-strong);
   color: var(--chrome-text);
 }
 .editor-host-badge svg {
-  width: 12px;
-  height: 12px;
-  opacity: 0.65;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 .editor-host-badge-host {
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: none;
   color: var(--chrome-text);
+  text-transform: none;
+}
+.editor-host-badge-sep {
+  color: var(--chrome-text-tertiary);
+  opacity: 0.6;
+}
+.editor-host-badge-slug {
+  color: var(--chrome-text-tertiary);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
 }
 .editor-host-badge-tag {
+  margin-left: 2px;
   padding: 1px 6px;
-  border-radius: 2px;
+  border-radius: 3px;
   background: rgba(225, 6, 0, 0.14);
   color: var(--brand-red);
   letter-spacing: 0.02em;
   font-size: 9px;
 }
 
-.editor-theme-toggle {
+/* Status pill — replaces the old separate status badge + Status ▾ button.
+   Shows current status (with coloured dot) and is itself the menu trigger. */
+.editor-status-pill {
   display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
   border: 1px solid var(--chrome-border);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.editor-theme-toggle-btn {
-  padding: 7px 10px;
+  border-radius: 4px;
+  background: var(--chrome-raised);
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 11px;
   letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--chrome-text-secondary);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.editor-theme-toggle-btn + .editor-theme-toggle-btn {
-  border-left: 1px solid var(--chrome-border);
-}
-.editor-theme-toggle-btn:hover:not(.active) {
-  color: var(--brand-red);
-}
-.editor-theme-toggle-btn.active {
-  background: var(--brand-red);
-  color: #fff;
-}
-
-.editor-status-badge {
-  padding: 4px 10px;
-  border-radius: 2px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  text-transform: none;
   color: var(--chrome-text);
   white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.editor-status-pill:hover:not(:disabled) {
+  border-color: var(--chrome-border-strong);
+}
+.editor-status-pill:disabled { opacity: 0.5; cursor: not-allowed; }
+.editor-status-pill svg { color: var(--chrome-text-tertiary); }
+.editor-status-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .editor-topbar-btn {
-  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
   font-family: var(--font-condensed);
   font-weight: 600;
   font-size: 11px;
   letter-spacing: 0.02em;
   text-transform: none;
   border: 1px solid var(--chrome-border);
-  border-radius: 3px;
+  border-radius: 4px;
   color: var(--chrome-text-secondary);
   background: transparent;
   cursor: pointer;
@@ -227,7 +302,10 @@
   flex-direction: column;
 }
 .editor-topbar-menu button {
-  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
   text-align: left;
   font-family: var(--font-condensed);
   font-weight: 600;
@@ -245,12 +323,8 @@
   color: #fff;
 }
 .editor-topbar-menu button.active {
-  color: var(--brand-red);
-}
-.editor-topbar-menu button.active::before {
-  content: '✓';
-  display: inline-block;
-  margin-right: 8px;
+  color: #fff;
+  background: rgba(225, 6, 0, 0.06);
 }
 .editor-topbar-menu-divider {
   height: 1px;

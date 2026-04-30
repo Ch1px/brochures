@@ -33,6 +33,11 @@ export type BrochureBranding = {
    *  src after mount, and media URLs are aborted by Puppeteer anyway. The
    *  poster image (`.media-bg-layer`) takes the video's place. */
   staticExport?: boolean
+  /** True when rendered as a thumbnail (admin library mini preview). Section
+   *  components use this to skip expensive runtime media (video, parallax,
+   *  IntersectionObservers) — the user only needs a static visual, not a
+   *  playing one. */
+  thumbnail?: boolean
   /** Editor-only: inline text edit from the preview. Called when the user
    *  commits an inline edit (blur or Escape). */
   onInlineEdit?: (sectionKey: string, fieldPath: string, value: string) => void

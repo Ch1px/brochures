@@ -18,7 +18,7 @@ type Props = {
  * a CSS class that the globals stylesheet uses to centre the layout.
  */
 export function Cover({ data, pageNum, total, showFolio }: Props) {
-  const { editorMode } = useBrochureBranding()
+  const { editorMode, thumbnail } = useBrochureBranding()
   const variantClass = data._type === 'coverCentered' ? 'page-cover-centered' : ''
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
@@ -139,13 +139,19 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
 
         <div className="page-cover-bottom">
           {(data.cta || editorMode) ? (
-            <a
-              className="cover-cta"
-              href={data.ctaHref || '#enquire'}
-              {...((data.ctaHref?.startsWith('http')) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            >
-              <InlineEditable sectionKey={data._key} field="cta"><span>{data.cta}</span></InlineEditable> <span className="arrow">→</span>
-            </a>
+            thumbnail ? (
+              <span className="cover-cta">
+                <span>{data.cta}</span> <span className="arrow">→</span>
+              </span>
+            ) : (
+              <a
+                className="cover-cta"
+                href={data.ctaHref || '#enquire'}
+                {...((data.ctaHref?.startsWith('http')) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                <InlineEditable sectionKey={data._key} field="cta"><span>{data.cta}</span></InlineEditable> <span className="arrow">→</span>
+              </a>
+            )
           ) : (
             <div />
           )}

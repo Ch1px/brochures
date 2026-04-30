@@ -28,9 +28,14 @@ type Props = {
  * section comes into view and the source attaches.
  */
 export function LazyVideo({ src, poster, className, rootMargin = '600px' }: Props) {
-  const { staticExport } = useBrochureBranding()
+  const { staticExport, thumbnail } = useBrochureBranding()
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [active, setActive] = useState(false)
+
+  // In thumbnail mode (admin library card mini preview) we never want to
+  // load the video — the poster image (rendered separately as
+  // `.media-bg-layer`) is enough.
+  if (thumbnail) return null
 
   // In static-export mode (offline HTML capture) the runtime that would
   // attach src after IntersectionObserver fires is stripped. Render the

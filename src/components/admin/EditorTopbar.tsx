@@ -2,7 +2,27 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import {
+  ChevronLeft,
+  ChevronDown,
+  Globe,
+  Star,
+  Settings,
+  Link2,
+  Download,
+  ExternalLink,
+  Sun,
+  Moon,
+  Check,
+  Loader2,
+  AlertCircle,
+  Trash2,
+  CloudCheck,
+  CloudUpload,
+  CloudOff,
+  CircleDot,
+} from 'lucide-react'
 import type { Brochure, BrochureStatus, BrochureTheme } from '@/types/brochure'
 import type { SaveStatus } from '@/hooks/useAutosave'
 import type { CompanyOption } from './BrochureEditor'
@@ -32,18 +52,41 @@ const STATUS_LABEL: Record<BrochureStatus, string> = {
   archived: 'Archived',
 }
 
+const STATUS_DOT: Record<BrochureStatus, string> = {
+  draft: '#ffb340',
+  published: '#22c55e',
+  unpublished: '#94a3b8',
+  archived: '#64748b',
+}
+
 export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, onStatusChange, onThemeChange, onOpenSettings }: Props) {
   const router = useRouter()
   const theme: BrochureTheme = brochure.theme ?? 'dark'
   const [pending, startTransition] = useTransition()
-  const [publishMenu, setPublishMenu] = useState(false)
+  const [statusMenu, setStatusMenu] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<'idle' | 'generating' | 'copied' | 'error'>('idle')
   const [htmlExportStatus, setHtmlExportStatus] = useState<'idle' | 'generating' | 'error'>('idle')
+  const statusMenuRef = useRef<HTMLDivElement>(null)
 
-  // Resolve the host this brochure is served from. Uses the assigned company's
-  // domain when set, else the canonical GPGT host. Drives the host badge and
-  // every public/preview URL we hand the admin so what they share matches what
-  // the visitor sees.
+  // Close status menu on outside click / Escape.
+  useEffect(() => {
+    if (!statusMenu) return
+    const onDoc = (e: MouseEvent) => {
+      if (statusMenuRef.current && !statusMenuRef.current.contains(e.target as Node)) {
+        setStatusMenu(false)
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setStatusMenu(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDoc)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [statusMenu])
+
   const companyDomain = useMemo(() => {
     const ref = brochure.company?._ref
     if (!ref) return null
@@ -53,7 +96,7 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
   const publicUrl = `https://${host}/${brochure.slug.current}`
 
   function handleStatus(next: BrochureStatus) {
-    setPublishMenu(false)
+    setStatusMenu(false)
     startTransition(async () => {
       const res = await setBrochureStatusAction(brochure._id, next, brochure.slug.current)
       if (res.ok) onStatusChange(next)
@@ -67,6 +110,7 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
   }
 
   function handleDelete() {
+    setStatusMenu(false)
     if (!confirm(`Permanently delete "${brochure.title}"? This cannot be undone.`)) return
     startTransition(async () => {
       const res = await deleteBrochureAction(brochure._id)
@@ -82,9 +126,6 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
     if (htmlExportStatus === 'generating') return
     setHtmlExportStatus('generating')
     try {
-      // Drafts/unpublished brochures need a preview token to authorise the
-      // export; sign one and pipe it through. Published brochures don't
-      // need it but it's harmless to pass.
       let previewToken: string | null = null
       if (brochure.status !== 'published') {
         const res = await generatePreviewLinkAction(brochure._id)
@@ -158,9 +199,6 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
         setTimeout(() => setPreviewStatus('idle'), 2000)
         return
       }
-      // res.url is `/${slug}?preview=...`. Anchor it on the brochure's actual
-      // public host so the recipient sees the same domain (and lead-capture
-      // context) the live visitor would.
       const fullUrl = `https://${host}${res.url}`
       await navigator.clipboard.writeText(fullUrl)
       setPreviewStatus('copied')
@@ -174,10 +212,8 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
   return (
     <header className="editor-topbar">
       <div className="editor-topbar-left">
-        <Link href="/admin" className="editor-topbar-back" aria-label="Back to library">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
+        <Link href="/admin" className="editor-icon-btn" aria-label="Back to library" title="Back to library">
+          <ChevronLeft size={18} strokeWidth={2} />
         </Link>
         <input
           className="editor-topbar-title"
@@ -190,95 +226,148 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
       </div>
 
       <div className="editor-topbar-right">
-        <AdminThemeToggle />
-        <div className="editor-theme-toggle" role="group" aria-label="Brochure theme">
+        {/* Brochure theme — icon segmented control */}
+        <div className="editor-icon-segment" role="group" aria-label="Brochure theme">
           <button
             type="button"
-            className={`editor-theme-toggle-btn ${theme === 'dark' ? 'active' : ''}`.trim()}
+            className={`editor-icon-segment-btn ${theme === 'dark' ? 'active' : ''}`.trim()}
             onClick={() => onThemeChange('dark')}
             aria-pressed={theme === 'dark'}
-            title="Dark theme"
+            title="Dark brochure theme"
           >
-            Dark
+            <Moon size={15} strokeWidth={2} />
           </button>
           <button
             type="button"
-            className={`editor-theme-toggle-btn ${theme === 'light' ? 'active' : ''}`.trim()}
+            className={`editor-icon-segment-btn ${theme === 'light' ? 'active' : ''}`.trim()}
             onClick={() => onThemeChange('light')}
             aria-pressed={theme === 'light'}
-            title="Light theme"
+            title="Light brochure theme"
           >
-            Light
+            <Sun size={15} strokeWidth={2} />
           </button>
         </div>
-        <StatusBadge status={brochure.status} />
-        <div className="editor-topbar-menu-wrap">
-          <button className="editor-topbar-btn" onClick={() => setPublishMenu((v) => !v)} disabled={pending}>
-            Status ▾
+
+        <span className="editor-topbar-divider" aria-hidden />
+
+        <button
+          type="button"
+          className={`editor-icon-btn ${brochure.featured ? 'active' : ''}`.trim()}
+          onClick={handleFeature}
+          disabled={pending || brochure.status !== 'published'}
+          title={
+            brochure.status !== 'published'
+              ? 'Must be published to feature'
+              : brochure.featured
+                ? 'Featured — set as site root redirect'
+                : 'Make this the site root redirect'
+          }
+          aria-label="Feature brochure"
+          aria-pressed={brochure.featured}
+        >
+          <Star size={16} strokeWidth={2} fill={brochure.featured ? 'currentColor' : 'none'} />
+        </button>
+
+        <button
+          type="button"
+          className="editor-icon-btn"
+          onClick={onOpenSettings}
+          title="Brochure settings (slug, SEO, lead capture…)"
+          aria-label="Brochure settings"
+        >
+          <Settings size={16} strokeWidth={2} />
+        </button>
+
+        <button
+          type="button"
+          className={`editor-icon-btn ${previewStatus === 'copied' ? 'success' : previewStatus === 'error' ? 'error' : ''}`.trim()}
+          onClick={handleCopyPreviewLink}
+          disabled={previewStatus === 'generating'}
+          title={
+            previewStatus === 'copied'
+              ? 'Preview link copied'
+              : previewStatus === 'error'
+                ? 'Failed to copy preview link'
+                : 'Copy a signed preview URL (expires in 7 days)'
+          }
+          aria-label="Copy preview link"
+        >
+          {previewStatus === 'generating' ? (
+            <Loader2 size={16} strokeWidth={2} className="editor-spin" />
+          ) : previewStatus === 'copied' ? (
+            <Check size={16} strokeWidth={2.4} />
+          ) : previewStatus === 'error' ? (
+            <AlertCircle size={16} strokeWidth={2} />
+          ) : (
+            <Link2 size={16} strokeWidth={2} />
+          )}
+        </button>
+
+        <button
+          type="button"
+          className={`editor-icon-btn ${htmlExportStatus === 'error' ? 'error' : ''}`.trim()}
+          onClick={handleExportHtml}
+          disabled={htmlExportStatus === 'generating'}
+          title={
+            htmlExportStatus === 'generating'
+              ? 'Generating HTML export…'
+              : htmlExportStatus === 'error'
+                ? 'HTML export failed'
+                : 'Download a self-contained index.html that mirrors the live reader'
+          }
+          aria-label="Export HTML"
+        >
+          {htmlExportStatus === 'generating' ? (
+            <Loader2 size={16} strokeWidth={2} className="editor-spin" />
+          ) : htmlExportStatus === 'error' ? (
+            <AlertCircle size={16} strokeWidth={2} />
+          ) : (
+            <Download size={16} strokeWidth={2} />
+          )}
+        </button>
+
+        <span className="editor-topbar-divider" aria-hidden />
+
+        <AdminThemeToggle />
+
+        <span className="editor-topbar-divider" aria-hidden />
+
+        {/* Status pill — clickable, opens menu with status options + delete */}
+        <div className="editor-topbar-menu-wrap" ref={statusMenuRef}>
+          <button
+            type="button"
+            className="editor-status-pill"
+            onClick={() => setStatusMenu((v) => !v)}
+            disabled={pending}
+            aria-haspopup="menu"
+            aria-expanded={statusMenu}
+            title="Change status"
+          >
+            <span className="editor-status-pill-dot" style={{ background: STATUS_DOT[brochure.status] }} />
+            <span>{STATUS_LABEL[brochure.status]}</span>
+            <ChevronDown size={13} strokeWidth={2.2} />
           </button>
-          {publishMenu ? (
-            <div className="editor-topbar-menu">
+          {statusMenu ? (
+            <div className="editor-topbar-menu" role="menu">
               {(['draft', 'published', 'unpublished', 'archived'] as const).map((s) => (
                 <button
                   key={s}
+                  role="menuitem"
                   onClick={() => handleStatus(s)}
                   className={brochure.status === s ? 'active' : ''}
                 >
-                  {STATUS_LABEL[s]}
+                  <span className="editor-status-pill-dot" style={{ background: STATUS_DOT[s] }} />
+                  <span>{STATUS_LABEL[s]}</span>
                 </button>
               ))}
               <div className="editor-topbar-menu-divider" />
-              <button onClick={handleDelete} className="danger">
-                Delete permanently
+              <button role="menuitem" onClick={handleDelete} className="danger">
+                <Trash2 size={14} strokeWidth={2} />
+                <span>Delete permanently</span>
               </button>
             </div>
           ) : null}
         </div>
-
-        <button
-          className="editor-topbar-btn"
-          onClick={handleFeature}
-          disabled={pending || brochure.status !== 'published'}
-          title={brochure.status === 'published' ? 'Make this the site root redirect' : 'Must be published to feature'}
-        >
-          {brochure.featured ? '★ Featured' : 'Feature'}
-        </button>
-
-        <button
-          className="editor-topbar-btn"
-          onClick={onOpenSettings}
-          title="Edit brochure settings (slug, SEO, lead capture…)"
-        >
-          Settings
-        </button>
-
-        <button
-          className="editor-topbar-btn"
-          onClick={handleCopyPreviewLink}
-          disabled={previewStatus === 'generating'}
-          title="Copy a signed preview URL (expires in 7 days)"
-        >
-          {previewStatus === 'generating'
-            ? 'Generating…'
-            : previewStatus === 'copied'
-              ? '✓ Copied'
-              : previewStatus === 'error'
-                ? 'Failed'
-                : 'Copy preview link'}
-        </button>
-
-        <button
-          className="editor-topbar-btn"
-          onClick={handleExportHtml}
-          disabled={htmlExportStatus === 'generating'}
-          title="Download a self-contained index.html that mirrors the live reader, works offline"
-        >
-          {htmlExportStatus === 'generating'
-            ? 'Generating…'
-            : htmlExportStatus === 'error'
-              ? 'Failed'
-              : 'Export HTML'}
-        </button>
 
         {brochure.status === 'published' ? (
           <a
@@ -288,7 +377,8 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
             rel="noreferrer"
             title={`Open ${host}/${brochure.slug.current}`}
           >
-            View live ↗
+            <ExternalLink size={14} strokeWidth={2.2} />
+            <span>Live</span>
           </a>
         ) : null}
       </div>
@@ -297,12 +387,21 @@ export function EditorTopbar({ brochure, companies, saveStatus, onTitleChange, o
 }
 
 function SaveIndicator({ status }: { status: SaveStatus }) {
-  const label = status === 'saving' ? 'Saving…' : status === 'unsaved' ? 'Unsaved' : status === 'error' ? 'Save failed' : 'Saved'
-  const color = status === 'error' ? '#ff5555' : status === 'unsaved' ? '#ffb340' : status === 'saving' ? '#60a5fa' : '#4ade80'
+  const config = {
+    saved:   { Icon: CloudCheck,  label: 'Saved',       title: 'All changes saved' },
+    saving:  { Icon: CloudUpload, label: 'Saving',      title: 'Saving changes…' },
+    unsaved: { Icon: CircleDot,   label: 'Unsaved',     title: 'Unsaved changes' },
+    error:   { Icon: CloudOff,    label: 'Save failed', title: 'Save failed — retrying' },
+  }[status]
   return (
-    <div className="editor-save-indicator">
-      <span className="editor-save-dot" style={{ background: color }} />
-      <span>{label}</span>
+    <div className={`editor-save-indicator status-${status}`} title={config.title} aria-live="polite">
+      <config.Icon
+        size={14}
+        strokeWidth={2}
+        className={status === 'saving' ? 'editor-spin-slow' : ''}
+        aria-hidden
+      />
+      <span>{config.label}</span>
     </div>
   )
 }
@@ -325,27 +424,11 @@ function HostBadge({
       onClick={onClick}
       title={`Served at ${host}/${slug} — click to change host in Settings`}
     >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M2 12h20" />
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-      </svg>
+      <Globe size={13} strokeWidth={2} aria-hidden />
       <span className="editor-host-badge-host">{host}</span>
+      <span className="editor-host-badge-sep">/</span>
+      <span className="editor-host-badge-slug">{slug}</span>
       {isCompany ? <span className="editor-host-badge-tag">company</span> : null}
     </button>
-  )
-}
-
-function StatusBadge({ status }: { status: BrochureStatus }) {
-  const colors: Record<BrochureStatus, string> = {
-    draft: 'rgba(255,179,64,0.18)',
-    published: 'rgba(34,197,94,0.18)',
-    unpublished: 'rgba(148,163,184,0.18)',
-    archived: 'rgba(100,116,139,0.18)',
-  }
-  return (
-    <span className="editor-status-badge" style={{ background: colors[status] }}>
-      {STATUS_LABEL[status]}
-    </span>
   )
 }

@@ -330,9 +330,33 @@ export const ALL_BROCHURES = groq`
     status,
     publishedAt,
     featured,
+    // Brochure-level branding — pulled so the admin library card can render
+    // the actual cover section through SectionRenderer (mini live preview).
+    theme,
+    accentColor,
+    backgroundColor,
+    textColor,
+    titleColor,
+    bodyColor,
+    eyebrowItalic,
+    eyebrowTransform,
+    titleItalic,
+    titleTransform,
+    fontOverrides,
+    customFonts,
+    titleScale,
+    eyebrowScale,
+    taglineScale,
+    navColor,
+    textureImage,
+    hideTexture,
+    customColors,
+    logo,
     "pageCount": count(pages),
-    "ogImage": seo.ogImage,
-    "company": company->{_id, name, accentColor, domain}
+    // First cover/coverCentered section on page 1 — full payload (not just
+    // the image) so we can hand it to <SectionRenderer/> as a live thumbnail.
+    "coverSection": pages[0].sections[_type == "cover" || _type == "coverCentered"][0],
+    "company": company->{_id, name, accentColor, domain, logo}
   }
 `
 

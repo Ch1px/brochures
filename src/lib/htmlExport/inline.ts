@@ -86,7 +86,17 @@ export async function inlineSanityImages(html: string): Promise<string> {
   await Promise.all(
     urls.map(async (url) => {
       try {
-        const res = await fetch(url)
+        // Puppeteer's page.content() HTML-encodes ampersands inside
+        // attribute values (`&` -> `&amp;`), so the regex captures URLs
+        // like `?w=2000&amp;q=70&amp;auto=format`. Fetching that literally
+        // makes Sanity treat `amp;q` as a parameter name, ignore `q`/`auto`,
+        // and return a huge unoptimised JPEG — which then produces a
+        // multi-MB data URI that Chrome rejects with ERR_INVALID_URL.
+        // Decode entities before fetching so we get the correctly-sized,
+        // format-optimised image. The cache key remains the original
+        // (entity-encoded) match string so the later html.replace lines up.
+        const fetchUrl = decodeHtmlEntities(url)
+        const res = await fetch(fetchUrl)
         if (!res.ok) return
         const contentType = res.headers.get('content-type') ?? guessContentType(url)
         const buf = Buffer.from(await res.arrayBuffer())
@@ -98,6 +108,17 @@ export async function inlineSanityImages(html: string): Promise<string> {
   )
 
   return html.replace(SANITY_URL_RE, (match) => cache.get(match) ?? match)
+}
+
+function decodeHtmlEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
 }
 
 function guessContentType(url: string): string {

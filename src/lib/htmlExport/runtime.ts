@@ -209,6 +209,37 @@ const RUNTIME_SOURCE = /* js */ `(() => {
     syncCircuitMapFrames();
     window.addEventListener('resize', syncCircuitMapFrames);
 
+    // ---- Spotlight parallax (mirrors SpotlightBackground.tsx) ----
+    // The bg layer translates vertically based on its centre relative to the
+    // viewport; the scroll container is the nearest .brochure-page (which has
+    // overflow-y: auto). The CSS class .parallax is already on the layer; we
+    // only need to write --spotlight-parallax on scroll.
+    const parallaxLayers = document.querySelectorAll('.page-spotlight-bg.parallax');
+    parallaxLayers.forEach((layer) => {
+      let scroller = null;
+      for (let p = layer.parentElement; p; p = p.parentElement) {
+        const oy = getComputedStyle(p).overflowY;
+        if (oy === 'auto' || oy === 'scroll') { scroller = p; break; }
+      }
+      let raf = 0;
+      function updateParallax() {
+        raf = 0;
+        const r = layer.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const center = r.top + r.height / 2;
+        const offset = (center - vh / 2) * -0.25;
+        layer.style.setProperty('--spotlight-parallax', offset + 'px');
+      }
+      function onParallaxScroll() {
+        if (raf) return;
+        raf = requestAnimationFrame(updateParallax);
+      }
+      updateParallax();
+      const target = scroller || window;
+      target.addEventListener('scroll', onParallaxScroll, { passive: true });
+      window.addEventListener('resize', onParallaxScroll);
+    });
+
     // ---- Fade-up animations (mirrors AnimatedSection.tsx) ----
     const targets = document.querySelectorAll(ANIMATABLE);
     syncVisibility(targets);

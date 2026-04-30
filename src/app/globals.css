@@ -3227,31 +3227,43 @@
   }
   .library-header-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    align-items: center;
     flex-wrap: wrap;
   }
+  .library-header-divider {
+    width: 1px;
+    height: 22px;
+    background: var(--chrome-border);
+    margin: 0 4px;
+  }
   .library-header-btn {
-    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 12px;
     background: var(--chrome-raised);
-    border: 1px solid var(--chrome-border-strong);
-    border-radius: 4px;
+    border: 1px solid var(--chrome-border);
+    border-radius: 5px;
     color: var(--chrome-text);
     cursor: pointer;
     font-family: var(--font-condensed);
     font-weight: 600;
     font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-transform: none;
     text-decoration: none;
     transition: all 0.12s;
   }
-  .library-header-btn:hover { background: var(--chrome-elevated); border-color: var(--chrome-text-tertiary); }
+  .library-header-btn:hover { background: var(--chrome-elevated); border-color: var(--chrome-border-strong); }
   .library-header-btn.primary {
     background: var(--brand-red);
     border-color: var(--brand-red);
     color: #fff;
   }
-  .library-header-btn.primary:hover { background: var(--brand-red-hover); }
+  .library-header-btn.primary:hover { background: var(--brand-red-hover); border-color: var(--brand-red-hover); }
+  .library-subtitle-sep { color: var(--chrome-border-strong); margin: 0 2px; }
 
   .library-page > .library-body {
     padding: 0 40px 60px;
@@ -3265,28 +3277,35 @@
   /* Filters */
   .library-filters {
     padding: 0 40px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
+  }
+  .library-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
   .library-search {
     position: relative;
-    max-width: 400px;
+    flex: 1;
+    max-width: 440px;
+    min-width: 240px;
   }
   .library-search-icon {
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
     color: var(--chrome-text-tertiary);
     pointer-events: none;
   }
   .library-search-input {
     width: 100%;
-    padding: 10px 12px 10px 36px;
+    height: 38px;
+    padding: 0 36px 0 36px;
     background: var(--chrome-surface);
     border: 1px solid var(--chrome-border);
     border-radius: 6px;
@@ -3294,97 +3313,193 @@
     font-family: var(--font-body);
     font-size: 13px;
     outline: none;
-    transition: border-color 0.12s;
+    transition: border-color 0.12s, background 0.12s;
   }
   .library-search-input::placeholder { color: var(--chrome-text-tertiary); }
-  .library-search-input:focus { border-color: var(--chrome-border-strong); }
-  .library-filter-pills {
-    display: flex;
-    gap: 4px;
+  .library-search-input:focus { border-color: var(--chrome-border-strong); background: var(--chrome-raised); }
+  .library-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
     align-items: center;
-    flex-wrap: wrap;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: var(--chrome-text-tertiary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.12s, background 0.12s;
   }
-  .library-filter-pill {
-    padding: 5px 12px;
-    background: none;
-    border: 1px solid var(--chrome-border);
-    border-radius: 20px;
+  .library-search-clear:hover { color: var(--chrome-text); background: var(--chrome-raised); }
+  .library-filter-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px dashed var(--chrome-border-strong);
+    border-radius: 6px;
+    background: transparent;
     color: var(--chrome-text-secondary);
     cursor: pointer;
     font-family: var(--font-condensed);
     font-weight: 600;
     font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
     transition: all 0.12s;
+  }
+  .library-filter-clear:hover { border-color: var(--brand-red); color: var(--brand-red); }
+
+  .library-filter-group {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
+    flex-wrap: wrap;
   }
-  .library-filter-pill:hover { border-color: var(--chrome-text-tertiary); color: var(--chrome-text); }
+  .library-filter-group-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--chrome-text-tertiary);
+    flex-shrink: 0;
+    min-width: 56px;
+  }
+  .library-filter-pills {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .library-filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 11px;
+    background: transparent;
+    border: 1px solid var(--chrome-border);
+    border-radius: 14px;
+    color: var(--chrome-text-secondary);
+    cursor: pointer;
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    transition: all 0.12s;
+  }
+  .library-filter-pill:hover { border-color: var(--chrome-border-strong); color: var(--chrome-text); background: var(--chrome-raised); }
   .library-filter-pill.active {
     background: var(--brand-red-dim);
     border-color: var(--brand-red);
     color: var(--brand-red);
   }
-  .library-filter-pill-count {
-    font-size: 9px;
-    opacity: 0.6;
+  .library-filter-pill-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
-  .library-filter-divider {
-    width: 1px;
-    height: 18px;
-    background: var(--chrome-border);
-    margin: 0 4px;
+  .library-filter-pill-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    opacity: 0.7;
+    padding-left: 2px;
   }
 
   /* Card enhancements */
+  .library-card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
   .library-card-status {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    border-radius: 3px;
     font-size: 9px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  .library-card-status.published { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-  .library-card-status.draft { background: rgba(255, 179, 64, 0.2); color: #ffb340; }
-  .library-card-status.unpublished { background: rgba(148, 163, 184, 0.18); color: #94a3b8; }
-  .library-card-status.archived { background: rgba(100, 116, 139, 0.18); color: #64748b; }
-  .library-card-featured {
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--brand-red);
-    margin-left: 6px;
+  .library-card-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
+  .library-card-status.published { background: rgba(34, 197, 94, 0.16); color: #4ade80; }
+  .library-card-status.draft { background: rgba(255, 179, 64, 0.16); color: #ffb340; }
+  .library-card-status.unpublished { background: rgba(148, 163, 184, 0.16); color: #94a3b8; }
+  .library-card-status.archived { background: rgba(100, 116, 139, 0.16); color: #64748b; }
+
+  .library-card-meta-sep { color: var(--chrome-border-strong); opacity: 0.7; }
+  .library-card-meta-text { color: var(--chrome-text-tertiary); }
+
+  /* Featured badge — overlaid on card thumb top-left when brochure is the
+     site root redirect. Replaces the old inline "Featured" text. */
+  .library-card-featured-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px 4px 7px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(4px);
+    color: #f5b400;
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
   .library-card-company {
     display: inline-block;
     font-family: var(--font-mono);
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 2px 6px;
-    margin-left: 6px;
+    padding: 2px 7px;
     border-radius: 3px;
     border: 1px solid var(--chrome-border);
     background: var(--chrome-raised);
     color: var(--chrome-text-secondary);
-    vertical-align: middle;
+    flex-shrink: 0;
   }
   .library-card-event {
     font-family: var(--font-mono);
     font-size: 10px;
     letter-spacing: 0.1em;
     color: var(--chrome-text-secondary);
-    margin-top: 4px;
+    margin-top: 6px;
+  }
+  .library-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 8px;
   }
   .library-card-slug {
     font-family: var(--font-mono);
     font-size: 10px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     color: var(--chrome-text-tertiary);
-    margin-top: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   /* Pagination */
@@ -3394,19 +3509,23 @@
     justify-content: center;
     gap: 8px;
     padding: 24px 0;
+    flex-wrap: wrap;
   }
   .library-pagination-btn {
-    padding: 7px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
     background: var(--chrome-raised);
     border: 1px solid var(--chrome-border);
-    border-radius: 4px;
+    border-radius: 5px;
     color: var(--chrome-text-secondary);
     cursor: pointer;
     font-family: var(--font-condensed);
     font-weight: 600;
     font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-transform: none;
     transition: all 0.12s;
   }
   .library-pagination-btn:hover:not(:disabled) { background: var(--chrome-elevated); color: var(--chrome-text); }
@@ -3446,20 +3565,45 @@
 
   /* Empty state */
   .library-empty {
-    padding: 48px;
+    padding: 60px 32px;
     text-align: center;
     color: var(--chrome-text-tertiary);
     font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .library-empty-icon {
+    color: var(--chrome-text-tertiary);
+    opacity: 0.5;
+  }
+  .library-empty-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--chrome-text-secondary);
   }
   .library-empty-reset {
-    background: none;
-    border: none;
-    color: var(--brand-red);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 14px;
+    background: var(--brand-red);
+    border: 1px solid var(--brand-red);
+    border-radius: 5px;
+    color: #fff;
     cursor: pointer;
-    font: inherit;
-    padding: 0;
-    text-decoration: underline;
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: 12px;
+    text-decoration: none;
+    transition: background 0.12s;
   }
+  .library-empty-reset:hover { background: var(--brand-red-hover); }
 
   .library-overlay { position: fixed; inset: 0; background: var(--chrome-bg); z-index: 100; display: none; flex-direction: column; }
   .library-overlay.visible { display: flex; }
@@ -3486,23 +3630,137 @@
     transition: all 0.2s;
     position: relative;
   }
-  .library-card:hover { border-color: var(--brand-red); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-  .library-card-thumb {
+  .library-card:hover { border-color: var(--brand-red); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+
+  /* Card thumb — wraps the live MiniCoverPreview render. Establishes the
+     16:10 aspect ratio. Inside, the cover is rendered at a fixed virtual
+     size (1280×800) and CSS-scaled down via transform — this preserves the
+     cover's font proportions (which use `clamp()` floors that would
+     otherwise stop the title from shrinking on a real-size tiny container).
+     Pointer events are disabled inside so clicks bubble to the wrapping
+     <Link>. */
+  .library-card-thumb-wrap {
     aspect-ratio: 16/10;
+    position: relative;
+    overflow: hidden;
     background: #0f0f0f;
-    display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
-    padding: 20px;
+    pointer-events: none;
+  }
+  .library-card-thumb-wrap .library-card-mini-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .library-card-thumb-wrap .library-card-mini-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+    container-type: size;
+    container-name: brochure-frame;
+    overflow: hidden;
+  }
+  .library-card-thumb-wrap .library-card-mini-frame > .brochure-page {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  /* Tiny accent bar across the bottom — keeps a hint of brand identity
+     even when the cover image fills the frame. Sits on the inner wrap so
+     it picks up the same resolved accent that the mini preview uses. */
+  .library-card-thumb-wrap .library-card-mini-wrap::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--brand-red));
+    z-index: 3;
+    pointer-events: none;
+  }
+  /* Text-only fallback when the brochure has no cover section yet. The
+     --card-accent var is set inline per card so each thumb tints to its
+     brochure's accent. */
+  .library-card-thumb {
+    position: absolute; inset: 0;
+    background: #0f0f0f;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+  }
+  .library-card-thumb.theme-light:not(.has-image) { background: #f5f5f3; }
+  /* Accent corner mark + bottom rule, drawn with a per-card colour. */
+  .library-card-thumb::before {
+    content: ''; position: absolute; top: 14px; left: 14px;
+    width: 28px; height: 3px;
+    background: var(--card-accent, var(--brand-red));
+    z-index: 2;
+  }
+  .library-card-thumb::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--brand-red));
+    z-index: 2;
+  }
+  /* Dark scrim over images so the title stays readable regardless of cover. */
+  .library-card-thumb-overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to top,
+        rgba(0, 0, 0, 0.78) 0%,
+        rgba(0, 0, 0, 0.45) 40%,
+        rgba(0, 0, 0, 0.15) 75%,
+        rgba(0, 0, 0, 0.05) 100%);
+    z-index: 1;
+  }
+  .library-card-thumb-content {
+    position: absolute;
+    inset: auto 16px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 2;
+  }
+  /* Text-only fallback: centre the content for a poster-y feel. */
+  .library-card-thumb:not(.has-image) .library-card-thumb-content {
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 16px;
+    gap: 8px;
+  }
+  .library-card-thumb-eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--card-accent, var(--brand-red));
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .library-card-thumb-text {
     font-family: var(--font-display); font-weight: var(--font-display-weight);
-    font-size: 22px; letter-spacing: 0.02em;
-    text-transform: uppercase; text-align: center;
-    color: var(--chrome-text-secondary);
-    line-height: 1;
+    font-size: 18px; letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    line-height: 1.05;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
-  .library-card-thumb::before { content: ''; position: absolute; top: 14px; left: 14px; width: 28px; height: 3px; background: var(--brand-red); }
-  .library-card-thumb::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--brand-red); }
+  .library-card-thumb:not(.has-image) .library-card-thumb-text {
+    font-size: 22px;
+    color: var(--chrome-text-secondary);
+    text-shadow: none;
+  }
+  .library-card-thumb.theme-light:not(.has-image) .library-card-thumb-text {
+    color: #1a1a1a;
+  }
   .library-card-body { padding: 20px; }
   .library-card-title {
     font-family: var(--font-display); font-weight: 700;
@@ -3511,33 +3769,41 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .library-card-meta {
-    display: flex; justify-content: space-between;
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: 6px;
     font-family: var(--font-mono); font-size: 10px;
-    letter-spacing: 0.14em; text-transform: uppercase;
+    letter-spacing: 0.06em; text-transform: none;
     color: var(--chrome-text-tertiary);
   }
   .library-card-actions {
     position: absolute; top: 10px; right: 10px;
     display: flex; gap: 4px;
-    opacity: 0; transition: opacity 0.15s;
+    opacity: 0.55; transition: opacity 0.15s;
     z-index: 2;
   }
-  .library-card:hover .library-card-actions { opacity: 1; }
+  .library-card:hover .library-card-actions,
+  .library-card:focus-within .library-card-actions { opacity: 1; }
   .library-card-action {
     width: 30px; height: 30px;
-    background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(4px);
-    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
     display: flex; align-items: center; justify-content: center;
     color: #fff;
+    cursor: pointer;
     transition: all 0.12s;
   }
-  .library-card-action:hover { background: var(--brand-red); }
-  .library-card-action svg { width: 14px; height: 14px; }
-  .library-card-action.danger:hover {
-    color: #ff5555;
+  .library-card-action:hover:not(:disabled) {
+    background: var(--brand-red);
+    border-color: var(--brand-red);
+    transform: scale(1.05);
+  }
+  .library-card-action:disabled { opacity: 0.4; cursor: not-allowed; }
+  .library-card-action.danger:hover:not(:disabled) {
+    background: #ff5555;
     border-color: #ff5555;
-    background: rgba(255, 85, 85, 0.1);
+    color: #fff;
   }
 
   /* ── MEDIA LIBRARY ── */
