@@ -347,6 +347,7 @@ export default defineType({
         'Scale multiplier for all headline/title text across the brochure. Default: M.',
       options: {
         list: [
+          { title: 'XXS — Tiny', value: 'xxs' },
           { title: 'XS — Compact', value: 'xs' },
           { title: 'S — Small', value: 's' },
           { title: 'M — Default', value: 'm' },
@@ -364,6 +365,7 @@ export default defineType({
         'Scale multiplier for all eyebrow/script text across the brochure. Default: M.',
       options: {
         list: [
+          { title: 'XXS — Tiny', value: 'xxs' },
           { title: 'XS — Compact', value: 'xs' },
           { title: 'S — Small', value: 's' },
           { title: 'M — Default', value: 'm' },
@@ -381,6 +383,7 @@ export default defineType({
         'Scale multiplier for taglines, subtitles, and body text across the brochure. Default: M.',
       options: {
         list: [
+          { title: 'XXS — Tiny', value: 'xxs' },
           { title: 'XS — Compact', value: 'xs' },
           { title: 'S — Small', value: 's' },
           { title: 'M — Default', value: 'm' },

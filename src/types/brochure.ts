@@ -13,7 +13,7 @@ export type BrochureStatus = 'draft' | 'published' | 'unpublished' | 'archived'
 
 export type BrochureTheme = 'dark' | 'light'
 
-export type TextScalePreset = 'xs' | 's' | 'm' | 'l' | 'xl'
+export type TextScalePreset = 'xxs' | 'xs' | 's' | 'm' | 'l' | 'xl'
 
 export type CustomFontWeight = {
   _key: string
@@ -83,6 +83,7 @@ export type SectionCover = {
   titleScale?: TextScalePreset
   eyebrowScale?: TextScalePreset
   bodyScale?: TextScalePreset
+  titleAccentScale?: TextScalePreset
 }
 
 export type SectionIntro = {

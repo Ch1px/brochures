@@ -41,6 +41,7 @@ export const sectionStyleFields = [
     description: 'Override the title text size for this section. Leave blank to use the brochure default.',
     options: {
       list: [
+        { title: 'XXS — Tiny', value: 'xxs' },
         { title: 'XS — Compact', value: 'xs' },
         { title: 'S — Small', value: 's' },
         { title: 'M — Default', value: 'm' },
@@ -56,6 +57,7 @@ export const sectionStyleFields = [
     description: 'Override the eyebrow text size for this section. Leave blank to use the brochure default.',
     options: {
       list: [
+        { title: 'XXS — Tiny', value: 'xxs' },
         { title: 'XS — Compact', value: 'xs' },
         { title: 'S — Small', value: 's' },
         { title: 'M — Default', value: 'm' },
@@ -71,6 +73,23 @@ export const sectionStyleFields = [
     description: 'Override the body/tagline text size for this section. Leave blank to use the brochure default.',
     options: {
       list: [
+        { title: 'XXS — Tiny', value: 'xxs' },
+        { title: 'XS — Compact', value: 'xs' },
+        { title: 'S — Small', value: 's' },
+        { title: 'M — Default', value: 'm' },
+        { title: 'L — Large', value: 'l' },
+        { title: 'XL — Extra Large', value: 'xl' },
+      ],
+    },
+  }),
+  defineField({
+    name: 'titleAccentScale',
+    title: 'Title accent text size',
+    type: 'string',
+    description: 'Override the title accent (script-font emphasis) text size for this section. Leave blank to use the brochure default.',
+    options: {
+      list: [
+        { title: 'XXS — Tiny', value: 'xxs' },
         { title: 'XS — Compact', value: 'xs' },
         { title: 'S — Small', value: 's' },
         { title: 'M — Default', value: 'm' },

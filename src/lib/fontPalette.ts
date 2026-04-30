@@ -367,6 +367,7 @@ export function weightOptionsForRole(
 import type { TextScalePreset } from '@/types/brochure'
 
 export const SCALE_MAP: Record<TextScalePreset, number> = {
+  xxs: 0.55,
   xs: 0.7,
   s: 0.85,
   m: 1,

@@ -637,7 +637,7 @@
     color: var(--section-accent-color, var(--brand-red));
     text-transform: var(--eyebrow-text-transform, none);
     letter-spacing: 0;
-    font-size: 1.05em;
+    font-size: calc(var(--title-accent-scale, 1) * 1.05em);
     line-height: 0.8;
     display: inline-block;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.7);
@@ -4103,7 +4103,7 @@
       gap: 12px;
     }
     .cover-title { font-size: calc(var(--title-scale, 1) * clamp(28px, 9cqi, 48px)); line-height: 0.95; }
-    .cover-title-accent { font-size: 1.55em; line-height: 0.85; }
+    .cover-title-accent { font-size: calc(var(--title-accent-scale, 1) * 1.55em); line-height: 0.85; }
     .cover-tag { max-width: 100%; font-size: calc(var(--tagline-scale, 1) * clamp(15px, 2.8cqi, 20px)); }
     .page-cover-bottom {
       flex-direction: column;

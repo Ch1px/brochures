@@ -321,6 +321,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
 
   // ───────── Scale preset options (shared) ─────────
   const scaleOptions = [
+    { value: 'xxs', label: 'XXS — Tiny' },
     { value: 'xs', label: 'XS — Compact' },
     { value: 's', label: 'S — Small' },
     { value: 'm', label: 'M — Default' },

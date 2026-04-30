@@ -150,6 +150,8 @@ function sectionStyleCss(
   if (es) vars.push(`--eyebrow-scale:${es}`)
   const bs = resolveScale(s.bodyScale)
   if (bs) vars.push(`--tagline-scale:${bs}`)
+  const tas = resolveScale(s.titleAccentScale)
+  if (tas) vars.push(`--title-accent-scale:${tas}`)
 
 
   return vars.length > 0 ? vars.join(';') : null
