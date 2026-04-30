@@ -74,10 +74,13 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
 
       <div className="page-spotlight-inner">
         {data.showForegroundImage !== false ? (
-          <div
-            className="page-spotlight-image"
-            style={imageUrl ? { backgroundImage: `url('${imageUrl}')` } : undefined}
-          >
+          <div className="page-spotlight-image">
+            {imageUrl ? (
+              <div
+                className="media-bg-layer"
+                style={{ backgroundImage: `url('${imageUrl}')` }}
+              />
+            ) : null}
             {videoUrl ? (
               <video
                 className="media-video"

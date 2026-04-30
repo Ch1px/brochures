@@ -1007,6 +1007,7 @@
     background-position: center;
     background-color: rgba(255, 255, 255, 0.06);
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
   }
   .page-spotlight-image-frame {
     position: absolute;
