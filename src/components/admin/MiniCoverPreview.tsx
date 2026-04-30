@@ -141,6 +141,9 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
   // (--section-accent-color). Without this, a brochure inheriting accent
   // from its company but with a cover-level override renders mixed colours
   // in the thumb.
+  // Note: we resolve against the original cover section data (not the
+  // scopedCoverSection below). The _key rewrite is only for style-selector
+  // scoping; field values are unchanged.
   const coverAccent = resolveCoverAccent(brochure.coverSection, {
     accentColor: effectiveAccent,
     backgroundColor: brochure.backgroundColor,
@@ -151,21 +154,17 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
   })
   const visualAccent = coverAccent ?? effectiveAccent
 
-  if (typeof window !== 'undefined') {
-    const cs = brochure.coverSection as Record<string, unknown> | null | undefined
-
-    console.log('[MiniCoverPreview]', brochure.title, {
-      brochureAccent: brochure.accentColor,
-      companyAccent: brochure.company?.accentColor,
-      effectiveAccent,
-      coverSectionKey: cs?._key,
-      coverSectionAllFields: cs,
-      coverAccentResolved: coverAccent,
-      visualAccent,
-      customColorsCount: brochure.customColors?.length ?? 0,
-      customColorsKeys: brochure.customColors?.map((c) => `${c._key}:${c.hex}`),
-    })
-  }
+  // Each library card renders its own cover section through SectionRenderer.
+  // SectionRenderer emits a `<style>[data-section-id="<_key>"]{...}</style>`
+  // block for any section with colour/scale overrides. Brochures duplicated
+  // from a template share the cover's `_key` (e.g. "s01cover0001"), so on the
+  // library page where multiple cards mount simultaneously the LAST emitted
+  // style block wins for ALL cards — leaking accent/title overrides between
+  // brochures. Substitute a per-card unique `_key` so each style block has
+  // its own selector and doesn't cross-contaminate.
+  const scopedCoverSection = brochure.coverSection
+    ? { ...brochure.coverSection, _key: `${brochure.coverSection._key}-${scopeId}` }
+    : null
 
   const accentStyle = accentColorVars(visualAccent)
   const bgStyle = backgroundColorVars(brochure.backgroundColor)
@@ -178,36 +177,6 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
   const navStyle = navColorVars(brochure.navColor)
   const overlayStyle = overlayBaseVars(brochure.backgroundColor)
   const scaleStyle = textScaleVars(brochure as unknown as Brochure)
-
-  // Diagnostic: log the COMPUTED CSS of the cover and CTA after mount so we
-  // can see what --brand-red / --section-accent-color actually resolve to in
-  // the DOM (vs what we *think* we're setting via inline style).
-  useEffect(() => {
-    const el = wrapRef.current
-    if (!el) return
-    const id = window.requestAnimationFrame(() => {
-      const frame = el.querySelector<HTMLElement>('.library-card-mini-frame')
-      const section = el.querySelector<HTMLElement>('[data-section-id]')
-      const cta = el.querySelector<HTMLElement>('.cover-cta')
-      const titleAccent = el.querySelector<HTMLElement>('.cover-title-accent')
-      const fc = frame ? getComputedStyle(frame) : null
-      const sc = section ? getComputedStyle(section) : null
-      const cc = cta ? getComputedStyle(cta) : null
-      const tac = titleAccent ? getComputedStyle(titleAccent) : null
-      console.log('[MiniCoverPreview · computed]', brochure.title, {
-        frameBrandRed: fc?.getPropertyValue('--brand-red').trim(),
-        frameSectionAccent: fc?.getPropertyValue('--section-accent-color').trim(),
-        sectionBrandRed: sc?.getPropertyValue('--brand-red').trim(),
-        sectionSectionAccent: sc?.getPropertyValue('--section-accent-color').trim(),
-        ctaBrandRed: cc?.getPropertyValue('--brand-red').trim(),
-        ctaSectionAccent: cc?.getPropertyValue('--section-accent-color').trim(),
-        ctaBackgroundColor: cc?.backgroundColor,
-        ctaColor: cc?.color,
-        titleAccentColor: tac?.color,
-      })
-    })
-    return () => window.cancelAnimationFrame(id)
-  }, [brochure.title])
 
   // Measure the wrap and compute the scale factor needed to fit the
   // virtual canvas. ResizeObserver keeps it correct across responsive
@@ -297,12 +266,14 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
           aria-hidden
         >
           <div className="brochure-page" style={{ width: '100%', height: '100%' }}>
-            <SectionRenderer
-              section={brochure.coverSection}
-              pageNum={1}
-              total={1}
-              showFolio={false}
-            />
+            {scopedCoverSection ? (
+              <SectionRenderer
+                section={scopedCoverSection}
+                pageNum={1}
+                total={1}
+                showFolio={false}
+              />
+            ) : null}
           </div>
         </div>
       </div>
