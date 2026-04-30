@@ -4332,11 +4332,10 @@
     flex: 1;
     align-self: stretch;
     align-items: stretch;
-    /* No justify-content: flex-end here — combined with overflow-x: auto it
-       pushes overflowed items into negative scroll space the browser can't
-       reach. Instead, leave alignment at flex-start and use margin-inline-
-       start: auto on the first child below: pushes items right when they
-       fit, collapses to 0 when they don't, so overflow scrolls naturally. */
+    /* Items sit at flex-start so the row begins immediately after the brand.
+       Don't use justify-content: flex-end — combined with overflow-x: auto
+       it pushes overflowed items into negative scroll space the browser
+       can't reach. */
     overflow-x: auto;
     overflow-y: hidden;
     /* scroll-behavior is auto (default) so the per-frame scrollLeft updates
@@ -4349,7 +4348,6 @@
     mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
     -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
   }
-  .brochure-nav-links > :first-child { margin-inline-start: auto; }
   .brochure-nav-links::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
   .brochure-nav-link {
@@ -5300,6 +5298,25 @@
     flex-direction: column;
     justify-content: center;
   }
+  /* Shrink section titles and body copy in the PDF except on the cover
+     and section-heading slides, which are deliberately big. The title and
+     body rules already read --title-scale and --body-text-size respectively;
+     setting them here cascades to every *-title and body-text class. The
+     eyebrow (--eyebrow-scale) and tagline (--tagline-scale, .cover-tag) live
+     on their own variables, so they're untouched. */
+  .brochure-print-page > .section:not(.page-cover):not(.page-section-heading) {
+    --title-scale: 0.8;
+    --body-text-size: clamp(10px, 1.1cqi, 13px);
+  }
+  /* Stats values/units/labels use fixed clamps with no scale var, so the
+     --body-text-size override doesn't reach them. Mirror the ~80% shrink
+     here for both the Stats section and the inline stats on circuit maps. */
+  .brochure-print-page > .section .stat-value { font-size: clamp(24px, 4.8cqi, 56px); }
+  .brochure-print-page > .section .stat-unit { font-size: clamp(8px, 1.05cqi, 11px); }
+  .brochure-print-page > .section .stat-label { font-size: clamp(7px, 0.8cqi, 9px); }
+  .brochure-print-page > .section .circuit-map-stat-value { font-size: clamp(17px, 3.2cqi, 38px); }
+  .brochure-print-page > .section .circuit-map-stat-unit { font-size: clamp(7px, 0.88cqi, 10px); }
+  .brochure-print-page > .section .circuit-map-stat-label { font-size: clamp(7px, 0.8cqi, 9px); }
   /* Public-reader sizing assumes each section fills the slide height: inners
      get min-height: 100% and child blocks (itinerary-list, circuit-map-stage)
      get flex: 1 to absorb free space. In the print view that fill swallows

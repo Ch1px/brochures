@@ -22,6 +22,12 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+// A4 landscape printed at ~150 DPI is 1754×1240. Capping image fetches at
+// this width is the dominant lever for PDF size — components request up to
+// 2000px which is wasted bytes once embedded.
+const PDF_MAX_IMAGE_WIDTH = 1750
+const PDF_IMAGE_QUALITY = 72
+
 type RouteContext = { params: Promise<{ slug: string }> }
 
 export async function GET(req: Request, { params }: RouteContext) {
@@ -52,6 +58,9 @@ export async function GET(req: Request, { params }: RouteContext) {
   const httpFailures: Array<{ status: number; url: string }> = []
   const pageErrors: string[] = []
 
+  // Allow ?compress=0 to disable image rewriting for A/B comparison.
+  const compress = url.searchParams.get('compress') !== '0'
+
   try {
     browser = await launchBrowser()
     const page = await browser.newPage()
@@ -69,9 +78,60 @@ export async function GET(req: Request, { params }: RouteContext) {
       if (res.status() >= 400) httpFailures.push({ status: res.status(), url: res.url() })
     })
 
+    // Rewrite Sanity image URLs to a print-friendly profile: capped width,
+    // q=72, forced JPEG. Chromium embeds JPEGs into the PDF without re-
+    // encoding, so the source bytes flow through unchanged. WebP/AVIF
+    // sources would otherwise get re-encoded by Chrome into a much larger
+    // variant when embedded.
+    //
+    // We fetch the rewritten URL ourselves and reply via request.respond()
+    // rather than overriding the URL in request.continue(). URL overrides
+    // are inconsistently handled across Chromium builds for CSS background-
+    // image fetches — responding with bytes against the original URL is the
+    // robust path.
+    if (compress) {
+      await page.setRequestInterception(true)
+      page.on('request', async (req) => {
+        const original = req.url()
+        if (!original.startsWith('https://cdn.sanity.io/images/')) {
+          try { await req.continue() } catch {}
+          return
+        }
+        try {
+          const u = new URL(original)
+          const w = Number(u.searchParams.get('w') ?? '0')
+          if (!w || w > PDF_MAX_IMAGE_WIDTH) {
+            u.searchParams.set('w', String(PDF_MAX_IMAGE_WIDTH))
+          }
+          u.searchParams.set('q', String(PDF_IMAGE_QUALITY))
+          u.searchParams.set('fm', 'jpg')
+
+          const upstream = await fetch(u.toString())
+          if (!upstream.ok) {
+            await req.continue()
+            return
+          }
+          const body = Buffer.from(await upstream.arrayBuffer())
+          await req.respond({
+            status: upstream.status,
+            headers: {
+              'content-type': upstream.headers.get('content-type') ?? 'image/jpeg',
+              'cache-control': 'public, max-age=3600',
+            },
+            body,
+          })
+        } catch {
+          try { await req.continue() } catch {}
+        }
+      })
+    }
+
     // Match the printed sheet pixel size at 96dpi so layout settles before
     // Chromium reflows for the @page rule. 297mm × 210mm ≈ 1123 × 794.
-    await page.setViewport({ width: 1123, height: 794, deviceScaleFactor: 2 })
+    // deviceScaleFactor stays at 1 — page.pdf() output is vector with
+    // embedded raster images at their fetched resolution; a higher DSF
+    // doesn't sharpen the PDF, just wastes work on layout.
+    await page.setViewport({ width: 1123, height: 794, deviceScaleFactor: 1 })
 
     await page.goto(printUrl, { waitUntil: 'networkidle0', timeout: 45_000 })
     await page.evaluateHandle(() => document.fonts?.ready)

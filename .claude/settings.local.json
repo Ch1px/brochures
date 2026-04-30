@@ -36,7 +36,12 @@
       "Bash(grep -nA3 \"^  \\\\.section {\" /c/brochures/src/app/globals.css)",
       "Bash(find C:\\\\brochures\\\\src *)",
       "Bash(find *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(git --version)",
+      "Bash(mkdir -p /c/Users/dangl/.claude/marketplaces)",
+      "Bash(git clone *)",
+      "Read(//c/Users/dangl/.claude/marketplaces/andrej-karpathy-skills//**)",
+      "Read(//c/Users/dangl/.claude/marketplaces/andrej-karpathy-skills/**)"
     ]
   }
 }

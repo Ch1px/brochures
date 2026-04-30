@@ -23,6 +23,10 @@ export function SpotlightBackground({ imageUrl, videoUrl, parallax }: Props) {
     if (!parallax) return
     const el = ref.current
     if (!el) return
+    // Print rendering has no scrolling. Applying a viewport-based offset
+    // here translates the bg out of the section frame on every spotlight
+    // not centred on the initial viewport, so it disappears in the PDF.
+    if (el.closest('.brochure-print-root')) return
 
     let scroller: HTMLElement | null = null
     for (let p = el.parentElement; p; p = p.parentElement) {
