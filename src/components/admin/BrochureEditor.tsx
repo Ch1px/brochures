@@ -21,6 +21,7 @@ import { labelFor } from '@/lib/sectionLabels'
 import { cloneWithNewKeys, nanokey } from '@/lib/nanokey'
 import { applyFieldPath } from '@/lib/applyFieldPath'
 import { sectionDefaults } from '@/lib/sectionDefaults'
+import { resolvedAccentColor } from '@/lib/brochureBranding'
 import { EditorTopbar } from './EditorTopbar'
 import { PagesPanel } from './PagesPanel'
 import { PreviewStage } from './PreviewStage'
@@ -344,6 +345,11 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
     }
     return null
   }, [brochure.pages, currentSectionKey])
+
+  // Brochure-level accent with company-branding fallback. Section editors
+  // (Styles tab, Recolor popover) read this so their "fallback" swatch tracks
+  // whatever the brochure currently inherits from its host company.
+  const effectiveAccent = resolvedAccentColor(brochure)
 
   const handleTitleChange = useCallback((title: string) => {
     setBrochure((prev) => ({ ...prev, title }))
@@ -896,7 +902,7 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
                 context={propertiesContext}
                 onChange={handleSectionChange}
                 brandContext={{
-                  accentColor: brochure.accentColor,
+                  accentColor: effectiveAccent,
                   backgroundColor: brochure.backgroundColor,
                   textColor: brochure.textColor,
                   titleColor: brochure.titleColor,
@@ -912,7 +918,7 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
                     ],
                   }))
                 }}
-                accentColor={brochure.accentColor}
+                accentColor={effectiveAccent}
                 onPickByColor={handlePickByColor}
                 selectedAnnotationKey={selectedAnnotationKey}
                 onSelectAnnotation={setSelectedAnnotationKey}
@@ -930,10 +936,10 @@ export function BrochureEditor({ initialBrochure, companies }: Props) {
           y={recolorSelection.y}
           elementIds={recolorSelection.elementIds}
           value={recolorPopoverValue}
-          fallback={brochure.accentColor}
+          fallback={effectiveAccent}
           recentColors={recentColors}
           brandContext={{
-            accentColor: brochure.accentColor,
+            accentColor: effectiveAccent,
             backgroundColor: brochure.backgroundColor,
             textColor: brochure.textColor,
             titleColor: brochure.titleColor,
