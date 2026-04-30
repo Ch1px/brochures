@@ -89,6 +89,9 @@ export type SectionIntro = {
   _key: string
   _type: 'intro'
   letter?: string
+  letterImage?: SanityImage
+  /** Multiplier on the letter image's default height. 1 = default. */
+  letterImageScale?: number
   eyebrow?: string
   title: string
   body?: string

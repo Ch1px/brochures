@@ -1,7 +1,7 @@
 'use client'
 
 import type { SectionIntro } from '@/types/brochure'
-import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldCTAGroup } from '../fields'
+import { FieldInput, FieldTextarea, FieldRichText, FieldImage, FieldVideo, FieldCTAGroup, FieldSelect } from '../fields'
 
 type Props = {
   section: SectionIntro
@@ -15,7 +15,7 @@ export function IntroEditor({ section, onChange }: Props) {
       <div className="field-row-2">
         <FieldInput
           label="Accent letter"
-          description="Large decorative letter."
+          description="Large decorative letter. Ignored if a letter image is set."
           value={section.letter}
           onChange={(letter) => onChange({ letter })}
           maxLength={2}
@@ -29,6 +29,34 @@ export function IntroEditor({ section, onChange }: Props) {
           placeholder="Introduction"
         />
       </div>
+      <FieldImage
+        label="Letter image (optional)"
+        description="Replaces the accent letter with an image (e.g. a logomark). PNG with transparent background recommended."
+        value={section.letterImage}
+        onChange={(letterImage) => onChange({ letterImage })}
+      />
+      {section.letterImage ? (
+        <FieldSelect
+          label="Letter image size"
+          description="Multiplier on the default letter slot height."
+          value={
+            typeof section.letterImageScale === 'number'
+              ? String(section.letterImageScale)
+              : ''
+          }
+          onChange={(v) => onChange({ letterImageScale: v ? Number(v) : undefined })}
+          options={[
+            { value: '', label: 'Default' },
+            { value: '0.5', label: '50%' },
+            { value: '0.75', label: '75%' },
+            { value: '1', label: '100%' },
+            { value: '1.25', label: '125%' },
+            { value: '1.5', label: '150%' },
+            { value: '2', label: '200%' },
+            { value: '2.5', label: '250%' },
+          ]}
+        />
+      ) : null}
       <FieldTextarea
         label="Title"
         description="The section heading. Write naturally — each line break becomes a new line."

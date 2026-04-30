@@ -14,6 +14,19 @@ export default defineType({
       description: 'Large accent letter in the top-left, e.g. "A"',
       validation: (Rule) => Rule.max(2),
     }),
+    defineField({
+      name: 'letterImage',
+      type: 'image',
+      title: 'Letter image (optional)',
+      description: 'If set, replaces the accent letter with an image (e.g. a logomark).',
+      options: { hotspot: false },
+    }),
+    defineField({
+      name: 'letterImageScale',
+      type: 'number',
+      title: 'Letter image scale',
+      description: 'Multiplier on the default size. 1 = default, 0.5 = half, 2 = double.',
+    }),
     defineField({ name: 'eyebrow', type: 'string', description: 'Small label above the title' }),
     defineField({
       name: 'title',

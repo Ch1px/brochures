@@ -739,6 +739,19 @@
     color: var(--section-accent-color, var(--brand-red));
     margin-bottom: clamp(12px, 2cqi, 30px);
   }
+  .intro-mark-letter-image {
+    display: flex;
+    align-items: flex-end;
+    height: calc(clamp(80px, 15cqi, 220px) * var(--letter-image-scale, 1));
+    line-height: 1;
+  }
+  .intro-mark-letter-image img {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+  }
   .intro-eyebrow {
     font-family: var(--font-script);
     font-weight: var(--font-script-weight, 400);

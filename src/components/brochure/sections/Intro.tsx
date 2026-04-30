@@ -17,6 +17,7 @@ type Props = {
 export function Intro({ data, pageNum, total, showFolio }: Props) {
   const imageUrl = urlForSection(data.image, 1400)
   const videoUrl = urlForFile(data.video)
+  const letterImageUrl = urlForSection(data.letterImage, 600)
   const { editorMode } = useBrochureBranding()
 
   return (
@@ -24,7 +25,17 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-intro-inner">
         <div className="page-intro-left" data-align={data.contentAlign || undefined}>
-          {(data.letter || editorMode) ? (
+          {letterImageUrl ? (
+            <div
+              className="intro-mark-letter intro-mark-letter-image"
+              style={typeof data.letterImageScale === 'number'
+                ? { ['--letter-image-scale' as never]: String(data.letterImageScale) }
+                : undefined}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={letterImageUrl} alt="" draggable={false} />
+            </div>
+          ) : (data.letter || editorMode) ? (
             <InlineEditable sectionKey={data._key} field="letter">
               <div className="intro-mark-letter">{data.letter || ''}</div>
             </InlineEditable>
