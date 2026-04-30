@@ -266,6 +266,7 @@ export function PreviewStage({
               <OthersCursors
                 frameRef={frameRef}
                 currentPageKey={page._key ?? null}
+                currentSectionKey={currentSectionKey}
               />
             ) : null}
           </div>

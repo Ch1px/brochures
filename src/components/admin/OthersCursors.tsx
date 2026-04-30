@@ -14,6 +14,12 @@ type Props = {
    *  this — otherwise their (page-1-relative) coords would render
    *  ghost-like over our (page-2) content. */
   currentPageKey: string | null
+  /** `_key` of the section the local user has selected, or `null` if
+   *  none. Peer cursors are dimmed (not hidden) when the peer's
+   *  `selectedSectionKey` differs from this — keeps awareness of
+   *  what peers are doing without their cursor competing for
+   *  attention while you're focused on a different section. */
+  currentSectionKey: string | null
 }
 
 /**
@@ -34,7 +40,7 @@ type Props = {
  * (set in `lib/liveblocks.ts`). For 2–3 peers this is fine; if we
  * ever scale up we'd add a `requestAnimationFrame` guard.
  */
-export function OthersCursors({ frameRef, currentPageKey }: Props) {
+export function OthersCursors({ frameRef, currentPageKey, currentSectionKey }: Props) {
   const others = useOthers()
   const updateMyPresence = useUpdateMyPresence()
 
@@ -103,6 +109,13 @@ export function OthersCursors({ frameRef, currentPageKey }: Props) {
         // mid-handshake) is treated as "unknown page" and hidden too.
         const peerPage = other.presence?.currentPageKey ?? null
         if (!peerPage || peerPage !== currentPageKey) return null
+        // Dim (don't hide) peers whose selected section differs from
+        // ours. Both-null counts as equal: when neither user has
+        // committed to a section, we're both browsing and full
+        // awareness is welcome. Strict equality on the keys keeps
+        // co-editors of the same section at full brightness.
+        const peerSection = other.presence?.selectedSectionKey ?? null
+        const dim = peerSection !== currentSectionKey
         const name = other.info?.name ?? 'Admin'
         const color = other.info?.color ?? '#888'
         return (
@@ -112,6 +125,7 @@ export function OthersCursors({ frameRef, currentPageKey }: Props) {
             y={cursor.y * bounds.h}
             name={name}
             color={color}
+            dim={dim}
           />
         )
       })}
@@ -119,10 +133,22 @@ export function OthersCursors({ frameRef, currentPageKey }: Props) {
   )
 }
 
-function PeerCursor({ x, y, name, color }: { x: number; y: number; name: string; color: string }) {
+function PeerCursor({
+  x,
+  y,
+  name,
+  color,
+  dim,
+}: {
+  x: number
+  y: number
+  name: string
+  color: string
+  dim: boolean
+}) {
   return (
     <div
-      className="preview-cursor"
+      className={`preview-cursor${dim ? ' dim' : ''}`}
       style={{ transform: `translate3d(${x}px, ${y}px, 0)` }}
     >
       <svg
