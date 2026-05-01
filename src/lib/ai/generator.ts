@@ -20,7 +20,7 @@ import type { Page, Section, SanityImage } from '@/types/brochure'
  *   assertAdmin() is enforced one layer up in the server action.
  */
 
-const MODEL = 'claude-sonnet-4-6'
+const MODEL = 'claude-opus-4-7'
 const MAX_TOKENS = 16000
 const TOOL_NAME = 'emit_brochure'
 
@@ -267,10 +267,9 @@ function hydrateSection(
         background: s.background,
       }
     case 'sectionHeading':
-    case 'sectionHeadingCentered':
       return {
         _key,
-        _type: s._type,
+        _type: 'sectionHeading',
         eyebrow: s.eyebrow,
         title: s.title,
         text: s.text,

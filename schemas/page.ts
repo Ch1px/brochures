@@ -29,7 +29,6 @@ export default defineType({
         { type: 'contentImage' },
         { type: 'imageContent' },
         { type: 'sectionHeading' },
-        { type: 'sectionHeadingCentered' },
         { type: 'features' },
         { type: 'imageHero' },
         { type: 'stats' },

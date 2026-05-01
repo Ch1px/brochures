@@ -152,7 +152,9 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
     section._type === 'intro' ||
     section._type === 'contentImage' ||
     section._type === 'imageContent' ||
-    section._type === 'linkedCards'
+    section._type === 'linkedCards' ||
+    section._type === 'sectionHeading' ||
+    section._type === 'sectionHeadingCentered'
 
   return (
     <>
@@ -167,11 +169,17 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
               icon: '⇆',
               value: (s.contentAlign as string) || undefined,
               onChange: (v) => anyChange({ contentAlign: v || undefined }),
-              options: [
-                { value: '', label: 'Left (default)' },
-                { value: 'center', label: 'Center' },
-                { value: 'right', label: 'Right' },
-              ],
+              options: (section._type === 'sectionHeading' || section._type === 'sectionHeadingCentered')
+                ? [
+                    { value: 'left', label: 'Left' },
+                    { value: '', label: 'Center (default)' },
+                    { value: 'right', label: 'Right' },
+                  ]
+                : [
+                    { value: '', label: 'Left (default)' },
+                    { value: 'center', label: 'Center' },
+                    { value: 'right', label: 'Right' },
+                  ],
             } satisfies StyleEntry]}
           />
         </>

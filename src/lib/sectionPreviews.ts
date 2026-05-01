@@ -11,12 +11,13 @@ import type { Section } from '@/types/brochure'
  */
 export const SECTION_PREVIEW_HTML: Record<Section['_type'], string> = {
   cover:
-    '<div class="mini-cover"><div class="m-title">Monaco<br/><span class="m-red">Grand Prix</span></div></div>',
+    '<div class="mini-cover"><div class="mini-cover-top"><div class="mini-cover-brand"></div><div class="mini-cover-edition"></div></div><div class="mini-cover-center"><div class="mini-cover-sup"></div><div class="m-title">Monaco<br/><span class="m-red">Grand Prix</span></div><div class="mini-cover-tag"></div></div><div class="mini-cover-bottom"><div class="mini-cover-cta"></div><div class="mini-cover-ref"></div></div></div>',
   coverCentered:
-    '<div class="mini-cover mini-cover-centered"><div class="m-title">Monaco<br/><span class="m-red">Grand Prix</span></div></div>',
+    '<div class="mini-cover mini-cover-centered"><div class="mini-cover-top"><div class="mini-cover-brand"></div><div class="mini-cover-edition"></div></div><div class="mini-cover-center"><div class="mini-cover-sup"></div><div class="m-title">Monaco<br/><span class="m-red">Grand Prix</span></div><div class="mini-cover-tag"></div></div><div class="mini-cover-bottom"><div class="mini-cover-cta"></div><div class="mini-cover-ref"></div></div></div>',
   intro: '<div class="mini-intro"><div></div><div></div></div>',
   sectionHeading:
-    '<div class="mini-section-heading"><div class="e">Drama is</div><div class="s">SERVED</div></div>',
+    '<div class="mini-section-heading mini-section-heading-centered"><div class="e">Drama is</div><div class="s">SERVED</div></div>',
+  // Legacy alias — never shown in the picker, kept only so the Record type stays exhaustive.
   sectionHeadingCentered:
     '<div class="mini-section-heading mini-section-heading-centered"><div class="e">Drama is</div><div class="s">SERVED</div></div>',
   contentImage:
@@ -45,7 +46,7 @@ export const SECTION_PREVIEW_HTML: Record<Section['_type'], string> = {
   quoteProfile:
     '<div class="mini-quote-profile"><div></div><div><div class="q"></div><div class="b"></div><div class="b"></div><div class="b"></div></div></div>',
   circuitMap:
-    '<div class="mini-circuit"><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><path d="M10 25 Q 20 10 40 15 T 70 20 Q 72 30 60 35 L 30 38 Q 15 38 10 25 Z" fill="none" stroke="#cf212a" stroke-width="2"/></svg><div class="mini-circuit-stats"><div></div><div></div><div></div></div></div>',
+    '<div class="mini-circuit"><div class="mini-circuit-head"><div class="mini-circuit-eyebrow"></div><div class="mini-circuit-title"></div><div class="mini-circuit-caption"></div></div><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><path d="M10 25 Q 20 10 40 15 T 70 20 Q 72 30 60 35 L 30 38 Q 15 38 10 25 Z" fill="none" stroke="#cf212a" stroke-width="2"/></svg><div class="mini-circuit-stats"><div class="mini-circuit-stat"><div class="v"></div><div class="l"></div></div><div class="mini-circuit-stat"><div class="v"></div><div class="l"></div></div><div class="mini-circuit-stat"><div class="v"></div><div class="l"></div></div></div></div>',
   closing:
     '<div class="mini-closing"><div class="t">Take your<br/>seat</div><div class="b"></div></div>',
   spotlight:
@@ -77,7 +78,6 @@ export const SECTION_PICKER_ORDER: Section['_type'][] = [
   'coverCentered',
   'intro',
   'sectionHeading',
-  'sectionHeadingCentered',
   'contentImage',
   'imageContent',
   'spotlight',

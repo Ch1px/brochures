@@ -65,7 +65,7 @@ export const ContentImageSectionSchema = z.object({
 })
 
 export const SectionHeadingSchema = z.object({
-  _type: z.enum(['sectionHeading', 'sectionHeadingCentered']),
+  _type: z.literal('sectionHeading'),
   eyebrow: z.string(),
   title: z.string(),
   text: z.string().optional(),

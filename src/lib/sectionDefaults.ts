@@ -59,9 +59,10 @@ export function sectionDefaults(type: Section['_type']): Section {
 
     case 'sectionHeading':
     case 'sectionHeadingCentered':
+      // Legacy alias coalesces to the new canonical type.
       return {
         _key,
-        _type: type,
+        _type: 'sectionHeading',
         eyebrow: 'A weekend of',
         title: 'Hospitality',
         text: '',

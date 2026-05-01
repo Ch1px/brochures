@@ -4,7 +4,6 @@ import intro from './intro'
 import contentImage from './contentImage'
 import imageContent from './imageContent'
 import sectionHeading from './sectionHeading'
-import sectionHeadingCentered from './sectionHeadingCentered'
 import features from './features'
 import imageHero from './imageHero'
 import stats from './stats'
@@ -34,7 +33,6 @@ export const sectionSchemas = [
   contentImage,
   imageContent,
   sectionHeading,
-  sectionHeadingCentered,
   features,
   imageHero,
   stats,

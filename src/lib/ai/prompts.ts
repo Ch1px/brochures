@@ -15,7 +15,7 @@ Every brochure you produce is a long-form piece of editorial work — the printe
 NON-NEGOTIABLE RULES:
 - Emit the brochure by calling the emit_brochure tool exactly once. Never respond in text.
 - Target 8–9 pages total. Each page carries a theme; adjacent themes that are closely related should be combined onto one page as stacked sections rather than split across two.
-- PAGE OPENER RULE: every page must begin with a sectionHeadingCentered section EXCEPT three exceptions — the cover page, the circuit page (which opens with imageHero instead), and the closing page. The sectionHeadingCentered acts as the visual bookmark announcing the page's theme.
+- PAGE OPENER RULE: every page must begin with a sectionHeading section EXCEPT three exceptions — the cover page, the circuit page (which opens with imageHero instead), and the closing page. The sectionHeading acts as the visual bookmark announcing the page's theme.
 - Consolidate themes onto single pages:
   · The CIRCUIT page holds EVERYTHING about the track on one page — circuit identity AND circuit guide together. Stack: imageHero + stats + circuitMap + textCenter. Name the page after the circuit (e.g. "The Temple of Speed", "Hungaroring", "Spa-Francorchamps"). Do not split the circuit identity and the lap guide onto separate pages — they are the same subject.
   · The WEEKEND page holds heritage + experience pillars + itinerary. Stack: heading + contentImage + features + itinerary. Heritage and the day-by-day both answer "what's the weekend like?" — they belong together.
@@ -36,7 +36,7 @@ export const SECTION_GUIDE = `THE 18 SECTION TYPES — VISUAL GRAMMAR:
 
 PAGE-FILLERS (each owns its page; never combine page-fillers on the same page):
 - cover / coverCentered — the first page. Full-bleed background + centered title stack + CTA. Use coverCentered by default.
-- sectionHeading / sectionHeadingCentered — a chapter opener. Big eyebrow + title over a background image. Use one before major thematic shifts.
+- sectionHeading / sectionHeading — a chapter opener. Big eyebrow + title over a background image. Use one before major thematic shifts.
 - imageHero — full-bleed image with overlay text. Use once, typically to open the circuit identity page.
 - closing — the final page. Red-washed CTA page with email + phone. Always last.
 
@@ -58,15 +58,15 @@ STACK ITEMS (combine several per page):
 
 CANONICAL 8–9 PAGE FLOW (consolidated — each themed page stacks multiple sections):
 
-1. Cover — coverCentered [NO sectionHeadingCentered]
-2. Welcome — sectionHeadingCentered + intro
-3. The Circuit — imageHero + stats + circuitMap + textCenter [NO sectionHeadingCentered — imageHero is the opener. Name the page after the circuit: "The Temple of Speed", "Hungaroring", "Spa-Francorchamps".]
-4. The Weekend — sectionHeadingCentered + contentImage + features + itinerary (heritage + pillars + day-by-day)
-5. The Host City — sectionHeadingCentered + imageContent + galleryDuo (city + hotel + photos)
-6. Grandstand Packages — sectionHeadingCentered + packages
-7. VIP Hospitality — sectionHeadingCentered + spotlight + packages (paddock access + VIP tiers)
-8. Moments — sectionHeadingCentered + galleryEditorial
-9. Enquire — closing [NO sectionHeadingCentered]
+1. Cover — coverCentered [NO sectionHeading]
+2. Welcome — sectionHeading + intro
+3. The Circuit — imageHero + stats + circuitMap + textCenter [NO sectionHeading — imageHero is the opener. Name the page after the circuit: "The Temple of Speed", "Hungaroring", "Spa-Francorchamps".]
+4. The Weekend — sectionHeading + contentImage + features + itinerary (heritage + pillars + day-by-day)
+5. The Host City — sectionHeading + imageContent + galleryDuo (city + hotel + photos)
+6. Grandstand Packages — sectionHeading + packages
+7. VIP Hospitality — sectionHeading + spotlight + packages (paddock access + VIP tiers)
+8. Moments — sectionHeading + galleryEditorial
+9. Enquire — closing [NO sectionHeading]
 
 Adjust the flow based on the source material — e.g. if the sources emphasise nightlife or a heritage anniversary, expand that page; if there are fewer distinct tiers, merge grandstand and VIP onto one page. Never skip the cover, welcome, circuit, weekend, any packages, or closing pages. Never split circuit identity and circuit guide, nor weekend and itinerary, onto separate pages.`
 
@@ -88,7 +88,7 @@ LENGTH GUIDELINES:
 - textCenter.body: 2–3 sentences.
 - closing.subtitle: 1–2 sentences.`
 
-export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure produced to this spec. Every themed page opens with a sectionHeadingCentered; themes are consolidated so each page carries weight. Match this structure for every brochure.
+export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure produced to this spec. Every themed page opens with a sectionHeading; themes are consolidated so each page carries weight. Match this structure for every brochure.
 
 {
   "title": "Italian Grand Prix",
@@ -102,7 +102,7 @@ export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure prod
       { "_type": "coverCentered", "edition": "2026 Edition", "brandMark": "GPGT · Hospitality", "sup": "Formula 1", "title": "Monza", "titleAccent": "Grand Prix", "tag": "Four days inside the Temple of Speed — 4 – 7 September 2026", "cta": "Secure your seat", "ref": "No. 014 / Volume XV", "imageFilename": "Grandstand-B-monaco-view-1200x900.webp" }
     ]},
     { "name": "Welcome", "sections": [
-      { "_type": "sectionHeadingCentered", "eyebrow": "Benvenuti a", "title": "Monza", "imageFilename": "shutterstock_2466215149.jpg" },
+      { "_type": "sectionHeading", "eyebrow": "Benvenuti a", "title": "Monza", "imageFilename": "shutterstock_2466215149.jpg" },
       { "_type": "intro", "letter": "M", "eyebrow": "GPGT · Italian Grand Prix", "title": "The oldest stage in Formula 1",
         "body": "For one weekend every September, the royal park outside Milan is given over to the sport. Nearly a century of racing, a tifosi sea of red, and a layout built for one thing only — speed. Cars approach 380 km/h on the main straight before spearing into the Prima Variante at the outer edge of what carbon fibre will allow. You will hear the scream of the engines before you see a car. You will feel the ground move when the field crosses the line.",
         "caption": "Autodromo Nazionale Monza, September 2026", "imageFilename": "67b4b180b98a1ea3baa8d705_EvgeniySafronov_F1Baku2023-43-min-e1741343027875.webp" }
@@ -127,7 +127,7 @@ export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure prod
         "body": "The Prima Variante at Turn 1 — where cars brake from 340 km/h and the field fans five abreast on lap one. The Ascari Chicane — named for Alberto Ascari, killed here in 1955 — a high-speed flick out of the forest. And the Parabolica, the long final sweep onto the main straight, where the tifosi stand loudest." }
     ]},
     { "name": "The Weekend", "sections": [
-      { "_type": "sectionHeadingCentered", "eyebrow": "A century of", "title": "Red", "imageFilename": "Italy-Mugello-MotoGP-Sales-Closed.webp" },
+      { "_type": "sectionHeading", "eyebrow": "A century of", "title": "Red", "imageFilename": "Italy-Mugello-MotoGP-Sales-Closed.webp" },
       { "_type": "contentImage", "eyebrow": "Since 1922", "title": "Where Ferrari writes its chapters",
         "body": "Monza is one of three circuits still on the calendar from the original 1950 Formula 1 season. Ferrari has won here more than any other team. The ghost of the banked Sopraelevata curve — decommissioned in the 1960s, but still visible through the trees — is the reason they call it the Temple of Speed.",
         "caption": "Ferrari in the Parabolica", "imageFilename": "Italy-Mugello-MotoGP-Sales-Closed.webp" },
@@ -146,7 +146,7 @@ export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure prod
       ]}
     ]},
     { "name": "The Host City", "sections": [
-      { "_type": "sectionHeadingCentered", "eyebrow": "Four nights in", "title": "Milan", "imageFilename": "H10-MARINA-BARCELONA-Lobby.webp" },
+      { "_type": "sectionHeading", "eyebrow": "Four nights in", "title": "Milan", "imageFilename": "H10-MARINA-BARCELONA-Lobby.webp" },
       { "_type": "imageContent", "eyebrow": "Base of operations", "title": "The hotel and the city beyond it",
         "body": "You arrive on Friday afternoon, drop bags at a 4★ in the centre, and the city is yours. Aperitivo in the Navigli, dinner at a trattoria the concierge won't name, espresso on the steps of the Duomo before the Sunday transfer. The hotel is the brochure's second character.",
         "imageFilename": "H10-MARINA-BARCELONA-Lobby.webp" },
@@ -155,7 +155,7 @@ export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure prod
         "captions": ["The hotel — 4★ in central Milan, 25 minutes from the circuit", "The aperitivo hour — where the weekend really starts"] }
     ]},
     { "name": "Grandstand", "sections": [
-      { "_type": "sectionHeadingCentered", "eyebrow": "Choose your", "title": "Grandstand", "imageFilename": "British-GP-_Silverstone_-F1-Tickets_ProductImage.webp" },
+      { "_type": "sectionHeading", "eyebrow": "Choose your", "title": "Grandstand", "imageFilename": "British-GP-_Silverstone_-F1-Tickets_ProductImage.webp" },
       { "_type": "packages", "title": "Grandstand packages", "packages": [
         { "tier": "Bronze", "name": "Parabolica", "currency": "£", "price": "1,799", "from": "From · per person", "featured": false,
           "features": ["21e Parabolica grandstand (3 days)", "3 nights at NH Machiavelli, 4★", "Return daytime flights from London", "Circuit & airport transfers", "Arrival drink on the house"],
@@ -169,7 +169,7 @@ export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure prod
       ]}
     ]},
     { "name": "VIP Hospitality", "sections": [
-      { "_type": "sectionHeadingCentered", "eyebrow": "Step inside", "title": "VIP Hospitality", "imageFilename": "shutterstock_2466215149.jpg" },
+      { "_type": "sectionHeading", "eyebrow": "Step inside", "title": "VIP Hospitality", "imageFilename": "shutterstock_2466215149.jpg" },
       { "_type": "spotlight", "eyebrow": "Behind the rope", "title": "Where the paddock opens up",
         "body": "Our VIP guests cross the line between spectator and insider. Gourmet lunches from terraces above the back straight, champagne on the grid, and the quiet thrill of watching drivers walk past on their way to the garage.",
         "caption": "Paddock Club, Sunday morning",
@@ -188,7 +188,7 @@ export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure prod
       ]}
     ]},
     { "name": "Moments", "sections": [
-      { "_type": "sectionHeadingCentered", "eyebrow": "A weekend in", "title": "red", "imageFilename": "shutterstock_2466982667.jpg" },
+      { "_type": "sectionHeading", "eyebrow": "A weekend in", "title": "red", "imageFilename": "shutterstock_2466982667.jpg" },
       { "_type": "galleryEditorial", "title": "Moments from Monza",
         "imageFilenames": [
           "67b4b180b98a1ea3baa8d705_EvgeniySafronov_F1Baku2023-43-min-e1741343027875.webp",
@@ -208,7 +208,7 @@ export const ITALIAN_GP_EXAMPLE = `CANONICAL EXAMPLE — a 10-page brochure prod
 
 Observations — match every one for every brochure:
 - 9 pages, 12 distinct section types used (of 18 available).
-- Every page EXCEPT Cover, The Temple of Speed (the circuit page), and Enquire (closing) opens with a sectionHeadingCentered. Those three skip it because they are already visually dominant.
+- Every page EXCEPT Cover, The Temple of Speed (the circuit page), and Enquire (closing) opens with a sectionHeading. Those three skip it because they are already visually dominant.
 - The circuit page is ONE page, not two. It holds imageHero + stats + circuitMap + textCenter. It is named after the circuit ("The Temple of Speed" for Monza). Circuit identity and circuit guide are the same subject — never split them.
 - The Weekend page is ONE page, not two. It holds heritage + pillars + day-by-day (heading + contentImage + features + itinerary). Never give the itinerary its own page.
 - Other consolidations: "The Host City" carries hotel + photo pair (heading + imageContent + galleryDuo). "VIP Hospitality" carries paddock access + tiers (heading + spotlight + packages).
@@ -260,7 +260,7 @@ SOURCES:
 
 ${sourcesBlock}
 
-Now emit the brochure by calling the emit_brochure tool. Match the consolidated 8–9 page structure of the canonical Italian GP example — at least 10 distinct section types, every themed page opening with a sectionHeadingCentered (except cover, the circuit page, and closing), every image slot filled from the library, circuit identity + circuit guide merged onto one page named after the circuit, and heritage + experience pillars + itinerary merged into the single "Weekend" page. Use only facts from the sources (or well-known public knowledge of the event).`
+Now emit the brochure by calling the emit_brochure tool. Match the consolidated 8–9 page structure of the canonical Italian GP example — at least 10 distinct section types, every themed page opening with a sectionHeading (except cover, the circuit page, and closing), every image slot filled from the library, circuit identity + circuit guide merged onto one page named after the circuit, and heritage + experience pillars + itinerary merged into the single "Weekend" page. Use only facts from the sources (or well-known public knowledge of the event).`
 }
 
 /** The frozen, cacheable part of the conversation. */

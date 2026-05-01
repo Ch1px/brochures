@@ -29,6 +29,19 @@ export default defineType({
     defineField({ name: 'ctaText', type: 'string', description: 'Optional CTA button label.' }),
     defineField({ name: 'ctaHref', type: 'string', description: 'CTA target: "#next", "#enquire", or a full URL.' }),
     defineField({
+      name: 'contentAlign',
+      title: 'Content alignment',
+      type: 'string',
+      description: 'Horizontal alignment of the eyebrow, title, body, and CTA. Defaults to centered.',
+      options: {
+        list: [
+          { title: 'Left', value: 'left' },
+          { title: 'Center (default)', value: 'center' },
+          { title: 'Right', value: 'right' },
+        ],
+      },
+    }),
+    defineField({
       name: 'image',
       type: 'image',
       description: 'Optional background image',

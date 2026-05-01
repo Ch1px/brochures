@@ -16,19 +16,20 @@ type Props = {
 
 /**
  * Section Heading — chapter opener with script eyebrow + bold title + optional body.
- * Handles both 'sectionHeading' and 'sectionHeadingCentered' via a CSS modifier class.
+ * Alignment defaults to centered; override with `contentAlign: 'left' | 'right'`.
  * The decorative SVG (gradient wash + racing lines) matches the Cover section.
  */
 export function SectionHeading({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
-  const variantClass = data._type === 'sectionHeadingCentered' ? 'page-section-heading-centered' : ''
+  const align = data.contentAlign ?? 'center'
 
   return (
     <section
-      className={`section page-section-heading ${variantClass} sh-overlay-${data.overlayStrength ?? 'medium'}`.trim()}
+      className={`section page-section-heading sh-overlay-${data.overlayStrength ?? 'medium'}`}
       data-section-id={data._key}
+      data-align={align}
     >
       <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
         <div

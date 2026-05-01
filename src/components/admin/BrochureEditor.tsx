@@ -63,9 +63,9 @@ const IMAGE_TREATMENT_TYPES = new Set<string>([
 /**
  * Per-type bulk-apply groups. Each group is a set of `_type` values that
  * are conceptually "the same kind of section" — variants are grouped
- * together (cover + coverCentered, sectionHeading + sectionHeadingCentered,
- * contentImage + imageContent). The label is used in the button text
- * (e.g. "Apply to all section headings") so it should read as a plural noun.
+ * together (cover + coverCentered, contentImage + imageContent).
+ * The label is used in the button text (e.g. "Apply to all section
+ * headings") so it should read as a plural noun.
  */
 const IMAGE_TREATMENT_GROUPS: Array<{ types: string[]; label: string }> = [
   { types: ['cover', 'coverCentered'], label: 'covers' },

@@ -15,6 +15,7 @@ export default defineType({
     { name: 'branding', title: 'Branding' },
     { name: 'seo', title: 'SEO & sharing' },
     { name: 'lead', title: 'Lead capture' },
+    { name: 'aiBrief', title: 'AI brief' },
   ],
   fields: [
     // === CONTENT GROUP ===
@@ -524,6 +525,38 @@ export default defineType({
           type: 'string',
           description: 'Internal notification email when a lead submits.',
           validation: (Rule) => Rule.email(),
+        }),
+      ],
+    }),
+
+    // === AI BRIEF GROUP ===
+    defineField({
+      name: 'aiBrief',
+      type: 'object',
+      title: 'AI brief',
+      description:
+        'Free-form context the AI uses to generate this brochure. Reused as grounding for per-field AI assists in the editor.',
+      group: 'aiBrief',
+      fields: [
+        defineField({
+          name: 'prompt',
+          type: 'text',
+          rows: 8,
+          description:
+            'What this brochure is — audience, tone, must-haves, constraints. Replaces the canonical-flow scaffold from the old generator.',
+        }),
+        defineField({
+          name: 'sources',
+          type: 'array',
+          description: 'Up to 5 reference URLs for the AI to consult.',
+          of: [{ type: 'url' }],
+          validation: (Rule) => Rule.max(5),
+        }),
+        defineField({
+          name: 'generatedAt',
+          type: 'datetime',
+          description: 'Timestamp of the last full AI generation.',
+          readOnly: true,
         }),
       ],
     }),

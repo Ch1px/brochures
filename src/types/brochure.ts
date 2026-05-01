@@ -151,6 +151,11 @@ export type SectionContentImage = {
 
 export type SectionSectionHeading = {
   _key: string
+  /**
+   * `sectionHeadingCentered` is a DEPRECATED alias kept only so existing
+   * documents render until the Sanity migration script has been run.
+   * New sections are always created with `_type: 'sectionHeading'`.
+   */
   _type: 'sectionHeading' | 'sectionHeadingCentered'
   eyebrow?: string
   title: string
@@ -171,6 +176,8 @@ export type SectionSectionHeading = {
   titleScale?: TextScalePreset
   eyebrowScale?: TextScalePreset
   bodyScale?: TextScalePreset
+  /** Content alignment. Defaults to 'center' when undefined. */
+  contentAlign?: 'left' | 'center' | 'right'
 }
 
 export type SectionFeatures = {
@@ -801,6 +808,12 @@ export type Brochure = {
     hubspotFormId?: string
     hubspotPortalId?: string
     destinationEmail?: string
+  }
+  /** Free-form context for the AI generator and per-field assists. */
+  aiBrief?: {
+    prompt?: string
+    sources?: string[]
+    generatedAt?: string
   }
   pages: Page[]
 }

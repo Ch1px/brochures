@@ -174,6 +174,9 @@ function renderSection({ section, pageNum, total, showFolio }: Props) {
 
     case 'sectionHeading':
     case 'sectionHeadingCentered':
+      // `sectionHeadingCentered` is a legacy _type kept for back-compat
+      // until the migration runs. Renders identically to a default
+      // sectionHeading (center is the new default alignment).
       return <SectionHeading data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
 
     case 'intro':
