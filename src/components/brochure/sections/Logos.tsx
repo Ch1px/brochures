@@ -54,7 +54,7 @@ export function Logos({ data, pageNum, total, showFolio }: Props) {
               const url = urlForSection(logo.image, 600)
               const inner = url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={url} alt={logo.name} loading="lazy" />
+                <img src={url} alt={logo.name} />
               ) : (
                 <div className="logos-placeholder" aria-hidden>
                   {logo.name || 'Logo'}
