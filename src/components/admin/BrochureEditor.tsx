@@ -1162,6 +1162,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
             // fallback resolver picks up the new accent/logo immediately,
             // without waiting for a refetch.
             companyBranding: updates.companyBranding,
+            aiBrief: updates.aiBrief,
           }))
         }
       />

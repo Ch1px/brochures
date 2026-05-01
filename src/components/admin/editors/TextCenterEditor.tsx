@@ -18,6 +18,7 @@ export function TextCenterEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="About the Event"
+        aiAssist={{ field: 'eyebrow', sectionType: 'textCenter', sectionContext: section }}
       />
       <FieldTextarea
         label="Title"
@@ -26,6 +27,7 @@ export function TextCenterEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
         placeholder="A Truly Unique Experience"
+        aiAssist={{ field: 'title', sectionType: 'textCenter', sectionContext: section }}
       />
       <FieldRichText
         label="Body"

@@ -18,6 +18,7 @@ export function SpotlightEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="Hospitality"
+        aiAssist={{ field: 'eyebrow', sectionType: 'spotlight', sectionContext: section }}
       />
       <FieldTextarea
         label="Title"
@@ -26,6 +27,7 @@ export function SpotlightEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
         placeholder="World-Class Hospitality"
+        aiAssist={{ field: 'title', sectionType: 'spotlight', sectionContext: section }}
       />
       <FieldRichText
         label="Body"
@@ -40,6 +42,7 @@ export function SpotlightEditor({ section, onChange }: Props) {
         value={section.caption}
         onChange={(caption) => onChange({ caption })}
         placeholder="Exclusive paddock access"
+        aiAssist={{ field: 'caption', sectionType: 'spotlight', sectionContext: section }}
       />
 
       <FieldCTAGroup

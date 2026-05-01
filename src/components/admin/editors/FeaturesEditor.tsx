@@ -22,6 +22,7 @@ export function FeaturesEditor({ section, onChange }: Props) {
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="A weekend of"
+          aiAssist={{ field: 'title', sectionType: 'features', sectionContext: section }}
         />
         <FieldInput
           label="Title accent"
@@ -29,6 +30,7 @@ export function FeaturesEditor({ section, onChange }: Props) {
           value={section.titleAccent}
           onChange={(titleAccent) => onChange({ titleAccent })}
           placeholder="speed"
+          aiAssist={{ field: 'titleAccent', sectionType: 'features', sectionContext: section }}
         />
       </div>
       <FieldRichText

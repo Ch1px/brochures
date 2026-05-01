@@ -18,6 +18,7 @@ export function ClosingEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="Get in Touch"
+        aiAssist={{ field: 'eyebrow', sectionType: 'closing', sectionContext: section }}
       />
       <FieldTextarea
         label="Title"
@@ -26,6 +27,7 @@ export function ClosingEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
         placeholder="Ready to Experience the Race?"
+        aiAssist={{ field: 'title', sectionType: 'closing', sectionContext: section }}
       />
       <FieldRichText
         label="Subtitle"

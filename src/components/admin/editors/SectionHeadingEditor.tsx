@@ -19,6 +19,7 @@ export function SectionHeadingEditor({ section, onChange }: Props) {
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="A weekend of"
+          aiAssist={{ field: 'eyebrow', sectionType: section._type, sectionContext: section }}
         />
         <FieldInput
           label="Title"
@@ -26,6 +27,7 @@ export function SectionHeadingEditor({ section, onChange }: Props) {
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="Hospitality"
+          aiAssist={{ field: 'title', sectionType: section._type, sectionContext: section }}
         />
       </div>
       <FieldRichText

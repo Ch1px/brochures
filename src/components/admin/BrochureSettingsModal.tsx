@@ -46,6 +46,7 @@ type Props = {
     eyebrowTransform: string | undefined
     titleItalic: boolean | undefined
     titleTransform: string | undefined
+    aiBrief: { prompt?: string; sources?: string[]; generatedAt?: string } | undefined
     fontOverrides: FontOverrides | undefined
     customFonts: CustomFont[] | undefined
     titleScale: TextScalePreset | undefined
@@ -64,7 +65,7 @@ type Props = {
   }) => void
 }
 
-type SettingsTab = 'general' | 'branding' | 'typography' | 'seo' | 'lead'
+type SettingsTab = 'general' | 'branding' | 'typography' | 'seo' | 'lead' | 'ai'
 
 const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'general', label: 'General' },
@@ -72,6 +73,7 @@ const TABS: { key: SettingsTab; label: string }[] = [
   { key: 'typography', label: 'Typography' },
   { key: 'seo', label: 'SEO' },
   { key: 'lead', label: 'Lead capture' },
+  { key: 'ai', label: 'AI brief' },
 ]
 
 /**
@@ -125,6 +127,12 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
   const [hideTexture, setHideTexture] = useState(Boolean(brochure.hideTexture))
   const [logo, setLogo] = useState<SanityImage | undefined>(brochure.logo)
   const [companyId, setCompanyId] = useState<string | undefined>(brochure.company?._ref)
+  const [briefPrompt, setBriefPrompt] = useState<string>(brochure.aiBrief?.prompt ?? '')
+  const [briefSources, setBriefSources] = useState<string[]>(
+    brochure.aiBrief?.sources && brochure.aiBrief.sources.length > 0
+      ? brochure.aiBrief.sources
+      : ['']
+  )
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -170,6 +178,12 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
     setHideTexture(Boolean(brochure.hideTexture))
     setLogo(brochure.logo)
     setCompanyId(brochure.company?._ref)
+    setBriefPrompt(brochure.aiBrief?.prompt ?? '')
+    setBriefSources(
+      brochure.aiBrief?.sources && brochure.aiBrief.sources.length > 0
+        ? brochure.aiBrief.sources
+        : ['']
+    )
     setError(null)
   }, [open, brochure])
 
@@ -269,6 +283,15 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
           hideTexture: hideTexture || null,
           logo: logo ?? null,
           companyId: companyId ?? null,
+          aiBrief: (() => {
+            const cleanedSources = briefSources.map((s) => s.trim()).filter(Boolean)
+            const cleanedPrompt = briefPrompt.trim()
+            if (!cleanedPrompt && cleanedSources.length === 0) return null
+            return {
+              prompt: cleanedPrompt || undefined,
+              sources: cleanedSources.length ? cleanedSources : undefined,
+            }
+          })(),
         },
         brochure.slug.current
       )
@@ -314,6 +337,16 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
               logo: selectedCompany.logo,
             }
           : undefined,
+        aiBrief: (() => {
+          const cleanedSources = briefSources.map((s) => s.trim()).filter(Boolean)
+          const cleanedPrompt = briefPrompt.trim()
+          if (!cleanedPrompt && cleanedSources.length === 0) return undefined
+          return {
+            prompt: cleanedPrompt || undefined,
+            sources: cleanedSources.length ? cleanedSources : undefined,
+            generatedAt: brochure.aiBrief?.generatedAt,
+          }
+        })(),
       })
       onClose()
     })
@@ -824,6 +857,66 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                   onChange={setDestinationEmail}
                   placeholder="sales@grandprixgrandtours.com"
                 />
+              </>
+            )}
+
+            {activeTab === 'ai' && (
+              <>
+                <FieldTextarea
+                  label="Brief"
+                  description="The free-form context the AI used to generate this brochure. Edit it to refine per-field AI assists. The brief is the single source of truth for tone, audience, must-haves and constraints."
+                  value={briefPrompt}
+                  onChange={setBriefPrompt}
+                  rows={10}
+                  placeholder="What this brochure is for, who it's for, the tone, the must-haves…"
+                />
+                <div className="field-group">
+                  <label className="field-label">
+                    <span className="field-label-text">Reference URLs</span>
+                  </label>
+                  <div className="field-description" style={{ marginBottom: 6 }}>
+                    Up to 5 links the AI can use as background context. Optional.
+                  </div>
+                  {briefSources.map((u, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                      <input
+                        className="field-input"
+                        value={u}
+                        onChange={(e) => {
+                          const next = [...briefSources]
+                          next[i] = e.target.value
+                          setBriefSources(next)
+                        }}
+                        placeholder="https://www.formula1.com/…"
+                      />
+                      {briefSources.length > 1 ? (
+                        <button
+                          type="button"
+                          className="editor-topbar-btn"
+                          onClick={() => setBriefSources(briefSources.filter((_, j) => j !== i))}
+                          style={{ flexShrink: 0 }}
+                        >
+                          Remove
+                        </button>
+                      ) : null}
+                    </div>
+                  ))}
+                  {briefSources.length < 5 ? (
+                    <button
+                      type="button"
+                      className="editor-topbar-btn"
+                      onClick={() => setBriefSources([...briefSources, ''])}
+                      style={{ marginTop: 2 }}
+                    >
+                      + Add URL
+                    </button>
+                  ) : null}
+                </div>
+                {brochure.aiBrief?.generatedAt ? (
+                  <div className="field-description" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: 0.6 }}>
+                    Originally generated {new Date(brochure.aiBrief.generatedAt).toLocaleString('en-GB')}
+                  </div>
+                ) : null}
               </>
             )}
 

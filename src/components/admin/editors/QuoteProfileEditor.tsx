@@ -35,6 +35,7 @@ export function QuoteProfileEditor({ section, onChange }: Props) {
         onChange={(quote) => onChange({ quote })}
         rows={4}
         placeholder="This was truly the experience of a lifetime..."
+        aiAssist={{ field: 'quote', sectionType: 'quoteProfile', sectionContext: section }}
       />
 
       <div className="field-section-heading">Body</div>
