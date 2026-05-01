@@ -39,6 +39,7 @@ export function FeaturesEditor({ section, onChange }: Props) {
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
         rows={2}
+        aiAssist={{ field: 'subtitle', sectionType: 'features', sectionContext: section }}
       />
 
       <FieldCTAGroup
@@ -72,6 +73,7 @@ export function FeaturesEditor({ section, onChange }: Props) {
               value={card.text}
               onChange={(text) => update({ text })}
               rows={3}
+              aiAssist={{ field: 'text', sectionType: 'features', sectionContext: section }}
             />
             <FieldImage
               label="Image"

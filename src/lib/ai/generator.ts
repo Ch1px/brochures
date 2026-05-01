@@ -238,7 +238,7 @@ async function callClaude(
       model: MODEL,
       max_tokens: MAX_TOKENS,
       thinking: { type: 'adaptive' },
-      output_config: { effort: 'medium' },
+      output_config: { effort: 'low' },
       system: buildSystemBlocks(),
       tools,
       tool_choice: isRetry

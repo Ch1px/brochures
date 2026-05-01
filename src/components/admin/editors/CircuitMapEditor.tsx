@@ -91,6 +91,7 @@ export function CircuitMapEditor({
         value={section.caption}
         onChange={(caption) => onChange({ caption })}
         rows={2}
+        aiAssist={{ field: 'caption', sectionType: 'circuitMap', sectionContext: section }}
       />
 
       <div className="field-section-heading">Circuit SVG</div>

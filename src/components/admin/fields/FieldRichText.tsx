@@ -2,6 +2,7 @@
 
 import { useId, useRef } from 'react'
 import { FieldLabel } from './FieldLabel'
+import { FieldAiAssist, type AiAssistConfig } from './FieldAiAssist'
 
 type Props = {
   label: string
@@ -10,6 +11,7 @@ type Props = {
   onChange: (value: string) => void
   rows?: number
   placeholder?: string
+  aiAssist?: AiAssistConfig
 }
 
 const BULLET = '- '
@@ -23,6 +25,7 @@ export function FieldRichText({
   onChange,
   rows = 6,
   placeholder,
+  aiAssist,
 }: Props) {
   const id = useId()
   const ref = useRef<HTMLTextAreaElement>(null)
@@ -92,15 +95,24 @@ export function FieldRichText({
             Tip: start a line with <code>- </code> for a bullet
           </span>
         </div>
-        <textarea
-          ref={ref}
-          id={id}
-          className="field-textarea"
-          value={value ?? ''}
-          onChange={(e) => onChange(e.target.value)}
-          rows={rows}
-          placeholder={placeholder}
-        />
+        <div className={aiAssist ? 'field-with-ai' : undefined}>
+          <textarea
+            ref={ref}
+            id={id}
+            className="field-textarea"
+            value={value ?? ''}
+            onChange={(e) => onChange(e.target.value)}
+            rows={rows}
+            placeholder={placeholder}
+          />
+          {aiAssist ? (
+            <FieldAiAssist
+              config={aiAssist}
+              currentValue={value}
+              onAccept={(next) => onChange(next)}
+            />
+          ) : null}
+        </div>
       </div>
     </FieldLabel>
   )

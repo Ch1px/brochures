@@ -73,6 +73,7 @@ export function IntroEditor({ section, onChange }: Props) {
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={6}
+        aiAssist={{ field: 'body', sectionType: 'intro', sectionContext: section }}
       />
 
       <FieldCTAGroup

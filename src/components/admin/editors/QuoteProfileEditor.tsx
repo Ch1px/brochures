@@ -45,6 +45,7 @@ export function QuoteProfileEditor({ section, onChange }: Props) {
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={4}
+        aiAssist={{ field: 'body', sectionType: 'quoteProfile', sectionContext: section }}
       />
 
       <div className="field-section-heading">Photo</div>

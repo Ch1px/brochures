@@ -35,6 +35,7 @@ export function CTABannerEditor({ section, onChange }: Props) {
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={3}
+        aiAssist={{ field: 'body', sectionType: 'ctaBanner', sectionContext: section }}
       />
 
       <FieldCTAGroup

@@ -35,6 +35,7 @@ export function ClosingEditor({ section, onChange }: Props) {
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
         rows={3}
+        aiAssist={{ field: 'subtitle', sectionType: 'closing', sectionContext: section }}
       />
 
       <div className="field-section-heading">Call to Action</div>

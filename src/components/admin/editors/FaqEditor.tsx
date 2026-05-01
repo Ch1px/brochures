@@ -37,6 +37,7 @@ export function FaqEditor({ section, onChange }: Props) {
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
         rows={3}
+        aiAssist={{ field: 'subtitle', sectionType: 'faq', sectionContext: section }}
       />
 
       <div className="field-section-heading">Questions</div>
@@ -63,6 +64,7 @@ export function FaqEditor({ section, onChange }: Props) {
               onChange={(answer) => update({ answer })}
               rows={4}
               placeholder="Two to three sentences works best."
+              aiAssist={{ field: 'answer', sectionType: 'faq', sectionContext: section }}
             />
           </>
         )}

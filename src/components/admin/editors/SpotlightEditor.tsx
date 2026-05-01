@@ -35,6 +35,7 @@ export function SpotlightEditor({ section, onChange }: Props) {
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={6}
+        aiAssist={{ field: 'body', sectionType: 'spotlight', sectionContext: section }}
       />
       <FieldInput
         label="Caption"

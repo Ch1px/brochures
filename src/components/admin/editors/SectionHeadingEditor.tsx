@@ -36,6 +36,7 @@ export function SectionHeadingEditor({ section, onChange }: Props) {
         value={section.text}
         onChange={(text) => onChange({ text })}
         rows={3}
+        aiAssist={{ field: 'text', sectionType: section._type, sectionContext: section }}
       />
 
       <FieldCTAGroup

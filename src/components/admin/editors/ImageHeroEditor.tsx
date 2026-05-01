@@ -35,6 +35,7 @@ export function ImageHeroEditor({ section, onChange }: Props) {
         value={section.text}
         onChange={(text) => onChange({ text })}
         rows={4}
+        aiAssist={{ field: 'text', sectionType: 'imageHero', sectionContext: section }}
       />
 
       <FieldCTAGroup

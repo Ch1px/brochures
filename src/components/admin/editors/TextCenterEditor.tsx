@@ -35,6 +35,7 @@ export function TextCenterEditor({ section, onChange }: Props) {
         value={section.body}
         onChange={(body) => onChange({ body })}
         rows={6}
+        aiAssist={{ field: 'body', sectionType: 'textCenter', sectionContext: section }}
       />
 
       <FieldCTAGroup

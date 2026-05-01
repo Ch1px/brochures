@@ -36,6 +36,7 @@ export function LogosEditor({ section, onChange }: Props) {
         value={section.subtitle}
         onChange={(subtitle) => onChange({ subtitle })}
         rows={2}
+        aiAssist={{ field: 'subtitle', sectionType: section._type, sectionContext: section }}
       />
 
       <div className="field-section-heading">Logos</div>

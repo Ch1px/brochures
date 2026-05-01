@@ -70,6 +70,7 @@ export function ItineraryEditor({ section, onChange }: Props) {
               value={day.description}
               onChange={(description) => update({ description })}
               rows={2}
+              aiAssist={{ field: 'description', sectionType: 'itinerary', sectionContext: section }}
             />
           </>
         )}
