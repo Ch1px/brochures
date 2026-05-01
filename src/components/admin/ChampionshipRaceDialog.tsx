@@ -1,0 +1,358 @@
+'use client'
+
+import { useEffect, useMemo, useRef, useState } from 'react'
+
+type Driver = {
+  number: number
+  name: string
+  acronym: string
+  team: string
+  color: string
+}
+
+type Round = {
+  key: number
+  name: string
+  country: string
+  date: string
+  results: Array<{ driver: number; position: number | null; points: number }>
+}
+
+type StandingsData = { year: number; rounds: Round[]; drivers: Driver[] }
+
+const TOP_N = 10
+const ROUND_DWELL_MS = 1100
+const ROW_HEIGHT = 44
+const AVAILABLE_YEARS = [2023, 2024, 2025, 2026]
+
+export function ChampionshipRaceDialog({
+  open,
+  onClose,
+}: {
+  open: boolean
+  onClose: () => void
+}) {
+  const [year, setYear] = useState<number>(() => {
+    const now = new Date().getFullYear()
+    return AVAILABLE_YEARS.includes(now) ? now : 2025
+  })
+  const [data, setData] = useState<StandingsData | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [roundIdx, setRoundIdx] = useState(0)
+  const [playing, setPlaying] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === ' ' && data && data.rounds.length > 0) {
+        e.preventDefault()
+        setPlaying((p) => !p)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [open, onClose, data])
+
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+    setData(null)
+    setRoundIdx(0)
+    setPlaying(false)
+    fetch(`/api/easter-egg/standings?year=${year}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return
+        if (d.error) {
+          setError(d.error)
+        } else {
+          setData(d)
+          setRoundIdx(0)
+          if (d.rounds && d.rounds.length > 0) setPlaying(true)
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) setError(String(e))
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [year, open])
+
+  useEffect(() => {
+    if (!playing || !data) return
+    if (roundIdx >= data.rounds.length - 1) {
+      setPlaying(false)
+      return
+    }
+    const t = setTimeout(() => setRoundIdx((i) => i + 1), ROUND_DWELL_MS)
+    return () => clearTimeout(t)
+  }, [playing, roundIdx, data])
+
+  const standings = useMemo(() => {
+    if (!data) return []
+    const totals = new Map<number, number>()
+    for (let i = 0; i <= roundIdx && i < data.rounds.length; i++) {
+      for (const r of data.rounds[i].results) {
+        totals.set(r.driver, (totals.get(r.driver) ?? 0) + r.points)
+      }
+    }
+    return Array.from(totals.entries())
+      .map(([num, points]) => ({
+        driver:
+          data.drivers.find((d) => d.number === num) ?? {
+            number: num,
+            name: `#${num}`,
+            acronym: String(num),
+            team: '',
+            color: '#7d7d7d',
+          },
+        points,
+      }))
+      .filter((e) => e.points > 0)
+      .sort((a, b) => b.points - a.points)
+  }, [data, roundIdx])
+
+  const topN = standings.slice(0, TOP_N)
+  const maxPoints = topN[0]?.points ?? 1
+  const currentRound = data?.rounds[roundIdx]
+
+  if (!open) return null
+
+  return (
+    <div className="race-anim-overlay" role="dialog" aria-modal="true" onClick={onClose}>
+      <div className="race-anim-modal" onClick={(e) => e.stopPropagation()}>
+        <header className="race-anim-header">
+          <div>
+            <div className="race-anim-eyebrow">🏁 Easter egg</div>
+            <h2 className="race-anim-title">
+              {data?.year ?? year} Drivers&rsquo; Championship
+            </h2>
+          </div>
+          <div className="race-anim-controls">
+            <select
+              className="race-anim-year"
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value, 10))}
+              disabled={loading}
+              aria-label="Season"
+            >
+              {AVAILABLE_YEARS.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="race-anim-close"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width={16}
+                height={16}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div className="race-anim-roundbar">
+          <div className="race-anim-round-info" key={`${data?.year ?? year}-${roundIdx}`}>
+            {loading ? (
+              <span className="race-anim-round-name">Loading season…</span>
+            ) : error ? (
+              <span className="race-anim-round-name" style={{ color: '#ff7070' }}>
+                {error}
+              </span>
+            ) : currentRound ? (
+              <>
+                <span className="race-anim-round-num">
+                  Round {roundIdx + 1}/{data?.rounds.length}
+                </span>
+                <span className="race-anim-round-name">{currentRound.name}</span>
+                <span className="race-anim-round-date">{currentRound.date}</span>
+              </>
+            ) : (
+              <span className="race-anim-round-name">No race data yet for this season</span>
+            )}
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={Math.max(0, (data?.rounds.length ?? 1) - 1)}
+            value={roundIdx}
+            onChange={(e) => {
+              setPlaying(false)
+              setRoundIdx(parseInt(e.target.value, 10))
+            }}
+            disabled={!data || loading || (data?.rounds.length ?? 0) < 2}
+            className="race-anim-scrubber"
+            aria-label="Round"
+          />
+        </div>
+
+        <div className="race-anim-stage" style={{ height: `${TOP_N * ROW_HEIGHT}px` }}>
+          {topN.map((entry, rank) => {
+            const widthPct = Math.max(3, (entry.points / maxPoints) * 100)
+            const isLeader = rank === 0
+            return (
+              <div
+                key={entry.driver.number}
+                className={`race-anim-row${isLeader ? ' leader' : ''}`}
+                style={{
+                  transform: `translateY(${rank * ROW_HEIGHT}px)`,
+                  zIndex: TOP_N - rank,
+                  transitionDelay: `${rank * 8}ms`,
+                }}
+              >
+                <div className="race-anim-rank">{rank + 1}</div>
+                <div className="race-anim-label">
+                  <span className="race-anim-acronym-text" style={{ color: entry.driver.color }}>
+                    {entry.driver.acronym}
+                  </span>
+                  <span className="race-anim-team">{entry.driver.team}</span>
+                </div>
+                <div className="race-anim-bar-wrap">
+                  <div
+                    className="race-anim-bar"
+                    style={{
+                      width: `${widthPct}%`,
+                      background: entry.driver.color,
+                    }}
+                  />
+                  <div
+                    className="race-anim-car"
+                    style={{
+                      left: `calc(${widthPct}% - 30px)`,
+                      color: entry.driver.color,
+                    }}
+                    aria-hidden
+                  >
+                    <F1CarIcon />
+                  </div>
+                </div>
+                <div className="race-anim-points">
+                  <AnimatedPoints value={entry.points} />
+                </div>
+              </div>
+            )
+          })}
+          {!loading && topN.length === 0 && !error ? (
+            <div className="race-anim-empty">No standings yet.</div>
+          ) : null}
+        </div>
+
+        <div className="race-anim-footer">
+          <button
+            type="button"
+            className="race-anim-btn"
+            onClick={() => {
+              setRoundIdx(0)
+              setPlaying(true)
+            }}
+            disabled={!data || loading || data.rounds.length === 0}
+          >
+            Restart
+          </button>
+          <button
+            type="button"
+            className="race-anim-btn primary"
+            onClick={() => {
+              if (!data) return
+              if (roundIdx >= data.rounds.length - 1) setRoundIdx(0)
+              setPlaying((p) => !p)
+            }}
+            disabled={!data || loading || data.rounds.length === 0}
+          >
+            {playing ? 'Pause' : 'Play'}
+          </button>
+          <div className="race-anim-credit">
+            Data:{' '}
+            <a href="https://openf1.org" target="_blank" rel="noopener noreferrer">
+              openf1.org
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AnimatedPoints({ value }: { value: number }) {
+  const [display, setDisplay] = useState(value)
+  const fromRef = useRef(value)
+  const rafRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const from = fromRef.current
+    const to = value
+    if (from === to) {
+      setDisplay(to)
+      return
+    }
+    const start = performance.now()
+    const duration = 700
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration)
+      const eased = 1 - Math.pow(1 - t, 3)
+      const current = from + (to - from) * eased
+      setDisplay(current)
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        fromRef.current = to
+      }
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      fromRef.current = display
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
+  return <>{Math.round(display)}</>
+}
+
+function F1CarIcon() {
+  return (
+    <svg
+      viewBox="0 0 1280 640"
+      width={56}
+      height={28}
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <g
+        transform="translate(0,640) scale(0.1,-0.1)"
+        fill="currentColor"
+        stroke="none"
+      >
+        <path d="M9536 5630 c-163 -15 -258 -57 -312 -138 -31 -46 -37 -98 -38 -387 -2 -250 -1 -262 20 -305 17 -35 34 -52 71 -72 94 -50 248 -90 487 -127 l109 -17 -389 -442 -388 -442 -63 0 c-38 0 -63 4 -63 11 0 7 11 8 29 4 22 -5 35 -1 50 14 24 24 25 31 9 54 -17 21 -198 102 -418 187 -97 37 -199 79 -228 94 -128 65 -242 152 -346 264 -80 87 -273 159 -457 170 l-106 7 -101 126 c-111 138 -166 192 -227 220 -39 17 -192 41 -348 54 -74 6 -78 8 -94 38 -32 63 -73 104 -125 127 -52 22 -53 22 -308 11 -140 -6 -307 -16 -370 -22 -63 -6 -362 -23 -663 -39 -301 -16 -553 -33 -560 -38 -7 -6 -124 -11 -274 -13 l-263 -4 0 67 0 68 -150 0 -150 0 0 -64 c0 -36 -3 -67 -7 -69 -5 -2 -129 -1 -277 2 l-268 6 -2 111 c-2 95 -6 116 -24 147 -28 43 -153 140 -204 156 -88 29 -317 43 -742 48 -549 6 -633 -3 -741 -79 -85 -60 -95 -104 -97 -446 -1 -255 -1 -269 20 -308 37 -73 130 -114 375 -165 l158 -33 -73 -38 c-40 -21 -81 -46 -91 -57 -19 -18 -18 -20 17 -76 34 -53 38 -67 56 -203 25 -198 43 -430 35 -461 -4 -14 -12 -29 -18 -33 -16 -10 -437 -10 -437 0 0 4 9 48 19 97 52 241 50 301 -20 545 -28 98 -43 169 -45 219 -2 41 -7 77 -11 81 -38 36 -345 53 -818 47 -488 -7 -684 -24 -672 -60 2 -8 46 -13 130 -15 l127 -3 0 -1279 0 -1279 -127 -3 c-87 -2 -128 -7 -130 -15 -12 -34 195 -53 657 -60 450 -7 798 13 833 46 4 5 10 37 11 72 3 45 21 114 61 234 56 166 58 171 52 250 -5 65 -46 269 -82 408 l-7 27 223 0 c123 0 229 -4 236 -8 6 -4 14 -19 18 -33 8 -32 -10 -264 -36 -464 -21 -164 -24 -270 -10 -309 10 -25 56 -50 141 -75 25 -7 56 -17 70 -21 16 -6 -12 -9 -80 -9 -149 -2 -326 -19 -387 -38 -67 -21 -141 -77 -167 -128 -22 -43 -25 -85 -30 -450 -2 -185 4 -218 51 -267 39 -41 185 -92 368 -130 l160 -33 430 0 c727 1 768 20 798 367 l10 127 41 5 c135 16 390 36 444 36 l62 0 0 -60 0 -60 150 0 150 0 0 65 0 65 247 -6 c349 -7 1107 -46 1783 -90 135 -9 273 -14 307 -10 87 7 156 40 202 94 l38 44 114 -1 c131 -2 259 14 304 36 42 22 127 112 224 235 l82 105 107 6 c72 3 136 14 195 31 140 42 201 77 307 180 154 150 255 211 510 308 228 86 429 178 441 199 20 38 -20 75 -67 63 -27 -7 -34 12 -6 20 9 2 53 6 96 8 l80 3 364 -415 364 -415 -163 -7 c-263 -11 -357 -36 -431 -112 -54 -56 -60 -94 -64 -406 -3 -357 -4 -356 157 -421 39 -16 149 -46 243 -66 l171 -36 338 -5 c348 -4 558 6 675 33 132 31 171 71 208 213 22 82 20 532 -2 578 -29 61 -166 163 -239 178 -27 5 -333 36 -362 36 -10 0 -13 102 -13 475 l0 474 33 5 c55 9 282 25 517 36 124 6 289 14 368 18 l143 7 9 -35 c18 -67 40 -185 40 -211 0 -15 -24 -62 -56 -110 l-56 -84 6 -80 c3 -44 9 -112 12 -151 l6 -71 -103 -10 c-155 -16 -287 -49 -295 -75 -4 -12 0 -26 10 -36 14 -14 22 -13 88 7 74 22 293 50 304 38 4 -3 9 -46 11 -94 4 -71 1 -104 -17 -170 -14 -51 -27 -83 -36 -83 -7 0 -77 16 -155 35 -164 40 -215 45 -204 18 32 -76 39 -109 43 -213 l4 -115 214 3 214 3 6 -31 7 -30 94 0 c126 0 506 17 673 31 90 7 140 15 151 25 9 8 23 40 32 72 25 90 28 110 15 114 -8 3 -13 55 -15 174 -8 357 -21 1139 -19 1141 1 2 38 8 82 14 88 13 115 24 191 80 97 72 116 125 94 267 -15 92 -42 155 -80 181 -37 26 -129 61 -216 81 l-70 16 4 269 c9 734 18 1037 29 1044 13 8 -8 113 -33 160 -12 25 -22 29 -72 35 -111 12 -350 26 -553 31 -113 3 -228 8 -256 10 l-52 5 -7 -37 -6 -36 -214 6 -213 7 -4 -118 c-4 -88 -10 -131 -26 -172 -12 -30 -22 -57 -22 -59 0 -9 119 13 236 44 71 18 132 30 135 27 4 -4 15 -32 25 -62 14 -41 19 -84 19 -167 0 -61 -3 -114 -7 -118 -11 -11 -218 14 -295 37 -39 11 -79 18 -88 15 -22 -9 -30 -34 -15 -51 15 -19 159 -52 284 -66 55 -6 102 -12 104 -15 2 -2 -1 -65 -8 -139 -6 -75 -8 -145 -5 -157 4 -12 29 -56 56 -97 29 -43 49 -86 49 -102 0 -28 -45 -238 -53 -246 -4 -5 -462 11 -787 26 -113 6 -220 10 -237 10 l-33 0 0 490 0 490 53 0 c72 0 261 18 327 31 76 16 147 54 171 92 10 18 29 64 40 102 20 64 22 91 20 323 -1 292 0 285 -92 362 -105 87 -120 92 -362 116 -180 18 -854 27 -1001 14z m341 -1986 c-4 -5 -339 17 -378 24 l-35 7 205 303 206 303 3 -317 c1 -174 1 -318 -1 -320z m3 -1225 c0 -294 0 -301 -18 -278 -10 13 -98 142 -196 287 l-177 262 33 1 c18 0 96 7 173 14 77 7 150 13 163 14 l22 1 0 -301z" />
+      </g>
+    </svg>
+  )
+}

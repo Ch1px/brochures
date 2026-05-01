@@ -20,6 +20,9 @@ import {
 import { AdminThemeToggle } from './AdminThemeToggle'
 import { useAdminTheme } from './AdminThemeProvider'
 import { AdminSearchPalette, type SearchIndex } from './AdminSearchPalette'
+import { ChampionshipRaceDialog } from './ChampionshipRaceDialog'
+import { LatestUpdateCard } from './LatestUpdateCard'
+import { openEasterEgg } from '@/components/EasterEgg'
 import { CANONICAL_HOST } from '@/lib/brochureHost'
 
 type NavItem = {
@@ -64,6 +67,7 @@ type Props = {
 export function AdminShell({ user, recents, searchIndex, children }: Props) {
   const pathname = usePathname() ?? '/admin'
   const [searchOpen, setSearchOpen] = useState(false)
+  const [raceOpen, setRaceOpen] = useState(false)
 
   // Active state: exact match for /admin (brochures), prefix match for nested routes
   const isActive = (href: string) =>
@@ -142,15 +146,39 @@ export function AdminShell({ user, recents, searchIndex, children }: Props) {
         </div>
 
         <div className="admin-shell-sidebar-footer">
-          {/* Latest update — hardcoded for now. Edit the message in this
-              file when something ships. Easy to swap to a Sanity-backed
-              field or a markdown changelog later if needed. */}
-          <div className="admin-shell-update">
-            <div className="admin-shell-update-label">Latest update</div>
-            <div className="admin-shell-update-text">
-              Updated my title to developer because I vibe code. Was politely informed this is the same energy as updating my title to salesperson because I own a phone.
-            </div>
-          </div>
+          <LatestUpdateCard />
+          <button
+            type="button"
+            className="admin-shell-easter-egg"
+            onClick={() => setRaceOpen(true)}
+            title="🤫"
+            aria-label="Easter egg"
+          >
+            <svg viewBox="0 0 16 16" width={12} height={12} aria-hidden>
+              <rect x="0" y="0" width="1.5" height="14" fill="currentColor" />
+              <g fill="currentColor">
+                <rect x="3" y="1" width="2.5" height="2.5" />
+                <rect x="8" y="1" width="2.5" height="2.5" />
+                <rect x="13" y="1" width="2.5" height="2.5" />
+                <rect x="5.5" y="3.5" width="2.5" height="2.5" />
+                <rect x="10.5" y="3.5" width="2.5" height="2.5" />
+                <rect x="3" y="6" width="2.5" height="2.5" />
+                <rect x="8" y="6" width="2.5" height="2.5" />
+                <rect x="13" y="6" width="2.5" height="2.5" />
+              </g>
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="admin-shell-easter-egg admin-shell-easter-egg-egg"
+            onClick={() => openEasterEgg()}
+            title="🤫"
+            aria-label="Easter egg — race"
+          >
+            <svg viewBox="0 0 16 16" width={12} height={12} aria-hidden>
+              <ellipse cx="8" cy="9" rx="5" ry="6.5" fill="currentColor" />
+            </svg>
+          </button>
         </div>
       </aside>
 
@@ -206,6 +234,8 @@ export function AdminShell({ user, recents, searchIndex, children }: Props) {
         onClose={() => setSearchOpen(false)}
         index={searchIndex}
       />
+
+      <ChampionshipRaceDialog open={raceOpen} onClose={() => setRaceOpen(false)} />
     </div>
   )
 }

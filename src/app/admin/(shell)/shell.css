@@ -494,6 +494,20 @@
   line-height: 1.4;
   color: var(--chrome-text-secondary);
 }
+.admin-shell-update-quote {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: var(--chrome-text);
+}
+.admin-shell-update-strong {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  color: var(--chrome-text);
+  margin-right: 4px;
+}
 
 /* ────────── Main ────────── */
 
@@ -707,4 +721,341 @@
   font-family: var(--font-mono);
   font-size: 10px;
   line-height: 1;
+}
+
+/* ----- EASTER EGG: chequered-flag trigger ----- */
+.admin-shell-sidebar-footer {
+  position: relative;
+}
+.admin-shell-easter-egg {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--chrome-text-muted);
+  opacity: 0.22;
+  cursor: pointer;
+  transition: opacity 0.15s, color 0.15s, transform 0.15s;
+}
+.admin-shell-easter-egg:hover {
+  opacity: 1;
+  color: var(--brand-red);
+  transform: scale(1.18);
+}
+.admin-shell-easter-egg-egg {
+  right: 28px;
+}
+
+/* ----- EASTER EGG: championship race dialog ----- */
+.race-anim-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  animation: race-anim-fade 0.22s ease-out;
+}
+@keyframes race-anim-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.race-anim-modal {
+  width: min(880px, 92vw);
+  max-height: 88vh;
+  background: var(--chrome-bg);
+  border: 1px solid var(--chrome-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: race-anim-modal-in 0.32s cubic-bezier(0.34, 1.4, 0.5, 1);
+  transform-origin: center 60%;
+}
+@keyframes race-anim-modal-in {
+  0%   { opacity: 0; transform: scale(0.92) translateY(12px); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.race-anim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--chrome-border);
+}
+.race-anim-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chrome-text-tertiary);
+  margin-bottom: 4px;
+}
+.race-anim-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: var(--chrome-text);
+  margin: 0;
+}
+.race-anim-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.race-anim-year {
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-border);
+  color: var(--chrome-text);
+  border-radius: 3px;
+  padding: 6px 10px;
+  font-family: var(--font-condensed);
+  font-size: 13px;
+  cursor: pointer;
+}
+.race-anim-year:hover {
+  border-color: var(--brand-red);
+}
+.race-anim-close {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--chrome-border);
+  border-radius: 3px;
+  color: var(--chrome-text-secondary);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.race-anim-close:hover {
+  border-color: var(--brand-red);
+  color: var(--brand-red);
+}
+.race-anim-roundbar {
+  padding: 12px 22px 10px;
+  border-bottom: 1px solid var(--chrome-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.race-anim-round-info {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-family: var(--font-condensed);
+  font-size: 13px;
+  animation: race-anim-round-in 0.45s cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+@keyframes race-anim-round-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.race-anim-round-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--chrome-text-tertiary);
+}
+.race-anim-round-name {
+  color: var(--chrome-text);
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.race-anim-round-date {
+  color: var(--chrome-text-secondary);
+  font-size: 12px;
+  margin-left: auto;
+}
+.race-anim-scrubber {
+  width: 100%;
+  accent-color: var(--brand-red);
+  cursor: pointer;
+}
+.race-anim-stage {
+  position: relative;
+  padding: 14px 22px;
+  overflow: hidden;
+  background:
+    linear-gradient(to bottom, rgba(207, 33, 42, 0.04), transparent 40%);
+}
+.race-anim-row {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.race-anim-row.leader .race-anim-car {
+  filter:
+    drop-shadow(0 0 6px var(--brand-red))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+.race-anim-row.leader .race-anim-acronym-text {
+  text-shadow: 0 0 8px currentColor;
+}
+.race-anim-rank {
+  width: 22px;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--chrome-text-secondary);
+  flex-shrink: 0;
+}
+.race-anim-label {
+  width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.race-anim-acronym-text {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  transition: text-shadow 0.4s ease;
+}
+.race-anim-team {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--chrome-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.race-anim-bar-wrap {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  background:
+    repeating-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 24px
+    );
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  border-radius: 1px;
+}
+.race-anim-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 1px;
+  opacity: 0.5;
+  transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: width;
+}
+.race-anim-car {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  transition:
+    left 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.4s ease;
+  will-change: left;
+}
+.race-anim-points {
+  width: 56px;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--chrome-text);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+.race-anim-row.leader .race-anim-points {
+  color: var(--brand-red);
+}
+.race-anim-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--chrome-text-tertiary);
+  font-family: var(--font-condensed);
+}
+.race-anim-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--chrome-border);
+}
+.race-anim-btn {
+  background: var(--chrome-raised);
+  border: 1px solid var(--chrome-border);
+  color: var(--chrome-text);
+  border-radius: 3px;
+  padding: 8px 16px;
+  font-family: var(--font-condensed);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.race-anim-btn:hover:not(:disabled) {
+  border-color: var(--brand-red);
+  color: var(--brand-red);
+}
+.race-anim-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.race-anim-btn.primary {
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  color: #fff;
+}
+.race-anim-btn.primary:hover:not(:disabled) {
+  background: var(--brand-red-hover);
+  border-color: var(--brand-red-hover);
+  color: #fff;
+}
+.race-anim-credit {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--chrome-text-tertiary);
+}
+.race-anim-credit a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted currentColor;
+}
+.race-anim-credit a:hover {
+  color: var(--brand-red);
 }

@@ -1,0 +1,214 @@
+/* ─────────────────── Game modal ─────────────────── */
+.egg-game-root {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(0, 0, 0, 0.92);
+  animation: egg-game-fade 0.25s ease-out;
+}
+
+@keyframes egg-game-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.egg-game-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.egg-game-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.egg-game-stage {
+  position: relative;
+  width: 1400px;
+  max-width: 96vw;
+}
+
+.egg-game-canvas {
+  display: block;
+  width: 1400px;
+  max-width: 96vw;
+  max-height: 82vh;
+  height: auto;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.egg-game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.egg-game-countdown {
+  font-family: 'Formula1', 'Arial Narrow', sans-serif;
+  font-weight: 900;
+  font-size: 240px;
+  line-height: 1;
+  color: #fff;
+  text-shadow:
+    0 0 30px rgba(255, 255, 255, 0.5),
+    0 0 80px rgba(207, 33, 42, 0.85);
+  animation: egg-game-pop 0.6s ease-out;
+}
+
+@keyframes egg-game-pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.egg-game-result {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 36px;
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.egg-game-result-title {
+  font-family: 'Formula1', 'Arial Narrow', sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+.egg-game-result-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 6px;
+}
+.egg-game-result-actions {
+  display: flex;
+  gap: 10px;
+}
+.egg-game-btn {
+  padding: 9px 18px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.egg-game-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+.egg-game-btn.primary {
+  background: #cf212a;
+  border-color: #cf212a;
+}
+.egg-game-btn.primary:hover {
+  background: #e02530;
+  border-color: #e02530;
+}
+
+.egg-game-tracks {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.egg-game-track-btn {
+  padding: 6px 14px;
+  font-family: 'Titillium Web', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.egg-game-track-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.egg-game-track-btn.active {
+  background: #cf212a;
+  border-color: #cf212a;
+  color: #fff;
+}
+
+.egg-game-hud {
+  width: 1400px;
+  max-width: 96vw;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 18px;
+  font-family: 'Titillium Web', system-ui, sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.egg-game-hud-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.egg-game-hud-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.egg-game-hud-laps {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+}
+.egg-game-hud-hint {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  margin-top: 4px;
+}
+.egg-game-hud-hint kbd {
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  color: #fff;
+}

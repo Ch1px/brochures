@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
+import { EasterEgg } from '@/components/EasterEgg'
 import './globals.css'
 
 // metadataBase is intentionally not set here — per-page metadata in
@@ -18,7 +19,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
       <html lang="en">
-        <body>{children}</body>
+        <body>
+          {children}
+          <EasterEgg />
+        </body>
       </html>
     </ClerkProvider>
   )
