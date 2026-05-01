@@ -329,6 +329,25 @@ export type SectionGalleryGrid = {
   bodyScale?: TextScalePreset
 }
 
+export type SectionGalleryTrio = {
+  _key: string
+  _type: 'galleryTrio'
+  eyebrow?: string
+  title: string
+  images?: SanityImage[]
+  overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
+  overlayColor?: string
+  mediaGrayscale?: MediaGrayscale
+  mediaBlur?: MediaBlur
+  background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
+}
+
 export type SectionGalleryDuo = {
   _key: string
   _type: 'galleryDuo'
@@ -674,6 +693,7 @@ export type Section =
   | SectionItinerary
   | SectionGalleryEditorial
   | SectionGalleryGrid
+  | SectionGalleryTrio
   | SectionGalleryDuo
   | SectionGalleryHero
   | SectionQuoteProfile

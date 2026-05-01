@@ -16,6 +16,7 @@ import { PackagesEditor } from './editors/PackagesEditor'
 import { ItineraryEditor } from './editors/ItineraryEditor'
 import { GalleryEditorialEditor } from './editors/GalleryEditorialEditor'
 import { GalleryGridEditor } from './editors/GalleryGridEditor'
+import { GalleryTrioEditor } from './editors/GalleryTrioEditor'
 import { GalleryDuoEditor } from './editors/GalleryDuoEditor'
 import { GalleryHeroEditor } from './editors/GalleryHeroEditor'
 import { QuoteProfileEditor } from './editors/QuoteProfileEditor'
@@ -191,6 +192,8 @@ function renderEditor(
       return <GalleryEditorialEditor section={section} onChange={anyOnChange} />
     case 'galleryGrid':
       return <GalleryGridEditor section={section} onChange={anyOnChange} />
+    case 'galleryTrio':
+      return <GalleryTrioEditor section={section} onChange={anyOnChange} />
     case 'galleryDuo':
       return <GalleryDuoEditor section={section} onChange={anyOnChange} />
     case 'galleryHero':

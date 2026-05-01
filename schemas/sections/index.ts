@@ -12,6 +12,7 @@ import packages from './packages'
 import itinerary from './itinerary'
 import galleryEditorial from './galleryEditorial'
 import galleryGrid from './galleryGrid'
+import galleryTrio from './galleryTrio'
 import galleryDuo from './galleryDuo'
 import galleryHero from './galleryHero'
 import quoteProfile from './quoteProfile'
@@ -40,6 +41,7 @@ export const sectionSchemas = [
   itinerary,
   galleryEditorial,
   galleryGrid,
+  galleryTrio,
   galleryDuo,
   galleryHero,
   quoteProfile,

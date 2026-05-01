@@ -16,6 +16,7 @@ import { Packages } from './sections/Packages'
 import { Itinerary } from './sections/Itinerary'
 import { GalleryEditorial } from './sections/GalleryEditorial'
 import { GalleryGrid } from './sections/GalleryGrid'
+import { GalleryTrio } from './sections/GalleryTrio'
 import { GalleryDuo } from './sections/GalleryDuo'
 import { GalleryHero } from './sections/GalleryHero'
 import { QuoteProfile } from './sections/QuoteProfile'
@@ -198,6 +199,9 @@ function renderSection({ section, pageNum, total, showFolio }: Props) {
 
     case 'galleryGrid':
       return <GalleryGrid data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
+
+    case 'galleryTrio':
+      return <GalleryTrio data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
 
     case 'galleryDuo':
       return <GalleryDuo data={section} pageNum={pageNum} total={total} showFolio={showFolio} />

@@ -56,6 +56,7 @@ const STYLE_CONFIG: Record<
   itinerary:                { eyebrow: false, title: true,  body: false, titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
   galleryEditorial:         { eyebrow: false, title: true,  body: false, titleAccent: false, accent: false, overlay: true,  grayscale: true,  blur: true,  parallax: false },
   galleryGrid:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
+  galleryTrio:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
   galleryDuo:               { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
   galleryHero:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
   quoteProfile:             { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },

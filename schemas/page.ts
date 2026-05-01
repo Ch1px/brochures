@@ -37,6 +37,7 @@ export default defineType({
         { type: 'itinerary' },
         { type: 'galleryEditorial' },
         { type: 'galleryGrid' },
+        { type: 'galleryTrio' },
         { type: 'galleryDuo' },
         { type: 'galleryHero' },
         { type: 'quoteProfile' },

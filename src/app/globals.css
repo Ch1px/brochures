@@ -2262,6 +2262,14 @@
   }
   .mini-gg > div { background: #2a2d35; border: 1px solid rgba(255,255,255,0.04); }
 
+  .mini-gt {
+    position: absolute; inset: 0; padding: 12%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
+  .mini-gt > div { background: #2a2d35; border: 1px solid rgba(255,255,255,0.04); }
+
   .mini-gd {
     position: absolute; inset: 0; padding: 12%;
     display: grid;

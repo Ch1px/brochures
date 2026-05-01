@@ -136,6 +136,9 @@ export function sectionDefaults(type: Section['_type']): Section {
     case 'galleryGrid':
       return { _key, _type: 'galleryGrid', eyebrow: 'Moments', title: 'From the paddock', images: [] }
 
+    case 'galleryTrio':
+      return { _key, _type: 'galleryTrio', eyebrow: 'Moments', title: 'From the paddock', images: [] }
+
     case 'galleryDuo':
       return { _key, _type: 'galleryDuo', eyebrow: 'Two sides of the weekend', title: 'Track & terrace', images: [], captions: ['', ''] }
 

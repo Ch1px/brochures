@@ -37,6 +37,8 @@ export const SECTION_PREVIEW_HTML: Record<Section['_type'], string> = {
     '<div class="mini-gallery"><div></div><div></div><div></div><div></div></div>',
   galleryGrid:
     '<div class="mini-gg"><div></div><div></div><div></div><div></div><div></div><div></div></div>',
+  galleryTrio:
+    '<div class="mini-gt"><div></div><div></div><div></div></div>',
   galleryDuo: '<div class="mini-gd"><div></div><div></div></div>',
   galleryHero:
     '<div class="mini-gh"><div class="mini-gh-hero"></div><div class="mini-gh-strip"><div></div><div></div><div></div></div></div>',
@@ -87,6 +89,7 @@ export const SECTION_PICKER_ORDER: Section['_type'][] = [
   'itinerary',
   'galleryEditorial',
   'galleryGrid',
+  'galleryTrio',
   'galleryDuo',
   'galleryHero',
   'quoteProfile',
