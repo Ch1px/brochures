@@ -5929,8 +5929,11 @@
     display: block;
     width: 297mm;
     margin: 0 auto;
-    background: #fff;
+    background: var(--page-bg, #fff);
     --nav-safe-top: 0;
+  }
+  .brochure-print-root[data-theme='dark']:not([data-custom-bg]) {
+    background: #0d0d0d;
   }
   /* Each section gets its own A4-landscape sheet (297mm × 210mm). Every
      section stretches to fill the full sheet so backgrounds, gradients and
@@ -6007,7 +6010,7 @@
       margin: 0;
     }
     html, body {
-      background: #fff !important;
+      background: transparent !important;
       margin: 0 !important;
       padding: 0 !important;
       -webkit-print-color-adjust: exact !important;
