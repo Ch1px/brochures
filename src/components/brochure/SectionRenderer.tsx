@@ -28,6 +28,7 @@ import { CTABanner } from './sections/CTABanner'
 import { LinkedCards } from './sections/LinkedCards'
 import { Footer } from './sections/Footer'
 import { Logos } from './sections/Logos'
+import { Faq } from './sections/Faq'
 import { UnsupportedSection } from './sections/UnsupportedSection'
 
 type Props = {
@@ -236,6 +237,9 @@ function renderSection({ section, pageNum, total, showFolio }: Props) {
     case 'logoWall':
     case 'logoStrip':
       return <Logos data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
+
+    case 'faq':
+      return <Faq data={section} pageNum={pageNum} total={total} showFolio={showFolio} />
 
     default:
       return <UnsupportedSection type={(section as { _type: string })._type} />

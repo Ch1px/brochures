@@ -25,6 +25,7 @@ import linkedCards from './linkedCards'
 import footer from './footer'
 import logoWall from './logoWall'
 import logoStrip from './logoStrip'
+import faq from './faq'
 
 export const sectionSchemas = [
   cover,
@@ -54,4 +55,5 @@ export const sectionSchemas = [
   footer,
   logoWall,
   logoStrip,
+  faq,
 ]

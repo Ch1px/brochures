@@ -27,6 +27,7 @@ import { CTABannerEditor } from './editors/CTABannerEditor'
 import { LinkedCardsEditor } from './editors/LinkedCardsEditor'
 import { FooterEditor } from './editors/FooterEditor'
 import { LogosEditor } from './editors/LogosEditor'
+import { FaqEditor } from './editors/FaqEditor'
 import { SectionStylesEditor } from './editors/SectionStylesEditor'
 
 type Props = {
@@ -227,6 +228,8 @@ function renderEditor(
     case 'logoWall':
     case 'logoStrip':
       return <LogosEditor section={section} onChange={anyOnChange} />
+    case 'faq':
+      return <FaqEditor section={section} onChange={anyOnChange} />
     default:
       return (
         <div className="properties-pending">

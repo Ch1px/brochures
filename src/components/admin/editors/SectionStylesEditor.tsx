@@ -68,6 +68,7 @@ const STYLE_CONFIG: Record<
   linkedCards:              { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
   logoWall:                 { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
   logoStrip:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  faq:                      { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
 }
 
 const SCALE_OPTIONS = [

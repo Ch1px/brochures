@@ -33,6 +33,7 @@ export const SECTION_LABELS: Record<Section['_type'], string> = {
   footer: 'Footer',
   logoWall: 'Logos · Wall',
   logoStrip: 'Logos · Strip',
+  faq: 'FAQ',
 }
 
 export const SECTION_DESCRIPTIONS: Record<Section['_type'], string> = {
@@ -63,6 +64,7 @@ export const SECTION_DESCRIPTIONS: Record<Section['_type'], string> = {
   footer: 'Slim overlay strip pinned to the bottom of the page slide',
   logoWall: 'Grid of partner / sponsor logos',
   logoStrip: 'Single row of partner / sponsor logos',
+  faq: 'Frequently asked questions in a 2-column grid',
 }
 
 export function labelFor(type: Section['_type']): string {

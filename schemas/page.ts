@@ -50,6 +50,7 @@ export default defineType({
         { type: 'footer' },
         { type: 'logoWall' },
         { type: 'logoStrip' },
+        { type: 'faq' },
       ],
       validation: (Rule) => Rule.required().min(1),
     }),

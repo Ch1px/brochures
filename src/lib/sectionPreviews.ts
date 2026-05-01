@@ -62,6 +62,8 @@ export const SECTION_PREVIEW_HTML: Record<Section['_type'], string> = {
     '<div class="mini-logos mini-logos-wall"><div class="mini-logos-head"><div class="mini-logos-title"></div><div class="mini-logos-sub"></div></div><div class="mini-logos-grid"><div></div><div></div><div></div><div></div><div></div><div></div></div></div>',
   logoStrip:
     '<div class="mini-logos mini-logos-strip"><div class="mini-logos-head"><div class="mini-logos-title"></div></div><div class="mini-logos-row"><div></div><div></div><div></div><div></div><div></div></div></div>',
+  faq:
+    '<div class="mini-faq"><div class="mini-faq-head"><div class="mini-faq-title"></div></div><div class="mini-faq-grid"><div class="mini-faq-item"><div class="mini-faq-q"></div><div class="mini-faq-a"></div></div><div class="mini-faq-item"><div class="mini-faq-q"></div><div class="mini-faq-a"></div></div><div class="mini-faq-item"><div class="mini-faq-q"></div><div class="mini-faq-a"></div></div><div class="mini-faq-item"><div class="mini-faq-q"></div><div class="mini-faq-a"></div></div></div></div>',
 }
 
 /**
@@ -96,6 +98,7 @@ export const SECTION_PICKER_ORDER: Section['_type'][] = [
   'circuitMap',
   'logoWall',
   'logoStrip',
+  'faq',
   'closing',
   'footer',
 ]

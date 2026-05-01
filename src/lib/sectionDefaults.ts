@@ -241,6 +241,23 @@ export function sectionDefaults(type: Section['_type']): Section {
         ),
       }
 
+    case 'faq':
+      return {
+        _key,
+        _type: 'faq',
+        eyebrow: 'Good to know',
+        title: 'Frequently asked',
+        subtitle: 'Answers to the questions guests ask most often. Reach out if anything is missing — we are here to help.',
+        questions: [
+          { _key: nanokey(), question: "What's included in each package?", answer: 'Every package covers race-weekend hospitality, accommodation, transfers between airport and hotel, and the daily activities listed in the itinerary. Flights are not included unless stated.' },
+          { _key: nanokey(), question: 'How do I book and what is the payment schedule?', answer: 'A 25% deposit confirms your place. The balance is due 90 days before the race weekend. We accept bank transfer and major cards.' },
+          { _key: nanokey(), question: 'What if I need to cancel or reschedule?', answer: 'Cancellations more than 90 days out are refunded in full minus the deposit. Inside 90 days we move you to another race weekend where possible.' },
+          { _key: nanokey(), question: 'Are flights and airport transfers included?', answer: 'Private airport transfers are included in every package. Flights are arranged separately so you can fly from your preferred airport with miles or status.' },
+          { _key: nanokey(), question: 'Can I customise the experience?', answer: 'Yes. Add an extra night, upgrade your hotel, book the helicopter from Nice — anything we can arrange, we will. Just speak to your concierge after booking.' },
+          { _key: nanokey(), question: 'How do you handle dietary requirements?', answer: 'Share allergies and preferences when you book. Every venue we partner with is briefed in advance, and our hosts will check with you on the day to confirm.' },
+        ],
+      }
+
     case 'circuitMap':
       return {
         _key,

@@ -657,6 +657,29 @@ export type SectionLogos = {
   bodyScale?: TextScalePreset
 }
 
+export type FaqItem = {
+  _key: string
+  question: string
+  answer: string
+}
+
+export type SectionFaq = {
+  _key: string
+  _type: 'faq'
+  eyebrow?: string
+  title: string
+  subtitle?: string
+  questions: FaqItem[]
+  background?: string
+  eyebrowColor?: string
+  titleColor?: string
+  bodyColor?: string
+  accentColor?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  bodyScale?: TextScalePreset
+}
+
 export type SocialPlatform =
   | 'instagram'
   | 'x'
@@ -705,6 +728,7 @@ export type Section =
   | SectionLinkedCards
   | SectionFooter
   | SectionLogos
+  | SectionFaq
 
 export type Page = {
   _key: string
