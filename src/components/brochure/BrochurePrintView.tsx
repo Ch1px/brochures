@@ -122,13 +122,43 @@ function useFitSectionsToPages() {
       )
     }
 
+    // Sections (SplitSection, Cover, ImageHero, Closing, etc.) paint photos
+    // via CSS background-image, which `document.images` doesn't track.
+    // Walk every element with a non-`none` background-image and decode each
+    // URL through `new Image()` so we don't snapshot before they paint.
+    const waitForBackgroundImages = async () => {
+      const URL_RE = /url\(\s*["']?([^"')]+)["']?\s*\)/g
+      const seen = new Set<string>()
+      const elements = document.querySelectorAll<HTMLElement>('*')
+      const promises: Array<Promise<void>> = []
+      for (const el of Array.from(elements)) {
+        const bg = getComputedStyle(el).backgroundImage
+        if (!bg || bg === 'none') continue
+        let m: RegExpExecArray | null
+        while ((m = URL_RE.exec(bg)) !== null) {
+          const url = m[1]
+          if (!url || url.startsWith('data:') || seen.has(url)) continue
+          seen.add(url)
+          promises.push(
+            new Promise<void>((resolve) => {
+              const probe = new Image()
+              probe.onload = () => resolve()
+              probe.onerror = () => resolve()
+              probe.src = url
+            })
+          )
+        }
+      }
+      await Promise.all(promises)
+    }
+
     ;(async () => {
       try {
         await document.fonts?.ready
       } catch {
         /* ignore */
       }
-      await waitForImages()
+      await Promise.all([waitForImages(), waitForBackgroundImages()])
       if (cancelled) return
       // One rAF lets layout settle after the last image's intrinsic size resolves.
       requestAnimationFrame(() => {

@@ -163,7 +163,7 @@ export async function GET(req: Request, { params }: RouteContext) {
     await page
       .waitForFunction(
         () => (window as unknown as { __brochurePrintReady?: boolean }).__brochurePrintReady === true,
-        { timeout: 15_000 }
+        { timeout: 30_000 }
       )
       .catch(() => {})
 

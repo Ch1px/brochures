@@ -5128,6 +5128,23 @@
     }
   }
 
+  /* Editor-preview parity: the @media (max-width: 768px) block above is
+     viewport-based, so it doesn't fire when the editor's mobile/tablet
+     device toggle narrows the preview frame on a desktop. Mirror the
+     section-heading height rules via @container (which fires on the
+     section's container width) so the preview matches what real mobile
+     users see. cqh resolves against the editor's `brochure-frame` size
+     container; on the live reader (no size container above the section)
+     it falls back to svh, so real-phone behaviour is unchanged. */
+  @container (max-width: 768px) {
+    .page-section-heading { min-height: 38cqh; }
+    .page-section-heading-inner {
+      padding: 10% 8%;
+      min-height: 38cqh;
+      flex: 1;
+    }
+  }
+
   /* Preview-mode nav on phones */
   @media (max-width: 560px) {
     .preview-mode-nav {
@@ -5999,6 +6016,33 @@
   .brochure-print-page > .section.page-image-hero > .page-image-hero-inner,
   .brochure-print-page > .section.page-closing > .page-closing-inner {
     flex: 1 0 auto;
+  }
+  /* In print view the .brochure-print-page wrapper already paints the brochure
+     --page-bg edge-to-edge behind every section. The dark-mode darkening
+     overlay (line ~5556) layers a dark gradient + halftone on top of the
+     section's own background-image; under the puppeteer pipeline that overlay
+     can render as a near-black slab that no longer matches the page wrapper
+     (visible as a dark interior with a coloured rim around it once the
+     fit-to-page scaler shrinks the section). Force the section background
+     to inherit the page wrapper directly so they always match — both for
+     custom-bg brochures (user's hex) and theme-default brochures. */
+  .brochure-print-page > .section.page-intro,
+  .brochure-print-page > .section.page-features,
+  .brochure-print-page > .section.page-stats,
+  .brochure-print-page > .section.page-packages,
+  .brochure-print-page > .section.page-itinerary,
+  .brochure-print-page > .section.page-gallery,
+  .brochure-print-page > .section.page-gallery-grid,
+  .brochure-print-page > .section.page-gallery-duo,
+  .brochure-print-page > .section.page-gallery-hero,
+  .brochure-print-page > .section.page-quote-profile,
+  .brochure-print-page > .section.page-circuit-map,
+  .brochure-print-page > .section.page-text-center,
+  .brochure-print-page > .section.page-cta-banner,
+  .brochure-print-page > .section.page-linked-cards,
+  .brochure-print-page > .section.page-logos {
+    background-image: none;
+    background-color: var(--page-bg);
   }
 
   @media print {
