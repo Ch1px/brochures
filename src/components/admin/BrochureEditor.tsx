@@ -32,6 +32,7 @@ import { SaveToast } from './SaveToast'
 import { CollapseButton, CollapsedRail, ResizeHandle } from './EditorLayoutControls'
 import { LiveblocksProvider, RoomProvider, roomIdForBrochure } from '@/lib/liveblocks'
 import { PeerPresenceProvider } from './PeerPresenceProvider'
+import { AiAssistProvider } from './AiAssistProvider'
 
 /**
  * Section types that expose image-treatment controls (overlay, greyscale,
@@ -980,6 +981,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
       currentPageKey={brochure.pages[currentPageIndex]?._key ?? null}
       liveblocksEnabled={liveblocksEnabled}
     >
+    <AiAssistProvider brochureId={brochure._id} brief={brochure.aiBrief}>
     <div className="editor-root">
       <EditorTopbar
         brochure={brochure}
@@ -1165,6 +1167,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
       />
       <SaveToast status={saveStatus} />
     </div>
+    </AiAssistProvider>
     </PeerPresenceProvider>
   )
 }

@@ -23,6 +23,7 @@ export function SplitSectionEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="The Experience"
+        aiAssist={{ field: 'eyebrow', sectionType: section._type, sectionContext: section }}
       />
       <FieldTextarea
         label="Title"
@@ -31,6 +32,7 @@ export function SplitSectionEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
         placeholder="A Weekend Like No Other"
+        aiAssist={{ field: 'title', sectionType: section._type, sectionContext: section }}
       />
       <FieldRichText
         label="Body"
@@ -65,6 +67,7 @@ export function SplitSectionEditor({ section, onChange }: Props) {
         value={section.caption}
         onChange={(caption) => onChange({ caption })}
         placeholder="Monaco harbour at sunset"
+        aiAssist={{ field: 'caption', sectionType: section._type, sectionContext: section }}
       />
     </>
   )

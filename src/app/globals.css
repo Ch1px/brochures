@@ -2354,7 +2354,7 @@
   .faq-question {
     font-family: var(--font-display);
     font-weight: var(--font-display-weight);
-    font-size: calc(var(--title-scale, 1) * clamp(13px, 1.8cqi, 20px));
+    font-size: calc(var(--title-scale, 1) * clamp(15px, 2.2cqi, 24px));
     color: var(--section-title-color, var(--title-text));
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -2379,6 +2379,8 @@
       row-gap: clamp(14px, 2cqi, 22px);
     }
     .faq-subtitle { max-width: 100%; }
+    .faq-title { font-size: calc(var(--title-scale, 1) * clamp(20px, 6.2cqi, 34px)); }
+    .faq-question { font-size: calc(var(--title-scale, 1) * clamp(16px, 4.2cqi, 22px)); }
   }
 
   /* Mini preview for add-section modal */
@@ -4699,7 +4701,9 @@
     .closing-subtitle,
     .gallery-hero-caption,
     .gallery-duo-caption,
-    .linked-card-text {
+    .linked-card-text,
+    .faq-subtitle,
+    .faq-answer {
       font-size: calc(var(--tagline-scale, 1) * var(--body-text-size-mobile));
       line-height: var(--body-text-line-height-mobile);
     }
@@ -4716,7 +4720,8 @@
     .closing-eyebrow,
     .quote-profile-eyebrow,
     .gallery-variant-eyebrow,
-    .circuit-map-eyebrow {
+    .circuit-map-eyebrow,
+    .faq-eyebrow {
       font-size: calc(var(--eyebrow-scale, 1) * clamp(44px, 8.5cqi, 64px));
     }
 
@@ -5711,7 +5716,8 @@
   .page-text-center,
   .page-cta-banner,
   .page-linked-cards,
-  .page-logos {
+  .page-logos,
+  .page-faq {
     background-image: url('/textures/halftone.png');
     background-size: 800px auto;
     background-position: top left;
@@ -5735,7 +5741,8 @@
   [data-theme="dark"]:not([data-custom-bg]) .page-text-center,
   [data-theme="dark"]:not([data-custom-bg]) .page-cta-banner,
   [data-theme="dark"]:not([data-custom-bg]) .page-linked-cards,
-  [data-theme="dark"]:not([data-custom-bg]) .page-logos {
+  [data-theme="dark"]:not([data-custom-bg]) .page-logos,
+  [data-theme="dark"]:not([data-custom-bg]) .page-faq {
     background-image:
       linear-gradient(color-mix(in srgb, var(--page-bg) 88%, transparent), color-mix(in srgb, var(--page-bg) 88%, transparent)),
       url('/textures/halftone.png');
@@ -6468,6 +6475,8 @@
   .circuit-map-title,
   .closing-title,
   .cover-title,
+  .faq-title,
+  .faq-question,
   .features-title,
   .gallery-title,
   .gallery-variant-title,

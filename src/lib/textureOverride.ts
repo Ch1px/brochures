@@ -31,6 +31,7 @@ export function textureOverrideCss(
     '.page-cta-banner',
     '.page-linked-cards',
     '.page-logos',
+    '.page-faq',
   ]
 
   if (hideTexture) {

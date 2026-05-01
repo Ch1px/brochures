@@ -8,20 +8,16 @@ import { z } from 'zod'
  *
  * 1. No `_key`. The server generates keys via nanokey() after parsing — this
  *    keeps the LLM output smaller and avoids the model fabricating duplicates.
- * 2. Images are `imageFilename?: string` pointing at a library entry, not a
- *    Sanity asset ref. `resolveImages()` in generator.ts swaps them for refs.
+ * 2. No image fields. Admins upload images themselves after generation;
+ *    the AI focuses 100% on copy. Image refs in Sanity are filled in later
+ *    via the editor.
  * 3. `circuitMap.svg` is always omitted — admin-authored upload only.
  *
  * Structured-output JSON Schema limitations to keep in mind:
  *   - No `minLength`/`maxLength` on strings
  *   - No recursion
  *   - `additionalProperties: false` enforced (zodOutputFormat handles this)
- * See claude-api skill docs for the full list.
  */
-
-const imageFilename = z.string().optional().describe(
-  'Filename from the supplied image library. ALWAYS pick the best available match — reuse images across sections rather than leaving this blank. Only omit as an absolute last resort when the library is empty.'
-)
 
 const background = z.string().optional().describe(
   'Optional CSS color for the section background (e.g. "#0a0a0b"). Leave empty for default.'
@@ -39,7 +35,6 @@ export const CoverSectionSchema = z.object({
   tag: z.string().describe('One-line tagline under the title'),
   cta: z.string().describe('Short call-to-action, e.g. "Secure your seat"'),
   ref: z.string().describe('Reference code, e.g. "No. 014 / Volume XV"'),
-  imageFilename,
   background,
 })
 
@@ -50,7 +45,6 @@ export const IntroSectionSchema = z.object({
   title: z.string(),
   body: z.string().describe('3–5 sentence evocative opening paragraph'),
   caption: z.string().describe('Short image caption'),
-  imageFilename,
   background,
 })
 
@@ -60,16 +54,14 @@ export const ContentImageSectionSchema = z.object({
   title: z.string(),
   body: z.string(),
   caption: z.string().optional(),
-  imageFilename,
   background,
 })
 
 export const SectionHeadingSchema = z.object({
-  _type: z.literal('sectionHeading'),
+  _type: z.enum(['sectionHeading', 'sectionHeadingCentered']),
   eyebrow: z.string(),
   title: z.string(),
   text: z.string().optional(),
-  imageFilename,
   background,
 })
 
@@ -83,10 +75,6 @@ export const FeaturesSectionSchema = z.object({
       z.object({
         title: z.string(),
         text: z.string(),
-        imageFilename: z
-          .string()
-          .optional()
-          .describe('REQUIRED in practice — every card must have an image. Pick the best library match. Reuse from the library if needed.'),
       })
     )
     .describe('Exactly 3 cards'),
@@ -98,7 +86,6 @@ export const ImageHeroSchema = z.object({
   eyebrow: z.string(),
   title: z.string(),
   text: z.string(),
-  imageFilename,
   background,
 })
 
@@ -132,10 +119,6 @@ export const PackagesSectionSchema = z.object({
       features: z
         .array(z.string())
         .describe('4–6 specific bullet points — real hotels, real transfers, real inclusions'),
-      imageFilename: z
-        .string()
-        .optional()
-        .describe('REQUIRED in practice — every package card must have an image. Pick the best library match. Reuse if needed.'),
     })
   ),
   background,
@@ -158,9 +141,6 @@ export const ItinerarySchema = z.object({
 export const GalleryEditorialSchema = z.object({
   _type: z.literal('galleryEditorial'),
   title: z.string(),
-  imageFilenames: z
-    .array(z.string())
-    .describe('Exactly 4 filenames — asymmetric layout (1 tall + 2 stacked + 1 wide). Reuse from the library if needed.'),
   background,
 })
 
@@ -168,9 +148,6 @@ export const GalleryGridSchema = z.object({
   _type: z.literal('galleryGrid'),
   eyebrow: z.string(),
   title: z.string(),
-  imageFilenames: z
-    .array(z.string())
-    .describe('Exactly 6 filenames — uniform 3×2 grid. Reuse from the library if the pool is smaller.'),
   background,
 })
 
@@ -178,7 +155,6 @@ export const GalleryDuoSchema = z.object({
   _type: z.literal('galleryDuo'),
   eyebrow: z.string(),
   title: z.string(),
-  imageFilenames: z.array(z.string()).describe('Exactly 2 filenames'),
   captions: z.array(z.string()).describe('Exactly 2 captions, one per image'),
   background,
 })
@@ -188,9 +164,6 @@ export const GalleryHeroSchema = z.object({
   eyebrow: z.string(),
   title: z.string(),
   caption: z.string().describe('Caption for the lead (first) image'),
-  imageFilenames: z
-    .array(z.string())
-    .describe('Exactly 4 filenames — first is the big hero, next 3 are the thumbnail strip. Reuse if needed.'),
   background,
 })
 
@@ -200,7 +173,6 @@ export const QuoteProfileSchema = z.object({
   name: z.string(),
   quote: z.string(),
   body: z.string(),
-  photoFilename: z.string().optional(),
   background,
 })
 
@@ -237,14 +209,6 @@ export const SpotlightSchema = z.object({
   title: z.string(),
   body: z.string(),
   caption: z.string().optional(),
-  imageFilename: z
-    .string()
-    .optional()
-    .describe('REQUIRED in practice — foreground hero image. Pick the best library match.'),
-  backgroundImageFilename: z
-    .string()
-    .optional()
-    .describe('REQUIRED in practice — background image that sits behind the foreground. Can reuse the same file as imageFilename.'),
   background,
 })
 
@@ -291,7 +255,7 @@ export const BrochureOutputSchema = z.object({
   season: z.string().describe('4-digit year string'),
   seoTitle: z.string(),
   seoDescription: z.string(),
-  pages: z.array(PageSchema).describe('Target 8–12 pages'),
+  pages: z.array(PageSchema).describe('Decided from the brief — typically 5–10 pages'),
 })
 
 export type AiSection = z.infer<typeof SectionSchema>

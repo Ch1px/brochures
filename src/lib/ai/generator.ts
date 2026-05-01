@@ -3,18 +3,23 @@ import Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
 import { BrochureOutputSchema, type AiBrochureOutput, type AiSection } from './schemas'
 import { buildSystemBlocks, buildUserMessage } from './prompts'
-import { fetchSources } from './urlContext'
-import { listLibraryImages, resolveLibraryImage, resolveLibraryImages, type LibraryImage } from './imageLibrary'
 import { sanityWriteClient } from '../sanity/client'
 import { nanokey } from '../nanokey'
-import type { Page, Section, SanityImage } from '@/types/brochure'
+import type { Page, Section } from '@/types/brochure'
 
 /**
- * End-to-end: user intent → Claude Opus 4.7 structured output → Sanity doc.
+ * End-to-end: free-form admin brief → Claude Opus 4.7 (with web_search +
+ *   extended thinking) → emit_brochure tool call → Sanity doc.
  *
  * Caching strategy: system blocks are frozen and cached on the last block
- *   (see prompts.ts → buildSystemBlocks). First run writes the cache, every
- *   subsequent generate reads it. Verify via usage.cache_read_input_tokens.
+ *   (see prompts.ts → buildSystemBlocks). The brief and sales contact go in
+ *   the user message so the prefix stays byte-stable across runs. Verify
+ *   via usage.cache_read_input_tokens.
+ *
+ * Tool flow: tool_choice is 'auto' (forced tool_choice is incompatible with
+ *   extended thinking). The system prompt instructs Claude that its final
+ *   action MUST be calling emit_brochure. If the response comes back without
+ *   a tool call, we retry once with a stronger reminder.
  *
  * Auth: this module is server-only and uses the Sanity write client directly.
  *   assertAdmin() is enforced one layer up in the server action.
@@ -22,7 +27,9 @@ import type { Page, Section, SanityImage } from '@/types/brochure'
 
 const MODEL = 'claude-opus-4-7'
 const MAX_TOKENS = 16000
+const THINKING_BUDGET = 8000
 const TOOL_NAME = 'emit_brochure'
+const WEB_SEARCH_MAX_USES = 5
 
 /**
  * JSON Schema for the emit_brochure tool. Built once at module load — the
@@ -41,9 +48,10 @@ export type GenerateInput = {
   event: string
   season: string
   slug?: string
-  urls?: string[]
-  vibe?: string
-  adminNotes?: string
+  brief: {
+    prompt: string
+    sources?: string[]
+  }
   salesEmail?: string
   salesPhone?: string
 }
@@ -71,60 +79,39 @@ export async function generateBrochure(input: GenerateInput): Promise<GenerateRe
     return { ok: false, error: 'ANTHROPIC_API_KEY not configured on the server' }
   }
 
-  // 1. Fetch URL context and load the image library in parallel.
-  const [sources, imageLibrary] = await Promise.all([
-    input.urls && input.urls.length ? fetchSources(input.urls) : Promise.resolve([]),
-    listLibraryImages(),
-  ])
-  const okSources = sources.filter((s) => !s.error && s.content.length > 100)
+  const briefPrompt = input.brief.prompt.trim()
+  if (!briefPrompt) {
+    return { ok: false, error: 'Brief is required' }
+  }
+  const sources = (input.brief.sources ?? []).map((s) => s.trim()).filter(Boolean)
 
-  // 2. Call Claude with forced tool use + prompt caching.
   const client = new Anthropic({ apiKey })
+
+  const userMessage = buildUserMessage({
+    event: input.event,
+    season: input.season,
+    brief: briefPrompt,
+    sources,
+    salesEmail: input.salesEmail ?? 'sales@grandprixgrandtours.com',
+    salesPhone: input.salesPhone ?? '+44 20 3966 5680',
+  })
+
   let parsed: AiBrochureOutput
   let usage: GenerateUsage
 
   try {
-    const response = await client.messages.create({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      // No `thinking`: Claude rejects thinking + forced tool_choice together.
-      // The few-shot + section guide carry enough structure for this task.
-      system: buildSystemBlocks(),
-      tools: [
-        {
-          name: TOOL_NAME,
-          description:
-            'Emit the completed brochure. Call this exactly once with the full pages array.',
-          input_schema: BROCHURE_TOOL_INPUT_SCHEMA as Anthropic.Tool.InputSchema,
-        },
-      ],
-      tool_choice: { type: 'tool', name: TOOL_NAME },
-      messages: [
-        {
-          role: 'user',
-          content: buildUserMessage({
-            event: input.event,
-            season: input.season,
-            vibe: input.vibe,
-            adminNotes: input.adminNotes,
-            sources: okSources,
-            imageLibrary: imageLibrary.map((img) => ({
-              filename: img.filename,
-              description: img.description,
-              orientation: img.orientation,
-            })),
-            salesEmail: input.salesEmail ?? 'sales@grandprixgrandtours.com',
-            salesPhone: input.salesPhone ?? '+44 20 3966 5680',
-          }),
-        },
-      ],
-    })
+    const first = await callClaude(client, userMessage, false)
+    let toolUse = findToolUse(first.response)
+    let chosen = first
 
-    const toolUse = response.content.find(
-      (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use' && b.name === TOOL_NAME
-    )
     if (!toolUse) {
-      const refusal = response.content.find((b) => b.type === 'text')
+      const retry = await callClaude(client, userMessage, true)
+      toolUse = findToolUse(retry.response)
+      chosen = retry
+    }
+
+    if (!toolUse) {
+      const refusal = chosen.response.content.find((b) => b.type === 'text')
       return {
         ok: false,
         error: `Claude did not call ${TOOL_NAME}${
@@ -139,18 +126,15 @@ export async function generateBrochure(input: GenerateInput): Promise<GenerateRe
         .slice(0, 3)
         .map((i) => `${i.path.join('.')}: ${i.message}`)
         .join('; ')
-      return {
-        ok: false,
-        error: `Schema validation failed: ${issues}`,
-      }
+      return { ok: false, error: `Schema validation failed: ${issues}` }
     }
 
     parsed = validation.data
     usage = {
-      inputTokens: response.usage.input_tokens,
-      outputTokens: response.usage.output_tokens,
-      cacheReadTokens: response.usage.cache_read_input_tokens ?? 0,
-      cacheCreationTokens: response.usage.cache_creation_input_tokens ?? 0,
+      inputTokens: chosen.response.usage.input_tokens,
+      outputTokens: chosen.response.usage.output_tokens,
+      cacheReadTokens: chosen.response.usage.cache_read_input_tokens ?? 0,
+      cacheCreationTokens: chosen.response.usage.cache_creation_input_tokens ?? 0,
     }
   } catch (err) {
     if (err instanceof Anthropic.APIError) {
@@ -159,11 +143,8 @@ export async function generateBrochure(input: GenerateInput): Promise<GenerateRe
     return { ok: false, error: err instanceof Error ? err.message : 'Generation failed' }
   }
 
-  // 3. Resolve image filenames → Sanity asset refs; stamp _keys; build pages.
-  const pages = hydratePages(parsed.pages, imageLibrary)
+  const pages = hydratePages(parsed.pages)
 
-  // 4. Create a published Sanity doc (status: 'draft' per the app convention —
-  //    see CLAUDE.md "Status field is explicit, separate from Sanity drafts").
   try {
     const doc = await sanityWriteClient.create({
       _type: 'brochure',
@@ -177,6 +158,11 @@ export async function generateBrochure(input: GenerateInput): Promise<GenerateRe
         metaTitle: parsed.seoTitle,
         metaDescription: parsed.seoDescription,
         noIndex: false,
+      },
+      aiBrief: {
+        prompt: briefPrompt,
+        sources: sources.length ? sources : undefined,
+        generatedAt: new Date().toISOString(),
       },
       pages,
     })
@@ -195,35 +181,56 @@ export async function generateBrochure(input: GenerateInput): Promise<GenerateRe
   }
 }
 
-/** Resolve imageFilename fields → Sanity image refs; add _keys; strip AI-only fields. */
-function hydratePages(
-  aiPages: AiBrochureOutput['pages'],
-  library: LibraryImage[]
-): Page[] {
-  const byFilename = new Map(library.map((i) => [i.filename, i]))
-  const toImage = (filename?: string): SanityImage | undefined => {
-    if (!filename) return undefined
-    const hit = byFilename.get(filename)
-    if (!hit) return undefined
-    return { _type: 'image', asset: { _type: 'reference', _ref: hit._id } }
-  }
-  const toImages = (filenames?: string[]): SanityImage[] =>
-    (filenames ?? [])
-      .map((f) => toImage(f))
-      .filter((img): img is SanityImage => Boolean(img))
+async function callClaude(
+  client: Anthropic,
+  userMessage: string,
+  isRetry: boolean
+): Promise<{ response: Anthropic.Message }> {
+  const reminder = isRetry
+    ? '\n\nIMPORTANT: Your previous response did not call the emit_brochure tool. You MUST call emit_brochure now with the full brochure as a single tool invocation. Do not respond with plain text.'
+    : ''
 
+  const response = await client.messages.create({
+    model: MODEL,
+    max_tokens: MAX_TOKENS,
+    thinking: { type: 'enabled', budget_tokens: THINKING_BUDGET },
+    system: buildSystemBlocks(),
+    tools: [
+      {
+        name: TOOL_NAME,
+        description:
+          'Emit the completed brochure. Call this exactly once with the full pages array.',
+        input_schema: BROCHURE_TOOL_INPUT_SCHEMA as Anthropic.Tool.InputSchema,
+      },
+      {
+        type: 'web_search_20250305',
+        name: 'web_search',
+        max_uses: WEB_SEARCH_MAX_USES,
+      } as unknown as Anthropic.Tool,
+    ],
+    tool_choice: { type: 'auto' },
+    messages: [{ role: 'user', content: userMessage + reminder }],
+  })
+  return { response }
+}
+
+function findToolUse(response: Anthropic.Message): Anthropic.ToolUseBlock | undefined {
+  return response.content.find(
+    (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use' && b.name === TOOL_NAME
+  )
+}
+
+/** Stamp _keys; pass section content through. Image fields are left empty —
+ *  admins upload images themselves after generation. */
+function hydratePages(aiPages: AiBrochureOutput['pages']): Page[] {
   return aiPages.map((page) => ({
     _key: nanokey(),
     name: page.name,
-    sections: page.sections.map((s) => hydrateSection(s, toImage, toImages)),
+    sections: page.sections.map(hydrateSection),
   }))
 }
 
-function hydrateSection(
-  s: AiSection,
-  toImage: (f?: string) => SanityImage | undefined,
-  toImages: (fs?: string[]) => SanityImage[]
-): Section {
+function hydrateSection(s: AiSection): Section {
   const _key = nanokey()
   switch (s._type) {
     case 'cover':
@@ -239,9 +246,8 @@ function hydrateSection(
         tag: s.tag,
         cta: s.cta,
         ref: s.ref,
-        image: toImage(s.imageFilename),
         background: s.background,
-      }
+      } as Section
     case 'intro':
       return {
         _key,
@@ -251,9 +257,8 @@ function hydrateSection(
         title: s.title,
         body: s.body,
         caption: s.caption,
-        image: toImage(s.imageFilename),
         background: s.background,
-      }
+      } as Section
     case 'contentImage':
     case 'imageContent':
       return {
@@ -263,19 +268,18 @@ function hydrateSection(
         title: s.title,
         body: s.body,
         caption: s.caption,
-        image: toImage(s.imageFilename),
         background: s.background,
-      }
+      } as Section
     case 'sectionHeading':
+    case 'sectionHeadingCentered':
       return {
         _key,
-        _type: 'sectionHeading',
+        _type: s._type,
         eyebrow: s.eyebrow,
         title: s.title,
         text: s.text,
-        image: toImage(s.imageFilename),
         background: s.background,
-      }
+      } as Section
     case 'features':
       return {
         _key,
@@ -287,20 +291,16 @@ function hydrateSection(
           _key: nanokey(),
           title: c.title,
           text: c.text,
-          image: toImage(c.imageFilename),
         })),
         background: s.background,
-      }
+      } as Section
     case 'imageHero':
-      // The runtime type marks `image` as required, but Sanity tolerates a
-      // missing image field. Emit the section anyway — admin will upload.
       return {
         _key,
         _type: 'imageHero',
         eyebrow: s.eyebrow,
         title: s.title,
         text: s.text,
-        image: toImage(s.imageFilename),
         background: s.background,
       } as Section
     case 'stats':
@@ -331,10 +331,9 @@ function hydrateSection(
           from: p.from,
           featured: p.featured,
           features: p.features,
-          image: toImage(p.imageFilename),
         })),
         background: s.background,
-      }
+      } as Section
     case 'itinerary':
       return {
         _key,
@@ -354,28 +353,25 @@ function hydrateSection(
         _key,
         _type: 'galleryEditorial',
         title: s.title,
-        images: toImages(s.imageFilenames),
         background: s.background,
-      }
+      } as Section
     case 'galleryGrid':
       return {
         _key,
         _type: 'galleryGrid',
         eyebrow: s.eyebrow,
         title: s.title,
-        images: toImages(s.imageFilenames),
         background: s.background,
-      }
+      } as Section
     case 'galleryDuo':
       return {
         _key,
         _type: 'galleryDuo',
         eyebrow: s.eyebrow,
         title: s.title,
-        images: toImages(s.imageFilenames),
         captions: s.captions,
         background: s.background,
-      }
+      } as Section
     case 'galleryHero':
       return {
         _key,
@@ -383,9 +379,8 @@ function hydrateSection(
         eyebrow: s.eyebrow,
         title: s.title,
         caption: s.caption,
-        images: toImages(s.imageFilenames),
         background: s.background,
-      }
+      } as Section
     case 'quoteProfile':
       return {
         _key,
@@ -394,9 +389,8 @@ function hydrateSection(
         name: s.name,
         quote: s.quote,
         body: s.body,
-        photo: toImage(s.photoFilename),
         background: s.background,
-      }
+      } as Section
     case 'closing':
       return {
         _key,
@@ -434,10 +428,8 @@ function hydrateSection(
         title: s.title,
         body: s.body,
         caption: s.caption,
-        image: toImage(s.imageFilename),
-        backgroundImage: toImage(s.backgroundImageFilename),
         background: s.background,
-      }
+      } as Section
     case 'textCenter':
       return {
         _key,
@@ -449,7 +441,3 @@ function hydrateSection(
       }
   }
 }
-
-// Silence the unused-import for resolveLibraryImage(s); they're the public API
-// for future single-section re-generation flows.
-export { resolveLibraryImage, resolveLibraryImages }

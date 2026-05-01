@@ -11,10 +11,12 @@ import {
   Trash2,
   ExternalLink,
   Star,
+  Sparkles,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
 import { NewBrochureModal, type DuplicateSource } from './NewBrochureModal'
+import { AiGenerateModal } from './AiGenerateModal'
 import { deleteBrochureAction } from '@/lib/sanity/actions'
 import { brochurePublicUrl as brochurePublicUrlLib } from '@/lib/brochureHost'
 import { MiniCoverPreview, type MiniBrochure } from './MiniCoverPreview'
@@ -94,6 +96,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
   const searchParams = useSearchParams()
   const [deletePending, startDeleteTransition] = useTransition()
   const [newOpen, setNewOpen] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
   const [duplicateSource, setDuplicateSource] = useState<DuplicateSource | null>(null)
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '')
   const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') ?? '')
@@ -188,6 +191,10 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
           </span>
         </div>
         <div className="library-header-actions">
+          <button className="library-header-btn" onClick={() => setAiOpen(true)}>
+            <Sparkles size={15} strokeWidth={2.4} />
+            <span>Generate</span>
+          </button>
           <button className="library-header-btn primary" onClick={() => setNewOpen(true)}>
             <Plus size={15} strokeWidth={2.4} />
             <span>New brochure</span>
@@ -442,6 +449,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
         duplicateFrom={duplicateSource ?? undefined}
         companies={companyOptions}
       />
+      <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} />
     </>
   )
 }

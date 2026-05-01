@@ -26,8 +26,8 @@ import { invalidateHostMap } from '@/lib/companies/hostMap'
 import { addDomain, removeDomain, getDomainConfig, type DomainConfig } from '@/lib/vercel/domains'
 import { signPreviewToken } from '../previewToken'
 import { generateBrochure, type GenerateInput, type GenerateUsage } from '../ai/generator'
-import { seedLibraryImages, type SeedResult } from '../ai/imageLibrary'
-import type { Brochure, SanityImage, SanityFile } from '@/types/brochure'
+import { generateField, type GenerateFieldInput } from '../ai/fieldGenerator'
+import type { Brochure, SanityImage, SanityFile, Section } from '@/types/brochure'
 
 /**
  * Server actions — invoked from client components in the editor.
@@ -368,13 +368,21 @@ export async function generateBrochureAction(
 }
 
 /**
- * One-time seed: upload every image in /public/textures/images to Sanity
- * as a tagged library asset Claude can reference by filename.
+ * Per-field AI assist — generates a single field's text using Haiku 4.5,
+ * grounded in the saved brief and the section the user is editing.
+ *
+ * The brochureId is currently informational; we trust the in-memory brief
+ * passed by the editor (it's the source of truth in the active session).
  */
-export async function seedLibraryImagesAction(): Promise<SeedResult> {
+export async function generateFieldAction(
+  input: GenerateFieldInput & { brochureId: string }
+): Promise<{ ok: true; value: string } | { ok: false; error: string }> {
   await assertAdmin()
-  return seedLibraryImages()
+  const { brochureId: _brochureId, ...rest } = input
+  return generateField(rest)
 }
+
+export type { Section as AiAssistSection }
 
 // ── Company actions ────────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { generateBrochureAction, seedLibraryImagesAction } from '@/lib/sanity/actions'
+import { generateBrochureAction } from '@/lib/sanity/actions'
 
 type Props = {
   open: boolean
@@ -20,50 +20,52 @@ type Status =
       usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number; cacheCreationTokens: number }
     }
 
+const BRIEF_PLACEHOLDER = `e.g. 4-day luxury hospitality experience for the Spanish Grand Prix at Circuit de Barcelona-Catalunya. Audience: high-net-worth couples. Tone: editorial, restrained, place-literate. Must include grandstand and VIP package tiers, a host-city focus on Barcelona's design district, and a closing CTA.`
+
 /**
- * "Generate with AI" modal — takes an event, season, and up to 4 source URLs,
- * hands them to Claude, and redirects to the editor on success. Also exposes
- * a one-shot "Seed image library" button for the first-time setup.
+ * "Generate with AI" modal — captures a free-form brief plus optional
+ * reference URLs and hands them to Claude. The brief drives page structure;
+ * Claude decides section types and copy. Redirects to the editor on success.
  */
 export function AiGenerateModal({ open, onClose }: Props) {
   const router = useRouter()
   const [event, setEvent] = useState('')
   const [season, setSeason] = useState('2026')
+  const [brief, setBrief] = useState('')
   const [urls, setUrls] = useState<string[]>([''])
-  const [vibe, setVibe] = useState('')
-  const [adminNotes, setAdminNotes] = useState('')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
-  const [seedStatus, setSeedStatus] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
-  const [seedPending, startSeedTransition] = useTransition()
 
   useEffect(() => {
     if (!open) {
       setEvent('')
       setSeason('2026')
+      setBrief('')
       setUrls([''])
-      setVibe('')
-      setAdminNotes('')
       setStatus({ kind: 'idle' })
-      setSeedStatus(null)
     }
   }, [open])
 
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !pending && !seedPending) onClose()
+      if (e.key === 'Escape' && !pending) onClose()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [open, onClose, pending, seedPending])
+  }, [open, onClose, pending])
 
   if (!open) return null
 
   function handleGenerate() {
     const trimmedUrls = urls.map((u) => u.trim()).filter(Boolean)
+    const trimmedBrief = brief.trim()
     if (!event.trim()) {
       setStatus({ kind: 'error', message: 'Event name is required.' })
+      return
+    }
+    if (!trimmedBrief) {
+      setStatus({ kind: 'error', message: 'Brief is required — tell Claude what to build.' })
       return
     }
     setStatus({ kind: 'generating' })
@@ -71,13 +73,13 @@ export function AiGenerateModal({ open, onClose }: Props) {
       const res = await generateBrochureAction({
         event: event.trim(),
         season: season.trim(),
-        urls: trimmedUrls,
-        vibe: vibe.trim() || undefined,
-        adminNotes: adminNotes.trim() || undefined,
+        brief: {
+          prompt: trimmedBrief,
+          sources: trimmedUrls.length ? trimmedUrls : undefined,
+        },
       })
       if (res.ok) {
         setStatus({ kind: 'success', id: res.id, slug: res.slug, usage: res.usage })
-        // Small delay so the user sees the success state before the jump.
         setTimeout(() => router.push(`/admin/brochures/${res.id}/edit`), 600)
       } else {
         setStatus({ kind: 'error', message: res.error })
@@ -85,24 +87,10 @@ export function AiGenerateModal({ open, onClose }: Props) {
     })
   }
 
-  function handleSeed() {
-    setSeedStatus('Seeding library…')
-    startSeedTransition(async () => {
-      const res = await seedLibraryImagesAction()
-      if (res.error) {
-        setSeedStatus(`Error: ${res.error}`)
-        return
-      }
-      setSeedStatus(
-        `Uploaded ${res.uploaded.length}, already present ${res.alreadyPresent.length}, skipped ${res.skipped.length}.`
-      )
-    })
-  }
-
   return (
     <div
       className="add-section-overlay"
-      onClick={pending || seedPending ? undefined : onClose}
+      onClick={pending ? undefined : onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Generate with AI"
@@ -110,14 +98,14 @@ export function AiGenerateModal({ open, onClose }: Props) {
       <div className="add-section-modal new-brochure-modal ai-generate-modal" onClick={(e) => e.stopPropagation()}>
         <header className="add-section-modal-header">
           <div>
-            <div className="add-section-modal-eyebrow">AI Builder · Claude</div>
+            <div className="add-section-modal-eyebrow">AI Builder · Claude Opus 4.7</div>
             <h2 className="add-section-modal-title">Generate a brochure</h2>
           </div>
           <button
             type="button"
             className="add-section-close"
             onClick={onClose}
-            disabled={pending || seedPending}
+            disabled={pending}
             aria-label="Close"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -128,19 +116,18 @@ export function AiGenerateModal({ open, onClose }: Props) {
         </header>
 
         <div className="new-brochure-body">
-          <div className="field-group">
-            <label className="field-label">Event</label>
-            <input
-              className="field-input"
-              value={event}
-              onChange={(e) => setEvent(e.target.value)}
-              placeholder="e.g. Spanish Grand Prix"
-              disabled={pending}
-              autoFocus
-            />
-          </div>
-
           <div className="new-brochure-row">
+            <div className="field-group">
+              <label className="field-label">Event</label>
+              <input
+                className="field-input"
+                value={event}
+                onChange={(e) => setEvent(e.target.value)}
+                placeholder="e.g. Spanish Grand Prix"
+                disabled={pending}
+                autoFocus
+              />
+            </div>
             <div className="field-group">
               <label className="field-label">Season</label>
               <select
@@ -154,23 +141,29 @@ export function AiGenerateModal({ open, onClose }: Props) {
                 <option value="2028">2028</option>
               </select>
             </div>
-            <div className="field-group">
-              <label className="field-label">Vibe (optional)</label>
-              <input
-                className="field-input"
-                value={vibe}
-                onChange={(e) => setVibe(e.target.value)}
-                placeholder="e.g. editorial, high-energy, heritage"
-                disabled={pending}
-              />
-            </div>
           </div>
 
           <div className="field-group">
-            <label className="field-label">Source URLs</label>
+            <label className="field-label">Brief</label>
             <div className="field-description">
-              Up to 4 links Claude should read for facts (prices, dates, package names, circuit info).
-              Leave blank to use general knowledge only.
+              What this brochure is for, who it's for, the tone, the must-haves. Claude decides the page
+              structure from this — be specific.
+            </div>
+            <textarea
+              className="field-input"
+              value={brief}
+              onChange={(e) => setBrief(e.target.value)}
+              placeholder={BRIEF_PLACEHOLDER}
+              rows={8}
+              disabled={pending}
+              style={{ resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }}
+            />
+          </div>
+
+          <div className="field-group">
+            <label className="field-label">Reference URLs (optional)</label>
+            <div className="field-description">
+              Up to 5 links. Claude can also web-search on its own, so this is just a head-start.
             </div>
             {urls.map((u, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
@@ -182,7 +175,7 @@ export function AiGenerateModal({ open, onClose }: Props) {
                     next[i] = e.target.value
                     setUrls(next)
                   }}
-                  placeholder="https://www.grandprixgrandtours.com/…"
+                  placeholder="https://www.formula1.com/…"
                   disabled={pending}
                 />
                 {urls.length > 1 ? (
@@ -198,7 +191,7 @@ export function AiGenerateModal({ open, onClose }: Props) {
                 ) : null}
               </div>
             ))}
-            {urls.length < 4 ? (
+            {urls.length < 5 ? (
               <button
                 type="button"
                 className="editor-topbar-btn"
@@ -208,51 +201,6 @@ export function AiGenerateModal({ open, onClose }: Props) {
               >
                 + Add URL
               </button>
-            ) : null}
-          </div>
-
-          <div className="field-group">
-            <label className="field-label">Admin notes (optional)</label>
-            <textarea
-              className="field-input"
-              value={adminNotes}
-              onChange={(e) => setAdminNotes(e.target.value)}
-              placeholder="Anything Claude should know — a hook, a specific package to highlight, a page to skip…"
-              rows={3}
-              disabled={pending}
-              style={{ resize: 'vertical', fontFamily: 'inherit' }}
-            />
-          </div>
-
-          <div
-            style={{
-              marginTop: 14,
-              padding: 10,
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 4,
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.65)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <div>
-                <div style={{ fontWeight: 700, color: '#fff', marginBottom: 2 }}>Image library</div>
-                <div>Seeds /public/textures/images/* to Sanity. Safe to re-run.</div>
-              </div>
-              <button
-                type="button"
-                className="editor-topbar-btn"
-                onClick={handleSeed}
-                disabled={seedPending || pending}
-              >
-                {seedPending ? 'Seeding…' : 'Seed library'}
-              </button>
-            </div>
-            {seedStatus ? (
-              <div style={{ marginTop: 8, fontFamily: 'ui-monospace, monospace', fontSize: 11, opacity: 0.75 }}>
-                {seedStatus}
-              </div>
             ) : null}
           </div>
 
@@ -273,7 +221,9 @@ export function AiGenerateModal({ open, onClose }: Props) {
               <div style={{ marginBottom: 4, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>
                 Generating…
               </div>
-              <div style={{ opacity: 0.7 }}>Fetching sources, thinking, writing to Sanity. 15–45 seconds typical.</div>
+              <div style={{ opacity: 0.7 }}>
+                Researching, thinking, writing. 30–90 seconds typical with web search.
+              </div>
             </div>
           ) : null}
           {status.kind === 'success' ? (
@@ -301,13 +251,13 @@ export function AiGenerateModal({ open, onClose }: Props) {
         </div>
 
         <footer className="new-brochure-footer">
-          <button className="editor-topbar-btn" onClick={onClose} disabled={pending || seedPending}>
+          <button className="editor-topbar-btn" onClick={onClose} disabled={pending}>
             Cancel
           </button>
           <button
             className="editor-topbar-btn primary"
             onClick={handleGenerate}
-            disabled={pending || seedPending || status.kind === 'success'}
+            disabled={pending || status.kind === 'success'}
           >
             {pending ? 'Generating…' : status.kind === 'success' ? 'Opening…' : 'Generate & open'}
           </button>

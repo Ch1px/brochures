@@ -27,6 +27,7 @@ export function IntroEditor({ section, onChange }: Props) {
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="Introduction"
+          aiAssist={{ field: 'eyebrow', sectionType: 'intro', sectionContext: section }}
         />
       </div>
       <FieldImage
@@ -64,6 +65,7 @@ export function IntroEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
         placeholder="Your Complete Race Weekend Experience"
+        aiAssist={{ field: 'title', sectionType: 'intro', sectionContext: section }}
       />
       <FieldRichText
         label="Body"
@@ -98,6 +100,7 @@ export function IntroEditor({ section, onChange }: Props) {
         value={section.caption}
         onChange={(caption) => onChange({ caption })}
         placeholder="Monte Carlo, Monaco — the jewel of F1"
+        aiAssist={{ field: 'caption', sectionType: 'intro', sectionContext: section }}
       />
     </>
   )

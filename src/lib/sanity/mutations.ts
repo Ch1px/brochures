@@ -170,6 +170,15 @@ export type BrochureSettingsUpdate = {
     hubspotFormId?: string
     destinationEmail?: string
   }
+  /**
+   * Free-form context the AI generator used. Editable from the settings
+   * modal so the brief can be refined; per-field assists pick up updates
+   * immediately because they read the brochure's in-memory state.
+   */
+  aiBrief?: {
+    prompt?: string
+    sources?: string[]
+  } | null
 }
 
 export async function updateBrochureSettings(
@@ -310,6 +319,21 @@ export async function updateBrochureSettings(
     if (updates.companyId !== undefined) {
       if (!updates.companyId) unset.push('company')
       else patch.company = { _type: 'reference', _ref: updates.companyId }
+    }
+    if (updates.aiBrief !== undefined) {
+      const next = updates.aiBrief
+      const promptTrimmed = next?.prompt?.trim() ?? ''
+      const sources = (next?.sources ?? []).map((s) => s.trim()).filter(Boolean)
+      if (next === null || (!promptTrimmed && sources.length === 0)) {
+        unset.push('aiBrief')
+      } else {
+        patch.aiBrief = {
+          prompt: promptTrimmed || undefined,
+          sources: sources.length ? sources : undefined,
+          // Preserve generatedAt only when the field already had one — we
+          // don't bump it on manual edits.
+        }
+      }
     }
 
     let tx = sanityWriteClient.patch(id)
