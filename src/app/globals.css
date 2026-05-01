@@ -1267,7 +1267,7 @@
   .linked-card-text {
     font-size: calc(var(--tagline-scale, 1) * var(--body-text-size));
     line-height: var(--body-text-line-height);
-    color: rgba(255,255,255,0.7);
+    color: var(--section-body-color, rgba(255,255,255,0.7));
   }
   .linked-card-link {
     display: inline-flex;
