@@ -1,3 +1,5 @@
+'use client'
+
 import type { Section } from '@/types/brochure'
 import { useBrochureBranding } from './BrochureContext'
 import { isBrandToken, resolveColor, type BrandContext } from '@/lib/brandColorTokens'

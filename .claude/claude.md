@@ -208,7 +208,7 @@ CircuitMap SVGs are stored as text on the document (not as file assets). On uplo
 
 `<SectionRenderer>` and its 16 children are shared. The editor wraps each in a `.preview-section-hitbox` div that adds click-to-select but renders the exact same markup. This means fixing a bug in a section component fixes it in both places, but also means the components can't assume they're in either context. Specifically:
 
-- They are **plain components, not client components** (`SectionRenderer.tsx` has no `'use client'`), but because they're imported by `BrochureReader` (client) and `PreviewStage` (client), they end up in the client bundle anyway
+- `SectionRenderer.tsx` is marked `'use client'` so the entire section subtree is anchored on the client side. The individual section components don't carry the directive themselves — they inherit client placement via the SectionRenderer boundary. This used to rely on bundler heuristics (sections were unmarked but happened to land in the client bundle); under Next 16 + Turbopack, the print pipeline started routing some sections to the server graph and erroring on `useBrochureBranding`. The explicit boundary on SectionRenderer fixes that.
 - They receive `pageNum`, `total`, `showFolio` — both consumers pass these
 - They use `urlForSection()` to resolve Sanity image refs to CDN URLs — don't hard-code URLs
 
