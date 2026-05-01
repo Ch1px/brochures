@@ -34,6 +34,19 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'contentAlign',
+      title: 'Content alignment',
+      type: 'string',
+      description: 'Horizontal alignment of each card\'s title, text, and link button.',
+      options: {
+        list: [
+          { title: 'Left', value: 'left' },
+          { title: 'Center', value: 'center' },
+          { title: 'Right', value: 'right' },
+        ],
+      },
+    }),
+    defineField({
       name: 'overlayStrength',
       type: 'string',
       title: 'Overlay strength',

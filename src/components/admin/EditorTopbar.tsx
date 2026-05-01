@@ -12,8 +12,6 @@ import {
   Link2,
   Download,
   ExternalLink,
-  Sun,
-  Moon,
   Check,
   Loader2,
   AlertCircle,
@@ -23,7 +21,7 @@ import {
   CloudOff,
   CircleDot,
 } from 'lucide-react'
-import type { Brochure, BrochureStatus, BrochureTheme } from '@/types/brochure'
+import type { Brochure, BrochureStatus } from '@/types/brochure'
 import type { SaveStatus } from '@/hooks/useAutosave'
 import type { CompanyOption } from './BrochureEditor'
 import {
@@ -47,7 +45,6 @@ type Props = {
   onTitleChange: (title: string) => void
   onStatusChange: (status: BrochureStatus, rev?: string) => void
   onFeatureChange: (featured: boolean, rev?: string) => void
-  onThemeChange: (theme: BrochureTheme) => void
   onOpenSettings: () => void
 }
 
@@ -65,9 +62,8 @@ const STATUS_DOT: Record<BrochureStatus, string> = {
   archived: '#64748b',
 }
 
-export function EditorTopbar({ brochure, companies, saveStatus, liveblocksEnabled, onTitleChange, onStatusChange, onFeatureChange, onThemeChange, onOpenSettings }: Props) {
+export function EditorTopbar({ brochure, companies, saveStatus, liveblocksEnabled, onTitleChange, onStatusChange, onFeatureChange, onOpenSettings }: Props) {
   const router = useRouter()
-  const theme: BrochureTheme = brochure.theme ?? 'dark'
   const [pending, startTransition] = useTransition()
   const [statusMenu, setStatusMenu] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<'idle' | 'generating' | 'copied' | 'error'>('idle')
@@ -234,30 +230,6 @@ export function EditorTopbar({ brochure, companies, saveStatus, liveblocksEnable
       </div>
 
       <div className="editor-topbar-right">
-        {/* Brochure theme — icon segmented control */}
-        <div className="editor-icon-segment" role="group" aria-label="Brochure theme">
-          <button
-            type="button"
-            className={`editor-icon-segment-btn ${theme === 'dark' ? 'active' : ''}`.trim()}
-            onClick={() => onThemeChange('dark')}
-            aria-pressed={theme === 'dark'}
-            title="Dark brochure theme"
-          >
-            <Moon size={15} strokeWidth={2} />
-          </button>
-          <button
-            type="button"
-            className={`editor-icon-segment-btn ${theme === 'light' ? 'active' : ''}`.trim()}
-            onClick={() => onThemeChange('light')}
-            aria-pressed={theme === 'light'}
-            title="Light brochure theme"
-          >
-            <Sun size={15} strokeWidth={2} />
-          </button>
-        </div>
-
-        <span className="editor-topbar-divider" aria-hidden />
-
         <button
           type="button"
           className={`editor-icon-btn ${brochure.featured ? 'active' : ''}`.trim()}

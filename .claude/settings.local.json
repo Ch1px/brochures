@@ -54,7 +54,8 @@
       "Bash(curl -s \"https://dns.google/resolve?name=brochures.grandstandtickets.com&type=CAA\")",
       "Bash(awk 'NR==30,/===== BROCHURE PAGE STYLES/{print NR\": \"$0}' \"C:/brochures/src/app/globals.css\")",
       "Bash(awk 'NR>=70 && NR<=120' \"C:/brochures/src/app/globals.css\")",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(grep -rn \"\\\\\\\\-\\\\\\\\-page-bg\" src/ schemas/)"
     ]
   }
 }

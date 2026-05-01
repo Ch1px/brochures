@@ -19,7 +19,7 @@ export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
   return (
     <section className={`section page-linked-cards lc-overlay-${data.overlayStrength ?? 'medium'}`} data-section-id={data._key}>
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
-      <div className="page-linked-cards-inner">
+      <div className="page-linked-cards-inner" data-align={data.contentAlign || undefined}>
         {(data.eyebrow || data.title || editorMode) ? (
           <div className="linked-cards-header">
             {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="linked-cards-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}

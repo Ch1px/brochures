@@ -2380,6 +2380,24 @@
   color: var(--chrome-text);
   font-weight: 600;
 }
+.settings-help-hint {
+  margin-top: -2px;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--chrome-text-tertiary);
+}
+.brochure-theme-toggle {
+  align-self: flex-start;
+  flex: none;
+  min-height: 32px;
+}
+.brochure-theme-toggle[aria-disabled='true'] {
+  opacity: 0.55;
+}
+.brochure-theme-toggle[aria-disabled='true'] .editor-icon-segment-btn {
+  cursor: not-allowed;
+}
 .settings-font-row {
   display: grid;
   grid-template-columns: 1fr 120px;

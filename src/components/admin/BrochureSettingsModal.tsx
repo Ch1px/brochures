@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import type { Brochure, CustomColor, CustomFont, CustomFontWeight, FontOverrides, SanityImage, TextScalePreset } from '@/types/brochure'
+import type { Brochure, BrochureTheme, CustomColor, CustomFont, CustomFontWeight, FontOverrides, SanityImage, TextScalePreset } from '@/types/brochure'
+import { Sun, Moon } from 'lucide-react'
 import type { CompanyOption } from './BrochureEditor'
 import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
 import { nanokey } from '@/lib/nanokey'
@@ -35,6 +36,7 @@ type Props = {
     event: string
     seo: NonNullable<Brochure['seo']>
     leadCapture: NonNullable<Brochure['leadCapture']>
+    theme: BrochureTheme
     accentColor: string | undefined
     backgroundColor: string | undefined
     textColor: string | undefined
@@ -93,6 +95,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
   const [hubspotPortalId, setHubspotPortalId] = useState(brochure.leadCapture?.hubspotPortalId ?? '')
   const [hubspotFormId, setHubspotFormId] = useState(brochure.leadCapture?.hubspotFormId ?? '')
   const [destinationEmail, setDestinationEmail] = useState(brochure.leadCapture?.destinationEmail ?? '')
+  const [theme, setTheme] = useState<BrochureTheme>(brochure.theme ?? 'dark')
   const [accentColor, setAccentColor] = useState<string | undefined>(brochure.accentColor)
   const [backgroundColor, setBackgroundColor] = useState<string | undefined>(brochure.backgroundColor)
   const [textColor, setTextColor] = useState<string | undefined>(brochure.textColor)
@@ -139,6 +142,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
     setHubspotPortalId(brochure.leadCapture?.hubspotPortalId ?? '')
     setHubspotFormId(brochure.leadCapture?.hubspotFormId ?? '')
     setDestinationEmail(brochure.leadCapture?.destinationEmail ?? '')
+    setTheme(brochure.theme ?? 'dark')
     setAccentColor(brochure.accentColor)
     setBackgroundColor(brochure.backgroundColor)
     setTextColor(brochure.textColor)
@@ -231,6 +235,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
           slug: normalisedSlug,
           season: season.trim(),
           event: event.trim(),
+          theme,
           seo,
           leadCapture,
           accentColor: accentColor ?? null,
@@ -278,6 +283,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
         event: event.trim(),
         seo,
         leadCapture,
+        theme,
         accentColor,
         backgroundColor,
         textColor,
@@ -439,6 +445,48 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                     Empty fields inherit from <strong>{selectedCompany.name}</strong>. Set a value to override the company default.
                   </div>
                 ) : null}
+                {(() => {
+                  const themeDisabled = Boolean(titleColor || textColor || backgroundColor || navColor)
+                  return (
+                    <>
+                      <div className="settings-subgroup-label">Theme</div>
+                      <div
+                        className="editor-icon-segment brochure-theme-toggle"
+                        role="group"
+                        aria-label="Brochure theme"
+                        aria-disabled={themeDisabled}
+                      >
+                        <button
+                          type="button"
+                          className={`editor-icon-segment-btn ${theme === 'dark' ? 'active' : ''}`.trim()}
+                          onClick={() => setTheme('dark')}
+                          disabled={themeDisabled}
+                          aria-pressed={theme === 'dark'}
+                          aria-label="Dark theme"
+                          title="Dark theme"
+                        >
+                          <Moon size={15} strokeWidth={2} />
+                        </button>
+                        <button
+                          type="button"
+                          className={`editor-icon-segment-btn ${theme === 'light' ? 'active' : ''}`.trim()}
+                          onClick={() => setTheme('light')}
+                          disabled={themeDisabled}
+                          aria-pressed={theme === 'light'}
+                          aria-label="Light theme"
+                          title="Light theme"
+                        >
+                          <Sun size={15} strokeWidth={2} />
+                        </button>
+                      </div>
+                      <div className="settings-help-hint">
+                        {themeDisabled
+                          ? 'Theme is overridden by Title, Text, Background, or Navigation colour. Clear those fields to switch theme.'
+                          : 'Sets the default Title, Text, Background, and Navigation colours.'}
+                      </div>
+                    </>
+                  )
+                })()}
                 <div className="settings-subgroup-label">Brand colours</div>
                 <div className="brand-colors-compact">
                   <FieldColor

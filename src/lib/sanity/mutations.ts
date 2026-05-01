@@ -135,6 +135,7 @@ export type BrochureSettingsUpdate = {
   slug?: string
   season?: string
   event?: string
+  theme?: 'light' | 'dark' | null
   accentColor?: string | null
   backgroundColor?: string | null
   textColor?: string | null
@@ -218,6 +219,10 @@ export async function updateBrochureSettings(
     }
     if (updates.season !== undefined) patch.season = updates.season.trim()
     if (updates.event !== undefined) patch.event = updates.event.trim()
+    if (updates.theme !== undefined) {
+      if (updates.theme === null) unset.push('theme')
+      else patch.theme = updates.theme
+    }
     if (updates.seo !== undefined) patch.seo = updates.seo
     if (updates.leadCapture !== undefined) patch.leadCapture = updates.leadCapture
     if (updates.accentColor !== undefined) {

@@ -6,7 +6,6 @@ import type {
   AnnotationKind,
   Brochure,
   BrochureStatus,
-  BrochureTheme,
   CircuitDrawing,
   ColorOverride,
   SanityImage,
@@ -439,10 +438,6 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
 
   const handleFeatureChange = useCallback((featured: boolean, rev?: string) => {
     setBrochure((prev) => ({ ...prev, featured, ...(rev ? { _rev: rev } : null) }))
-  }, [])
-
-  const handleThemeChange = useCallback((theme: BrochureTheme) => {
-    setBrochure((prev) => ({ ...prev, theme }))
   }, [])
 
   const updateBrochure = useCallback(
@@ -994,7 +989,6 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
         onTitleChange={handleTitleChange}
         onStatusChange={handleStatusChange}
         onFeatureChange={handleFeatureChange}
-        onThemeChange={handleThemeChange}
         onOpenSettings={() => setSettingsOpen(true)}
       />
 
@@ -1139,6 +1133,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
             event: updates.event,
             seo: updates.seo,
             leadCapture: updates.leadCapture,
+            theme: updates.theme,
             accentColor: updates.accentColor,
             backgroundColor: updates.backgroundColor,
             textColor: updates.textColor,

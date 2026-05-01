@@ -563,6 +563,7 @@ export type SectionLinkedCards = {
   eyebrow?: string
   title?: string
   cards: LinkedCardItem[]
+  contentAlign?: 'left' | 'center' | 'right'
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   overlayColor?: string
   mediaGrayscale?: MediaGrayscale

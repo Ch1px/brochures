@@ -149,7 +149,8 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
   const supportsContentAlign =
     section._type === 'intro' ||
     section._type === 'contentImage' ||
-    section._type === 'imageContent'
+    section._type === 'imageContent' ||
+    section._type === 'linkedCards'
 
   return (
     <>
