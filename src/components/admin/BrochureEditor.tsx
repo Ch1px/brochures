@@ -433,12 +433,12 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
     setBrochure((prev) => ({ ...prev, title }))
   }, [])
 
-  const handleStatusChange = useCallback((status: BrochureStatus) => {
-    setBrochure((prev) => ({ ...prev, status }))
+  const handleStatusChange = useCallback((status: BrochureStatus, rev?: string) => {
+    setBrochure((prev) => ({ ...prev, status, ...(rev ? { _rev: rev } : null) }))
   }, [])
 
-  const handleFeatureChange = useCallback((featured: boolean) => {
-    setBrochure((prev) => ({ ...prev, featured }))
+  const handleFeatureChange = useCallback((featured: boolean, rev?: string) => {
+    setBrochure((prev) => ({ ...prev, featured, ...(rev ? { _rev: rev } : null) }))
   }, [])
 
   const handleThemeChange = useCallback((theme: BrochureTheme) => {
@@ -1133,6 +1133,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
         onSaved={(updates) =>
           setBrochure((prev) => ({
             ...prev,
+            _rev: updates.rev,
             slug: updates.slug,
             season: updates.season,
             event: updates.event,

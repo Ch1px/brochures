@@ -27,6 +27,9 @@ type Props = {
   companies: CompanyOption[]
   onClose: () => void
   onSaved: (updates: {
+    /** New `_rev` from the server. Editor merges this into brochure state
+     *  so `useAutosave` adopts it and the next autosave doesn't 409. */
+    rev: string
     slug: { _type: 'slug'; current: string }
     season: string
     event: string
@@ -269,6 +272,7 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
         return
       }
       onSaved({
+        rev: res.rev,
         slug: { _type: 'slug', current: normalisedSlug },
         season: season.trim(),
         event: event.trim(),

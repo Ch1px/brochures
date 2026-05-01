@@ -57,6 +57,20 @@ export function useAutosave(brochure: Brochure | null, options: Options = {}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brochure?._id])
 
+  // Adopt rev bumps that came from out-of-band writes (settings modal,
+  // status/featured toggles in the topbar). Those actions patch the same
+  // doc through their own server actions — without this, our lastRevRef
+  // stays at the page-load rev and every subsequent autosave 409s.
+  // Skips when a save is in flight so we don't clobber a rev we're about
+  // to overwrite ourselves.
+  useEffect(() => {
+    if (!brochure?._rev) return
+    if (inFlightRef.current) return
+    if (brochure._rev !== lastRevRef.current) {
+      lastRevRef.current = brochure._rev
+    }
+  }, [brochure?._rev])
+
   const performSave = useCallback(async () => {
     if (conflictRef.current) return
     if (inFlightRef.current) {

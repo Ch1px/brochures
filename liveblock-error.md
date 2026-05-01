@@ -1,2 +1,64 @@
-ailed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
-intercept-console-error.ts:48 Liveblocks Authentication failed: Failed to authenticate: <!DOCTYPE html><html><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width" data-next-head=""/><style data-next-hide-fouc="true">body{display:none}</style><noscript data-next-hide-fouc="true"><style>body{display:block}</style></noscript><noscript data-n-css=""></noscript><script defer="" noModule="" src="/_next/static/chunks/node_modules_next_dist_build_polyfills_polyfill-nomodule.js"></script><script src="/_next/static/chunks/node_modules_next_dist_compiled_0o6l_m6._.js" defer=""></script><script src="/_next/static/chunks/node_modules_next_dist_shared_lib_0~pg0mt._.js" defer=""></script><script src="/_next/static/chunks/node_modules_next_dist_client_0pe1dg-._.js" defer=""></script><script src="/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js" defer=""></script><script src="/_next/static/chunks/node_modules_next_app_0jt-zj..js" defer=""></script><script src="/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_0j~flwh._.js" defer=""></script><script src="/_next/static/chunks/node_modules_react-dom_0bruynb._.js" defer=""></script><script src="/_next/static/chunks/node_modules_0lx093h._.js" defer=""></script><script src="/_next/static/chunks/%5Broot-of-the-server%5D__0c0okpg._.js" defer=""></script><script src="/_next/static/chunks/pages__app_07xvfw~._.js" defer=""></script><script src="/_next/static/chunks/turbopack-pages__app_0_wu8vy._.js" defer=""></script><script src="/_next/static/chunks/node_modules_next_dist_shared_lib_12bi_n7._.js" defer=""></script><script src="/_next/static/chunks/node_modules_next_dist_0rt-2cr._.js" defer=""></script><script src="/_next/static/chunks/%5Bnext%5D_entry_page-loader_ts_0rqw6yo._.js" defer=""></script><script src="/_next/static/chunks/%5Broot-of-the-server%5D__01mw43t._.js" defer=""></script><script src="/_next/static/chunks/pages__error_07xvfw~._.js" defer=""></script><script src="/_next/static/chunks/turbopack-pages__error_016chbq._.js" defer=""></script><script src="/_next/static/development/_buildManifest.js" defer=""></script><script src="/_next/static/development/_ssgManifest.js" defer=""></script><script src="/_next/static/development/_clientMiddlewareManifest.js" defer=""></script><noscript id="__next_css__DO_NOT_USE__"></noscript></head><body><div id="__next"></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"statusCode":500,"hostname":"localhost"}},"page":"/_error","query":{},"buildId":"development","isFallback":false,"err":{"name":"TypeError","source":"server","message":"{imported module ./nodemodules/next/dist/server/route-modules/app-page/vendored/rsc/react.js}.createContext is not a function","stack":"TypeError: {imported module ./nodemodules/next/dist/server/route-modules/app-page/vendored/rsc/react.js}.createContext is not a function\n    at module evaluation (C:\\brochures\\.next\\dev\\server\\chunks\\node_modules_@liveblocks_react_dist_chunk-DJOWOQLG_0xfc2z5.js:284:242)\n    at C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1291:27\n    at runWithHooks (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1554:9)\n    at instantiateModuleShared (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1289:9)\n    at instantiateModule (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1557:23)\n    at getOrInstantiateModuleFromParent (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1593:23)\n    at Context.esmImport [as i] (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:281:20)\n    at module evaluation (C:\\brochures\\.next\\dev\\server\\chunks\\[root-of-the-server]__11nfpvx._.js:122:194)\n    at C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1291:27\n    at runWithHooks (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1554:9)\n    at instantiateModuleShared (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1289:9)\n    at instantiateModule (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1557:23)\n    at getOrInstantiateModuleFromParent (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1593:23)\n    at Context.esmImport [as i] (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:281:20)\n    at module evaluation (C:\\brochures\\.next\\dev\\server\\chunks\\[root-of-the-server]__11nfpvx._.js:211:152)\n    at C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1291:27\n    at runWithHooks (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1554:9)\n    at instantiateModuleShared (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1289:9)\n    at instantiateModule (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1557:23)\n    at getOrInstantiateModuleFromParent (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1593:23)\n    at Context.esmImport [as i] (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:281:20)\n    at module evaluation (C:\\brochures\\.next\\dev\\server\\chunks\\node_modules_next_02w6lmz._.js:17247:176)\n    at C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1291:27\n    at runWithHooks (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1554:9)\n    at instantiateModuleShared (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1289:9)\n    at instantiateModule (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1557:23)\n    at instantiateRuntimeModule (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1564:12)\n    at getOrInstantiateRuntimeModule (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1577:12)\n    at Object.m (C:\\brochures\\.next\\dev\\server\\chunks\\[turbopack]_runtime.js:1599:18)\n    at Object.\u003canonymous\u003e (C:\\brochures\\.next\\dev\\server\\app\\api\\liveblocks-auth\\route.js:14:3)\n    at Module._compile (node:internal/modules/cjs/loader:1760:14)\n    at Object..js (node:internal/modules/cjs/loader:1893:10)\n    at Module.load (node:internal/modules/cjs/loader:1480:32)\n    at Module._load (node:internal/modules/cjs/loader:1299:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:244:24)\n    at Module.\u003canonymous\u003e (node:internal/modules/cjs/loader:1503:12)\n    at mod.require (C:\\brochures\\node_modules\\next\\dist\\server\\require-hook.js:79:28)\n    at require (node:internal/modules/helpers:152:16)\n    at requirePage (C:\\brochures\\node_modules\\next\\dist\\server\\require.js:105:80)\n    at loadComponentsImpl (C:\\brochures\\node_modules\\next\\dist\\server\\load-components.js:157:61)\n    at DevServer.findPageComponentsImpl (C:\\brochures\\node_modules\\next\\dist\\server\\next-server.js:837:77)\n    at C:\\brochures\\node_modules\\next\\dist\\server\\next-server.js:819:21\n    at C:\\brochures\\node_modules\\next\\dist\\server\\lib\\trace\\tracer.js:195:36\n    at NoopContextManager.with (C:\\brochures\\node_modules\\next\\dist\\compiled\\@opentelemetry\\api\\index.js:1:7062)\n    at ContextAPI.with (C:\\brochures\\node_modules\\next\\dist\\compiled\\@opentelemetry\\api\\index.js:1:518)\n    at NoopTracer.startActiveSpan (C:\\brochures\\node_modules\\next\\dist\\compiled\\@opentelemetry\\api\\index.js:1:18093)\n    at ProxyTracer.startActiveSpan (C:\\brochures\\node_modules\\next\\dist\\compiled\\@opentelemetry\\api\\index.js:1:18854)\n    at C:\\brochures\\node_modules\\next\\dist\\server\\lib\\trace\\tracer.js:164:103\n    at NoopContextManager.with (C:\\brochures\\node_modules\\next\\dist\\compiled\\@opentelemetry\\api\\index.js:1:7062)"},"gip":true,"scriptLoader":[]}</script></body></html> (500 returned by POST /api/liveblocks-auth)
+POST /api/liveblocks-auth 200 in 387ms (next.js: 20ms, proxy.ts: 64ms, application-code: 303ms)
+ POST /admin/brochures/M5yxdnIFfo2xsqhUyZRVGZ/edit 200 in 1661ms (next.js: 17ms, proxy.ts: 20ms, application-code: 1624ms)
+  └─ ƒ updateBrochureSettingsAction("M5yxdnIFfo2xsqhUyZRVGZ", {"accentColor":"#b76c70","backgroundColor":null,"bodyColor":null,"...":"22 items not stringified"}, "italian-grand-prix") in 1075ms src/lib/sanity/actions.ts
+saveBrochure failed: Error: Mutation failed: Document "M5yxdnIFfo2xsqhUyZRVGZ" has unexpected revision ID ("UBS0CGlpAgCmKl30x8S9mv"), expected "UBS0CGlpAgCmKl30x8R1zf":
+- Document "M5yxdnIFfo2xsqhUyZRVGZ" has unexpected revision ID ("UBS0CGlpAgCmKl30x8S9mv"), expected "UBS0CGlpAgCmKl30x8R1zf"
+    at ignore-listed frames {
+  response: {
+    body: { error: [Object] },
+    url: 'https://oo7diwt3.api.sanity.io/v2024-10-01/data/mutate/production?returnIds=true&returnDocuments=true&visibility=sync&autoGenerateArrayKeys=true',
+    method: 'POST',
+    headers: [Object: null prototype] {
+      'alt-svc': 'h3=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=utf-8',
+      date: 'Fri, 01 May 2026 00:05:05 GMT',
+      'ratelimit-limit': '50',
+      'ratelimit-remaining': '49',
+      'ratelimit-reset': '1',
+      'sanity-gateway': 'k8s-gcp-eu-w1-prod-ing-01',
+      'sanity-inflight-current': '0',
+      'sanity-inflight-limit': '100',
+      'server-timing': 'api;dur=50',
+      'strict-transport-security': 'max-age=63072000; includeSubDomains; preload',
+      traceparent: '00-5443df3d867bffe00826c434188bce5c-f077729d67b56d39-01',
+      'transfer-encoding': 'chunked',
+      vary: 'Accept-Encoding, origin',
+      via: '1.1 google',
+      'x-ratelimit-limit-second': '50',
+      'x-ratelimit-remaining-second': '49',
+      'x-sanity-shard': 'gcp-eu-w1-01-prod-1019',
+      'x-served-by': 'gradient-web-68b5d9bd-lgndf',
+      xkey: 'project-oo7diwt3, project-oo7diwt3-production'
+    },
+    statusCode: 409,
+    statusMessage: 'Conflict'
+  },
+  statusCode: 409,
+  responseBody: '{\n' +
+    '  "error": {\n' +
+    '    "description": "Mutation failed: Document \\"M5yxdnIFfo2xsqhUyZRVGZ\\" has unexpected revision ID (\\"UBS0CGlpAgCmKl30x8S9mv\\"), expected \\"UBS0CGlpAgCmKl30x8R1zf\\"",\n' +
+    '    "items": [\n' +
+    '      {\n' +
+    '        "error": {\n' +
+    '          "currentRevisionID": "UBS0CGlpAgCmKl30x8S9mv",\n' +
+    '          "description": "Document \\"M5yxdnIFfo2xsqhUyZRVGZ\\" has unexpected revision ID (\\"UBS0CGlpAgCmKl30x8S9mv\\"), expected \\"UBS0CGlpAgCmKl30x8R1zf\\"",\n' +
+    '          "expectedRevisionID": "UBS0CGlpAgCmKl30x8R1zf",\n' +
+    '          "type": "documentRevisionIDDoesNotMatchError"\n' +
+    '        },\n' +
+    '        "index": 0\n' +
+    '      }\n' +
+    '    ],\n' +
+    '    "type": "mutationError"\n' +
+    '  }\n' +
+    '}',
+  details: {
+    description: 'Mutation failed: Document "M5yxdnIFfo2xsqhUyZRVGZ" has unexpected revision ID ("UBS0CGlpAgCmKl30x8S9mv"), expected "UBS0CGlpAgCmKl30x8R1zf"',
+    items: [ [Object] ],
+    type: 'mutationError'
+  }
+}
+ POST /admin/brochures/M5yxdnIFfo2xsqhUyZRVGZ/edit 200 in 526ms (next.js: 13ms, proxy.ts: 22ms, application-code: 491ms)
+  └─ ƒ saveBrochureAction("M5yxdnIFfo2xsqhUyZRVGZ", {"accentColor":"#b76c70","customColors":["[Object]","[Object]"],"event":"Italian Grand Prix","...":"8 items not stringified"}, "UBS0CGlpAgCmKl30x8R1zf") in 479ms src/lib/sanity/actions.ts
+ POST /admin/brochures/M5yxdnIFfo2xsqhUyZRVGZ/edit 200 in 1871ms (next.js: 23ms, proxy.ts: 17ms, application-code: 1831ms)
+  └─ ƒ updateBrochureSettingsAction("M5yxdnIFfo2xsqhUyZRVGZ", {"accentColor":null,"backgroundColor":null,"bodyColor":null,"...":"22 items not stringified"}, "italian-grand-prix") in 1124ms src/lib/sanity/actions.ts

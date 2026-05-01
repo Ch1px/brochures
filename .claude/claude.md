@@ -377,6 +377,7 @@ Logged in `README.md`'s "deliberately skipped" list. Summary:
 - **Analytics**: No Plausible integration. Per the architecture plan, event hooks go into `BrochureReader` for page-flip tracking and into the enquiry modal for conversion tracking.
 - **Font extraction**: Fonts are base64 in globals.css; extracting to `/public/fonts/*.woff2` + `next/font/local` would reduce the CSS bundle from ~447KB to ~30KB. Not blocking.
 - **Section-type switch UI**: Once a section is added, its `_type` is fixed. No "convert Cover to Cover Centered" action — user deletes and re-adds. Probably fine; don't build unless asked.
+- **AI generation — revisit the model**: The `Generate` entry point and `AiGenerateModal` were temporarily removed from the brochures page header (button + state + modal mount in `AdminLibraryClient.tsx`) because the underlying generation quality wasn't where we wanted it. The component file (`src/components/admin/AiGenerateModal.tsx`) and the server-side generator (`src/lib/ai/generator.ts`) are still on disk untouched. When revisiting: pick a stronger model, evaluate prompt+schema fit, then re-mount the button. No data-model changes needed.
 
 ## Design-source fidelity
 

@@ -174,7 +174,7 @@ export type BrochureSettingsUpdate = {
 export async function updateBrochureSettings(
   id: string,
   updates: BrochureSettingsUpdate
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; rev: string } | { ok: false; error: string }> {
   try {
     if (updates.slug !== undefined) {
       const slug = updates.slug.trim()
@@ -310,8 +310,8 @@ export async function updateBrochureSettings(
     let tx = sanityWriteClient.patch(id)
     if (Object.keys(patch).length > 0) tx = tx.set(patch)
     if (unset.length > 0) tx = tx.unset(unset)
-    await tx.commit()
-    return { ok: true }
+    const doc = await tx.commit<{ _rev: string }>()
+    return { ok: true, rev: doc._rev }
   } catch (err) {
     console.error('updateBrochureSettings failed:', err)
     return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
@@ -322,14 +322,14 @@ export async function updateBrochureSettings(
 export async function setBrochureStatus(
   id: string,
   status: 'draft' | 'published' | 'unpublished' | 'archived'
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; rev: string } | { ok: false; error: string }> {
   try {
     const patch = sanityWriteClient.patch(id).set({ status })
     if (status === 'published') {
       patch.setIfMissing({ publishedAt: new Date().toISOString() })
     }
-    await patch.commit()
-    return { ok: true }
+    const doc = await patch.commit<{ _rev: string }>()
+    return { ok: true, rev: doc._rev }
   } catch (err) {
     console.error('setBrochureStatus failed:', err)
     return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }
@@ -342,7 +342,7 @@ export async function setBrochureStatus(
  * Unsets `featured` on other brochures sharing the same scope as the target,
  * leaving brochures on other hosts untouched.
  */
-export async function setFeaturedBrochure(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function setFeaturedBrochure(id: string): Promise<{ ok: true; rev: string } | { ok: false; error: string }> {
   try {
     const target = await sanityWriteClient.fetch<{ company?: { _ref: string } } | null>(
       `*[_type == "brochure" && _id == $id][0]{ company }`,
@@ -362,7 +362,13 @@ export async function setFeaturedBrochure(id: string): Promise<{ ok: true } | { 
     for (const o of others) tx.patch(o._id, { set: { featured: false } })
     tx.patch(id, { set: { featured: true } })
     await tx.commit()
-    return { ok: true }
+    // Re-read just the target's rev — transaction.commit() doesn't return per-doc revs.
+    const refreshed = await sanityWriteClient.fetch<{ _rev: string } | null>(
+      `*[_id == $id][0]{ _rev }`,
+      { id }
+    )
+    if (!refreshed) return { ok: false, error: 'Brochure vanished after featuring' }
+    return { ok: true, rev: refreshed._rev }
   } catch (err) {
     console.error('setFeaturedBrochure failed:', err)
     return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' }

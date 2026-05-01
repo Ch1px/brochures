@@ -45,8 +45,8 @@ type Props = {
    *  case the presence avatar stack is omitted. */
   liveblocksEnabled: boolean
   onTitleChange: (title: string) => void
-  onStatusChange: (status: BrochureStatus) => void
-  onFeatureChange: (featured: boolean) => void
+  onStatusChange: (status: BrochureStatus, rev?: string) => void
+  onFeatureChange: (featured: boolean, rev?: string) => void
   onThemeChange: (theme: BrochureTheme) => void
   onOpenSettings: () => void
 }
@@ -105,14 +105,14 @@ export function EditorTopbar({ brochure, companies, saveStatus, liveblocksEnable
     setStatusMenu(false)
     startTransition(async () => {
       const res = await setBrochureStatusAction(brochure._id, next, brochure.slug.current)
-      if (res.ok) onStatusChange(next)
+      if (res.ok) onStatusChange(next, res.rev)
     })
   }
 
   function handleFeature() {
     startTransition(async () => {
       const res = await setFeaturedBrochureAction(brochure._id)
-      if (res.ok) onFeatureChange(true)
+      if (res.ok) onFeatureChange(true, res.rev)
     })
   }
 

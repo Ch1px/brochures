@@ -189,7 +189,7 @@ export async function updateBrochureSettingsAction(
   id: string,
   updates: BrochureSettingsUpdate,
   previousSlug?: string
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; rev: string } | { ok: false; error: string }> {
   await assertAdmin()
   const result = await updateBrochureSettingsMutation(id, updates)
   if (result.ok) {
