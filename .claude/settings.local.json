@@ -55,7 +55,9 @@
       "Bash(awk 'NR==30,/===== BROCHURE PAGE STYLES/{print NR\": \"$0}' \"C:/brochures/src/app/globals.css\")",
       "Bash(awk 'NR>=70 && NR<=120' \"C:/brochures/src/app/globals.css\")",
       "WebFetch(domain:github.com)",
-      "Bash(grep -rn \"\\\\\\\\-\\\\\\\\-page-bg\" src/ schemas/)"
+      "Bash(grep -rn \"\\\\\\\\-\\\\\\\\-page-bg\" src/ schemas/)",
+      "Bash(awk 'NR<=3 || NR==6065' \"C:/gpgt-brochures/src/app/globals.css\")",
+      "Bash(awk NR==1 || NR==2 {print NR\": \"$0} *)"
     ]
   }
 }

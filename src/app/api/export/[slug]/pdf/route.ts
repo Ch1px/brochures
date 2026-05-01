@@ -128,8 +128,21 @@ export async function GET(req: Request, { params }: RouteContext) {
         if (!w || w > PDF_MAX_IMAGE_WIDTH) {
           u.searchParams.set('w', String(PDF_MAX_IMAGE_WIDTH))
         }
-        u.searchParams.set('q', String(PDF_IMAGE_QUALITY))
-        u.searchParams.set('fm', 'jpg')
+        // Source format is the Sanity asset extension in the URL path
+        // (e.g. `/images/{project}/{dataset}/{assetId}.png`). PNGs may
+        // carry a transparent alpha channel — forcing `fm=jpg` flattens
+        // that to black, which shows up as a square black backdrop on
+        // logos and cut-out artwork. Preserve PNG sources as PNG; coerce
+        // JPG/WebP/AVIF/etc. to JPG so Chromium embeds them without
+        // re-encoding (the dominant size lever).
+        const isPng = /\.png(\?|$)/i.test(u.pathname)
+        if (isPng) {
+          u.searchParams.set('fm', 'png')
+          u.searchParams.delete('q')
+        } else {
+          u.searchParams.set('q', String(PDF_IMAGE_QUALITY))
+          u.searchParams.set('fm', 'jpg')
+        }
 
         const upstream = await fetch(u.toString())
         if (!upstream.ok) {
