@@ -151,6 +151,13 @@ export const GalleryGridSchema = z.object({
   background,
 })
 
+export const GalleryTrioSchema = z.object({
+  _type: z.literal('galleryTrio'),
+  eyebrow: z.string(),
+  title: z.string(),
+  background,
+})
+
 export const GalleryDuoSchema = z.object({
   _type: z.literal('galleryDuo'),
   eyebrow: z.string(),
@@ -220,6 +227,79 @@ export const TextCenterSchema = z.object({
   background,
 })
 
+export const CtaBannerSchema = z.object({
+  _type: z.literal('ctaBanner'),
+  eyebrow: z.string().optional(),
+  title: z.string(),
+  body: z.string(),
+  ctaText: z.string(),
+  ctaHref: z.string().describe('Usually "#enquire" or a full URL'),
+  background,
+})
+
+export const LinkedCardsSchema = z.object({
+  _type: z.literal('linkedCards'),
+  eyebrow: z.string().optional(),
+  title: z.string(),
+  cards: z
+    .array(
+      z.object({
+        title: z.string(),
+        text: z.string(),
+        linkText: z.string().describe('Short link label, e.g. "Take me there"'),
+        linkHref: z.string().describe('Anchor link or full URL'),
+      })
+    )
+    .describe('2–4 cards. Each links to its own destination.'),
+  background,
+})
+
+export const FaqSchema = z.object({
+  _type: z.literal('faq'),
+  eyebrow: z.string().optional(),
+  title: z.string(),
+  subtitle: z.string().optional(),
+  questions: z
+    .array(
+      z.object({
+        question: z.string(),
+        answer: z.string().describe('1–3 sentence answer'),
+      })
+    )
+    .describe('2–6 questions. Real, useful, brochure-relevant — not generic.'),
+  background,
+})
+
+export const LogoWallSchema = z.object({
+  _type: z.literal('logoWall'),
+  eyebrow: z.string().optional(),
+  title: z.string(),
+  subtitle: z.string().optional(),
+  logos: z
+    .array(z.object({ name: z.string().describe('Brand name. Used as alt text.') }))
+    .describe('Up to 24 partner / sponsor / supplier names. Admin uploads logo images later.'),
+  background,
+})
+
+export const LogoStripSchema = z.object({
+  _type: z.literal('logoStrip'),
+  eyebrow: z.string().optional(),
+  title: z.string(),
+  subtitle: z.string().optional(),
+  logos: z
+    .array(z.object({ name: z.string().describe('Brand name. Used as alt text.') }))
+    .describe('Up to 12 partner / sponsor / supplier names. Admin uploads logo images later.'),
+  background,
+})
+
+export const FooterSchema = z.object({
+  _type: z.literal('footer'),
+  legal: z.string().describe('Copyright / legal line, e.g. "© 2026 Grand Prix Grand Tours"'),
+  email: z.string(),
+  phone: z.string(),
+  background,
+})
+
 // --- Union & root ---
 
 export const SectionSchema = z.discriminatedUnion('_type', [
@@ -234,6 +314,7 @@ export const SectionSchema = z.discriminatedUnion('_type', [
   ItinerarySchema,
   GalleryEditorialSchema,
   GalleryGridSchema,
+  GalleryTrioSchema,
   GalleryDuoSchema,
   GalleryHeroSchema,
   QuoteProfileSchema,
@@ -241,6 +322,12 @@ export const SectionSchema = z.discriminatedUnion('_type', [
   CircuitMapSchema,
   SpotlightSchema,
   TextCenterSchema,
+  CtaBannerSchema,
+  LinkedCardsSchema,
+  FaqSchema,
+  LogoWallSchema,
+  LogoStripSchema,
+  FooterSchema,
 ])
 
 export const PageSchema = z.object({

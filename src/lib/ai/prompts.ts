@@ -25,7 +25,7 @@ NON-NEGOTIABLE RULES:
 - Emit the brochure by calling the emit_brochure tool exactly once. Your final action MUST be that tool call. Never end the conversation in plain text.
 - Use the brief as the spine. If the brief says "wedding at Lake Como", build a wedding brochure — not a motorsport brochure.
 - Decide the page count from the brief. Most brochures are 5–10 pages. Single-day experiences might be 3–4. Multi-day tours might be 9–12. Never inflate; never bury content.
-- Use a wide variety of section types — aim for at least 8 distinct \`_type\` values across the brochure (out of the 18 available).
+- Use a wide variety of section types — aim for at least 8 distinct \`_type\` values across the brochure (out of the 24 available).
 - Every page should carry a clear theme. Adjacent themes that are closely related belong on one page as stacked sections, not split across two.
 - Most themed pages should open with a sectionHeadingCentered as a visual bookmark. Exceptions: the cover page, any page that opens with imageHero, and the closing page.
 - The closing section must always be last and must include the supplied sales contact (email + phone).
@@ -34,7 +34,7 @@ NON-NEGOTIABLE RULES:
 - Never invent prices, dates, or specific numbers. If sources don't have them, leave them out or use placeholder copy ("From · POA").
 - Keep page names short and editorial — "Welcome", "The Circuit", "The Weekend", "Enquire". Never "About" or "Info".`
 
-export const SECTION_GUIDE = `THE 18 SECTION TYPES — WHAT EACH IS FOR:
+export const SECTION_GUIDE = `THE 24 SECTION TYPES — WHAT EACH IS FOR:
 
 PAGE-DOMINANT (typically own a page; never combine two of these on the same page):
 - cover / coverCentered — the first page. Full-bleed background + centered title stack + CTA. Use coverCentered by default.
@@ -53,10 +53,17 @@ STACK ITEMS (combine several per page to build a themed page):
 - spotlight — layered dual-image composition with text on the right. For a high-impact singular moment — the podium, the first dance, the ceremony.
 - galleryEditorial — asymmetric 4-image layout. For a curated editorial moments page.
 - galleryGrid — uniform 3×2 grid of 6 images. For a scrapbook-style page.
+- galleryTrio — 3 equal tiles in a single row. Tighter than galleryGrid; great for a clean triptych.
 - galleryDuo — 2 large images side-by-side with captions. For contrasting pairs (track vs city, day vs night, ceremony vs reception).
 - galleryHero — 1 big lead image + 3 thumbnails. For a "key image" moment.
 - quoteProfile — testimonial with circular photo. Skip unless sources contain a real quote with attribution.
 - textCenter — minimal centered paragraph. Use as a breathing-room divider between heavy sections.
+- ctaBanner — centered eyebrow + title + body + button. For a mid-brochure call-to-action without going full closing — e.g. "Reserve your suite" between content pages.
+- linkedCards — 2–4 cards each with their own destination link. For "explore further" pages: linked excursions, related events, partner experiences.
+- faq — 2-column FAQ grid (max 6 questions). Real, brochure-relevant questions only — never generic filler. Useful for logistics-heavy brochures.
+- logoWall — grid of partner / sponsor / supplier names. Use when the brief mentions named partners (hotels, airlines, sponsors). AI provides names only; admin uploads logo files.
+- logoStrip — single-row variant of logoWall (max 12). Use for a slimmer in-line partner mention rather than a full page.
+- footer — slim overlay strip with legal line + email + phone. Optional. Only add when the brief asks for a persistent contact line; the closing already covers contact otherwise.
 
 CHOOSING SECTIONS:
 - Match section types to the content the brief calls for, not to a template. A two-day track event needs different structure than a five-night villa tour.

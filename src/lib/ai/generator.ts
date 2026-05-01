@@ -5,7 +5,14 @@ import { BrochureOutputSchema, type AiBrochureOutput, type AiSection } from './s
 import { buildSystemBlocks, buildUserMessage } from './prompts'
 import { sanityWriteClient } from '../sanity/client'
 import { nanokey } from '../nanokey'
-import type { Page, Section } from '@/types/brochure'
+import type { Page } from '@/types/brochure'
+
+// Local relaxed type for AI-hydrated sections. Image fields on the runtime
+// `Section` union are required for some variants (imageHero, galleries etc.)
+// but the AI never fills them — admins upload images after generation. Using
+// the strict union here forced `as Section` casts everywhere, which Turbopack
+// 16 was leaking into the runtime bundle as a "Section is not defined" error.
+type HydratedSection = { _key: string; _type: string } & Record<string, unknown>
 
 /**
  * End-to-end: free-form admin brief → Claude Opus 4.7 (with web_search +
@@ -227,10 +234,10 @@ function hydratePages(aiPages: AiBrochureOutput['pages']): Page[] {
     _key: nanokey(),
     name: page.name,
     sections: page.sections.map(hydrateSection),
-  }))
+  })) as unknown as Page[]
 }
 
-function hydrateSection(s: AiSection): Section {
+function hydrateSection(s: AiSection): HydratedSection {
   const _key = nanokey()
   switch (s._type) {
     case 'cover':
@@ -247,7 +254,7 @@ function hydrateSection(s: AiSection): Section {
         cta: s.cta,
         ref: s.ref,
         background: s.background,
-      } as Section
+      }
     case 'intro':
       return {
         _key,
@@ -258,7 +265,7 @@ function hydrateSection(s: AiSection): Section {
         body: s.body,
         caption: s.caption,
         background: s.background,
-      } as Section
+      }
     case 'contentImage':
     case 'imageContent':
       return {
@@ -269,7 +276,7 @@ function hydrateSection(s: AiSection): Section {
         body: s.body,
         caption: s.caption,
         background: s.background,
-      } as Section
+      }
     case 'sectionHeading':
     case 'sectionHeadingCentered':
       return {
@@ -279,7 +286,7 @@ function hydrateSection(s: AiSection): Section {
         title: s.title,
         text: s.text,
         background: s.background,
-      } as Section
+      }
     case 'features':
       return {
         _key,
@@ -293,7 +300,7 @@ function hydrateSection(s: AiSection): Section {
           text: c.text,
         })),
         background: s.background,
-      } as Section
+      }
     case 'imageHero':
       return {
         _key,
@@ -302,7 +309,7 @@ function hydrateSection(s: AiSection): Section {
         title: s.title,
         text: s.text,
         background: s.background,
-      } as Section
+      }
     case 'stats':
       return {
         _key,
@@ -333,7 +340,7 @@ function hydrateSection(s: AiSection): Section {
           features: p.features,
         })),
         background: s.background,
-      } as Section
+      }
     case 'itinerary':
       return {
         _key,
@@ -354,7 +361,7 @@ function hydrateSection(s: AiSection): Section {
         _type: 'galleryEditorial',
         title: s.title,
         background: s.background,
-      } as Section
+      }
     case 'galleryGrid':
       return {
         _key,
@@ -362,7 +369,15 @@ function hydrateSection(s: AiSection): Section {
         eyebrow: s.eyebrow,
         title: s.title,
         background: s.background,
-      } as Section
+      }
+    case 'galleryTrio':
+      return {
+        _key,
+        _type: 'galleryTrio',
+        eyebrow: s.eyebrow,
+        title: s.title,
+        background: s.background,
+      }
     case 'galleryDuo':
       return {
         _key,
@@ -371,7 +386,7 @@ function hydrateSection(s: AiSection): Section {
         title: s.title,
         captions: s.captions,
         background: s.background,
-      } as Section
+      }
     case 'galleryHero':
       return {
         _key,
@@ -380,7 +395,7 @@ function hydrateSection(s: AiSection): Section {
         title: s.title,
         caption: s.caption,
         background: s.background,
-      } as Section
+      }
     case 'quoteProfile':
       return {
         _key,
@@ -390,7 +405,7 @@ function hydrateSection(s: AiSection): Section {
         quote: s.quote,
         body: s.body,
         background: s.background,
-      } as Section
+      }
     case 'closing':
       return {
         _key,
@@ -429,7 +444,7 @@ function hydrateSection(s: AiSection): Section {
         body: s.body,
         caption: s.caption,
         background: s.background,
-      } as Section
+      }
     case 'textCenter':
       return {
         _key,
@@ -437,6 +452,69 @@ function hydrateSection(s: AiSection): Section {
         eyebrow: s.eyebrow,
         title: s.title,
         body: s.body,
+        background: s.background,
+      }
+    case 'ctaBanner':
+      return {
+        _key,
+        _type: 'ctaBanner',
+        eyebrow: s.eyebrow,
+        title: s.title,
+        body: s.body,
+        ctaText: s.ctaText,
+        ctaHref: s.ctaHref,
+        background: s.background,
+      }
+    case 'linkedCards':
+      return {
+        _key,
+        _type: 'linkedCards',
+        eyebrow: s.eyebrow,
+        title: s.title,
+        cards: s.cards.map((c) => ({
+          _key: nanokey(),
+          title: c.title,
+          text: c.text,
+          linkText: c.linkText,
+          linkHref: c.linkHref,
+        })),
+        background: s.background,
+      }
+    case 'faq':
+      return {
+        _key,
+        _type: 'faq',
+        eyebrow: s.eyebrow,
+        title: s.title,
+        subtitle: s.subtitle,
+        questions: s.questions.map((q) => ({
+          _key: nanokey(),
+          question: q.question,
+          answer: q.answer,
+        })),
+        background: s.background,
+      }
+    case 'logoWall':
+    case 'logoStrip':
+      return {
+        _key,
+        _type: s._type,
+        eyebrow: s.eyebrow,
+        title: s.title,
+        subtitle: s.subtitle,
+        logos: s.logos.map((l) => ({
+          _key: nanokey(),
+          name: l.name,
+        })),
+        background: s.background,
+      }
+    case 'footer':
+      return {
+        _key,
+        _type: 'footer',
+        legal: s.legal,
+        email: s.email,
+        phone: s.phone,
         background: s.background,
       }
   }
