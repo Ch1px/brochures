@@ -449,7 +449,7 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
         duplicateFrom={duplicateSource ?? undefined}
         companies={companyOptions}
       />
-      <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} />
+      <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} companies={companyOptions} />
     </>
   )
 }

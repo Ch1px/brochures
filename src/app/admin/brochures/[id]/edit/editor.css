@@ -3476,3 +3476,76 @@
   justify-content: flex-end;
 }
 
+/* ── Dictation textarea (Web Speech API) ──────────────────────────────── */
+
+.field-dictate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.field-dictate-header .field-label {
+  margin-bottom: 0;
+}
+
+.field-dictate-textarea.is-listening {
+  border-color: var(--brand-red);
+  box-shadow: 0 0 0 1px var(--brand-red-glow, rgba(207, 33, 42, 0.35));
+}
+
+.field-dictate-mic {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--chrome-border);
+  background: var(--chrome-raised);
+  color: var(--chrome-text-secondary);
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 120ms, border-color 120ms, background 120ms, box-shadow 120ms;
+}
+
+.field-dictate-mic:hover {
+  color: var(--brand-red);
+  border-color: var(--brand-red);
+}
+
+.field-dictate-mic.is-active {
+  color: #fff;
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  animation: field-dictate-pulse 1.4s ease-in-out infinite;
+}
+
+.field-dictate-mic.is-polishing {
+  color: var(--brand-red);
+  border-color: var(--brand-red);
+  background: var(--chrome-raised);
+  cursor: progress;
+}
+
+.field-dictate-mic.is-polishing svg {
+  animation: field-dictate-spark 1.2s ease-in-out infinite;
+}
+
+@keyframes field-dictate-spark {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes field-dictate-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(207, 33, 42, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(207, 33, 42, 0);
+  }
+}
+

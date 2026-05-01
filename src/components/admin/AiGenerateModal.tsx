@@ -3,10 +3,15 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { generateBrochureAction } from '@/lib/sanity/actions'
+import { FieldDictateTextarea } from './fields/FieldDictateTextarea'
+
+type CompanyOption = { _id: string; name: string; domain: string }
 
 type Props = {
   open: boolean
   onClose: () => void
+  /** Available host companies for the picker. */
+  companies?: CompanyOption[]
 }
 
 type Status =
@@ -27,12 +32,13 @@ const BRIEF_PLACEHOLDER = `e.g. 4-day luxury hospitality experience for the Span
  * reference URLs and hands them to Claude. The brief drives page structure;
  * Claude decides section types and copy. Redirects to the editor on success.
  */
-export function AiGenerateModal({ open, onClose }: Props) {
+export function AiGenerateModal({ open, onClose, companies = [] }: Props) {
   const router = useRouter()
   const [event, setEvent] = useState('')
   const [season, setSeason] = useState('2026')
   const [brief, setBrief] = useState('')
   const [urls, setUrls] = useState<string[]>([''])
+  const [companyId, setCompanyId] = useState('')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const [pending, startTransition] = useTransition()
 
@@ -42,6 +48,7 @@ export function AiGenerateModal({ open, onClose }: Props) {
       setSeason('2026')
       setBrief('')
       setUrls([''])
+      setCompanyId('')
       setStatus({ kind: 'idle' })
     }
   }, [open])
@@ -77,6 +84,7 @@ export function AiGenerateModal({ open, onClose }: Props) {
           prompt: trimmedBrief,
           sources: trimmedUrls.length ? trimmedUrls : undefined,
         },
+        companyId: companyId || undefined,
       })
       if (res.ok) {
         setStatus({ kind: 'success', id: res.id, slug: res.slug, usage: res.usage })
@@ -143,22 +151,15 @@ export function AiGenerateModal({ open, onClose }: Props) {
             </div>
           </div>
 
-          <div className="field-group">
-            <label className="field-label">Brief</label>
-            <div className="field-description">
-              What this brochure is for, who it's for, the tone, the must-haves. Claude decides the page
-              structure from this — be specific.
-            </div>
-            <textarea
-              className="field-input"
-              value={brief}
-              onChange={(e) => setBrief(e.target.value)}
-              placeholder={BRIEF_PLACEHOLDER}
-              rows={8}
-              disabled={pending}
-              style={{ resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }}
-            />
-          </div>
+          <FieldDictateTextarea
+            label="Brief"
+            description="What this brochure is for, who it's for, the tone, the must-haves. Claude decides the page structure from this — be specific. Click Dictate to speak it instead of typing."
+            value={brief}
+            onChange={setBrief}
+            placeholder={BRIEF_PLACEHOLDER}
+            rows={8}
+            disabled={pending}
+          />
 
           <div className="field-group">
             <label className="field-label">Reference URLs (optional)</label>
@@ -204,14 +205,37 @@ export function AiGenerateModal({ open, onClose }: Props) {
             ) : null}
           </div>
 
+          {companies.length > 0 ? (
+            <div className="field-group">
+              <label className="field-label">Host company</label>
+              <div className="field-description">
+                Determines which domain serves this brochure. Leave on{' '}
+                <em>Grand Prix Grand Tours</em> to host on the main GPGT domain.
+              </div>
+              <select
+                className="field-input field-select"
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+                disabled={pending}
+              >
+                <option value="">Grand Prix Grand Tours (brochures.grandprixgrandtours.com)</option>
+                {companies.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} — {c.domain}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+
           {status.kind === 'error' ? <div className="field-error">{status.message}</div> : null}
           {status.kind === 'generating' ? (
             <div
               style={{
                 marginTop: 14,
                 padding: 12,
-                background: 'rgba(225,6,0,0.08)',
-                border: '1px solid rgba(225,6,0,0.35)',
+                background: 'rgba(0, 71, 225, 0.08)',
+                border: '1px solid rgba(0, 60, 225, 0.35)',
                 borderRadius: 4,
                 fontSize: 12,
                 color: 'rgba(255,255,255,0.85)',

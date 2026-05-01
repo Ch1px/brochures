@@ -27,6 +27,7 @@ import { addDomain, removeDomain, getDomainConfig, type DomainConfig } from '@/l
 import { signPreviewToken } from '../previewToken'
 import { generateBrochure, type GenerateInput, type GenerateUsage } from '../ai/generator'
 import { generateField, type GenerateFieldInput } from '../ai/fieldGenerator'
+import { polishDictation } from '../ai/dictationPolisher'
 import type { Brochure, SanityImage, SanityFile } from '@/types/brochure'
 
 /**
@@ -380,6 +381,13 @@ export async function generateFieldAction(
   await assertAdmin()
   const { brochureId: _brochureId, ...rest } = input
   return generateField(rest)
+}
+
+export async function polishDictationAction(
+  rawText: string
+): Promise<{ ok: true; value: string } | { ok: false; error: string }> {
+  await assertAdmin()
+  return polishDictation(rawText)
 }
 
 // ── Company actions ────────────────────────────────────────────────────

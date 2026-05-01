@@ -16,6 +16,7 @@ import {
 } from '@/lib/fontPalette'
 import { FieldInput } from './fields/FieldInput'
 import { FieldTextarea } from './fields/FieldTextarea'
+import { FieldDictateTextarea } from './fields/FieldDictateTextarea'
 import { FieldBoolean } from './fields/FieldBoolean'
 import { FieldSelect } from './fields/FieldSelect'
 import { FieldColor } from './fields/FieldColor'
@@ -862,9 +863,9 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
 
             {activeTab === 'ai' && (
               <>
-                <FieldTextarea
+                <FieldDictateTextarea
                   label="Brief"
-                  description="The free-form context the AI used to generate this brochure. Edit it to refine per-field AI assists. The brief is the single source of truth for tone, audience, must-haves and constraints."
+                  description="The free-form context the AI used to generate this brochure. Edit it to refine per-field AI assists. The brief is the single source of truth for tone, audience, must-haves and constraints. Click Dictate to speak it instead of typing."
                   value={briefPrompt}
                   onChange={setBriefPrompt}
                   rows={10}

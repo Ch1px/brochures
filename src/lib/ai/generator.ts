@@ -33,7 +33,11 @@ type HydratedSection = { _key: string; _type: string } & Record<string, unknown>
  */
 
 const MODEL = 'claude-sonnet-4-6'
-const MAX_TOKENS = 16000
+// Output budget. Sized to fit thinking + web_search rounds + the final
+// emit_brochure tool call. 16K was too tight: thinking + 3 search rounds
+// regularly hit the cap before the tool call landed, and we'd fall through
+// to the "did not call emit_brochure" error path.
+const MAX_TOKENS = 32000
 const TOOL_NAME = 'emit_brochure'
 const WEB_SEARCH_MAX_USES = 3
 
@@ -60,6 +64,8 @@ export type GenerateInput = {
   }
   salesEmail?: string
   salesPhone?: string
+  /** Optional host-company reference. Empty/undefined hosts on the GPGT domain. */
+  companyId?: string
 }
 
 export type GenerateUsage = {
@@ -118,11 +124,16 @@ export async function generateBrochure(input: GenerateInput): Promise<GenerateRe
 
     if (!toolUse) {
       const refusal = chosen.response.content.find((b) => b.type === 'text')
+      const stopReason = chosen.response.stop_reason ?? 'unknown'
+      const refusalText =
+        refusal && 'text' in refusal ? `: ${refusal.text.slice(0, 300)}` : ''
+      const hint =
+        stopReason === 'max_tokens'
+          ? ' — output budget reached before the tool call. Try shortening the brief or fewer reference URLs.'
+          : ''
       return {
         ok: false,
-        error: `Claude did not call ${TOOL_NAME}${
-          refusal && 'text' in refusal ? `: ${refusal.text.slice(0, 300)}` : ''
-        }`,
+        error: `Claude did not call ${TOOL_NAME} (stop_reason: ${stopReason})${refusalText}${hint}`,
       }
     }
 
@@ -170,6 +181,9 @@ export async function generateBrochure(input: GenerateInput): Promise<GenerateRe
         sources: sources.length ? sources : undefined,
         generatedAt: new Date().toISOString(),
       },
+      ...(input.companyId
+        ? { company: { _type: 'reference', _ref: input.companyId } }
+        : {}),
       pages,
     })
     return {
@@ -193,29 +207,38 @@ async function callClaude(
   isRetry: boolean
 ): Promise<{ response: Anthropic.Message }> {
   const reminder = isRetry
-    ? '\n\nIMPORTANT: Your previous response did not call the emit_brochure tool. You MUST call emit_brochure now with the full brochure as a single tool invocation. Do not respond with plain text.'
+    ? '\n\nIMPORTANT: Your previous response did not call the emit_brochure tool. You MUST call emit_brochure now with the full brochure as a single tool invocation. Do not respond with plain text. Do not perform additional research — work with what you have and emit the brochure now.'
     : ''
+
+  // First attempt: tool_choice 'auto' so the model can web_search for facts
+  // before emitting. Retry: force the emit tool and drop web_search entirely
+  // so we can't burn another long round on research — emit from what we have.
+  const tools: Anthropic.Tool[] = [
+    {
+      name: TOOL_NAME,
+      description:
+        'Emit the completed brochure. Call this exactly once with the full pages array.',
+      input_schema: BROCHURE_TOOL_INPUT_SCHEMA as Anthropic.Tool.InputSchema,
+    },
+  ]
+  if (!isRetry) {
+    tools.push({
+      type: 'web_search_20250305',
+      name: 'web_search',
+      max_uses: WEB_SEARCH_MAX_USES,
+    } as unknown as Anthropic.Tool)
+  }
 
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
     thinking: { type: 'adaptive' },
-    output_config: { effort: 'high' },
+    output_config: { effort: 'medium' },
     system: buildSystemBlocks(),
-    tools: [
-      {
-        name: TOOL_NAME,
-        description:
-          'Emit the completed brochure. Call this exactly once with the full pages array.',
-        input_schema: BROCHURE_TOOL_INPUT_SCHEMA as Anthropic.Tool.InputSchema,
-      },
-      {
-        type: 'web_search_20250305',
-        name: 'web_search',
-        max_uses: WEB_SEARCH_MAX_USES,
-      } as unknown as Anthropic.Tool,
-    ],
-    tool_choice: { type: 'auto' },
+    tools,
+    tool_choice: isRetry
+      ? { type: 'tool', name: TOOL_NAME }
+      : { type: 'auto' },
     messages: [{ role: 'user', content: userMessage + reminder }],
   })
   return { response }
