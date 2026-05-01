@@ -20,6 +20,7 @@ export function LinkedCardsEditor({ section, onChange }: Props) {
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="Explore"
+          aiAssist={{ field: 'eyebrow', sectionType: 'linkedCards', sectionContext: section }}
         />
         <FieldInput
           label="Title"
@@ -27,6 +28,7 @@ export function LinkedCardsEditor({ section, onChange }: Props) {
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="Other Experiences"
+          aiAssist={{ field: 'title', sectionType: 'linkedCards', sectionContext: section }}
         />
       </div>
 

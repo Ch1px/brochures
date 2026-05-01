@@ -20,6 +20,7 @@ export function FaqEditor({ section, onChange }: Props) {
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="Good to know"
+          aiAssist={{ field: 'eyebrow', sectionType: 'faq', sectionContext: section }}
         />
         <FieldInput
           label="Title"
@@ -27,6 +28,7 @@ export function FaqEditor({ section, onChange }: Props) {
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="Frequently asked"
+          aiAssist={{ field: 'title', sectionType: 'faq', sectionContext: section }}
         />
       </div>
       <FieldRichText

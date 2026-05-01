@@ -19,6 +19,7 @@ export function StatsEditor({ section, onChange }: Props) {
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="By the numbers"
+          aiAssist={{ field: 'eyebrow', sectionType: 'stats', sectionContext: section }}
         />
         <FieldInput
           label="Title"
@@ -26,6 +27,7 @@ export function StatsEditor({ section, onChange }: Props) {
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="Key Facts"
+          aiAssist={{ field: 'title', sectionType: 'stats', sectionContext: section }}
         />
       </div>
       <FieldObjectArray<StatItem>

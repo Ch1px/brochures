@@ -38,6 +38,7 @@ export function GalleryDuoEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="Discover"
+        aiAssist={{ field: 'eyebrow', sectionType: 'galleryDuo', sectionContext: section }}
       />
       <FieldInput
         label="Title"
@@ -45,6 +46,7 @@ export function GalleryDuoEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
         placeholder="Two perspectives"
+        aiAssist={{ field: 'title', sectionType: 'galleryDuo', sectionContext: section }}
       />
 
       <div className="field-section-heading">Images</div>

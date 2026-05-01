@@ -29,6 +29,7 @@ export function CoverEditor({ section, onChange }: Props) {
         value={section.sup}
         onChange={(sup) => onChange({ sup })}
         placeholder="Formula 1"
+        aiAssist={{ field: 'sup', sectionType: section._type, sectionContext: section }}
       />
       <FieldImage
         label="Supertitle image (optional)"
@@ -50,6 +51,7 @@ export function CoverEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
         placeholder="Monaco"
+        aiAssist={{ field: 'title', sectionType: section._type, sectionContext: section }}
       />
       <FieldImage
         label="Title image (optional)"
@@ -71,6 +73,7 @@ export function CoverEditor({ section, onChange }: Props) {
         value={section.titleAccent}
         onChange={(titleAccent) => onChange({ titleAccent })}
         placeholder="Grand Prix"
+        aiAssist={{ field: 'titleAccent', sectionType: section._type, sectionContext: section }}
       />
       <FieldImage
         label="Title accent image (optional)"
@@ -93,6 +96,7 @@ export function CoverEditor({ section, onChange }: Props) {
         onChange={(tag) => onChange({ tag })}
         rows={2}
         placeholder="Experience the most prestigious race on the F1 calendar..."
+        aiAssist={{ field: 'tag', sectionType: section._type, sectionContext: section }}
       />
 
       <div className="field-section-heading">Chrome</div>

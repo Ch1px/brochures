@@ -22,6 +22,7 @@ export function PackagesEditor({ section, onChange }: Props) {
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="Choose your"
+          aiAssist={{ field: 'eyebrow', sectionType: 'packages', sectionContext: section }}
         />
         <FieldInput
           label="Title"
@@ -29,6 +30,7 @@ export function PackagesEditor({ section, onChange }: Props) {
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="Packages"
+          aiAssist={{ field: 'title', sectionType: 'packages', sectionContext: section }}
         />
       </div>
 

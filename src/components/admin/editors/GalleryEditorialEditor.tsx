@@ -31,6 +31,7 @@ export function GalleryEditorialEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
         placeholder="Behind the scenes"
+        aiAssist={{ field: 'title', sectionType: 'galleryEditorial', sectionContext: section }}
       />
 
       <div className="field-section-heading">Gallery</div>

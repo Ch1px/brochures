@@ -33,6 +33,7 @@ export function GalleryHeroEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="Experience"
+        aiAssist={{ field: 'eyebrow', sectionType: 'galleryHero', sectionContext: section }}
       />
       <FieldInput
         label="Title"
@@ -40,6 +41,7 @@ export function GalleryHeroEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
         placeholder="Race day gallery"
+        aiAssist={{ field: 'title', sectionType: 'galleryHero', sectionContext: section }}
       />
 
       <div className="field-section-heading">Gallery</div>
@@ -70,6 +72,7 @@ export function GalleryHeroEditor({ section, onChange }: Props) {
         onChange={(caption) => onChange({ caption })}
         rows={2}
         placeholder="The atmosphere is electric as the cars line up on the grid..."
+        aiAssist={{ field: 'caption', sectionType: 'galleryHero', sectionContext: section }}
       />
     </>
   )

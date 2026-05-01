@@ -18,6 +18,7 @@ export function CTABannerEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="Ready?"
+        aiAssist={{ field: 'eyebrow', sectionType: 'ctaBanner', sectionContext: section }}
       />
       <FieldTextarea
         label="Title"
@@ -26,6 +27,7 @@ export function CTABannerEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
         placeholder="Take the next step"
+        aiAssist={{ field: 'title', sectionType: 'ctaBanner', sectionContext: section }}
       />
       <FieldRichText
         label="Body"

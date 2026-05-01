@@ -32,11 +32,10 @@ type HydratedSection = { _key: string; _type: string } & Record<string, unknown>
  *   assertAdmin() is enforced one layer up in the server action.
  */
 
-const MODEL = 'claude-opus-4-7'
+const MODEL = 'claude-sonnet-4-6'
 const MAX_TOKENS = 16000
-const THINKING_BUDGET = 8000
 const TOOL_NAME = 'emit_brochure'
-const WEB_SEARCH_MAX_USES = 5
+const WEB_SEARCH_MAX_USES = 3
 
 /**
  * JSON Schema for the emit_brochure tool. Built once at module load — the
@@ -200,7 +199,8 @@ async function callClaude(
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
-    thinking: { type: 'enabled', budget_tokens: THINKING_BUDGET },
+    thinking: { type: 'adaptive' },
+    output_config: { effort: 'high' },
     system: buildSystemBlocks(),
     tools: [
       {

@@ -31,6 +31,7 @@ export function GalleryGridEditor({ section, onChange }: Props) {
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="Explore"
+          aiAssist={{ field: 'eyebrow', sectionType: 'galleryGrid', sectionContext: section }}
         />
         <FieldInput
           label="Title"
@@ -38,6 +39,7 @@ export function GalleryGridEditor({ section, onChange }: Props) {
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="The circuit"
+          aiAssist={{ field: 'title', sectionType: 'galleryGrid', sectionContext: section }}
         />
       </div>
 

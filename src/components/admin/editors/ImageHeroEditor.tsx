@@ -18,6 +18,7 @@ export function ImageHeroEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="The Experience"
+        aiAssist={{ field: 'eyebrow', sectionType: 'imageHero', sectionContext: section }}
       />
       <FieldTextarea
         label="Title"
@@ -26,6 +27,7 @@ export function ImageHeroEditor({ section, onChange }: Props) {
         onChange={(title) => onChange({ title })}
         rows={2}
         placeholder="An Unforgettable Weekend"
+        aiAssist={{ field: 'title', sectionType: 'imageHero', sectionContext: section }}
       />
       <FieldRichText
         label="Text"

@@ -21,6 +21,7 @@ export function ItineraryEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
         placeholder="Your itinerary"
+        aiAssist={{ field: 'title', sectionType: 'itinerary', sectionContext: section }}
       />
 
       <div className="field-section-heading">Schedule</div>

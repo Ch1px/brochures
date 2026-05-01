@@ -27,7 +27,7 @@ import { addDomain, removeDomain, getDomainConfig, type DomainConfig } from '@/l
 import { signPreviewToken } from '../previewToken'
 import { generateBrochure, type GenerateInput, type GenerateUsage } from '../ai/generator'
 import { generateField, type GenerateFieldInput } from '../ai/fieldGenerator'
-import type { Brochure, SanityImage, SanityFile, Section } from '@/types/brochure'
+import type { Brochure, SanityImage, SanityFile } from '@/types/brochure'
 
 /**
  * Server actions — invoked from client components in the editor.
@@ -381,8 +381,6 @@ export async function generateFieldAction(
   const { brochureId: _brochureId, ...rest } = input
   return generateField(rest)
 }
-
-export type { Section as AiAssistSection }
 
 // ── Company actions ────────────────────────────────────────────────────
 

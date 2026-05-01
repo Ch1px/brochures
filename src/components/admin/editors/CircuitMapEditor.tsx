@@ -74,6 +74,7 @@ export function CircuitMapEditor({
           value={section.eyebrow}
           onChange={(eyebrow) => onChange({ eyebrow })}
           placeholder="The circuit"
+          aiAssist={{ field: 'eyebrow', sectionType: 'circuitMap', sectionContext: section }}
         />
         <FieldInput
           label="Title"
@@ -81,6 +82,7 @@ export function CircuitMapEditor({
           value={section.title}
           onChange={(title) => onChange({ title })}
           placeholder="Circuit de Monaco"
+          aiAssist={{ field: 'title', sectionType: 'circuitMap', sectionContext: section }}
         />
       </div>
       <FieldRichText

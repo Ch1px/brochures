@@ -20,6 +20,7 @@ export function LogosEditor({ section, onChange }: Props) {
         value={section.eyebrow}
         onChange={(eyebrow) => onChange({ eyebrow })}
         placeholder="Our"
+        aiAssist={{ field: 'eyebrow', sectionType: section._type, sectionContext: section }}
       />
       <FieldInput
         label="Title"
@@ -27,6 +28,7 @@ export function LogosEditor({ section, onChange }: Props) {
         value={section.title}
         onChange={(title) => onChange({ title })}
         placeholder="Partners"
+        aiAssist={{ field: 'title', sectionType: section._type, sectionContext: section }}
       />
       <FieldRichText
         label="Subtitle"
