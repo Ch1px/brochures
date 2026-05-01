@@ -229,18 +229,24 @@ async function callClaude(
     } as unknown as Anthropic.Tool)
   }
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS,
-    thinking: { type: 'adaptive' },
-    output_config: { effort: 'medium' },
-    system: buildSystemBlocks(),
-    tools,
-    tool_choice: isRetry
-      ? { type: 'tool', name: TOOL_NAME }
-      : { type: 'auto' },
-    messages: [{ role: 'user', content: userMessage + reminder }],
-  })
+  // Streaming is required by the SDK when max_tokens + thinking could push the
+  // request past the 10-minute non-streaming ceiling. We don't actually consume
+  // the stream incrementally — finalMessage() accumulates and returns the same
+  // shape as messages.create().
+  const response = await client.messages
+    .stream({
+      model: MODEL,
+      max_tokens: MAX_TOKENS,
+      thinking: { type: 'adaptive' },
+      output_config: { effort: 'medium' },
+      system: buildSystemBlocks(),
+      tools,
+      tool_choice: isRetry
+        ? { type: 'tool', name: TOOL_NAME }
+        : { type: 'auto' },
+      messages: [{ role: 'user', content: userMessage + reminder }],
+    })
+    .finalMessage()
   return { response }
 }
 
