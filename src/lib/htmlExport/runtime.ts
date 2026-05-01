@@ -25,16 +25,18 @@ const RUNTIME_SOURCE = /* js */ `(() => {
   const ANIMATABLE = [
     '.intro-eyebrow', '.stats-eyebrow', '.image-hero-eyebrow',
     '.closing-eyebrow', '.quote-profile-eyebrow', '.gallery-variant-eyebrow',
-    '.circuit-map-eyebrow', '.text-center-eyebrow', '.section-heading-eyebrow',
-    '.features-title-accent',
+    '.circuit-map-eyebrow', '.text-center-eyebrow', '.linked-cards-eyebrow',
+    '.section-heading-eyebrow', '.features-title-accent',
     '.section-heading-title',
     '.page-cover-bg', '.page-cover-frame', '.page-cover-svg-decor',
     '.cover-brand-lockup', '.cover-edition', '.cover-sup', '.cover-title',
     '.cover-tag', '.cover-cta', '.cover-ref',
-    '.package-image', '.feature-card-media', '.page-image-hero-bg',
-    '.page-spotlight-image', '.quote-profile-photo', '.page-intro-right',
+    '.package-image', '.feature-card-bg', '.linked-card-bg',
+    '.page-image-hero-bg', '.page-spotlight-image', '.quote-profile-photo',
+    '.page-intro-right',
     '.gallery-item', '.gallery-hero-lead', '.gallery-hero-thumb',
     '.gallery-duo-item',
+    '.page-closing-bg',
     '.page-section-heading-svg-decor', '.page-spotlight-svg-decor',
     '.page-closing-svg', '.circuit-map-svg-wrap'
   ].join(',');
