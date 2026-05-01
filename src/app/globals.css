@@ -4533,7 +4533,8 @@
     .circuit-map-caption,
     .closing-subtitle,
     .gallery-hero-caption,
-    .gallery-duo-caption {
+    .gallery-duo-caption,
+    .linked-card-text {
       font-size: calc(var(--tagline-scale, 1) * var(--body-text-size-mobile));
       line-height: var(--body-text-line-height-mobile);
     }
