@@ -6,11 +6,14 @@ import type {
   AnnotationKind,
   Brochure,
   BrochureStatus,
+  BrochureTheme,
   CircuitDrawing,
   ColorOverride,
+  FontOverrides,
   SanityImage,
   Section,
   SectionCircuitMap,
+  TextScalePreset,
 } from '@/types/brochure'
 import { useAutosave } from '@/hooks/useAutosave'
 import { useBrochureHistory } from '@/hooks/useBrochureHistory'
@@ -20,7 +23,13 @@ import { labelFor } from '@/lib/sectionLabels'
 import { cloneWithNewKeys, nanokey } from '@/lib/nanokey'
 import { applyFieldPath } from '@/lib/applyFieldPath'
 import { sectionDefaults } from '@/lib/sectionDefaults'
-import { resolvedAccentColor } from '@/lib/brochureBranding'
+import {
+  resolvedAccentColor,
+  resolvedBackgroundColor,
+  resolvedTextColor,
+  resolvedTitleColor,
+  resolvedTheme,
+} from '@/lib/brochureBranding'
 import { EditorTopbar } from './EditorTopbar'
 import { PagesPanel } from './PagesPanel'
 import { PreviewStage } from './PreviewStage'
@@ -94,8 +103,27 @@ export type CompanyOption = {
   _id: string
   name: string
   domain: string
+  /** Branding defaults — inherited by brochures of this company when the
+   *  brochure-level field is unset. Mirrors `companyBranding` snapshot fields. */
+  theme?: BrochureTheme
   accentColor?: string
+  backgroundColor?: string
+  textColor?: string
+  titleColor?: string
+  bodyColor?: string
+  navColor?: string
   logo?: SanityImage
+  textureImage?: SanityImage
+  hideTexture?: boolean
+  /** Typography defaults. */
+  eyebrowItalic?: boolean
+  eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  titleItalic?: boolean
+  titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  fontOverrides?: FontOverrides
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  taglineScale?: TextScalePreset
 }
 
 type Props = {
@@ -106,6 +134,10 @@ type Props = {
    *  from `LIVEBLOCKS_SECRET_KEY` — without the key the editor still
    *  loads, the avatar stack just doesn't render. */
   liveblocksEnabled: boolean
+  /** Whether the server has ANTHROPIC_API_KEY configured. When false, all
+   *  AI surfaces (per-field sparkles, dictation polish, AI brief tab) are
+   *  hidden — the editor still loads. */
+  aiServerEnabled: boolean
 }
 
 /**
@@ -139,7 +171,7 @@ export function BrochureEditor(props: Props) {
   )
 }
 
-function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: Props) {
+function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled, aiServerEnabled }: Props) {
   const { brochure, setBrochure, undo, redo } = useBrochureHistory(initialBrochure)
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
   const [currentSectionKey, setCurrentSectionKey] = useState<string | null>(null)
@@ -424,10 +456,15 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
     return null
   }, [brochure.pages, currentSectionKey])
 
-  // Brochure-level accent with company-branding fallback. Section editors
-  // (Styles tab, Recolor popover) read this so their "fallback" swatch tracks
-  // whatever the brochure currently inherits from its host company.
+  // Brochure-level branding with company-branding fallback. Section editors
+  // (Styles tab, Recolor popover) read these so their "fallback" swatch and
+  // brand-token resolution track whatever the brochure inherits from its
+  // host company.
   const effectiveAccent = resolvedAccentColor(brochure)
+  const effectiveBackground = resolvedBackgroundColor(brochure)
+  const effectiveText = resolvedTextColor(brochure)
+  const effectiveTitle = resolvedTitleColor(brochure)
+  const effectiveTheme = resolvedTheme(brochure)
 
   const handleTitleChange = useCallback((title: string) => {
     setBrochure((prev) => ({ ...prev, title }))
@@ -981,7 +1018,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
       currentPageKey={brochure.pages[currentPageIndex]?._key ?? null}
       liveblocksEnabled={liveblocksEnabled}
     >
-    <AiAssistProvider brochureId={brochure._id} brief={brochure.aiBrief}>
+    <AiAssistProvider brochureId={brochure._id} brief={brochure.aiBrief} serverEnabled={aiServerEnabled}>
     <div className="editor-root">
       <EditorTopbar
         brochure={brochure}
@@ -1062,10 +1099,10 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
                 imageTreatmentGroup={imageTreatmentGroup}
                 brandContext={{
                   accentColor: effectiveAccent,
-                  backgroundColor: brochure.backgroundColor,
-                  textColor: brochure.textColor,
-                  titleColor: brochure.titleColor,
-                  theme: brochure.theme,
+                  backgroundColor: effectiveBackground,
+                  textColor: effectiveText,
+                  titleColor: effectiveTitle,
+                  theme: effectiveTheme,
                   customColors: brochure.customColors,
                 }}
                 onAddCustomColor={(name, hex) => {
@@ -1099,10 +1136,10 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
           recentColors={recentColors}
           brandContext={{
             accentColor: effectiveAccent,
-            backgroundColor: brochure.backgroundColor,
-            textColor: brochure.textColor,
-            titleColor: brochure.titleColor,
-            theme: brochure.theme,
+            backgroundColor: effectiveBackground,
+            textColor: effectiveText,
+            titleColor: effectiveTitle,
+            theme: effectiveTheme,
             customColors: brochure.customColors,
           }}
           onChange={(color) =>
@@ -1125,6 +1162,7 @@ function BrochureEditorInner({ initialBrochure, companies, liveblocksEnabled }: 
         open={settingsOpen}
         brochure={brochure}
         companies={companies}
+        aiServerEnabled={aiServerEnabled}
         onClose={() => setSettingsOpen(false)}
         onSaved={(updates) =>
           setBrochure((prev) => ({

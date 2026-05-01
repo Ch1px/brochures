@@ -18,7 +18,23 @@ import {
 } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
-import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
+import {
+  resolvedAccentColor,
+  resolvedBackgroundColor,
+  resolvedEyebrowItalic,
+  resolvedEyebrowTransform,
+  resolvedFontOverrides,
+  resolvedHideTexture,
+  resolvedLogo,
+  resolvedNavColor,
+  resolvedTextColor,
+  resolvedTextureImage,
+  resolvedTheme,
+  resolvedTitleColor,
+  resolvedTitleItalic,
+  resolvedTitleTransform,
+  resolvedTextScales,
+} from '@/lib/brochureBranding'
 import { textureOverrideCss } from '@/lib/textureOverride'
 import { urlForSection } from '@/lib/sanity/image'
 import { isBrandToken, resolveColor, type BrandContext } from '@/lib/brandColorTokens'
@@ -77,8 +93,32 @@ export type MiniBrochure = {
   logo?: SanityImage
   /** Full first cover / coverCentered section payload from page 1, if any. */
   coverSection?: SectionCover | null
-  /** Inherited from host company when brochure-level fields are unset. */
-  company?: { _id?: string; name?: string; accentColor?: string; logo?: Brochure['logo'] } | null
+  /** Inherited from host company when brochure-level fields are unset. Mirrors
+   *  the projection in `ALL_BROCHURES` GROQ. */
+  company?:
+    | {
+        _id?: string
+        name?: string
+        theme?: BrochureTheme
+        accentColor?: string
+        backgroundColor?: string
+        textColor?: string
+        titleColor?: string
+        bodyColor?: string
+        navColor?: string
+        logo?: Brochure['logo']
+        textureImage?: SanityImage
+        hideTexture?: boolean
+        eyebrowItalic?: boolean
+        eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+        titleItalic?: boolean
+        titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+        fontOverrides?: FontOverrides
+        titleScale?: TextScalePreset
+        eyebrowScale?: TextScalePreset
+        taglineScale?: TextScalePreset
+      }
+    | null
 }
 
 // Virtual render size for the mini preview. The cover is drawn as if the
@@ -115,26 +155,49 @@ const VIRTUAL_H = 800
  *   on page 1 (e.g. a brand-new draft).
  */
 export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
-  const theme = brochure.theme ?? 'dark'
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const [scale, setScale] = useState(1)
   const scopeId = useId().replace(/[^a-zA-Z0-9_-]/g, '')
 
-  // Effective accent / logo with company fallback. We can't reuse the
-  // helpers in `lib/brochureBranding.ts` directly (they expect a full
-  // Brochure), so inline the same logic against MiniBrochure shape.
+  // Build a synthetic Brochure-shaped object so the live-fallback resolvers
+  // work uniformly — every brochure-level field on MiniBrochure paired with
+  // the company snapshot under `companyBranding`. The cast is safe because
+  // the resolvers only read the projected keys.
   const brochureLike = {
-    accentColor: brochure.accentColor,
-    logo: brochure.logo,
+    ...brochure,
     companyBranding: brochure.company
       ? {
+          _id: brochure.company._id,
+          name: brochure.company.name,
+          theme: brochure.company.theme,
           accentColor: brochure.company.accentColor,
+          backgroundColor: brochure.company.backgroundColor,
+          textColor: brochure.company.textColor,
+          titleColor: brochure.company.titleColor,
+          bodyColor: brochure.company.bodyColor,
+          navColor: brochure.company.navColor,
           logo: brochure.company.logo,
+          textureImage: brochure.company.textureImage,
+          hideTexture: brochure.company.hideTexture,
+          eyebrowItalic: brochure.company.eyebrowItalic,
+          eyebrowTransform: brochure.company.eyebrowTransform,
+          titleItalic: brochure.company.titleItalic,
+          titleTransform: brochure.company.titleTransform,
+          fontOverrides: brochure.company.fontOverrides,
+          titleScale: brochure.company.titleScale,
+          eyebrowScale: brochure.company.eyebrowScale,
+          taglineScale: brochure.company.taglineScale,
         }
       : undefined,
   } as unknown as Brochure
+  const theme = resolvedTheme(brochureLike) ?? 'dark'
   const effectiveAccent = resolvedAccentColor(brochureLike)
   const effectiveLogo = resolvedLogo(brochureLike)
+  const effectiveBackground = resolvedBackgroundColor(brochureLike)
+  const effectiveText = resolvedTextColor(brochureLike)
+  const effectiveTitle = resolvedTitleColor(brochureLike)
+  const effectiveNav = resolvedNavColor(brochureLike)
+  const effectiveFontOverrides = resolvedFontOverrides(brochureLike)
 
   // Prefer the cover's own accent over the brochure/company fallback so the
   // SVG decor (--brand-red) matches the cover frame corners and CTA
@@ -146,9 +209,9 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
   // scoping; field values are unchanged.
   const coverAccent = resolveCoverAccent(brochure.coverSection, {
     accentColor: effectiveAccent,
-    backgroundColor: brochure.backgroundColor,
-    textColor: brochure.textColor,
-    titleColor: brochure.titleColor,
+    backgroundColor: effectiveBackground,
+    textColor: effectiveText,
+    titleColor: effectiveTitle,
     theme,
     customColors: brochure.customColors,
   })
@@ -167,16 +230,16 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
     : null
 
   const accentStyle = accentColorVars(visualAccent)
-  const bgStyle = backgroundColorVars(brochure.backgroundColor)
-  const textStyle = textColorVars(brochure.textColor)
-  const titleStyle = titleColorVars(brochure.titleColor)
-  const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
-  const titleStyle2 = titleStyleVars(brochure.titleItalic, brochure.titleTransform)
-  const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
-  const fontsUrl = googleFontsUrl(brochure.fontOverrides)
-  const navStyle = navColorVars(brochure.navColor)
-  const overlayStyle = overlayBaseVars(brochure.backgroundColor)
-  const scaleStyle = textScaleVars(brochure as unknown as Brochure)
+  const bgStyle = backgroundColorVars(effectiveBackground)
+  const textStyle = textColorVars(effectiveText)
+  const titleStyle = titleColorVars(effectiveTitle)
+  const eyebrowStyle = eyebrowStyleVars(resolvedEyebrowItalic(brochureLike), resolvedEyebrowTransform(brochureLike))
+  const titleStyle2 = titleStyleVars(resolvedTitleItalic(brochureLike), resolvedTitleTransform(brochureLike))
+  const fontStyle = fontOverrideVars(effectiveFontOverrides, brochure.customFonts)
+  const fontsUrl = googleFontsUrl(effectiveFontOverrides)
+  const navStyle = navColorVars(effectiveNav)
+  const overlayStyle = overlayBaseVars(effectiveBackground)
+  const scaleStyle = textScaleVars(resolvedTextScales(brochureLike))
 
   // Measure the wrap and compute the scale factor needed to fit the
   // virtual canvas. ResizeObserver keeps it correct across responsive
@@ -201,7 +264,9 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
   // Scope the texture override CSS to this card's frame. We can't render
   // <TextureOverride> directly because it emits unscoped rules that would
   // leak across every card on the page.
-  const rawTextureCss = textureOverrideCss(brochure.hideTexture, brochure.textureImage, urlForSection)
+  const effectiveTexture = resolvedTextureImage(brochureLike)
+  const effectiveHideTexture = resolvedHideTexture(brochureLike)
+  const rawTextureCss = textureOverrideCss(effectiveHideTexture, effectiveTexture, urlForSection)
   const textureCss = rawTextureCss
     ? rawTextureCss.replace(/(^|,)\s*([^,{]+)/g, (_m, p, sel) => `${p} [data-mini-scope="${scopeId}"] ${sel.trim()}`)
     : null
@@ -224,10 +289,10 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
     <BrochureBrandingProvider
       value={{
         accentColor: effectiveAccent,
-        backgroundColor: brochure.backgroundColor,
-        textColor: brochure.textColor,
-        titleColor: brochure.titleColor,
-        fontOverrides: brochure.fontOverrides,
+        backgroundColor: effectiveBackground,
+        textColor: effectiveText,
+        titleColor: effectiveTitle,
+        fontOverrides: effectiveFontOverrides,
         customColors: brochure.customColors,
         logo: effectiveLogo,
         theme,
@@ -247,7 +312,7 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
         <div
           className="library-card-mini-frame"
           data-theme={theme}
-          data-custom-bg={brochure.backgroundColor ? '' : undefined}
+          data-custom-bg={effectiveBackground ? '' : undefined}
           style={{
             ...accentStyle,
             ...bgStyle,

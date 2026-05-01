@@ -3,6 +3,7 @@ import { ALL_BROCHURES, COMPANIES_FOR_PICKER } from '@/lib/sanity/queries'
 import { AdminLibraryClient } from '@/components/admin/AdminLibraryClient'
 import type { MiniBrochure } from '@/components/admin/MiniCoverPreview'
 import type { Brochure } from '@/types/brochure'
+import { optionalEnv } from '@/lib/env'
 
 type BrochureRow = MiniBrochure & {
   _id: string
@@ -29,9 +30,15 @@ export default async function AdminPage() {
     sanityWriteClient.fetch<CompanyOption[]>(COMPANIES_FOR_PICKER),
   ])
 
+  const aiServerEnabled = Boolean(optionalEnv('ANTHROPIC_API_KEY'))
+
   return (
     <main className="library-page">
-      <AdminLibraryClient brochures={brochures} companies={companies} />
+      <AdminLibraryClient
+        brochures={brochures}
+        companies={companies}
+        aiServerEnabled={aiServerEnabled}
+      />
     </main>
   )
 }

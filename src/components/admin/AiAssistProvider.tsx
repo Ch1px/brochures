@@ -18,6 +18,9 @@ const AiAssistContext = createContext<AiAssistContextValue | null>(null)
 type ProviderProps = {
   brochureId: string
   brief: { prompt?: string; sources?: string[] } | undefined
+  /** Whether the server has ANTHROPIC_API_KEY configured. When false, all
+   *  AI surfaces are gated off regardless of brief presence. */
+  serverEnabled: boolean
   children: ReactNode
 }
 
@@ -26,10 +29,11 @@ type ProviderProps = {
  * from in-memory editor state (so live edits to the brief in the settings
  * modal take effect immediately, no Sanity round-trip needed).
  *
- * `enabled` is false when there's no brief on the doc — sparkle buttons
- * skip rendering rather than showing an inert control.
+ * `enabled` is false when there's no brief on the doc OR when the server has
+ * no Anthropic API key — sparkle buttons skip rendering rather than showing
+ * an inert control.
  */
-export function AiAssistProvider({ brochureId, brief, children }: ProviderProps) {
+export function AiAssistProvider({ brochureId, brief, serverEnabled, children }: ProviderProps) {
   const value = useMemo<AiAssistContextValue>(() => {
     const promptTrimmed = brief?.prompt?.trim()
     const ready: AiAssistBrief | null = promptTrimmed
@@ -38,9 +42,9 @@ export function AiAssistProvider({ brochureId, brief, children }: ProviderProps)
     return {
       brochureId,
       brief: ready,
-      enabled: Boolean(ready),
+      enabled: serverEnabled && Boolean(ready),
     }
-  }, [brochureId, brief?.prompt, brief?.sources])
+  }, [brochureId, brief?.prompt, brief?.sources, serverEnabled])
 
   return <AiAssistContext.Provider value={value}>{children}</AiAssistContext.Provider>
 }

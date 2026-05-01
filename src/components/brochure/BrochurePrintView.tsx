@@ -9,7 +9,22 @@ import { TextureOverride } from './TextureOverride'
 import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars, overlayBaseVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
-import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
+import {
+  resolvedAccentColor,
+  resolvedBackgroundColor,
+  resolvedEyebrowItalic,
+  resolvedEyebrowTransform,
+  resolvedFontOverrides,
+  resolvedHideTexture,
+  resolvedLogo,
+  resolvedNavColor,
+  resolvedTextColor,
+  resolvedTextureImage,
+  resolvedTheme,
+  resolvedTitleColor,
+  resolvedTitleItalic,
+  resolvedTitleTransform,
+} from '@/lib/brochureBranding'
 
 type Props = {
   brochure: Brochure
@@ -26,27 +41,34 @@ export function BrochurePrintView({ brochure }: Props) {
   const pages = brochure.pages ?? []
   const sections = pages.flatMap((p) => p.sections ?? []).filter((s) => s._type !== 'footer')
   const total = sections.length
-  const theme = brochure.theme ?? 'dark'
+  const theme = resolvedTheme(brochure) ?? 'dark'
   const effectiveAccent = resolvedAccentColor(brochure)
   const effectiveLogo = resolvedLogo(brochure)
+  const effectiveBackground = resolvedBackgroundColor(brochure)
+  const effectiveText = resolvedTextColor(brochure)
+  const effectiveTitle = resolvedTitleColor(brochure)
+  const effectiveNav = resolvedNavColor(brochure)
+  const effectiveTexture = resolvedTextureImage(brochure)
+  const effectiveHideTexture = resolvedHideTexture(brochure)
+  const effectiveFontOverrides = resolvedFontOverrides(brochure)
   const accentStyle = accentColorVars(effectiveAccent)
-  const bgStyle = backgroundColorVars(brochure.backgroundColor)
-  const textStyle = textColorVars(brochure.textColor)
-  const titleStyle = titleColorVars(brochure.titleColor)
-  const titleStyle2 = titleStyleVars(brochure.titleItalic, brochure.titleTransform)
-  const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
-  const fontStyle = fontOverrideVars(brochure.fontOverrides)
-  const navStyle = navColorVars(brochure.navColor)
-  const overlayStyle = overlayBaseVars(brochure.backgroundColor)
-  const fontsUrl = googleFontsUrl(brochure.fontOverrides)
+  const bgStyle = backgroundColorVars(effectiveBackground)
+  const textStyle = textColorVars(effectiveText)
+  const titleStyle = titleColorVars(effectiveTitle)
+  const titleStyle2 = titleStyleVars(resolvedTitleItalic(brochure), resolvedTitleTransform(brochure))
+  const eyebrowStyle = eyebrowStyleVars(resolvedEyebrowItalic(brochure), resolvedEyebrowTransform(brochure))
+  const fontStyle = fontOverrideVars(effectiveFontOverrides)
+  const navStyle = navColorVars(effectiveNav)
+  const overlayStyle = overlayBaseVars(effectiveBackground)
+  const fontsUrl = googleFontsUrl(effectiveFontOverrides)
 
   useFitSectionsToPages()
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
       <GoogleFontsLink url={fontsUrl} />
-      <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
-      <div className="brochure-print-root" data-theme={theme} data-custom-bg={brochure.backgroundColor ? '' : undefined} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle }}>
+      <TextureOverride hideTexture={effectiveHideTexture} textureImage={effectiveTexture} />
+      <div className="brochure-print-root" data-theme={theme} data-custom-bg={effectiveBackground ? '' : undefined} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle }}>
         {sections.map((section, i) => {
           const pageNum = i + 1
           const showFolio = i > 0

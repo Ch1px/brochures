@@ -6,14 +6,8 @@ import { Sun, Moon } from 'lucide-react'
 import type { CompanyOption } from './BrochureEditor'
 import { updateBrochureSettingsAction } from '@/lib/sanity/actions'
 import { nanokey } from '@/lib/nanokey'
-import {
-  customFontSlug,
-  fontOptionsForRole,
-  weightOptionsForRole,
-  fontFamilyForSlug,
-  googleFontsUrlForSlug,
-  customFontFaceCss,
-} from '@/lib/fontPalette'
+import { customFontSlug, customFontFaceCss } from '@/lib/fontPalette'
+import { FontCard, FontPreviewLinks, SCALE_OPTIONS } from './typographyControls'
 import { FieldInput } from './fields/FieldInput'
 import { FieldTextarea } from './fields/FieldTextarea'
 import { FieldDictateTextarea } from './fields/FieldDictateTextarea'
@@ -27,6 +21,9 @@ type Props = {
   open: boolean
   brochure: Brochure
   companies: CompanyOption[]
+  /** When false, the AI brief tab is hidden — the server has no Anthropic
+   *  API key and AI features are disabled. */
+  aiServerEnabled: boolean
   onClose: () => void
   onSaved: (updates: {
     /** New `_rev` from the server. Editor merges this into brochure state
@@ -68,14 +65,15 @@ type Props = {
 
 type SettingsTab = 'general' | 'branding' | 'typography' | 'seo' | 'lead' | 'ai'
 
-const TABS: { key: SettingsTab; label: string }[] = [
+const BASE_TABS: { key: SettingsTab; label: string }[] = [
   { key: 'general', label: 'General' },
   { key: 'branding', label: 'Branding' },
   { key: 'typography', label: 'Typography' },
   { key: 'seo', label: 'SEO' },
   { key: 'lead', label: 'Lead capture' },
-  { key: 'ai', label: 'AI brief' },
 ]
+
+const AI_TAB: { key: SettingsTab; label: string } = { key: 'ai', label: 'AI brief' }
 
 /**
  * Brochure-level settings modal — opened from the editor topbar.
@@ -87,7 +85,8 @@ const TABS: { key: SettingsTab; label: string }[] = [
  *   SEO        — meta title, meta description, noIndex
  *   Lead       — HubSpot portal/form, destination email
  */
-export function BrochureSettingsModal({ open, brochure, companies, onClose, onSaved }: Props) {
+export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabled, onClose, onSaved }: Props) {
+  const TABS = aiServerEnabled ? [...BASE_TABS, AI_TAB] : BASE_TABS
   const [activeTab, setActiveTab] = useState<SettingsTab>('general')
   const [slug, setSlug] = useState(brochure.slug.current)
   const [season, setSeason] = useState(brochure.season)
@@ -334,8 +333,24 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
           ? {
               _id: selectedCompany._id,
               name: selectedCompany.name,
+              theme: selectedCompany.theme,
               accentColor: selectedCompany.accentColor,
+              backgroundColor: selectedCompany.backgroundColor,
+              textColor: selectedCompany.textColor,
+              titleColor: selectedCompany.titleColor,
+              bodyColor: selectedCompany.bodyColor,
+              navColor: selectedCompany.navColor,
               logo: selectedCompany.logo,
+              textureImage: selectedCompany.textureImage,
+              hideTexture: selectedCompany.hideTexture,
+              eyebrowItalic: selectedCompany.eyebrowItalic,
+              eyebrowTransform: selectedCompany.eyebrowTransform,
+              titleItalic: selectedCompany.titleItalic,
+              titleTransform: selectedCompany.titleTransform,
+              fontOverrides: selectedCompany.fontOverrides,
+              titleScale: selectedCompany.titleScale,
+              eyebrowScale: selectedCompany.eyebrowScale,
+              taglineScale: selectedCompany.taglineScale,
             }
           : undefined,
         aiBrief: (() => {
@@ -354,24 +369,33 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
   }
 
   // ───────── Inherited branding from the selected host company ─────────
-  // When the brochure has a company assigned, its accent and logo act as
-  // defaults (Branding tab fallback / placeholder). Empty brochure-level
-  // values inherit live; an explicit value here overrides the company.
+  // When the brochure has a company assigned, its branding/typography defaults
+  // act as fallbacks (Branding/Typography tab placeholders + descriptions).
+  // Empty brochure-level values inherit live; an explicit value here overrides.
   const selectedCompany = companyId ? companies.find((c) => c._id === companyId) ?? null : null
   const inheritedAccent = selectedCompany?.accentColor || undefined
+  const inheritedBackground = selectedCompany?.backgroundColor || undefined
+  const inheritedText = selectedCompany?.textColor || undefined
+  const inheritedTitle = selectedCompany?.titleColor || undefined
+  const inheritedBody = selectedCompany?.bodyColor || undefined
+  const inheritedNav = selectedCompany?.navColor || undefined
+  const inheritedTheme = selectedCompany?.theme
   const inheritedLogoUrl = selectedCompany?.logo
     ? urlForSection(selectedCompany.logo, 400) ?? undefined
     : undefined
-
-  // ───────── Scale preset options (shared) ─────────
-  const scaleOptions = [
-    { value: 'xxs', label: 'XXS — Tiny' },
-    { value: 'xs', label: 'XS — Compact' },
-    { value: 's', label: 'S — Small' },
-    { value: 'm', label: 'M — Default' },
-    { value: 'l', label: 'L — Large' },
-    { value: 'xl', label: 'XL — Extra Large' },
-  ]
+  const inheritedTextureUrl = selectedCompany?.textureImage
+    ? urlForSection(selectedCompany.textureImage, 600) ?? undefined
+    : undefined
+  const inheritedFonts = selectedCompany?.fontOverrides
+  const inheritedTitleScale = selectedCompany?.titleScale
+  const inheritedEyebrowScale = selectedCompany?.eyebrowScale
+  const inheritedTaglineScale = selectedCompany?.taglineScale
+  const inheritedTitleItalic = selectedCompany?.titleItalic
+  const inheritedTitleTransform = selectedCompany?.titleTransform
+  const inheritedEyebrowItalic = selectedCompany?.eyebrowItalic
+  const inheritedEyebrowTransform = selectedCompany?.eyebrowTransform
+  const inheritedHint = (label: string) =>
+    selectedCompany ? `Inherited from ${selectedCompany.name}` : label
 
   return (
     <>
@@ -536,27 +560,47 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                   />
                   <FieldColor
                     label="Title"
+                    description={
+                      !titleColor && inheritedTitle
+                        ? `Inherited from ${selectedCompany?.name}`
+                        : undefined
+                    }
                     value={titleColor}
                     onChange={setTitleColor}
-                    fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
+                    fallback={inheritedTitle || (brochure.theme === 'light' ? '#161618' : '#ffffff')}
                   />
                   <FieldColor
                     label="Text"
+                    description={
+                      !textColor && inheritedText
+                        ? `Inherited from ${selectedCompany?.name}`
+                        : undefined
+                    }
                     value={textColor}
                     onChange={setTextColor}
-                    fallback={brochure.theme === 'light' ? '#161618' : '#ffffff'}
+                    fallback={inheritedText || (brochure.theme === 'light' ? '#161618' : '#ffffff')}
                   />
                   <FieldColor
                     label="Background"
+                    description={
+                      !backgroundColor && inheritedBackground
+                        ? `Inherited from ${selectedCompany?.name}`
+                        : undefined
+                    }
                     value={backgroundColor}
                     onChange={setBackgroundColor}
-                    fallback={brochure.theme === 'light' ? '#f6f5f1' : '#161618'}
+                    fallback={inheritedBackground || (brochure.theme === 'light' ? '#f6f5f1' : '#161618')}
                   />
                   <FieldColor
                     label="Navigation"
+                    description={
+                      !navColor && inheritedNav
+                        ? `Inherited from ${selectedCompany?.name}`
+                        : undefined
+                    }
                     value={navColor}
                     onChange={setNavColor}
-                    fallback="#161618"
+                    fallback={inheritedNav || '#161618'}
                   />
                 </div>
 
@@ -651,10 +695,14 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                   <div className="logo-image-field">
                     <FieldImage
                       label="Background texture"
-                      description="Replaces the default halftone texture across all textured sections."
+                      description={
+                        !textureImage && inheritedTextureUrl
+                          ? `Inherited from ${selectedCompany?.name}. Upload to override.`
+                          : 'Replaces the default halftone texture across all textured sections.'
+                      }
                       value={textureImage}
                       onChange={setTextureImage}
-                      defaultPreview="/textures/halftone.png"
+                      defaultPreview={inheritedTextureUrl ?? '/textures/halftone.png'}
                     />
                     {!textureImage ? (
                       <button
@@ -672,34 +720,55 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
 
             {activeTab === 'typography' && (
               <>
+                {selectedCompany ? (
+                  <div className="settings-inherit-hint">
+                    Empty fields inherit from <strong>{selectedCompany.name}</strong>. Set a value to override the company default.
+                  </div>
+                ) : null}
                 <SectionHeader label="Type scale" />
                 <FieldSelect
                   label="Title"
-                  description="Scale factor for headline and title text across the brochure."
-                  value={titleScale ?? 'm'}
+                  description={
+                    !titleScale && inheritedTitleScale
+                      ? `Inherited from ${selectedCompany?.name}`
+                      : 'Scale factor for headline and title text across the brochure.'
+                  }
+                  value={titleScale ?? inheritedTitleScale ?? 'm'}
                   onChange={(v) => setTitleScale(v === 'm' ? undefined : (v as TextScalePreset))}
-                  options={scaleOptions}
+                  options={SCALE_OPTIONS}
                 />
                 <FieldSelect
                   label="Eyebrow"
-                  description="Scale factor for eyebrow text across the brochure."
-                  value={eyebrowScale ?? 'm'}
+                  description={
+                    !eyebrowScale && inheritedEyebrowScale
+                      ? `Inherited from ${selectedCompany?.name}`
+                      : 'Scale factor for eyebrow text across the brochure.'
+                  }
+                  value={eyebrowScale ?? inheritedEyebrowScale ?? 'm'}
                   onChange={(v) => setEyebrowScale(v === 'm' ? undefined : (v as TextScalePreset))}
-                  options={scaleOptions}
+                  options={SCALE_OPTIONS}
                 />
                 <FieldSelect
                   label="Body text"
-                  description="Scale factor for body, tagline, and subtitle text across the brochure."
-                  value={taglineScale ?? 'm'}
+                  description={
+                    !taglineScale && inheritedTaglineScale
+                      ? `Inherited from ${selectedCompany?.name}`
+                      : 'Scale factor for body, tagline, and subtitle text across the brochure.'
+                  }
+                  value={taglineScale ?? inheritedTaglineScale ?? 'm'}
                   onChange={(v) => setTaglineScale(v === 'm' ? undefined : (v as TextScalePreset))}
-                  options={scaleOptions}
+                  options={SCALE_OPTIONS}
                 />
 
                 <SectionHeader label="Fonts" />
                 <FontCard
                   role="display"
                   label="Title"
-                  description="Headlines and display text"
+                  description={
+                    !fontDisplay && inheritedFonts?.display
+                      ? `Headlines and display text · inherited from ${selectedCompany?.name}`
+                      : 'Headlines and display text'
+                  }
                   previewText="Monaco Grand Prix"
                   previewSize={28}
                   previewItalic={titleItalic ?? false}
@@ -738,7 +807,11 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                 <FontCard
                   role="script"
                   label="Eyebrow"
-                  description="Eyebrow and accent text"
+                  description={
+                    !fontScript && inheritedFonts?.script
+                      ? `Eyebrow and accent text · inherited from ${selectedCompany?.name}`
+                      : 'Eyebrow and accent text'
+                  }
                   previewText="A weekend of speed"
                   previewSize={26}
                   previewItalic={eyebrowItalic ?? true}
@@ -777,7 +850,11 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                 <FontCard
                   role="body"
                   label="Body"
-                  description="Paragraph and body text"
+                  description={
+                    !fontBody && inheritedFonts?.body
+                      ? `Paragraph and body text · inherited from ${selectedCompany?.name}`
+                      : 'Paragraph and body text'
+                  }
                   previewText="Every trip is built around one idea: giving you a front-row seat to the world's most prestigious motorsport."
                   previewSize={14}
                   fontSlug={fontBody}
@@ -789,7 +866,11 @@ export function BrochureSettingsModal({ open, brochure, companies, onClose, onSa
                 <FontCard
                   role="mono"
                   label="Label"
-                  description="Labels, meta text, and data"
+                  description={
+                    !fontMono && inheritedFonts?.mono
+                      ? `Labels, meta text, and data · inherited from ${selectedCompany?.name}`
+                      : 'Labels, meta text, and data'
+                  }
                   previewText="3.337 KM · 78 LAPS · 19 CORNERS"
                   previewSize={11}
                   previewUppercase
@@ -947,22 +1028,6 @@ function SectionHeader({ label }: { label: string }) {
   )
 }
 
-/** Injects <link> tags for any Google Fonts needed by the current selections. */
-function FontPreviewLinks({ slugs }: { slugs: (string | undefined)[] }) {
-  const urls = slugs
-    .map((s) => googleFontsUrlForSlug(s))
-    .filter((u): u is string => u !== null)
-  // Deduplicate
-  const unique = [...new Set(urls)]
-  return (
-    <>
-      {unique.map((url) => (
-        <link key={url} rel="stylesheet" href={url} />
-      ))}
-    </>
-  )
-}
-
 const WEIGHT_OPTIONS = [
   { value: '100', label: '100 · Thin' },
   { value: '200', label: '200 · Extra Light' },
@@ -974,74 +1039,6 @@ const WEIGHT_OPTIONS = [
   { value: '800', label: '800 · Extra Bold' },
   { value: '900', label: '900 · Black' },
 ]
-
-// ── FontCard (simplified — no upload logic) ─────────────────────────────
-
-type FontCardProps = {
-  role: string
-  label: string
-  description: string
-  previewText: string
-  previewSize: number
-  previewItalic?: boolean
-  previewUppercase?: boolean
-  previewTransform?: string | undefined
-  fontSlug: string | undefined
-  fontWeight: string | undefined
-  customFonts?: CustomFont[] | null
-  onFontChange: (slug: string) => void
-  onWeightChange: (weight: string) => void
-  extraControls?: React.ReactNode
-}
-
-function FontCard({
-  role, label, description, previewText, previewSize,
-  previewItalic, previewUppercase, previewTransform,
-  fontSlug, fontWeight,
-  customFonts, onFontChange, onWeightChange,
-  extraControls,
-}: FontCardProps) {
-  const family = fontFamilyForSlug(fontSlug, role, customFonts)
-  const weight = fontWeight || undefined
-  const transform = previewTransform || (previewUppercase ? 'uppercase' : undefined)
-
-  return (
-    <div className="font-card">
-      <div
-        className="font-card-preview"
-        style={{
-          fontFamily: family,
-          fontWeight: weight,
-          fontSize: previewSize,
-          fontStyle: previewItalic ? 'italic' : undefined,
-          textTransform: transform as React.CSSProperties['textTransform'],
-          letterSpacing: transform === 'uppercase' ? '0.12em' : undefined,
-        }}
-      >
-        {previewText}
-      </div>
-      <div className="font-card-meta">
-        <span className="font-card-label">{label}</span>
-        <span className="font-card-desc">{description}</span>
-      </div>
-      <div className="font-card-controls">
-        <FieldSelect
-          label="Family"
-          value={fontSlug ?? ''}
-          onChange={onFontChange}
-          options={fontOptionsForRole(role, customFonts)}
-        />
-        <FieldSelect
-          label="Weight"
-          value={fontWeight ?? ''}
-          onChange={onWeightChange}
-          options={weightOptionsForRole(role, fontSlug, customFonts)}
-        />
-        {extraControls}
-      </div>
-    </div>
-  )
-}
 
 // ── CustomFontsManager (shared font library) ────────────────────────────
 

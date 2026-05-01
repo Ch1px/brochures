@@ -4,7 +4,12 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { CompanyEditModal, type CompanyFormSource } from './CompanyEditModal'
 import { urlForSection } from '@/lib/sanity/image'
-import type { SanityImage } from '@/types/brochure'
+import type {
+  BrochureTheme,
+  FontOverrides,
+  SanityImage,
+  TextScalePreset,
+} from '@/types/brochure'
 
 export type CompanyRow = {
   _id: string
@@ -17,6 +22,24 @@ export type CompanyRow = {
   logo?: SanityImage
   favicon?: SanityImage
   brochureCount: number
+  /** Branding defaults — inherited by brochures of this company. */
+  theme?: BrochureTheme
+  backgroundColor?: string
+  textColor?: string
+  titleColor?: string
+  bodyColor?: string
+  navColor?: string
+  textureImage?: SanityImage
+  hideTexture?: boolean
+  /** Typography defaults. */
+  eyebrowItalic?: boolean
+  eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  titleItalic?: boolean
+  titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  fontOverrides?: FontOverrides
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  taglineScale?: TextScalePreset
 }
 
 type Props = {
@@ -69,6 +92,22 @@ export function CompaniesAdminClient({ companies }: Props) {
                       accentColor: c.accentColor,
                       logo: c.logo,
                       favicon: c.favicon,
+                      theme: c.theme,
+                      backgroundColor: c.backgroundColor,
+                      textColor: c.textColor,
+                      titleColor: c.titleColor,
+                      bodyColor: c.bodyColor,
+                      navColor: c.navColor,
+                      textureImage: c.textureImage,
+                      hideTexture: c.hideTexture,
+                      eyebrowItalic: c.eyebrowItalic,
+                      eyebrowTransform: c.eyebrowTransform,
+                      titleItalic: c.titleItalic,
+                      titleTransform: c.titleTransform,
+                      fontOverrides: c.fontOverrides,
+                      titleScale: c.titleScale,
+                      eyebrowScale: c.eyebrowScale,
+                      taglineScale: c.taglineScale,
                     })
                   }
                 >

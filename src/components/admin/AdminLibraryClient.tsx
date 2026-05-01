@@ -71,6 +71,9 @@ export type CompanyOption = { _id: string; name: string; domain: string }
 type Props = {
   brochures: BrochureRow[]
   companies: CompanyOption[]
+  /** When false, the AI Generate button + modal are hidden — the server has
+   *  no Anthropic API key. */
+  aiServerEnabled: boolean
 }
 
 const CANONICAL_COMPANY_ID = '__canonical__'
@@ -90,7 +93,7 @@ const STATUS_DOT: Record<string, string> = {
   archived: '#64748b',
 }
 
-export function AdminLibraryClient({ brochures, companies: companyOptions }: Props) {
+export function AdminLibraryClient({ brochures, companies: companyOptions, aiServerEnabled }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -191,10 +194,12 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
           </span>
         </div>
         <div className="library-header-actions">
-          <button className="library-header-btn" onClick={() => setAiOpen(true)}>
-            <Sparkles size={15} strokeWidth={2.4} />
-            <span>Generate</span>
-          </button>
+          {aiServerEnabled ? (
+            <button className="library-header-btn" onClick={() => setAiOpen(true)}>
+              <Sparkles size={15} strokeWidth={2.4} />
+              <span>Generate</span>
+            </button>
+          ) : null}
           <button className="library-header-btn primary" onClick={() => setNewOpen(true)}>
             <Plus size={15} strokeWidth={2.4} />
             <span>New brochure</span>
@@ -449,7 +454,9 @@ export function AdminLibraryClient({ brochures, companies: companyOptions }: Pro
         duplicateFrom={duplicateSource ?? undefined}
         companies={companyOptions}
       />
-      <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} companies={companyOptions} />
+      {aiServerEnabled ? (
+        <AiGenerateModal open={aiOpen} onClose={() => setAiOpen(false)} companies={companyOptions} />
+      ) : null}
     </>
   )
 }

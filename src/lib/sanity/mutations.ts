@@ -1,7 +1,14 @@
 import 'server-only'
 import { sanityWriteClient } from './client'
 import { cloneWithNewKeys } from '../nanokey'
-import type { Brochure, CustomFont, FontOverrides, SanityImage } from '@/types/brochure'
+import type {
+  Brochure,
+  BrochureTheme,
+  CustomFont,
+  FontOverrides,
+  SanityImage,
+  TextScalePreset,
+} from '@/types/brochure'
 
 /**
  * Sanity mutations for brochure documents — all server-side only.
@@ -20,7 +27,29 @@ export async function fetchBrochureForEdit(id: string): Promise<Brochure | null>
   return sanityWriteClient.fetch<Brochure | null>(
     `*[_id == $id][0]{
       ...,
-      "companyBranding": company->{_id, name, accentColor, logo}
+      "companyBranding": company->{
+        _id,
+        name,
+        theme,
+        accentColor,
+        backgroundColor,
+        textColor,
+        titleColor,
+        bodyColor,
+        navColor,
+        logo,
+        favicon,
+        textureImage,
+        hideTexture,
+        eyebrowItalic,
+        eyebrowTransform,
+        titleItalic,
+        titleTransform,
+        fontOverrides,
+        titleScale,
+        eyebrowScale,
+        taglineScale
+      }
     }`,
     { id }
   )
@@ -561,6 +590,24 @@ export type CompanyInput = {
   logo?: SanityImage | null
   favicon?: SanityImage | null
   featuredBrochureId?: string | null
+  /** Branding defaults — inherited by brochures of this company. */
+  theme?: BrochureTheme | null
+  backgroundColor?: string | null
+  textColor?: string | null
+  titleColor?: string | null
+  bodyColor?: string | null
+  navColor?: string | null
+  textureImage?: SanityImage | null
+  hideTexture?: boolean | null
+  /** Typography defaults — inherited by brochures of this company. */
+  eyebrowItalic?: boolean | null
+  eyebrowTransform?: string | null
+  titleItalic?: boolean | null
+  titleTransform?: string | null
+  fontOverrides?: FontOverrides | null
+  titleScale?: TextScalePreset | null
+  eyebrowScale?: TextScalePreset | null
+  taglineScale?: TextScalePreset | null
 }
 
 function normaliseDomain(domain: string): string {
@@ -587,6 +634,22 @@ export async function fetchCompanyForEdit(id: string) {
     logo?: SanityImage
     favicon?: SanityImage
     featuredBrochure?: { _ref: string; _type: 'reference' }
+    theme?: BrochureTheme
+    backgroundColor?: string
+    textColor?: string
+    titleColor?: string
+    bodyColor?: string
+    navColor?: string
+    textureImage?: SanityImage
+    hideTexture?: boolean
+    eyebrowItalic?: boolean
+    eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+    titleItalic?: boolean
+    titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+    fontOverrides?: FontOverrides
+    titleScale?: TextScalePreset
+    eyebrowScale?: TextScalePreset
+    taglineScale?: TextScalePreset
   } | null>(`*[_id == $id][0]`, { id })
 }
 
@@ -612,6 +675,24 @@ export async function createCompany(
       featuredBrochure: input.featuredBrochureId
         ? { _type: 'reference', _ref: input.featuredBrochureId }
         : undefined,
+      // Branding defaults
+      theme: input.theme || undefined,
+      backgroundColor: input.backgroundColor?.trim() || undefined,
+      textColor: input.textColor?.trim() || undefined,
+      titleColor: input.titleColor?.trim() || undefined,
+      bodyColor: input.bodyColor?.trim() || undefined,
+      navColor: input.navColor?.trim() || undefined,
+      textureImage: input.textureImage ?? undefined,
+      hideTexture: input.hideTexture || undefined,
+      // Typography defaults
+      eyebrowItalic: input.eyebrowItalic ?? undefined,
+      eyebrowTransform: input.eyebrowTransform || undefined,
+      titleItalic: input.titleItalic ?? undefined,
+      titleTransform: input.titleTransform || undefined,
+      fontOverrides: input.fontOverrides ?? undefined,
+      titleScale: input.titleScale || undefined,
+      eyebrowScale: input.eyebrowScale || undefined,
+      taglineScale: input.taglineScale || undefined,
     })
     return { ok: true, id: doc._id }
   } catch (err) {
@@ -657,6 +738,62 @@ export async function updateCompany(
     } else {
       unset.push('featuredBrochure')
     }
+
+    // ── Branding defaults ──
+    if (input.theme) set.theme = input.theme
+    else unset.push('theme')
+
+    if (input.backgroundColor?.trim()) set.backgroundColor = input.backgroundColor.trim()
+    else unset.push('backgroundColor')
+
+    if (input.textColor?.trim()) set.textColor = input.textColor.trim()
+    else unset.push('textColor')
+
+    if (input.titleColor?.trim()) set.titleColor = input.titleColor.trim()
+    else unset.push('titleColor')
+
+    if (input.bodyColor?.trim()) set.bodyColor = input.bodyColor.trim()
+    else unset.push('bodyColor')
+
+    if (input.navColor?.trim()) set.navColor = input.navColor.trim()
+    else unset.push('navColor')
+
+    if (input.textureImage) set.textureImage = input.textureImage
+    else unset.push('textureImage')
+
+    if (input.hideTexture) set.hideTexture = true
+    else unset.push('hideTexture')
+
+    // ── Typography defaults ──
+    if (input.eyebrowItalic !== undefined && input.eyebrowItalic !== null) {
+      set.eyebrowItalic = input.eyebrowItalic
+    } else {
+      unset.push('eyebrowItalic')
+    }
+
+    if (input.eyebrowTransform) set.eyebrowTransform = input.eyebrowTransform
+    else unset.push('eyebrowTransform')
+
+    if (input.titleItalic !== undefined && input.titleItalic !== null) {
+      set.titleItalic = input.titleItalic
+    } else {
+      unset.push('titleItalic')
+    }
+
+    if (input.titleTransform) set.titleTransform = input.titleTransform
+    else unset.push('titleTransform')
+
+    if (input.fontOverrides) set.fontOverrides = input.fontOverrides
+    else unset.push('fontOverrides')
+
+    if (input.titleScale) set.titleScale = input.titleScale
+    else unset.push('titleScale')
+
+    if (input.eyebrowScale) set.eyebrowScale = input.eyebrowScale
+    else unset.push('eyebrowScale')
+
+    if (input.taglineScale) set.taglineScale = input.taglineScale
+    else unset.push('taglineScale')
 
     await sanityWriteClient.patch(id).set(set).unset(unset).commit()
     return { ok: true }

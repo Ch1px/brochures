@@ -793,9 +793,27 @@ export type Brochure = {
   companyBranding?: {
     _id?: string
     name?: string
+    /** Branding */
+    theme?: BrochureTheme
     accentColor?: string
+    backgroundColor?: string
+    textColor?: string
+    titleColor?: string
+    bodyColor?: string
+    navColor?: string
     logo?: SanityImage
     favicon?: SanityImage
+    textureImage?: SanityImage
+    hideTexture?: boolean
+    /** Typography */
+    eyebrowItalic?: boolean
+    eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+    titleItalic?: boolean
+    titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+    fontOverrides?: FontOverrides
+    titleScale?: TextScalePreset
+    eyebrowScale?: TextScalePreset
+    taglineScale?: TextScalePreset
   }
   ogImage?: SanityImage
   seo?: {
@@ -832,7 +850,25 @@ export type Company = {
   website?: string
   logo?: SanityImage
   favicon?: SanityImage
+  /** Branding defaults inherited by brochures of this company. */
+  theme?: BrochureTheme
   accentColor?: string
+  backgroundColor?: string
+  textColor?: string
+  titleColor?: string
+  bodyColor?: string
+  navColor?: string
+  textureImage?: SanityImage
+  hideTexture?: boolean
+  /** Typography defaults inherited by brochures of this company. */
+  eyebrowItalic?: boolean
+  eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  titleItalic?: boolean
+  titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  fontOverrides?: FontOverrides
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  taglineScale?: TextScalePreset
   featuredBrochure?: { _ref: string; _type: 'reference' }
 }
 

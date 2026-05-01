@@ -17,11 +17,13 @@ export default async function EditBrochurePage({ params }: { params: Promise<Par
   ])
   if (!brochure) notFound()
   const liveblocksEnabled = Boolean(optionalEnv('LIVEBLOCKS_SECRET_KEY'))
+  const aiServerEnabled = Boolean(optionalEnv('ANTHROPIC_API_KEY'))
   return (
     <BrochureEditor
       initialBrochure={brochure}
       companies={companies}
       liveblocksEnabled={liveblocksEnabled}
+      aiServerEnabled={aiServerEnabled}
     />
   )
 }

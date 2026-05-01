@@ -11,7 +11,18 @@ import {
   uploadImageAction,
 } from '@/lib/sanity/actions'
 import { urlForSection } from '@/lib/sanity/image'
-import type { SanityImage } from '@/types/brochure'
+import type {
+  BrochureTheme,
+  CustomFont,
+  FontOverrides,
+  SanityImage,
+  TextScalePreset,
+} from '@/types/brochure'
+import { FieldColor } from './fields/FieldColor'
+import { FieldImage } from './fields/FieldImage'
+import { FieldSelect } from './fields/FieldSelect'
+import { Sun, Moon } from 'lucide-react'
+import { FontCard, FontPreviewLinks, SCALE_OPTIONS } from './typographyControls'
 
 export type CompanyFormSource = {
   _id: string
@@ -23,7 +34,34 @@ export type CompanyFormSource = {
   accentColor?: string
   logo?: SanityImage
   favicon?: SanityImage
+  /** Branding defaults — inherited by brochures of this company. */
+  theme?: BrochureTheme
+  backgroundColor?: string
+  textColor?: string
+  titleColor?: string
+  bodyColor?: string
+  navColor?: string
+  textureImage?: SanityImage
+  hideTexture?: boolean
+  /** Typography defaults. */
+  eyebrowItalic?: boolean
+  eyebrowTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  titleItalic?: boolean
+  titleTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none'
+  fontOverrides?: FontOverrides
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  taglineScale?: TextScalePreset
 }
+
+type CompanyTab = 'general' | 'branding' | 'typography' | 'dns'
+
+const COMPANY_TABS: { key: CompanyTab; label: string }[] = [
+  { key: 'general', label: 'General' },
+  { key: 'branding', label: 'Branding' },
+  { key: 'typography', label: 'Typography' },
+  { key: 'dns', label: 'DNS' },
+]
 
 type Props = {
   open: boolean
@@ -84,6 +122,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   const router = useRouter()
   const isEdit = Boolean(source)
 
+  const [activeTab, setActiveTab] = useState<CompanyTab>('general')
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [slugDirty, setSlugDirty] = useState(false)
@@ -96,11 +135,36 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
   const [displayName, setDisplayName] = useState('')
   const [displayNameDirty, setDisplayNameDirty] = useState(false)
   const [website, setWebsite] = useState('')
-  const [accentColor, setAccentColor] = useState('')
+  const [accentColor, setAccentColor] = useState<string | undefined>(undefined)
   const [logo, setLogo] = useState<SanityImage | undefined>(undefined)
   const [logoUploading, setLogoUploading] = useState(false)
   const [favicon, setFavicon] = useState<SanityImage | undefined>(undefined)
   const [faviconUploading, setFaviconUploading] = useState(false)
+  // ── Branding defaults ──
+  const [theme, setTheme] = useState<BrochureTheme | undefined>(undefined)
+  const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined)
+  const [textColor, setTextColor] = useState<string | undefined>(undefined)
+  const [titleColor, setTitleColor] = useState<string | undefined>(undefined)
+  const [bodyColor, setBodyColor] = useState<string | undefined>(undefined)
+  const [navColor, setNavColor] = useState<string | undefined>(undefined)
+  const [textureImage, setTextureImage] = useState<SanityImage | undefined>(undefined)
+  const [hideTexture, setHideTexture] = useState(false)
+  // ── Typography defaults ──
+  const [titleItalic, setTitleItalic] = useState<boolean | undefined>(undefined)
+  const [titleTransform, setTitleTransform] = useState<string | undefined>(undefined)
+  const [eyebrowItalic, setEyebrowItalic] = useState<boolean | undefined>(undefined)
+  const [eyebrowTransform, setEyebrowTransform] = useState<string | undefined>(undefined)
+  const [fontDisplay, setFontDisplay] = useState<string | undefined>(undefined)
+  const [fontDisplayWeight, setFontDisplayWeight] = useState<string | undefined>(undefined)
+  const [fontScript, setFontScript] = useState<string | undefined>(undefined)
+  const [fontScriptWeight, setFontScriptWeight] = useState<string | undefined>(undefined)
+  const [fontBody, setFontBody] = useState<string | undefined>(undefined)
+  const [fontBodyWeight, setFontBodyWeight] = useState<string | undefined>(undefined)
+  const [fontMono, setFontMono] = useState<string | undefined>(undefined)
+  const [fontMonoWeight, setFontMonoWeight] = useState<string | undefined>(undefined)
+  const [titleScale, setTitleScale] = useState<TextScalePreset | undefined>(undefined)
+  const [eyebrowScale, setEyebrowScale] = useState<TextScalePreset | undefined>(undefined)
+  const [taglineScale, setTaglineScale] = useState<TextScalePreset | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
   const [warning, setWarning] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -117,6 +181,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
 
   useEffect(() => {
     if (!open) {
+      setActiveTab('general')
       setName('')
       setSlug('')
       setSlugDirty(false)
@@ -126,9 +191,32 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       setDisplayName('')
       setDisplayNameDirty(false)
       setWebsite('')
-      setAccentColor('')
+      setAccentColor(undefined)
       setLogo(undefined)
       setFavicon(undefined)
+      setTheme(undefined)
+      setBackgroundColor(undefined)
+      setTextColor(undefined)
+      setTitleColor(undefined)
+      setBodyColor(undefined)
+      setNavColor(undefined)
+      setTextureImage(undefined)
+      setHideTexture(false)
+      setTitleItalic(undefined)
+      setTitleTransform(undefined)
+      setEyebrowItalic(undefined)
+      setEyebrowTransform(undefined)
+      setFontDisplay(undefined)
+      setFontDisplayWeight(undefined)
+      setFontScript(undefined)
+      setFontScriptWeight(undefined)
+      setFontBody(undefined)
+      setFontBodyWeight(undefined)
+      setFontMono(undefined)
+      setFontMonoWeight(undefined)
+      setTitleScale(undefined)
+      setEyebrowScale(undefined)
+      setTaglineScale(undefined)
       setError(null)
       setWarning(null)
       setConfirmDelete(false)
@@ -137,6 +225,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       return
     }
     if (source) {
+      setActiveTab('general')
       setName(source.name)
       setSlug(source.slug ?? '')
       setSlugDirty(true)
@@ -154,9 +243,32 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       setDisplayName(source.displayName)
       setDisplayNameDirty(true)
       setWebsite(source.website ?? '')
-      setAccentColor(source.accentColor ?? '')
+      setAccentColor(source.accentColor || undefined)
       setLogo(source.logo)
       setFavicon(source.favicon)
+      setTheme(source.theme)
+      setBackgroundColor(source.backgroundColor || undefined)
+      setTextColor(source.textColor || undefined)
+      setTitleColor(source.titleColor || undefined)
+      setBodyColor(source.bodyColor || undefined)
+      setNavColor(source.navColor || undefined)
+      setTextureImage(source.textureImage)
+      setHideTexture(Boolean(source.hideTexture))
+      setTitleItalic(source.titleItalic)
+      setTitleTransform(source.titleTransform)
+      setEyebrowItalic(source.eyebrowItalic)
+      setEyebrowTransform(source.eyebrowTransform)
+      setFontDisplay(source.fontOverrides?.display)
+      setFontDisplayWeight(source.fontOverrides?.displayWeight)
+      setFontScript(source.fontOverrides?.script)
+      setFontScriptWeight(source.fontOverrides?.scriptWeight)
+      setFontBody(source.fontOverrides?.body)
+      setFontBodyWeight(source.fontOverrides?.bodyWeight)
+      setFontMono(source.fontOverrides?.mono)
+      setFontMonoWeight(source.fontOverrides?.monoWeight)
+      setTitleScale(source.titleScale)
+      setEyebrowScale(source.eyebrowScale)
+      setTaglineScale(source.taglineScale)
     }
   }, [open, source])
 
@@ -308,21 +420,63 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
       setError('Name, root domain, and display name are required.')
       return
     }
-    if (accentColor && !/^#[0-9a-fA-F]{6}$/.test(accentColor)) {
-      setError('Accent colour must be a 6-digit hex (e.g. #cf212a).')
-      return
+    const hexFields: Array<[string, string | undefined]> = [
+      ['Accent colour', accentColor],
+      ['Background colour', backgroundColor],
+      ['Text colour', textColor],
+      ['Title colour', titleColor],
+      ['Body colour', bodyColor],
+      ['Navigation colour', navColor],
+    ]
+    for (const [label, value] of hexFields) {
+      if (value && !/^#[0-9a-fA-F]{6}$/.test(value)) {
+        setError(`${label} must be a 6-digit hex (e.g. #cf212a).`)
+        return
+      }
     }
     setError(null)
     setWarning(null)
+    const fontOverridesPayload: FontOverrides | undefined =
+      fontDisplay || fontDisplayWeight || fontScript || fontScriptWeight ||
+      fontBody || fontBodyWeight || fontMono || fontMonoWeight
+        ? {
+            display: fontDisplay || undefined,
+            displayWeight: fontDisplayWeight || undefined,
+            script: fontScript || undefined,
+            scriptWeight: fontScriptWeight || undefined,
+            body: fontBody || undefined,
+            bodyWeight: fontBodyWeight || undefined,
+            mono: fontMono || undefined,
+            monoWeight: fontMonoWeight || undefined,
+          }
+        : undefined
     const input = {
       name: name.trim(),
       slug: slug.trim() || slugify(name),
       domain: derivedHost,
       displayName: displayName.trim(),
       website: website.trim() || undefined,
-      accentColor: accentColor.trim() || undefined,
+      accentColor: accentColor?.trim() || undefined,
       logo: logo ?? null,
       favicon: favicon ?? null,
+      // Branding defaults
+      theme: theme ?? null,
+      backgroundColor: backgroundColor?.trim() || null,
+      textColor: textColor?.trim() || null,
+      titleColor: titleColor?.trim() || null,
+      bodyColor: bodyColor?.trim() || null,
+      navColor: navColor?.trim() || null,
+      textureImage: textureImage ?? null,
+      hideTexture: hideTexture || null,
+      // Typography defaults
+      eyebrowItalic: eyebrowItalic ?? null,
+      eyebrowTransform: eyebrowTransform ?? null,
+      titleItalic: titleItalic ?? null,
+      titleTransform: titleTransform ?? null,
+      fontOverrides: fontOverridesPayload ?? null,
+      titleScale: titleScale ?? null,
+      eyebrowScale: eyebrowScale ?? null,
+      taglineScale: taglineScale ?? null,
     }
     startTransition(async () => {
       if (isEdit) {
@@ -407,16 +561,47 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
           </button>
         </header>
 
+        {!createdInfo ? (
+          <FontPreviewLinks slugs={[fontDisplay, fontScript, fontBody, fontMono]} />
+        ) : null}
+        {!createdInfo ? (
+          <nav
+            role="tablist"
+            aria-label="Company sections"
+            style={{
+              display: 'flex',
+              gap: 4,
+              padding: '8px 14px 0',
+              borderBottom: '1px solid var(--chrome-border)',
+            }}
+          >
+            {COMPANY_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                role="tab"
+                type="button"
+                aria-selected={activeTab === tab.key}
+                className={`library-filter-pill${activeTab === tab.key ? ' active' : ''}`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        ) : null}
+
         <div className="new-brochure-body">
           {createdInfo ? (
             <CreatedSummary
               name={name}
               host={createdInfo.domain}
               displayName={displayName}
-              accentColor={accentColor}
+              accentColor={accentColor ?? ''}
               logoUrl={logo ? urlForSection(logo, 200) ?? null : null}
             />
           ) : (
+          <>
+          {activeTab === 'general' ? (
           <>
           <div className="field-group">
             <label className="field-label">Company name</label>
@@ -526,27 +711,15 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
             />
           </div>
 
-          <div className="new-brochure-row">
-            <div className="field-group">
-              <label className="field-label">Website (optional)</label>
-              <input
-                className="field-input"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                placeholder="https://grandstandtickets.com"
-                spellCheck={false}
-              />
-            </div>
-            <div className="field-group">
-              <label className="field-label">Accent colour (optional)</label>
-              <input
-                className="field-input"
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                placeholder="#cf212a"
-                spellCheck={false}
-              />
-            </div>
+          <div className="field-group">
+            <label className="field-label">Website (optional)</label>
+            <input
+              className="field-input"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://grandstandtickets.com"
+              spellCheck={false}
+            />
           </div>
 
           <div className="field-group">
@@ -690,19 +863,88 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
             </div>
           </div>
           </>
-          )}
-
-          {(isEdit || createdInfo) && activeHost ? (
-            <div className="field-group">
-              <label className="field-label">DNS status</label>
-              <DomainStatusBlock
-                status={domainStatus}
-                host={activeHost}
-                onRefresh={refreshDomainStatus}
-                onAttach={handleAttachDomain}
-              />
-            </div>
           ) : null}
+
+          {activeTab === 'branding' ? (
+            <CompanyBrandingPanel
+              theme={theme}
+              setTheme={setTheme}
+              accentColor={accentColor}
+              setAccentColor={setAccentColor}
+              backgroundColor={backgroundColor}
+              setBackgroundColor={setBackgroundColor}
+              textColor={textColor}
+              setTextColor={setTextColor}
+              titleColor={titleColor}
+              setTitleColor={setTitleColor}
+              bodyColor={bodyColor}
+              setBodyColor={setBodyColor}
+              navColor={navColor}
+              setNavColor={setNavColor}
+              textureImage={textureImage}
+              setTextureImage={setTextureImage}
+              hideTexture={hideTexture}
+              setHideTexture={setHideTexture}
+            />
+          ) : null}
+
+          {activeTab === 'typography' ? (
+            <CompanyTypographyPanel
+              titleScale={titleScale}
+              setTitleScale={setTitleScale}
+              eyebrowScale={eyebrowScale}
+              setEyebrowScale={setEyebrowScale}
+              taglineScale={taglineScale}
+              setTaglineScale={setTaglineScale}
+              titleItalic={titleItalic}
+              setTitleItalic={setTitleItalic}
+              titleTransform={titleTransform}
+              setTitleTransform={setTitleTransform}
+              eyebrowItalic={eyebrowItalic}
+              setEyebrowItalic={setEyebrowItalic}
+              eyebrowTransform={eyebrowTransform}
+              setEyebrowTransform={setEyebrowTransform}
+              fontDisplay={fontDisplay}
+              setFontDisplay={setFontDisplay}
+              fontDisplayWeight={fontDisplayWeight}
+              setFontDisplayWeight={setFontDisplayWeight}
+              fontScript={fontScript}
+              setFontScript={setFontScript}
+              fontScriptWeight={fontScriptWeight}
+              setFontScriptWeight={setFontScriptWeight}
+              fontBody={fontBody}
+              setFontBody={setFontBody}
+              fontBodyWeight={fontBodyWeight}
+              setFontBodyWeight={setFontBodyWeight}
+              fontMono={fontMono}
+              setFontMono={setFontMono}
+              fontMonoWeight={fontMonoWeight}
+              setFontMonoWeight={setFontMonoWeight}
+            />
+          ) : null}
+
+          {activeTab === 'dns' ? (
+            (isEdit || createdInfo) && activeHost ? (
+              <div className="field-group">
+                <label className="field-label">DNS status</label>
+                <DomainStatusBlock
+                  status={domainStatus}
+                  host={activeHost}
+                  onRefresh={refreshDomainStatus}
+                  onAttach={handleAttachDomain}
+                />
+              </div>
+            ) : (
+              <div
+                className="field-description"
+                style={{ padding: '20px 4px', textAlign: 'center' }}
+              >
+                Save the company first — DNS verification appears once the host is attached.
+              </div>
+            )
+          ) : null}
+          </>
+          )}
 
           {warning ? (
             <div
@@ -1033,5 +1275,337 @@ function CreatedSummary({
       </div>
       <div style={{ fontSize: 11, color: '#7ee2a8', whiteSpace: 'nowrap' }}>✓ Saved</div>
     </div>
+  )
+}
+
+// ── Branding panel ──────────────────────────────────────────────────────
+
+type CompanyBrandingPanelProps = {
+  theme: BrochureTheme | undefined
+  setTheme: (v: BrochureTheme | undefined) => void
+  accentColor: string | undefined
+  setAccentColor: (v: string | undefined) => void
+  backgroundColor: string | undefined
+  setBackgroundColor: (v: string | undefined) => void
+  textColor: string | undefined
+  setTextColor: (v: string | undefined) => void
+  titleColor: string | undefined
+  setTitleColor: (v: string | undefined) => void
+  bodyColor: string | undefined
+  setBodyColor: (v: string | undefined) => void
+  navColor: string | undefined
+  setNavColor: (v: string | undefined) => void
+  textureImage: SanityImage | undefined
+  setTextureImage: (v: SanityImage | undefined) => void
+  hideTexture: boolean
+  setHideTexture: (v: boolean) => void
+}
+
+function CompanyBrandingPanel(props: CompanyBrandingPanelProps) {
+  const {
+    theme, setTheme,
+    accentColor, setAccentColor,
+    backgroundColor, setBackgroundColor,
+    textColor, setTextColor,
+    titleColor, setTitleColor,
+    bodyColor, setBodyColor,
+    navColor, setNavColor,
+    textureImage, setTextureImage,
+    hideTexture, setHideTexture,
+  } = props
+  const themeDisabled = Boolean(titleColor || textColor || backgroundColor || navColor)
+  return (
+    <>
+      <div className="settings-section-header">Theme</div>
+      <div
+        className="editor-icon-segment brochure-theme-toggle"
+        role="group"
+        aria-label="Default theme"
+        aria-disabled={themeDisabled}
+      >
+        <button
+          type="button"
+          className={`editor-icon-segment-btn ${theme === 'dark' ? 'active' : ''}`.trim()}
+          onClick={() => setTheme(theme === 'dark' ? undefined : 'dark')}
+          disabled={themeDisabled}
+          aria-pressed={theme === 'dark'}
+          aria-label="Dark theme"
+          title="Dark theme"
+        >
+          <Moon size={15} strokeWidth={2} />
+        </button>
+        <button
+          type="button"
+          className={`editor-icon-segment-btn ${theme === 'light' ? 'active' : ''}`.trim()}
+          onClick={() => setTheme(theme === 'light' ? undefined : 'light')}
+          disabled={themeDisabled}
+          aria-pressed={theme === 'light'}
+          aria-label="Light theme"
+          title="Light theme"
+        >
+          <Sun size={15} strokeWidth={2} />
+        </button>
+      </div>
+      <div className="settings-help-hint">
+        {themeDisabled
+          ? 'Theme is overridden by Title, Text, Background, or Navigation colour. Clear those fields to switch theme.'
+          : 'Default Title, Text, Background, and Navigation colours for brochures of this company.'}
+      </div>
+
+      <div className="settings-section-header">Brand colours</div>
+      <div className="brand-colors-compact">
+        <FieldColor
+          label="Accent"
+          value={accentColor}
+          onChange={setAccentColor}
+          fallback="#cf212a"
+        />
+        <FieldColor
+          label="Title"
+          value={titleColor}
+          onChange={setTitleColor}
+          fallback={theme === 'light' ? '#161618' : '#ffffff'}
+        />
+        <FieldColor
+          label="Text"
+          value={textColor}
+          onChange={setTextColor}
+          fallback={theme === 'light' ? '#161618' : '#ffffff'}
+        />
+        <FieldColor
+          label="Body"
+          value={bodyColor}
+          onChange={setBodyColor}
+          fallback={theme === 'light' ? '#161618' : '#ffffff'}
+        />
+        <FieldColor
+          label="Background"
+          value={backgroundColor}
+          onChange={setBackgroundColor}
+          fallback={theme === 'light' ? '#f6f5f1' : '#161618'}
+        />
+        <FieldColor
+          label="Navigation"
+          value={navColor}
+          onChange={setNavColor}
+          fallback="#161618"
+        />
+      </div>
+
+      <div className="settings-section-header">Background</div>
+      {hideTexture ? (
+        <div className="texture-hidden-card">
+          <div className="texture-hidden-label">No background texture</div>
+          <button
+            type="button"
+            className="field-btn"
+            onClick={() => setHideTexture(false)}
+          >
+            Restore default
+          </button>
+        </div>
+      ) : (
+        <div className="logo-image-field">
+          <FieldImage
+            label="Background texture"
+            description="Default halftone-style texture across all textured sections."
+            value={textureImage}
+            onChange={setTextureImage}
+            defaultPreview="/textures/halftone.png"
+          />
+          {!textureImage ? (
+            <button
+              type="button"
+              className="field-btn field-btn-ghost texture-hide-btn"
+              onClick={() => setHideTexture(true)}
+            >
+              Hide texture
+            </button>
+          ) : null}
+        </div>
+      )}
+    </>
+  )
+}
+
+// ── Typography panel ────────────────────────────────────────────────────
+
+type CompanyTypographyPanelProps = {
+  titleScale: TextScalePreset | undefined
+  setTitleScale: (v: TextScalePreset | undefined) => void
+  eyebrowScale: TextScalePreset | undefined
+  setEyebrowScale: (v: TextScalePreset | undefined) => void
+  taglineScale: TextScalePreset | undefined
+  setTaglineScale: (v: TextScalePreset | undefined) => void
+  titleItalic: boolean | undefined
+  setTitleItalic: (v: boolean | undefined) => void
+  titleTransform: string | undefined
+  setTitleTransform: (v: string | undefined) => void
+  eyebrowItalic: boolean | undefined
+  setEyebrowItalic: (v: boolean | undefined) => void
+  eyebrowTransform: string | undefined
+  setEyebrowTransform: (v: string | undefined) => void
+  fontDisplay: string | undefined
+  setFontDisplay: (v: string | undefined) => void
+  fontDisplayWeight: string | undefined
+  setFontDisplayWeight: (v: string | undefined) => void
+  fontScript: string | undefined
+  setFontScript: (v: string | undefined) => void
+  fontScriptWeight: string | undefined
+  setFontScriptWeight: (v: string | undefined) => void
+  fontBody: string | undefined
+  setFontBody: (v: string | undefined) => void
+  fontBodyWeight: string | undefined
+  setFontBodyWeight: (v: string | undefined) => void
+  fontMono: string | undefined
+  setFontMono: (v: string | undefined) => void
+  fontMonoWeight: string | undefined
+  setFontMonoWeight: (v: string | undefined) => void
+}
+
+function CompanyTypographyPanel(props: CompanyTypographyPanelProps) {
+  const {
+    titleScale, setTitleScale,
+    eyebrowScale, setEyebrowScale,
+    taglineScale, setTaglineScale,
+    titleItalic, setTitleItalic,
+    titleTransform, setTitleTransform,
+    eyebrowItalic, setEyebrowItalic,
+    eyebrowTransform, setEyebrowTransform,
+    fontDisplay, setFontDisplay,
+    fontDisplayWeight, setFontDisplayWeight,
+    fontScript, setFontScript,
+    fontScriptWeight, setFontScriptWeight,
+    fontBody, setFontBody,
+    fontBodyWeight, setFontBodyWeight,
+    fontMono, setFontMono,
+    fontMonoWeight, setFontMonoWeight,
+  } = props
+  return (
+    <>
+      <div className="settings-section-header">Type scale</div>
+      <FieldSelect
+        label="Title"
+        description="Default scale for headline and title text."
+        value={titleScale ?? 'm'}
+        onChange={(v) => setTitleScale(v === 'm' ? undefined : (v as TextScalePreset))}
+        options={SCALE_OPTIONS}
+      />
+      <FieldSelect
+        label="Eyebrow"
+        description="Default scale for eyebrow text."
+        value={eyebrowScale ?? 'm'}
+        onChange={(v) => setEyebrowScale(v === 'm' ? undefined : (v as TextScalePreset))}
+        options={SCALE_OPTIONS}
+      />
+      <FieldSelect
+        label="Body text"
+        description="Default scale for body, tagline, and subtitle text."
+        value={taglineScale ?? 'm'}
+        onChange={(v) => setTaglineScale(v === 'm' ? undefined : (v as TextScalePreset))}
+        options={SCALE_OPTIONS}
+      />
+
+      <div className="settings-section-header">Fonts</div>
+      <FontCard
+        role="display"
+        label="Title"
+        description="Headlines and display text"
+        previewText="Monaco Grand Prix"
+        previewSize={28}
+        previewItalic={titleItalic ?? false}
+        previewUppercase={titleTransform === 'uppercase' || titleTransform === undefined}
+        previewTransform={titleTransform ?? 'uppercase'}
+        fontSlug={fontDisplay}
+        fontWeight={fontDisplayWeight}
+        onFontChange={(v) => { setFontDisplay(v || undefined); setFontDisplayWeight(undefined) }}
+        onWeightChange={(v) => setFontDisplayWeight(v || undefined)}
+        extraControls={
+          <>
+            <FieldSelect
+              label="Style"
+              value={titleItalic === true ? 'italic' : 'upright'}
+              onChange={(v) => setTitleItalic(v === 'italic' ? true : undefined)}
+              options={[
+                { value: 'upright', label: 'Upright' },
+                { value: 'italic', label: 'Italic' },
+              ]}
+            />
+            <FieldSelect
+              label="Letter case"
+              value={titleTransform ?? ''}
+              onChange={(v) => setTitleTransform(v || undefined)}
+              options={[
+                { value: '', label: 'Uppercase (default)' },
+                { value: 'none', label: 'As typed' },
+                { value: 'lowercase', label: 'lowercase' },
+                { value: 'capitalize', label: 'Capitalize' },
+              ]}
+            />
+          </>
+        }
+      />
+      <FontCard
+        role="script"
+        label="Eyebrow"
+        description="Eyebrow and accent text"
+        previewText="A weekend of speed"
+        previewSize={26}
+        previewItalic={eyebrowItalic ?? true}
+        previewUppercase={eyebrowTransform === 'uppercase'}
+        previewTransform={eyebrowTransform}
+        fontSlug={fontScript}
+        fontWeight={fontScriptWeight}
+        onFontChange={(v) => { setFontScript(v || undefined); setFontScriptWeight(undefined) }}
+        onWeightChange={(v) => setFontScriptWeight(v || undefined)}
+        extraControls={
+          <>
+            <FieldSelect
+              label="Style"
+              value={eyebrowItalic === false ? 'upright' : 'italic'}
+              onChange={(v) => setEyebrowItalic(v === 'upright' ? false : undefined)}
+              options={[
+                { value: 'italic', label: 'Italic' },
+                { value: 'upright', label: 'Upright' },
+              ]}
+            />
+            <FieldSelect
+              label="Letter case"
+              value={eyebrowTransform ?? ''}
+              onChange={(v) => setEyebrowTransform(v || undefined)}
+              options={[
+                { value: '', label: 'As typed' },
+                { value: 'uppercase', label: 'UPPERCASE' },
+                { value: 'lowercase', label: 'lowercase' },
+                { value: 'capitalize', label: 'Capitalize' },
+              ]}
+            />
+          </>
+        }
+      />
+      <FontCard
+        role="body"
+        label="Body"
+        description="Paragraph and body text"
+        previewText="Every trip is built around one idea: giving you a front-row seat to the world's most prestigious motorsport."
+        previewSize={14}
+        fontSlug={fontBody}
+        fontWeight={fontBodyWeight}
+        onFontChange={(v) => { setFontBody(v || undefined); setFontBodyWeight(undefined) }}
+        onWeightChange={(v) => setFontBodyWeight(v || undefined)}
+      />
+      <FontCard
+        role="mono"
+        label="Label"
+        description="Labels, meta text, and data"
+        previewText="3.337 KM · 78 LAPS · 19 CORNERS"
+        previewSize={11}
+        previewUppercase
+        fontSlug={fontMono}
+        fontWeight={fontMonoWeight}
+        onFontChange={(v) => { setFontMono(v || undefined); setFontMonoWeight(undefined) }}
+        onWeightChange={(v) => setFontMonoWeight(v || undefined)}
+      />
+    </>
   )
 }

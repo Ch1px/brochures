@@ -1,6 +1,36 @@
 import { groq } from 'next-sanity'
 
 /**
+ * Fields projected onto `companyBranding` whenever a brochure projection
+ * follows `company->{...}`. Defines the live-fallback surface — every field
+ * here is consumable by `src/lib/brochureBranding.ts` resolvers. Keep in
+ * sync with the `Brochure['companyBranding']` type and `Company` schema.
+ */
+const COMPANY_BRANDING_FRAGMENT = `
+  _id,
+  name,
+  theme,
+  accentColor,
+  backgroundColor,
+  textColor,
+  titleColor,
+  bodyColor,
+  navColor,
+  logo,
+  favicon,
+  textureImage,
+  hideTexture,
+  eyebrowItalic,
+  eyebrowTransform,
+  titleItalic,
+  titleTransform,
+  fontOverrides,
+  titleScale,
+  eyebrowScale,
+  taglineScale
+`
+
+/**
  * Public brochure by slug, only if published.
  * Returns null if not found, not published, or unpublished/archived.
  *
@@ -49,7 +79,7 @@ export const BROCHURE_BY_SLUG = groq`
     hideTexture,
     logo,
     publishedAt,
-    "companyBranding": company->{_id, name, accentColor, logo, favicon},
+    "companyBranding": company->{${COMPANY_BRANDING_FRAGMENT}},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -103,7 +133,7 @@ export const BROCHURE_BY_SLUG_PREVIEW = groq`
     hideTexture,
     logo,
     publishedAt,
-    "companyBranding": company->{_id, name, accentColor, logo, favicon},
+    "companyBranding": company->{${COMPANY_BRANDING_FRAGMENT}},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -159,7 +189,7 @@ export const BROCHURE_BY_SLUG_ANY_COMPANY = groq`
     logo,
     publishedAt,
     company,
-    "companyBranding": company->{_id, name, accentColor, logo, favicon},
+    "companyBranding": company->{${COMPANY_BRANDING_FRAGMENT}},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -209,7 +239,7 @@ export const BROCHURE_BY_SLUG_ANY_COMPANY_PREVIEW = groq`
     logo,
     publishedAt,
     company,
-    "companyBranding": company->{_id, name, accentColor, logo, favicon},
+    "companyBranding": company->{${COMPANY_BRANDING_FRAGMENT}},
     "ogImage": seo.ogImage,
     "seo": {
       "metaTitle": coalesce(seo.metaTitle, title),
@@ -264,6 +294,22 @@ export const ALL_COMPANIES_FOR_ADMIN = groq`
     accentColor,
     logo,
     favicon,
+    theme,
+    backgroundColor,
+    textColor,
+    titleColor,
+    bodyColor,
+    navColor,
+    textureImage,
+    hideTexture,
+    eyebrowItalic,
+    eyebrowTransform,
+    titleItalic,
+    titleTransform,
+    fontOverrides,
+    titleScale,
+    eyebrowScale,
+    taglineScale,
     "featuredBrochure": featuredBrochure->{_id, title, "slug": slug.current},
     "brochureCount": count(*[_type == "brochure" && references(^._id)])
   }
@@ -271,17 +317,34 @@ export const ALL_COMPANIES_FOR_ADMIN = groq`
 
 /**
  * Companies, projected for the brochure-editor picker dropdown. Includes
- * the company's branding defaults (accentColor + logo) so the editor's
- * Settings → Branding tab can preview inherited fallbacks live when the
- * admin reassigns a brochure's host company.
+ * the company's full branding + typography defaults so the editor's
+ * Settings → Branding/Typography tabs can preview inherited fallbacks live
+ * when the admin reassigns a brochure's host company. Mirrors the fields
+ * projected by `COMPANY_BRANDING_FRAGMENT`.
  */
 export const COMPANIES_FOR_PICKER = groq`
   *[_type == "company"] | order(name asc) {
     _id,
     name,
     domain,
+    theme,
     accentColor,
-    logo
+    backgroundColor,
+    textColor,
+    titleColor,
+    bodyColor,
+    navColor,
+    logo,
+    textureImage,
+    hideTexture,
+    eyebrowItalic,
+    eyebrowTransform,
+    titleItalic,
+    titleTransform,
+    fontOverrides,
+    titleScale,
+    eyebrowScale,
+    taglineScale
   }
 `
 
@@ -401,7 +464,29 @@ export const ALL_BROCHURES = groq`
     // First cover/coverCentered section on page 1 — full payload (not just
     // the image) so we can hand it to <SectionRenderer/> as a live thumbnail.
     "coverSection": pages[0].sections[_type == "cover" || _type == "coverCentered"][0],
-    "company": company->{_id, name, accentColor, domain, logo}
+    "company": company->{
+      _id,
+      name,
+      accentColor,
+      domain,
+      logo,
+      theme,
+      backgroundColor,
+      textColor,
+      titleColor,
+      bodyColor,
+      navColor,
+      textureImage,
+      hideTexture,
+      eyebrowItalic,
+      eyebrowTransform,
+      titleItalic,
+      titleTransform,
+      fontOverrides,
+      titleScale,
+      eyebrowScale,
+      taglineScale
+    }
   }
 `
 

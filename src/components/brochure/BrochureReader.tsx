@@ -12,7 +12,23 @@ import { accentColorVars } from '@/lib/accentColor'
 import { backgroundColorVars, textColorVars, titleColorVars, titleStyleVars, eyebrowStyleVars, navColorVars, overlayBaseVars } from '@/lib/themeColorVars'
 import { fontOverrideVars, googleFontsUrl } from '@/lib/fontPalette'
 import { textScaleVars } from '@/lib/textScale'
-import { resolvedAccentColor, resolvedLogo } from '@/lib/brochureBranding'
+import {
+  resolvedAccentColor,
+  resolvedBackgroundColor,
+  resolvedEyebrowItalic,
+  resolvedEyebrowTransform,
+  resolvedFontOverrides,
+  resolvedHideTexture,
+  resolvedLogo,
+  resolvedNavColor,
+  resolvedTextColor,
+  resolvedTextureImage,
+  resolvedTheme,
+  resolvedTitleColor,
+  resolvedTitleItalic,
+  resolvedTitleTransform,
+  resolvedTextScales,
+} from '@/lib/brochureBranding'
 
 type Props = {
   brochure: Brochure
@@ -97,32 +113,39 @@ export function BrochureReader({ brochure }: Props) {
     )
   }
 
-  const theme = brochure.theme ?? 'dark'
   // Effective branding falls back to the host company's defaults when the
   // brochure-level field is unset. See `lib/brochureBranding.ts`.
+  const theme = resolvedTheme(brochure) ?? 'dark'
   const effectiveAccent = resolvedAccentColor(brochure)
   const effectiveLogo = resolvedLogo(brochure)
+  const effectiveBackground = resolvedBackgroundColor(brochure)
+  const effectiveText = resolvedTextColor(brochure)
+  const effectiveTitle = resolvedTitleColor(brochure)
+  const effectiveNav = resolvedNavColor(brochure)
+  const effectiveTexture = resolvedTextureImage(brochure)
+  const effectiveHideTexture = resolvedHideTexture(brochure)
+  const effectiveFontOverrides = resolvedFontOverrides(brochure)
   const accentStyle = accentColorVars(effectiveAccent)
-  const bgStyle = backgroundColorVars(brochure.backgroundColor)
-  const textStyle = textColorVars(brochure.textColor)
-  const titleStyle = titleColorVars(brochure.titleColor)
-  const eyebrowStyle = eyebrowStyleVars(brochure.eyebrowItalic, brochure.eyebrowTransform)
-  const titleStyle2 = titleStyleVars(brochure.titleItalic, brochure.titleTransform)
-  const fontStyle = fontOverrideVars(brochure.fontOverrides, brochure.customFonts)
-  const navStyle = navColorVars(brochure.navColor)
-  const overlayStyle = overlayBaseVars(brochure.backgroundColor)
-  const scaleStyle = textScaleVars(brochure)
-  const fontsUrl = googleFontsUrl(brochure.fontOverrides)
+  const bgStyle = backgroundColorVars(effectiveBackground)
+  const textStyle = textColorVars(effectiveText)
+  const titleStyle = titleColorVars(effectiveTitle)
+  const eyebrowStyle = eyebrowStyleVars(resolvedEyebrowItalic(brochure), resolvedEyebrowTransform(brochure))
+  const titleStyle2 = titleStyleVars(resolvedTitleItalic(brochure), resolvedTitleTransform(brochure))
+  const fontStyle = fontOverrideVars(effectiveFontOverrides, brochure.customFonts)
+  const navStyle = navColorVars(effectiveNav)
+  const overlayStyle = overlayBaseVars(effectiveBackground)
+  const scaleStyle = textScaleVars(resolvedTextScales(brochure))
+  const fontsUrl = googleFontsUrl(effectiveFontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: brochure.backgroundColor, textColor: brochure.textColor, titleColor: brochure.titleColor, fontOverrides: brochure.fontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
     <GoogleFontsLink url={fontsUrl} />
     <CustomFontFaces customFonts={brochure.customFonts} />
-    <TextureOverride hideTexture={brochure.hideTexture} textureImage={brochure.textureImage} />
+    <TextureOverride hideTexture={effectiveHideTexture} textureImage={effectiveTexture} />
     <div
       className="preview-mode visible"
       data-theme={theme}
-      data-custom-bg={brochure.backgroundColor ? '' : undefined}
+      data-custom-bg={effectiveBackground ? '' : undefined}
       style={{ position: 'fixed', inset: 0, display: 'block', zIndex: 1, ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle, ...scaleStyle }}
     >
       <BrochureNav
