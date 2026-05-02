@@ -3,7 +3,6 @@ import { urlForSection } from '@/lib/sanity/image'
 import { GalleryHeader } from './GalleryHeader'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
-import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionGalleryDuo
@@ -18,7 +17,6 @@ type Props = {
  * Each slot without an image shows a centred numbered placeholder.
  */
 export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
-  const { editorMode } = useBrochureBranding()
   const images = data.images ?? []
   const captions = data.captions ?? []
 
@@ -57,7 +55,7 @@ export function GalleryDuo({ data, pageNum, total, showFolio }: Props) {
                     {String(i + 1).padStart(2, '0')}
                   </span>
                 ) : null}
-                {(caption || editorMode) ? <InlineEditable sectionKey={data._key} field={`captions.${i}`}><div className="gallery-duo-caption">{caption}</div></InlineEditable> : null}
+                {caption ? <InlineEditable sectionKey={data._key} field={`captions.${i}`}><div className="gallery-duo-caption">{caption}</div></InlineEditable> : null}
               </div>
               </InlineMedia>
             )

@@ -51,6 +51,12 @@ export default defineType({
     }),
     defineField({ name: 'caption', type: 'string', description: 'Caption beneath the image' }),
     defineField({
+      name: 'hideImageDecor',
+      type: 'boolean',
+      title: 'Hide accent decoration',
+      description: 'Removes the red corner brackets around the image. Useful for transparent PNG marks.',
+    }),
+    defineField({
       name: 'contentAlign',
       title: 'Content alignment',
       type: 'string',

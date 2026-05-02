@@ -6526,3 +6526,46 @@
     font-style: var(--eyebrow-font-style, italic) !important;
     text-transform: var(--eyebrow-text-transform, none) !important;
   }
+
+  /* Image-slot placeholder styling — the grey fill and 1px rect border
+     exist purely as an "image goes here" cue when nothing has been
+     uploaded. Once an image (`.media-bg-layer`) or video (`.media-video`)
+     is present, suppress them so transparent PNGs and videos don't show a
+     coloured halo around the media. */
+  .page-intro-right:has(> :is(.media-bg-layer, .media-video)) {
+    background-color: transparent;
+  }
+  .page-intro-right:has(> :is(.media-bg-layer, .media-video)) > .page-intro-right-frame {
+    display: none;
+  }
+  .page-spotlight-image:has(> :is(.media-bg-layer, .media-video)) {
+    background-color: transparent;
+  }
+  .page-spotlight-image:has(> :is(.media-bg-layer, .media-video)) > .page-spotlight-image-frame {
+    display: none;
+  }
+  .quote-profile-photo:has(> .media-bg-layer) {
+    background-color: transparent;
+    border-color: transparent;
+  }
+  .gallery-item:has(> .media-bg-layer) {
+    background-color: transparent;
+  }
+  .feature-card-bg:has(> .media-bg-layer) {
+    background-color: transparent;
+  }
+  .linked-card-bg:has(> :is(.media-bg-layer, .media-video)) {
+    background-color: transparent;
+  }
+
+  /* Per-section toggle (Styles → Images → "Hide accent decoration") to
+     remove the brand-accent decoration around the image — the offset red
+     corner brackets on Intro / Content·Image / Image·Content and the red
+     ring around the QuoteProfile photo. Useful for transparent PNG marks
+     where the surrounding decoration looks orphaned. */
+  .page-intro-right-wrap[data-hide-image-decor='true'] > .image-offset-frame {
+    display: none;
+  }
+  .quote-profile-photo[data-hide-image-decor='true']::after {
+    display: none;
+  }

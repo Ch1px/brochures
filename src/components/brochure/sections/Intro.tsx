@@ -56,7 +56,7 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
           </InlineEditable>
           <SectionCTA text={data.ctaText} href={data.ctaHref} />
         </div>
-        <div className="page-intro-right-wrap">
+        <div className="page-intro-right-wrap" data-hide-image-decor={data.hideImageDecor ? 'true' : undefined}>
           <div className="image-offset-frame" aria-hidden="true" />
           <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
             <div className="page-intro-right">
@@ -71,9 +71,9 @@ export function Intro({ data, pageNum, total, showFolio }: Props) {
               ) : null}
               <div className="page-intro-right-frame" />
               {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
-              {(data.caption || editorMode) ? (
+              {data.caption ? (
                 <InlineEditable sectionKey={data._key} field="caption">
-                  <div className="page-intro-right-caption">{data.caption || ''}</div>
+                  <div className="page-intro-right-caption">{data.caption}</div>
                 </InlineEditable>
               ) : null}
             </div>

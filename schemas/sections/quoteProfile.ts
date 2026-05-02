@@ -27,6 +27,12 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: 'hideImageDecor',
+      type: 'boolean',
+      title: 'Hide accent decoration',
+      description: 'Removes the red ring around the photo. Useful for transparent PNG marks.',
+    }),
+    defineField({
       name: 'quote',
       type: 'text',
       rows: 4,

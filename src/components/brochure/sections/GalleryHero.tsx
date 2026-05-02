@@ -3,7 +3,6 @@ import { urlForSection } from '@/lib/sanity/image'
 import { GalleryHeader } from './GalleryHeader'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
-import { useBrochureBranding } from '../BrochureContext'
 
 type Props = {
   data: SectionGalleryHero
@@ -18,7 +17,6 @@ type Props = {
  * below (indexes 1–3). Empty slots show numbered placeholders.
  */
 export function GalleryHero({ data, pageNum, total, showFolio }: Props) {
-  const { editorMode } = useBrochureBranding()
   const images = data.images ?? []
   const leadImg = images[0]
   const leadUrl = urlForSection(leadImg, 2000)
@@ -53,7 +51,7 @@ export function GalleryHero({ data, pageNum, total, showFolio }: Props) {
               01
             </span>
           ) : null}
-          {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption"><div className="gallery-hero-caption">{data.caption}</div></InlineEditable> : null}
+          {data.caption ? <InlineEditable sectionKey={data._key} field="caption"><div className="gallery-hero-caption">{data.caption}</div></InlineEditable> : null}
         </div>
         </InlineMedia>
         <div className="gallery-hero-strip">

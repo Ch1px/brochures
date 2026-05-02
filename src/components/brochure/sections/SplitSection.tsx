@@ -41,7 +41,7 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
   )
 
   const imageDiv = (
-    <div className={`page-intro-right-wrap${reversed ? ' reversed' : ''}`}>
+    <div className={`page-intro-right-wrap${reversed ? ' reversed' : ''}`} data-hide-image-decor={data.hideImageDecor ? 'true' : undefined}>
       <div className="image-offset-frame" aria-hidden="true" />
       <InlineMedia sectionKey={data._key} field="image" hasImage={Boolean(imageUrl)}>
         <div className="page-intro-right">
@@ -56,7 +56,7 @@ export function SplitSection({ data, pageNum, total, showFolio }: Props) {
           ) : null}
           <div className="page-intro-right-frame" />
           {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
-          {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption"><div className="page-intro-right-caption">{data.caption || ''}</div></InlineEditable> : null}
+          {data.caption ? <InlineEditable sectionKey={data._key} field="caption"><div className="page-intro-right-caption">{data.caption}</div></InlineEditable> : null}
         </div>
       </InlineMedia>
     </div>

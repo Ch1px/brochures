@@ -40,35 +40,36 @@ const STYLE_CONFIG: Record<
     grayscale: boolean
     blur: boolean
     parallax: boolean
+    hideImageDecor: boolean
   }
 > = {
-  cover:                    { eyebrow: false, title: true,  body: true,  titleAccent: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  coverCentered:            { eyebrow: false, title: true,  body: true,  titleAccent: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  intro:                    { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  contentImage:             { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  imageContent:             { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  sectionHeading:           { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  sectionHeadingCentered:   { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  features:                 { eyebrow: false, title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  imageHero:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  stats:                    { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
-  packages:                 { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: false, grayscale: true,  blur: true,  parallax: false },
-  itinerary:                { eyebrow: false, title: true,  body: false, titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
-  galleryEditorial:         { eyebrow: false, title: true,  body: false, titleAccent: false, accent: false, overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  galleryGrid:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  galleryTrio:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  galleryDuo:               { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  galleryHero:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  quoteProfile:             { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  closing:                  { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  circuitMap:               { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
-  spotlight:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: true  },
-  textCenter:               { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
-  ctaBanner:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
-  linkedCards:              { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false },
-  logoWall:                 { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
-  logoStrip:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
-  faq:                      { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false },
+  cover:                    { eyebrow: false, title: true,  body: true,  titleAccent: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  coverCentered:            { eyebrow: false, title: true,  body: true,  titleAccent: true,  accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  intro:                    { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: true  },
+  contentImage:             { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: true  },
+  imageContent:             { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: true  },
+  sectionHeading:           { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  sectionHeadingCentered:   { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  features:                 { eyebrow: false, title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  imageHero:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  stats:                    { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
+  packages:                 { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: false, grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  itinerary:                { eyebrow: false, title: true,  body: false, titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
+  galleryEditorial:         { eyebrow: false, title: true,  body: false, titleAccent: false, accent: false, overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  galleryGrid:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  galleryTrio:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  galleryDuo:               { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  galleryHero:              { eyebrow: true,  title: true,  body: false, titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  quoteProfile:             { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: true  },
+  closing:                  { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  circuitMap:               { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
+  spotlight:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: true,  hideImageDecor: false },
+  textCenter:               { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
+  ctaBanner:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
+  linkedCards:              { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: true,  grayscale: true,  blur: true,  parallax: false, hideImageDecor: false },
+  logoWall:                 { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
+  logoStrip:                { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
+  faq:                      { eyebrow: true,  title: true,  body: true,  titleAccent: false, accent: true,  overlay: false, grayscale: false, blur: false, parallax: false, hideImageDecor: false },
 }
 
 const SCALE_OPTIONS = [
@@ -314,7 +315,7 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
         </>
       ) : null}
 
-      {config.overlay || config.grayscale || config.blur || config.parallax ? (
+      {config.overlay || config.grayscale || config.blur || config.parallax || config.hideImageDecor ? (
         <>
           <div className="field-section-heading">{section._type === 'spotlight' ? 'Background image' : 'Images'}</div>
           <FieldStyleList
@@ -374,6 +375,16 @@ export function SectionStylesEditor({ section, onChange, onApplyImageTreatmentTo
                     icon: '⇅',
                     value: s.backgroundParallax as boolean | undefined,
                     onChange: (v) => anyChange({ backgroundParallax: v }),
+                  } satisfies StyleEntry]
+                : []),
+              ...(config.hideImageDecor
+                ? [{
+                    kind: 'toggle',
+                    key: 'hideImageDecor',
+                    label: 'Hide accent decoration',
+                    icon: '⌐',
+                    value: s.hideImageDecor as boolean | undefined,
+                    onChange: (v) => anyChange({ hideImageDecor: v || undefined }),
                   } satisfies StyleEntry]
                 : []),
             ]}

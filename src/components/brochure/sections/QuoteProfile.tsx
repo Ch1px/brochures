@@ -33,7 +33,7 @@ export function QuoteProfile({ data, pageNum, total, showFolio }: Props) {
             {(data.name || editorMode) ? <InlineEditable sectionKey={data._key} field="name"><div className="quote-profile-name">{titleN(data.name)}</div></InlineEditable> : null}
           </div>
           <InlineMedia sectionKey={data._key} field="photo" hasImage={Boolean(photoUrl)}>
-          <div className="quote-profile-photo">
+          <div className="quote-profile-photo" data-hide-image-decor={data.hideImageDecor ? 'true' : undefined}>
             {photoUrl ? (
               <div
                 className="media-bg-layer"

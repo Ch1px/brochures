@@ -53,7 +53,7 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
             ) : null}
             <div className="page-spotlight-image-frame" />
             {!imageUrl && !videoUrl ? <ImagePlaceholderSVG /> : null}
-            {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption"><div className="page-spotlight-caption">{data.caption || ''}</div></InlineEditable> : null}
+            {data.caption ? <InlineEditable sectionKey={data._key} field="caption"><div className="page-spotlight-caption">{data.caption}</div></InlineEditable> : null}
           </div>
         ) : null}
         <div className="page-spotlight-text">

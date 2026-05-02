@@ -108,6 +108,7 @@ export type SectionIntro = {
   image?: SanityImage
   video?: SanityFile
   caption?: string
+  hideImageDecor?: boolean
   contentAlign?: 'left' | 'center' | 'right'
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   overlayColor?: string
@@ -134,6 +135,7 @@ export type SectionContentImage = {
   image?: SanityImage
   video?: SanityFile
   caption?: string
+  hideImageDecor?: boolean
   contentAlign?: 'left' | 'center' | 'right'
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
   overlayColor?: string
@@ -401,6 +403,7 @@ export type SectionQuoteProfile = {
   eyebrow?: string
   name: string
   photo?: SanityImage
+  hideImageDecor?: boolean
   quote: string
   body?: string
   overlayStrength?: 'none' | 'light' | 'medium' | 'strong'
