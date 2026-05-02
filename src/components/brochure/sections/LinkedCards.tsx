@@ -3,7 +3,7 @@ import { urlForSection } from '@/lib/sanity/image'
 import { ImagePlaceholderSVG } from './ImagePlaceholderSVG'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionLinkedCards
@@ -14,6 +14,8 @@ type Props = {
 
 export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const cards = (data.cards ?? []).slice(0, 4)
 
   return (
@@ -22,8 +24,8 @@ export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
       <div className="page-linked-cards-inner" data-align={data.contentAlign || undefined}>
         {(data.eyebrow || data.title || editorMode) ? (
           <div className="linked-cards-header">
-            {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="linked-cards-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
-            {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="linked-cards-title">{data.title || ''}</h2></InlineEditable> : null}
+            {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="linked-cards-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+            {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="linked-cards-title">{titleN(data.title)}</h2></InlineEditable> : null}
           </div>
         ) : null}
         <div className={`linked-cards-grid linked-cards-grid-${Math.min(cards.length, 4)}`}>
@@ -45,7 +47,7 @@ export function LinkedCards({ data, pageNum, total, showFolio }: Props) {
                   </div>
                 </InlineMedia>
                 <div className="linked-card-body">
-                  <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="linked-card-title">{card.title ?? ''}</div></InlineEditable>
+                  <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="linked-card-title">{titleN(card.title)}</div></InlineEditable>
                   {(card.text || editorMode) ? <InlineEditable sectionKey={data._key} field={`cards.${i}.text`}><p className="linked-card-text">{card.text || ''}</p></InlineEditable> : null}
                   {card.linkText ? (
                     <a

@@ -1,7 +1,7 @@
 import type { SectionFaq } from '@/types/brochure'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionFaq
@@ -19,6 +19,8 @@ type Props = {
  */
 export function Faq({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const items = (data.questions ?? []).slice(0, 6)
   const slots = editorMode
     ? Array.from({ length: 6 }, (_, i) => items[i] ?? null)
@@ -31,11 +33,11 @@ export function Faq({ data, pageNum, total, showFolio }: Props) {
         <div className="faq-header">
           {(data.eyebrow || editorMode) ? (
             <InlineEditable sectionKey={data._key} field="eyebrow">
-              <div className="faq-eyebrow">{data.eyebrow}</div>
+              <div className="faq-eyebrow">{eyebrowN(data.eyebrow)}</div>
             </InlineEditable>
           ) : null}
           <InlineEditable sectionKey={data._key} field="title">
-            <h2 className="faq-title">{data.title ?? ''}</h2>
+            <h2 className="faq-title">{titleN(data.title)}</h2>
           </InlineEditable>
           {(data.subtitle || editorMode) ? (
             <InlineEditable sectionKey={data._key} field="subtitle" richBody>
@@ -48,7 +50,7 @@ export function Faq({ data, pageNum, total, showFolio }: Props) {
             item ? (
               <div key={item._key} className="faq-item">
                 <InlineEditable sectionKey={data._key} field={`questions.${i}.question`}>
-                  <div className="faq-question">{item.question ?? ''}</div>
+                  <div className="faq-question">{titleN(item.question)}</div>
                 </InlineEditable>
                 <InlineEditable sectionKey={data._key} field={`questions.${i}.answer`} richBody>
                   <RichBody className="faq-answer" text={item.answer} />

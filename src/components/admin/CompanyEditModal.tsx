@@ -571,7 +571,7 @@ export function CompanyEditModal({ open, onClose, source }: Props) {
             style={{
               display: 'flex',
               gap: 4,
-              padding: '8px 14px 0',
+              padding: '8px 14px',
               borderBottom: '1px solid var(--chrome-border)',
             }}
           >
@@ -1315,7 +1315,7 @@ function CompanyBrandingPanel(props: CompanyBrandingPanelProps) {
   } = props
   const themeDisabled = Boolean(titleColor || textColor || backgroundColor || navColor)
   return (
-    <>
+    <> {/**
       <div className="settings-section-header">Theme</div>
       <div
         className="editor-icon-segment brochure-theme-toggle"
@@ -1350,6 +1350,10 @@ function CompanyBrandingPanel(props: CompanyBrandingPanelProps) {
         {themeDisabled
           ? 'Theme is overridden by Title, Text, Background, or Navigation colour. Clear those fields to switch theme.'
           : 'Default Title, Text, Background, and Navigation colours for brochures of this company.'}
+      </div> */}
+
+      <div className="settings-help-hint">
+        These colours 
       </div>
 
       <div className="settings-section-header">Brand colours</div>

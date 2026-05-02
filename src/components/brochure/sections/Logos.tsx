@@ -1,6 +1,6 @@
 import type { SectionLogos } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
 
@@ -27,6 +27,8 @@ type Props = {
  */
 export function Logos({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const isStrip = data._type === 'logoStrip'
   const variantClass = isStrip ? 'page-logos-strip' : 'page-logos-wall'
   const allLogos = data.logos ?? []
@@ -42,8 +44,8 @@ export function Logos({ data, pageNum, total, showFolio }: Props) {
       <div className="page-logos-inner">
         {hasHeader ? (
           <div className="logos-header">
-            {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="logos-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
-            {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="logos-title">{data.title || ''}</h2></InlineEditable> : null}
+            {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="logos-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+            {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="logos-title">{titleN(data.title)}</h2></InlineEditable> : null}
             {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="logos-subtitle" text={data.subtitle} /></InlineEditable> : null}
           </div>
         ) : null}

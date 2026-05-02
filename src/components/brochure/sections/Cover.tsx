@@ -3,7 +3,7 @@ import { urlForSection, urlForFile } from '@/lib/sanity/image'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
 import { LazyVideo } from '../LazyVideo'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionCover
@@ -19,6 +19,8 @@ type Props = {
  */
 export function Cover({ data, pageNum, total, showFolio }: Props) {
   const { editorMode, thumbnail } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const variantClass = data._type === 'coverCentered' ? 'page-cover-centered' : ''
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
@@ -118,7 +120,7 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
                 <img src={titleImageUrl} alt={data.title || ''} draggable={false} />
               </span>
             ) : (
-              <InlineEditable sectionKey={data._key} field="title"><span>{data.title}</span></InlineEditable>
+              <InlineEditable sectionKey={data._key} field="title"><span>{titleN(data.title)}</span></InlineEditable>
             )}
             {titleAccentImageUrl ? (
               <>
@@ -130,7 +132,7 @@ export function Cover({ data, pageNum, total, showFolio }: Props) {
             ) : (data.titleAccent || editorMode) ? (
               <>
                 <br />
-                <InlineEditable sectionKey={data._key} field="titleAccent"><span className="cover-title-accent">{data.titleAccent || ''}</span></InlineEditable>
+                <InlineEditable sectionKey={data._key} field="titleAccent"><span className="cover-title-accent">{eyebrowN(data.titleAccent)}</span></InlineEditable>
               </>
             ) : null}
           </h1>

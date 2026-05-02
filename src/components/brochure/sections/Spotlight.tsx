@@ -6,7 +6,7 @@ import { SectionCTA } from '../SectionCTA'
 import { SpotlightBackground } from './SpotlightBackground'
 import { InlineEditable } from '../InlineEditable'
 import { LazyVideo } from '../LazyVideo'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionSpotlight
@@ -17,6 +17,8 @@ type Props = {
 
 export function Spotlight({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const imageUrl = urlForSection(data.image, 1400)
   const videoUrl = urlForFile(data.video)
   const backgroundUrl = urlForSection(data.backgroundImage, 2000)
@@ -55,8 +57,8 @@ export function Spotlight({ data, pageNum, total, showFolio }: Props) {
           </div>
         ) : null}
         <div className="page-spotlight-text">
-          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="intro-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
-          <InlineEditable sectionKey={data._key} field="title"><h2 className="intro-title">{data.title ?? ''}</h2></InlineEditable>
+          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="intro-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+          <InlineEditable sectionKey={data._key} field="title"><h2 className="intro-title">{titleN(data.title)}</h2></InlineEditable>
           {(data.body || editorMode) ? <InlineEditable sectionKey={data._key} field="body" richBody><RichBody className="intro-body" text={data.body} /></InlineEditable> : null}
           <SectionCTA text={data.ctaText} href={data.ctaHref} />
         </div>

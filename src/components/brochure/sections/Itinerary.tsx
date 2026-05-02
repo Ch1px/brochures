@@ -1,7 +1,7 @@
 import type { SectionItinerary } from '@/types/brochure'
 import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionItinerary
@@ -16,6 +16,7 @@ type Props = {
  */
 export function Itinerary({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
   const days = data.days ?? []
 
   return (
@@ -23,7 +24,7 @@ export function Itinerary({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-itinerary-inner">
         <div className="itinerary-header">
-          <InlineEditable sectionKey={data._key} field="title"><h2 className="itinerary-title">{data.title ?? ''}</h2></InlineEditable>
+          <InlineEditable sectionKey={data._key} field="title"><h2 className="itinerary-title">{titleN(data.title)}</h2></InlineEditable>
         </div>
         <div className="itinerary-list">
           {days.map((d, i) => (
@@ -31,7 +32,7 @@ export function Itinerary({ data, pageNum, total, showFolio }: Props) {
               <InlineEditable sectionKey={data._key} field={`days.${i}.day`}><div className="day-num">{d.day}</div></InlineEditable>
               <InlineEditable sectionKey={data._key} field={`days.${i}.label`}><div className="day-label">{d.label ?? ''}</div></InlineEditable>
               <div className="day-content">
-                <InlineEditable sectionKey={data._key} field={`days.${i}.title`}><h4>{d.title}</h4></InlineEditable>
+                <InlineEditable sectionKey={data._key} field={`days.${i}.title`}><h4>{titleN(d.title)}</h4></InlineEditable>
                 <InlineEditable sectionKey={data._key} field={`days.${i}.description`} richBody><RichBody text={d.description} /></InlineEditable>
               </div>
             </div>

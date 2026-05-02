@@ -1,6 +1,6 @@
 import type { SectionStats } from '@/types/brochure'
 import { InlineEditable } from '../InlineEditable'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionStats
@@ -18,6 +18,8 @@ type Props = {
  */
 export function Stats({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const stats = data.stats ?? []
   const colClass = stats.length <= 2 ? 'cols-2' : stats.length === 3 ? 'cols-3' : ''
 
@@ -26,8 +28,8 @@ export function Stats({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-stats-inner">
         <div className="stats-header">
-          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="stats-eyebrow">{data.eyebrow}</div></InlineEditable> : null}
-          <InlineEditable sectionKey={data._key} field="title"><h2 className="stats-title">{data.title ?? ''}</h2></InlineEditable>
+          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="stats-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+          <InlineEditable sectionKey={data._key} field="title"><h2 className="stats-title">{titleN(data.title)}</h2></InlineEditable>
         </div>
         <div className={`stats-grid ${colClass}`.trim()}>
           {stats.map((s, i) => (

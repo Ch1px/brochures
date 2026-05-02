@@ -5,7 +5,7 @@ import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
 import { LazyVideo } from '../LazyVideo'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionImageHero
@@ -21,6 +21,8 @@ type Props = {
  */
 export function ImageHero({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const imageUrl = urlForSection(data.image, 2000)
   const videoUrl = urlForFile(data.video)
   const gradId = `imhg1-${data._key}`
@@ -75,8 +77,8 @@ export function ImageHero({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
 
       <div className="page-image-hero-content">
-        {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="image-hero-eyebrow">{data.eyebrow || ''}</div></InlineEditable> : null}
-        <InlineEditable sectionKey={data._key} field="title"><h2 className="image-hero-title">{data.title ?? ''}</h2></InlineEditable>
+        {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="image-hero-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+        <InlineEditable sectionKey={data._key} field="title"><h2 className="image-hero-title">{titleN(data.title)}</h2></InlineEditable>
         {(data.text || editorMode) ? <InlineEditable sectionKey={data._key} field="text" richBody><RichBody className="image-hero-text" text={data.text} /></InlineEditable> : null}
         <SectionCTA text={data.ctaText} href={data.ctaHref} />
       </div>

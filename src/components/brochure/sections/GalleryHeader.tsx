@@ -1,5 +1,5 @@
 import { InlineEditable } from '../InlineEditable'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   eyebrow?: string
@@ -16,11 +16,15 @@ type Props = {
  */
 export function GalleryHeader({ eyebrow, title, sectionKey }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   if (!eyebrow && !title && !editorMode) return null
+  const e = eyebrowN(eyebrow)
+  const t = titleN(title)
   return (
     <div className="gallery-variant-header">
-      {(eyebrow || editorMode) && sectionKey ? <InlineEditable sectionKey={sectionKey} field="eyebrow"><div className="gallery-variant-eyebrow">{eyebrow}</div></InlineEditable> : eyebrow ? <div className="gallery-variant-eyebrow">{eyebrow}</div> : null}
-      {(title || editorMode) && sectionKey ? <InlineEditable sectionKey={sectionKey} field="title"><h2 className="gallery-variant-title">{title}</h2></InlineEditable> : title ? <h2 className="gallery-variant-title">{title}</h2> : null}
+      {(eyebrow || editorMode) && sectionKey ? <InlineEditable sectionKey={sectionKey} field="eyebrow"><div className="gallery-variant-eyebrow">{e}</div></InlineEditable> : eyebrow ? <div className="gallery-variant-eyebrow">{e}</div> : null}
+      {(title || editorMode) && sectionKey ? <InlineEditable sectionKey={sectionKey} field="title"><h2 className="gallery-variant-title">{t}</h2></InlineEditable> : title ? <h2 className="gallery-variant-title">{t}</h2> : null}
     </div>
   )
 }

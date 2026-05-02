@@ -23,6 +23,14 @@ export type BrochureBranding = {
   customColors?: CustomColor[]
   logo?: SanityImage
   theme: BrochureTheme
+  /** Resolved (brochure-or-company) text transforms for title and eyebrow.
+   *  Section components feed their title/eyebrow text through
+   *  `useNormalisedTitle` / `useNormalisedEyebrow` so that the visible casing
+   *  matches the chosen transform — in particular, `capitalize` requires
+   *  lowercase input (CSS `text-transform: capitalize` only upper-cases the
+   *  first letter of each word and leaves existing caps untouched). */
+  titleTransform?: string
+  eyebrowTransform?: string
   /** True when rendered inside the admin editor preview. Section components
    *  use this to keep authoring affordances (numbered placeholders for empty
    *  gallery slots, etc.) that should not appear on the public site. */
@@ -114,4 +122,39 @@ export function BrochureBrandingProvider({
 
 export function useBrochureBranding(): BrochureBranding {
   return useContext(BrochureBrandingContext)
+}
+
+/**
+ * Pre-process a title string so CSS `text-transform: capitalize` produces
+ * proper title case ("Monaco Grand Prix") even when the source was typed in
+ * ALL CAPS. CSS capitalize only upper-cases the first letter of each word —
+ * it does NOT lower-case the rest — so we lower-case the source ourselves
+ * for that specific transform. All other transforms pass through unchanged
+ * because CSS `uppercase` / `lowercase` / `none` work as expected.
+ *
+ * Non-destructive: only affects render output. The Sanity field keeps the
+ * admin's typed casing. (One caveat: editing inline while in capitalize mode
+ * shows the lower-cased text in the contentEditable, and saves what the
+ * admin sees — same UX as if they had typed in lowercase.)
+ *
+ * Returns a normaliser function so a single hook call can be reused inside
+ * loops (per-card titles, etc.) without violating hook rules.
+ */
+export function useTitleNormaliser(): (text: string | undefined) => string {
+  const { titleTransform } = useContext(BrochureBrandingContext)
+  return (text) => {
+    if (!text) return ''
+    if (titleTransform === 'capitalize') return text.toLowerCase()
+    return text
+  }
+}
+
+/** As `useTitleNormaliser`, but reads the brochure-level eyebrow transform. */
+export function useEyebrowNormaliser(): (text: string | undefined) => string {
+  const { eyebrowTransform } = useContext(BrochureBrandingContext)
+  return (text) => {
+    if (!text) return ''
+    if (eyebrowTransform === 'capitalize') return text.toLowerCase()
+    return text
+  }
 }

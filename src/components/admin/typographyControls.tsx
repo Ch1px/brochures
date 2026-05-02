@@ -6,7 +6,9 @@ import {
   fontOptionsForRole,
   weightOptionsForRole,
   fontFamilyForSlug,
+  fontLabelForSlug,
   googleFontsUrlForSlug,
+  WEIGHT_LABELS,
 } from '@/lib/fontPalette'
 import { FieldSelect } from './fields/FieldSelect'
 
@@ -46,6 +48,13 @@ export type FontCardProps = {
   onFontChange: (slug: string) => void
   onWeightChange: (weight: string) => void
   extraControls?: ReactNode
+  /** When set, the empty option in the Family / Weight selects is relabelled
+   *  "Inherit from {inheritFromName} ({inheritedFamily/weight})" so admins
+   *  understand that picking it clears their override and falls back to the
+   *  host company's default. */
+  inheritFromName?: string
+  inheritedFamilySlug?: string
+  inheritedWeight?: string
 }
 
 export function FontCard({
@@ -63,10 +72,46 @@ export function FontCard({
   onFontChange,
   onWeightChange,
   extraControls,
+  inheritFromName,
+  inheritedFamilySlug,
+  inheritedWeight,
 }: FontCardProps) {
-  const family = fontFamilyForSlug(fontSlug, role, customFonts)
-  const weight = fontWeight || undefined
+  // The dropdowns reflect ONLY the brochure-level override — when undefined
+  // they snap to the empty "Inherit from {Company}" option so admins can
+  // tell at a glance whether their value is overriding the company default.
+  // The preview text uses the effective (merged) font/weight so it visually
+  // matches what the brochure renders.
+  const effectiveSlug = fontSlug ?? inheritedFamilySlug
+  const effectiveWeight = fontWeight ?? inheritedWeight
+  const family = fontFamilyForSlug(effectiveSlug, role, customFonts)
+  const weight = effectiveWeight || undefined
   const transform = previewTransform || (previewUppercase ? 'uppercase' : undefined)
+
+  // Build options; rewrite the empty (clear-override) option to advertise the
+  // company-inherited value when one exists, so admins discover that picking
+  // it falls back to the company default rather than the platform default.
+  const familyOptions = (() => {
+    const base = fontOptionsForRole(role, customFonts)
+    if (inheritFromName && inheritedFamilySlug) {
+      const inheritedLabel = fontLabelForSlug(inheritedFamilySlug, customFonts) ?? inheritedFamilySlug
+      return [
+        { value: '', label: `Inherit from ${inheritFromName} (${inheritedLabel})` },
+        ...base.slice(1),
+      ]
+    }
+    return base
+  })()
+  const weightOptions = (() => {
+    const base = weightOptionsForRole(role, fontSlug, customFonts)
+    if (inheritFromName && inheritedWeight) {
+      const inheritedLabel = WEIGHT_LABELS[inheritedWeight] ?? inheritedWeight
+      return [
+        { value: '', label: `Inherit from ${inheritFromName} (${inheritedLabel})` },
+        ...base.slice(1),
+      ]
+    }
+    return base
+  })()
 
   return (
     <div className="font-card">
@@ -92,13 +137,13 @@ export function FontCard({
           label="Family"
           value={fontSlug ?? ''}
           onChange={onFontChange}
-          options={fontOptionsForRole(role, customFonts)}
+          options={familyOptions}
         />
         <FieldSelect
           label="Weight"
           value={fontWeight ?? ''}
           onChange={onWeightChange}
-          options={weightOptionsForRole(role, fontSlug, customFonts)}
+          options={weightOptions}
         />
         {extraControls}
       </div>

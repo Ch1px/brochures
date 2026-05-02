@@ -103,7 +103,7 @@ export function BrochureStaticView({ brochure }: Props) {
   }
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme, staticExport: true }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme, titleTransform: resolvedTitleTransform(brochure), eyebrowTransform: resolvedEyebrowTransform(brochure), staticExport: true }}>
       <GoogleFontsLink url={fontsUrl} />
       <CustomFontFaces customFonts={brochure.customFonts} />
       <TextureOverride hideTexture={effectiveHideTexture} textureImage={effectiveTexture} />

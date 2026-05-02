@@ -5,7 +5,7 @@ import { RichBody } from '../RichBody'
 import { SectionCTA } from '../SectionCTA'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionFeatures
@@ -21,6 +21,8 @@ type Props = {
  */
 export function Features({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const cards = (data.cards ?? []).slice(0, 3)
 
   return (
@@ -29,8 +31,8 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
       <div className="page-features-inner">
         <div className="features-header">
           <h2 className="features-title">
-            <InlineEditable sectionKey={data._key} field="title"><span>{data.title ?? ''}</span></InlineEditable>
-            {(data.titleAccent || editorMode) ? <InlineEditable sectionKey={data._key} field="titleAccent"><span className="features-title-accent">{data.titleAccent || ''}</span></InlineEditable> : null}
+            <InlineEditable sectionKey={data._key} field="title"><span>{titleN(data.title)}</span></InlineEditable>
+            {(data.titleAccent || editorMode) ? <InlineEditable sectionKey={data._key} field="titleAccent"><span className="features-title-accent">{eyebrowN(data.titleAccent)}</span></InlineEditable> : null}
           </h2>
           {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="features-subtitle" text={data.subtitle} /></InlineEditable> : null}
           <SectionCTA text={data.ctaText} href={data.ctaHref} />
@@ -53,7 +55,7 @@ export function Features({ data, pageNum, total, showFolio }: Props) {
                   </div>
                 </InlineMedia>
                 <div className="feature-card-body">
-                  <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="feature-card-title">{card.title ?? ''}</div></InlineEditable>
+                  <InlineEditable sectionKey={data._key} field={`cards.${i}.title`}><div className="feature-card-title">{titleN(card.title)}</div></InlineEditable>
                   <InlineEditable sectionKey={data._key} field={`cards.${i}.text`} richBody><RichBody className="feature-card-text" text={card.text} /></InlineEditable>
                 </div>
               </div>

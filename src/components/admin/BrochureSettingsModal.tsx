@@ -399,7 +399,14 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
 
   return (
     <>
-    <FontPreviewLinks slugs={[fontDisplay, fontScript, fontBody, fontMono]} />
+    <FontPreviewLinks
+      slugs={[
+        fontDisplay ?? inheritedFonts?.display,
+        fontScript ?? inheritedFonts?.script,
+        fontBody ?? inheritedFonts?.body,
+        fontMono ?? inheritedFonts?.mono,
+      ]}
+    />
     <div
       className="add-section-overlay"
       onClick={pending ? undefined : onClose}
@@ -503,6 +510,7 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
                     Empty fields inherit from <strong>{selectedCompany.name}</strong>. Set a value to override the company default.
                   </div>
                 ) : null}
+                {/** 
                 {(() => {
                   const themeDisabled = Boolean(titleColor || textColor || backgroundColor || navColor)
                   return (
@@ -544,7 +552,7 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
                       </div>
                     </>
                   )
-                })()}
+                })()}*/}
                 <div className="settings-subgroup-label">Brand colours</div>
                 <div className="brand-colors-compact">
                   <FieldColor
@@ -725,39 +733,79 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
                     Empty fields inherit from <strong>{selectedCompany.name}</strong>. Set a value to override the company default.
                   </div>
                 ) : null}
+                {selectedCompany &&
+                hasAnyTypographyOverride({
+                  fontDisplay,
+                  fontDisplayWeight,
+                  fontScript,
+                  fontScriptWeight,
+                  fontBody,
+                  fontBodyWeight,
+                  fontMono,
+                  fontMonoWeight,
+                  titleScale,
+                  eyebrowScale,
+                  taglineScale,
+                  titleItalic,
+                  titleTransform,
+                  eyebrowItalic,
+                  eyebrowTransform,
+                }) ? (
+                  <button
+                    type="button"
+                    className="field-btn"
+                    onClick={() => {
+                      setFontDisplay(undefined)
+                      setFontDisplayWeight(undefined)
+                      setFontScript(undefined)
+                      setFontScriptWeight(undefined)
+                      setFontBody(undefined)
+                      setFontBodyWeight(undefined)
+                      setFontMono(undefined)
+                      setFontMonoWeight(undefined)
+                      setTitleScale(undefined)
+                      setEyebrowScale(undefined)
+                      setTaglineScale(undefined)
+                      setTitleItalic(undefined)
+                      setTitleTransform(undefined)
+                      setEyebrowItalic(undefined)
+                      setEyebrowTransform(undefined)
+                    }}
+                    style={{ marginBottom: 12 }}
+                  >
+                    Reset all typography to inherit from {selectedCompany.name}
+                  </button>
+                ) : null}
                 <SectionHeader label="Type scale" />
                 <FieldSelect
                   label="Title"
-                  description={
-                    !titleScale && inheritedTitleScale
-                      ? `Inherited from ${selectedCompany?.name}`
-                      : 'Scale factor for headline and title text across the brochure.'
-                  }
-                  value={titleScale ?? inheritedTitleScale ?? 'm'}
-                  onChange={(v) => setTitleScale(v === 'm' ? undefined : (v as TextScalePreset))}
-                  options={SCALE_OPTIONS}
+                  description="Scale factor for headline and title text across the brochure."
+                  value={titleScale ?? '__inherit__'}
+                  onChange={(v) => {
+                    if (v === '__inherit__') setTitleScale(undefined)
+                    else setTitleScale(v as TextScalePreset)
+                  }}
+                  options={scaleOptionsWithInherit(selectedCompany?.name, inheritedTitleScale)}
                 />
                 <FieldSelect
                   label="Eyebrow"
-                  description={
-                    !eyebrowScale && inheritedEyebrowScale
-                      ? `Inherited from ${selectedCompany?.name}`
-                      : 'Scale factor for eyebrow text across the brochure.'
-                  }
-                  value={eyebrowScale ?? inheritedEyebrowScale ?? 'm'}
-                  onChange={(v) => setEyebrowScale(v === 'm' ? undefined : (v as TextScalePreset))}
-                  options={SCALE_OPTIONS}
+                  description="Scale factor for eyebrow text across the brochure."
+                  value={eyebrowScale ?? '__inherit__'}
+                  onChange={(v) => {
+                    if (v === '__inherit__') setEyebrowScale(undefined)
+                    else setEyebrowScale(v as TextScalePreset)
+                  }}
+                  options={scaleOptionsWithInherit(selectedCompany?.name, inheritedEyebrowScale)}
                 />
                 <FieldSelect
                   label="Body text"
-                  description={
-                    !taglineScale && inheritedTaglineScale
-                      ? `Inherited from ${selectedCompany?.name}`
-                      : 'Scale factor for body, tagline, and subtitle text across the brochure.'
-                  }
-                  value={taglineScale ?? inheritedTaglineScale ?? 'm'}
-                  onChange={(v) => setTaglineScale(v === 'm' ? undefined : (v as TextScalePreset))}
-                  options={SCALE_OPTIONS}
+                  description="Scale factor for body, tagline, and subtitle text across the brochure."
+                  value={taglineScale ?? '__inherit__'}
+                  onChange={(v) => {
+                    if (v === '__inherit__') setTaglineScale(undefined)
+                    else setTaglineScale(v as TextScalePreset)
+                  }}
+                  options={scaleOptionsWithInherit(selectedCompany?.name, inheritedTaglineScale)}
                 />
 
                 <SectionHeader label="Fonts" />
@@ -771,32 +819,65 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
                   }
                   previewText="Monaco Grand Prix"
                   previewSize={28}
-                  previewItalic={titleItalic ?? false}
-                  previewUppercase={titleTransform === 'uppercase' || titleTransform === undefined}
-                  previewTransform={titleTransform ?? 'uppercase'}
+                  previewItalic={titleItalic ?? inheritedTitleItalic ?? false}
+                  previewUppercase={
+                    (titleTransform ?? inheritedTitleTransform ?? 'uppercase') === 'uppercase'
+                  }
+                  previewTransform={titleTransform ?? inheritedTitleTransform ?? 'uppercase'}
                   fontSlug={fontDisplay}
                   fontWeight={fontDisplayWeight}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontDisplay(v || undefined); setFontDisplayWeight(undefined) }}
                   onWeightChange={(v) => setFontDisplayWeight(v || undefined)}
+                  inheritFromName={selectedCompany?.name}
+                  inheritedFamilySlug={inheritedFonts?.display}
+                  inheritedWeight={inheritedFonts?.displayWeight}
                   extraControls={
                     <>
                       <FieldSelect
                         label="Style"
-                        value={titleItalic === true ? 'italic' : 'upright'}
-                        onChange={(v) => setTitleItalic(v === 'italic' ? true : undefined)}
+                        value={
+                          titleItalic === undefined
+                            ? '__inherit__'
+                            : titleItalic === true
+                              ? 'italic'
+                              : 'upright'
+                        }
+                        onChange={(v) => {
+                          if (v === '__inherit__') setTitleItalic(undefined)
+                          else setTitleItalic(v === 'italic')
+                        }}
                         options={[
+                          ...(selectedCompany
+                            ? [
+                                {
+                                  value: '__inherit__',
+                                  label: `Inherit from ${selectedCompany.name} (${
+                                    inheritedTitleItalic ? 'Italic' : 'Upright'
+                                  })`,
+                                },
+                              ]
+                            : []),
                           { value: 'upright', label: 'Upright' },
                           { value: 'italic', label: 'Italic' },
                         ]}
                       />
                       <FieldSelect
                         label="Letter case"
-                        value={titleTransform ?? ''}
-                        onChange={(v) => setTitleTransform(v || undefined)}
+                        value={titleTransform ?? '__inherit__'}
+                        onChange={(v) => {
+                          if (v === '__inherit__') setTitleTransform(undefined)
+                          else setTitleTransform(v)
+                        }}
                         options={[
-                          { value: '', label: 'Uppercase (default)' },
+                          {
+                            value: '__inherit__',
+                            label: selectedCompany && inheritedTitleTransform
+                              ? `Inherit from ${selectedCompany.name} (${labelForTransform(inheritedTitleTransform)})`
+                              : 'Uppercase (default)',
+                          },
                           { value: 'none', label: 'As typed' },
+                          { value: 'uppercase', label: 'UPPERCASE' },
                           { value: 'lowercase', label: 'lowercase' },
                           { value: 'capitalize', label: 'Capitalize' },
                         ]}
@@ -814,31 +895,63 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
                   }
                   previewText="A weekend of speed"
                   previewSize={26}
-                  previewItalic={eyebrowItalic ?? true}
-                  previewUppercase={eyebrowTransform === 'uppercase'}
-                  previewTransform={eyebrowTransform}
+                  previewItalic={eyebrowItalic ?? inheritedEyebrowItalic ?? true}
+                  previewUppercase={
+                    (eyebrowTransform ?? inheritedEyebrowTransform) === 'uppercase'
+                  }
+                  previewTransform={eyebrowTransform ?? inheritedEyebrowTransform}
                   fontSlug={fontScript}
                   fontWeight={fontScriptWeight}
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontScript(v || undefined); setFontScriptWeight(undefined) }}
                   onWeightChange={(v) => setFontScriptWeight(v || undefined)}
+                  inheritFromName={selectedCompany?.name}
+                  inheritedFamilySlug={inheritedFonts?.script}
+                  inheritedWeight={inheritedFonts?.scriptWeight}
                   extraControls={
                     <>
                       <FieldSelect
                         label="Style"
-                        value={eyebrowItalic === false ? 'upright' : 'italic'}
-                        onChange={(v) => setEyebrowItalic(v === 'upright' ? false : undefined)}
+                        value={
+                          eyebrowItalic === undefined
+                            ? '__inherit__'
+                            : eyebrowItalic === false
+                              ? 'upright'
+                              : 'italic'
+                        }
+                        onChange={(v) => {
+                          if (v === '__inherit__') setEyebrowItalic(undefined)
+                          else setEyebrowItalic(v === 'italic')
+                        }}
                         options={[
+                          ...(selectedCompany
+                            ? [
+                                {
+                                  value: '__inherit__',
+                                  label: `Inherit from ${selectedCompany.name} (${
+                                    inheritedEyebrowItalic === false ? 'Upright' : 'Italic'
+                                  })`,
+                                },
+                              ]
+                            : []),
                           { value: 'italic', label: 'Italic' },
                           { value: 'upright', label: 'Upright' },
                         ]}
                       />
                       <FieldSelect
                         label="Letter case"
-                        value={eyebrowTransform ?? ''}
-                        onChange={(v) => setEyebrowTransform(v || undefined)}
+                        value={eyebrowTransform ?? '__inherit__'}
+                        onChange={(v) => {
+                          if (v === '__inherit__') setEyebrowTransform(undefined)
+                          else setEyebrowTransform(v)
+                        }}
                         options={[
-                          { value: '', label: 'As typed' },
+                          {
+                            value: '__inherit__',
+                            label: selectedCompany && inheritedEyebrowTransform
+                              ? `Inherit from ${selectedCompany.name} (${labelForTransform(inheritedEyebrowTransform)})`
+                              : 'As typed (default)',
+                          },
                           { value: 'uppercase', label: 'UPPERCASE' },
                           { value: 'lowercase', label: 'lowercase' },
                           { value: 'capitalize', label: 'Capitalize' },
@@ -862,6 +975,9 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontBody(v || undefined); setFontBodyWeight(undefined) }}
                   onWeightChange={(v) => setFontBodyWeight(v || undefined)}
+                  inheritFromName={selectedCompany?.name}
+                  inheritedFamilySlug={inheritedFonts?.body}
+                  inheritedWeight={inheritedFonts?.bodyWeight}
                 />
                 <FontCard
                   role="mono"
@@ -879,6 +995,9 @@ export function BrochureSettingsModal({ open, brochure, companies, aiServerEnabl
                   customFonts={customFonts}
                   onFontChange={(v) => { setFontMono(v || undefined); setFontMonoWeight(undefined) }}
                   onWeightChange={(v) => setFontMonoWeight(v || undefined)}
+                  inheritFromName={selectedCompany?.name}
+                  inheritedFamilySlug={inheritedFonts?.mono}
+                  inheritedWeight={inheritedFonts?.monoWeight}
                 />
 
                 <SectionHeader label="Custom fonts" />
@@ -1026,6 +1145,76 @@ function SectionHeader({ label }: { label: string }) {
       {label}
     </div>
   )
+}
+
+const TRANSFORM_LABELS: Record<string, string> = {
+  none: 'As typed',
+  uppercase: 'UPPERCASE',
+  lowercase: 'lowercase',
+  capitalize: 'Capitalize',
+}
+function labelForTransform(transform: string | undefined): string {
+  if (!transform) return 'As typed'
+  return TRANSFORM_LABELS[transform] ?? transform
+}
+
+/**
+ * Build the type-scale FieldSelect option list, prepending an explicit
+ * "Inherit from {Company} ({Scale})" option when a host company provides a
+ * default — or "M — Default" when there's no company. Selecting either
+ * clears the brochure-level override (sets it to undefined). 'm' is omitted
+ * from the rest list because picking it is equivalent to clearing.
+ */
+function hasAnyTypographyOverride(s: {
+  fontDisplay?: string
+  fontDisplayWeight?: string
+  fontScript?: string
+  fontScriptWeight?: string
+  fontBody?: string
+  fontBodyWeight?: string
+  fontMono?: string
+  fontMonoWeight?: string
+  titleScale?: TextScalePreset
+  eyebrowScale?: TextScalePreset
+  taglineScale?: TextScalePreset
+  titleItalic?: boolean
+  titleTransform?: string
+  eyebrowItalic?: boolean
+  eyebrowTransform?: string
+}): boolean {
+  return Boolean(
+    s.fontDisplay ||
+      s.fontDisplayWeight ||
+      s.fontScript ||
+      s.fontScriptWeight ||
+      s.fontBody ||
+      s.fontBodyWeight ||
+      s.fontMono ||
+      s.fontMonoWeight ||
+      s.titleScale ||
+      s.eyebrowScale ||
+      s.taglineScale ||
+      s.titleItalic !== undefined ||
+      s.titleTransform ||
+      s.eyebrowItalic !== undefined ||
+      s.eyebrowTransform,
+  )
+}
+
+function scaleOptionsWithInherit(
+  companyName: string | undefined,
+  inheritedScale: TextScalePreset | undefined,
+): { value: string; label: string }[] {
+  const inheritedLabel = inheritedScale
+    ? SCALE_OPTIONS.find((o) => o.value === inheritedScale)?.label ?? inheritedScale
+    : 'M — Default'
+  const inheritOption = {
+    value: '__inherit__',
+    label: companyName
+      ? `Inherit from ${companyName} (${inheritedLabel})`
+      : 'M — Default',
+  }
+  return [inheritOption, ...SCALE_OPTIONS.filter((o) => o.value !== 'm')]
 }
 
 const WEIGHT_OPTIONS = [

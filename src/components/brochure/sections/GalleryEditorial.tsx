@@ -2,7 +2,7 @@ import type { SectionGalleryEditorial } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionGalleryEditorial
@@ -19,6 +19,7 @@ type Props = {
  */
 export function GalleryEditorial({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
   const images = (data.images ?? []).slice(0, 4)
 
   return (
@@ -26,7 +27,7 @@ export function GalleryEditorial({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-gallery-inner">
         <div className="gallery-header">
-          <InlineEditable sectionKey={data._key} field="title"><h2 className="gallery-title">{data.title ?? ''}</h2></InlineEditable>
+          <InlineEditable sectionKey={data._key} field="title"><h2 className="gallery-title">{titleN(data.title)}</h2></InlineEditable>
         </div>
         <div className="gallery-grid">
           {Array.from({ length: 4 }).map((_, i) => {

@@ -4,7 +4,7 @@ import { RichBody } from '../RichBody'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
 import { LazyVideo } from '../LazyVideo'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionClosing
@@ -21,6 +21,8 @@ type Props = {
  */
 export function Closing({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const ctaHref = data.ctaHref || '#'
   const gradId1 = `clg1-${data._key}`
   const gradId2 = `clg2-${data._key}`
@@ -79,8 +81,8 @@ export function Closing({ data, pageNum, total, showFolio }: Props) {
         Grand Prix Grand Tours
       </div>
       <div className="page-closing-inner">
-        {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="closing-eyebrow">{data.eyebrow}</div></InlineEditable> : null}
-        <InlineEditable sectionKey={data._key} field="title"><h2 className="closing-title">{data.title ?? ''}</h2></InlineEditable>
+        {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="closing-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+        <InlineEditable sectionKey={data._key} field="title"><h2 className="closing-title">{titleN(data.title)}</h2></InlineEditable>
         {(data.subtitle || editorMode) ? <InlineEditable sectionKey={data._key} field="subtitle" richBody><RichBody className="closing-subtitle" text={data.subtitle} /></InlineEditable> : null}
         <div className="closing-actions">
           {(data.ctaText || editorMode) ? (

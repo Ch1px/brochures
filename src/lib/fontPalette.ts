@@ -95,7 +95,7 @@ const ROLE_DEFAULT_WEIGHTS: Record<string, string> = {
   mono: '400',
 }
 
-const WEIGHT_LABELS: Record<string, string> = {
+export const WEIGHT_LABELS: Record<string, string> = {
   '100': '100 · Thin',
   '200': '200 · Extra Light',
   '300': '300 · Light',
@@ -108,6 +108,22 @@ const WEIGHT_LABELS: Record<string, string> = {
 }
 
 // ── Custom font helpers ─────────────────────────────────────────────────
+
+/**
+ * Resolve a font slug to its human label (e.g. 'montserrat' → 'Montserrat').
+ * Returns the slug itself when no entry matches.
+ */
+export function fontLabelForSlug(
+  slug: string | undefined,
+  customFonts?: CustomFont[] | null,
+): string | undefined {
+  if (!slug) return undefined
+  if (isCustomFontSlug(slug)) {
+    const font = findCustomFont(customFontKey(slug), customFonts)
+    return font?.name ?? slug
+  }
+  return PALETTE_MAP.get(slug)?.label ?? slug
+}
 
 /** Returns true if a font slug references a custom uploaded font. */
 export function isCustomFontSlug(slug: string): boolean {

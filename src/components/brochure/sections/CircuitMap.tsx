@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CircuitDrawing, SectionCircuitMap } from '@/types/brochure'
 import { themeCircuitSvg } from '@/lib/themeCircuitSvg'
 import { bakeOverridesIntoSvg, bakeRecolorIds } from '@/lib/svgRecolor'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 import { InlineEditable } from '../InlineEditable'
 import { RichBody } from '../RichBody'
 import { AnnotationOverlay } from './CircuitMapAnnotations'
@@ -46,6 +46,8 @@ type Props = {
  */
 export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
   const { accentColor, backgroundColor, textColor, customColors, theme, editorMode, onRequestMapEdit, recolor, annotations: annotationCtx } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
 
   const brandCtx: BrandContext = useMemo(
     () => ({ accentColor, backgroundColor, textColor, theme, customColors }),
@@ -339,8 +341,8 @@ export function CircuitMap({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-circuit-map-inner">
         <div className="circuit-map-header">
-          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="circuit-map-eyebrow">{data.eyebrow}</div></InlineEditable> : null}
-          {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="circuit-map-title">{data.title}</h2></InlineEditable> : null}
+          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="circuit-map-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+          {(data.title || editorMode) ? <InlineEditable sectionKey={data._key} field="title"><h2 className="circuit-map-title">{titleN(data.title)}</h2></InlineEditable> : null}
           {(data.caption || editorMode) ? <InlineEditable sectionKey={data._key} field="caption" richBody><RichBody className="circuit-map-caption" text={data.caption} /></InlineEditable> : null}
         </div>
         <div className="circuit-map-stage">

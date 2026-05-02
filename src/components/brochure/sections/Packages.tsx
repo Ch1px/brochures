@@ -2,7 +2,7 @@ import type { SectionPackages } from '@/types/brochure'
 import { urlForSection } from '@/lib/sanity/image'
 import { InlineEditable } from '../InlineEditable'
 import { InlineMedia } from '../InlineMedia'
-import { useBrochureBranding } from '../BrochureContext'
+import { useBrochureBranding, useEyebrowNormaliser, useTitleNormaliser } from '../BrochureContext'
 
 type Props = {
   data: SectionPackages
@@ -18,6 +18,8 @@ type Props = {
  */
 export function Packages({ data, pageNum, total, showFolio }: Props) {
   const { editorMode } = useBrochureBranding()
+  const titleN = useTitleNormaliser()
+  const eyebrowN = useEyebrowNormaliser()
   const packages = (data.packages ?? []).slice(0, 3)
 
   return (
@@ -25,8 +27,8 @@ export function Packages({ data, pageNum, total, showFolio }: Props) {
       <div className="page-brand-mark">Grand Prix Grand Tours</div>
       <div className="page-packages-inner">
         <div className="packages-header">
-          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="packages-eyebrow">{data.eyebrow}</div></InlineEditable> : null}
-          <InlineEditable sectionKey={data._key} field="title"><h2 className="packages-title">{data.title ?? ''}</h2></InlineEditable>
+          {(data.eyebrow || editorMode) ? <InlineEditable sectionKey={data._key} field="eyebrow"><div className="packages-eyebrow">{eyebrowN(data.eyebrow)}</div></InlineEditable> : null}
+          <InlineEditable sectionKey={data._key} field="title"><h2 className="packages-title">{titleN(data.title)}</h2></InlineEditable>
         </div>
         <div className="packages-grid">
           {packages.map((p, i) => {
@@ -41,8 +43,8 @@ export function Packages({ data, pageNum, total, showFolio }: Props) {
                   ) : null}
                 </div>
               </InlineMedia>
-              {(p.tier || editorMode) ? <InlineEditable sectionKey={data._key} field={`packages.${i}.tier`}><div className="package-tier">{p.tier}</div></InlineEditable> : null}
-              <InlineEditable sectionKey={data._key} field={`packages.${i}.name`}><h3 className="package-name">{p.name ?? ''}</h3></InlineEditable>
+              {(p.tier || editorMode) ? <InlineEditable sectionKey={data._key} field={`packages.${i}.tier`}><div className="package-tier">{eyebrowN(p.tier)}</div></InlineEditable> : null}
+              <InlineEditable sectionKey={data._key} field={`packages.${i}.name`}><h3 className="package-name">{titleN(p.name)}</h3></InlineEditable>
               <div className="package-price">
                 <InlineEditable sectionKey={data._key} field={`packages.${i}.currency`}><span className="package-price-currency">{p.currency ?? '£'}</span></InlineEditable>
                 <InlineEditable sectionKey={data._key} field={`packages.${i}.price`}><span className="package-price-value">{p.price ?? ''}</span></InlineEditable>

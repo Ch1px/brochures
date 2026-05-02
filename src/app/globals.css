@@ -6478,17 +6478,51 @@
   .faq-title,
   .faq-question,
   .features-title,
+  .feature-card-title,
   .gallery-title,
   .gallery-variant-title,
   .image-hero-title,
   .intro-title,
   .itinerary-title,
+  .day-content h4,
   .linked-cards-title,
+  .linked-card-title,
   .logos-title,
+  .package-name,
   .packages-title,
+  .quote-profile-name,
   .section-heading-title,
   .stats-title,
   .text-center-title {
-    font-style: var(--title-font-style, normal);
-    text-transform: var(--title-text-transform, uppercase);
+    font-style: var(--title-font-style, normal) !important;
+    text-transform: var(--title-text-transform, uppercase) !important;
+  }
+
+  /* ====================================================================
+     SECTION EYEBROW STYLE OVERRIDES
+     --------------------------------------------------------------------
+     Mirror the title block for eyebrow / script-accent text. Most eyebrow
+     rules already consume `var(--eyebrow-text-transform, none)` inline
+     (default `none`), but this block guarantees parity for any additional
+     eyebrow-like elements we may have added or might add later. Same
+     specificity as the original rule but later in source order, so the
+     CSS-variable expression wins when the brochure root overrides it. */
+  .circuit-map-eyebrow,
+  .closing-eyebrow,
+  .cover-title-accent,
+  .faq-eyebrow,
+  .features-title-accent,
+  .gallery-variant-eyebrow,
+  .image-hero-eyebrow,
+  .intro-eyebrow,
+  .linked-cards-eyebrow,
+  .logos-eyebrow,
+  .package-tier,
+  .packages-eyebrow,
+  .quote-profile-eyebrow,
+  .section-heading-eyebrow,
+  .stats-eyebrow,
+  .text-center-eyebrow {
+    font-style: var(--eyebrow-font-style, italic) !important;
+    text-transform: var(--eyebrow-text-transform, none) !important;
   }

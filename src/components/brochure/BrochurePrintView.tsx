@@ -65,7 +65,7 @@ export function BrochurePrintView({ brochure }: Props) {
   useFitSectionsToPages()
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme, titleTransform: resolvedTitleTransform(brochure), eyebrowTransform: resolvedEyebrowTransform(brochure) }}>
       <GoogleFontsLink url={fontsUrl} />
       <TextureOverride hideTexture={effectiveHideTexture} textureImage={effectiveTexture} />
       <div className="brochure-print-root" data-theme={theme} data-custom-bg={effectiveBackground ? '' : undefined} style={{ ...accentStyle, ...bgStyle, ...textStyle, ...titleStyle, ...titleStyle2, ...eyebrowStyle, ...fontStyle, ...navStyle, ...overlayStyle }}>

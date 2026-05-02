@@ -296,6 +296,8 @@ export function MiniCoverPreview({ brochure }: { brochure: MiniBrochure }) {
         customColors: brochure.customColors,
         logo: effectiveLogo,
         theme,
+        titleTransform: resolvedTitleTransform(brochureLike),
+        eyebrowTransform: resolvedEyebrowTransform(brochureLike),
         editorMode: false,
         thumbnail: true,
       }}

@@ -138,7 +138,7 @@ export function BrochureReader({ brochure }: Props) {
   const fontsUrl = googleFontsUrl(effectiveFontOverrides)
 
   return (
-    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme }}>
+    <BrochureBrandingProvider value={{ accentColor: effectiveAccent, backgroundColor: effectiveBackground, textColor: effectiveText, titleColor: effectiveTitle, fontOverrides: effectiveFontOverrides, customColors: brochure.customColors, logo: effectiveLogo, theme, titleTransform: resolvedTitleTransform(brochure), eyebrowTransform: resolvedEyebrowTransform(brochure) }}>
     <GoogleFontsLink url={fontsUrl} />
     <CustomFontFaces customFonts={brochure.customFonts} />
     <TextureOverride hideTexture={effectiveHideTexture} textureImage={effectiveTexture} />
