@@ -1353,7 +1353,7 @@ function CompanyBrandingPanel(props: CompanyBrandingPanelProps) {
       </div> */}
 
       <div className="settings-help-hint">
-        These colours 
+        Default colours for any brochure created under this company
       </div>
 
       <div className="settings-section-header">Brand colours</div>
