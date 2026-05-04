@@ -21,7 +21,7 @@ import { AdminThemeToggle } from './AdminThemeToggle'
 import { useAdminTheme } from './AdminThemeProvider'
 import { AdminSearchPalette, type SearchIndex } from './AdminSearchPalette'
 import { ChampionshipRaceDialog } from './ChampionshipRaceDialog'
-import { LatestUpdateCard } from './LatestUpdateCard'
+import { RaceReplayCard } from './RaceReplayCard'
 import { openEasterEgg } from '@/components/EasterEgg'
 import { CANONICAL_HOST } from '@/lib/brochureHost'
 
@@ -146,7 +146,7 @@ export function AdminShell({ user, recents, searchIndex, children }: Props) {
         </div>
 
         <div className="admin-shell-sidebar-footer">
-          <LatestUpdateCard />
+          <RaceReplayCard />
           <button
             type="button"
             className="admin-shell-easter-egg"

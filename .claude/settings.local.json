@@ -64,7 +64,8 @@
       "Bash(curl -s 'https://api.openf1.org/v1/session_result?session_key=__TRACKED_VAR__')",
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('count:', len\\(d\\)\\); [print\\(s.get\\('date_start'\\), s.get\\('session_name'\\), s.get\\('circuit_short_name'\\), s.get\\('session_key'\\)\\) for s in d[:15]]\")",
       "Bash(curl -s \"https://api.openf1.org/v1/race_control?session_key=11269\")",
-      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('count:', len\\(d\\)\\); [print\\(repr\\(m.get\\('message'\\)\\)\\) for m in d[:8]]\")"
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('count:', len\\(d\\)\\); [print\\(repr\\(m.get\\('message'\\)\\)\\) for m in d[:8]]\")",
+      "WebFetch(domain:openf1.org)"
     ]
   }
 }

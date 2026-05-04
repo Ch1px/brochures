@@ -509,6 +509,284 @@
   margin-right: 4px;
 }
 
+/* Race-replay card — animated SVG of the last Grand Prix.
+   Replaces the text card when public/race-replays/latest.json is present;
+   falls back to .admin-shell-update otherwise (handled in RaceReplayCard.tsx). */
+.admin-shell-replay {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 12px 11px;
+  background: var(--chrome-elevated);
+  border: 1px solid var(--chrome-border);
+  border-radius: 6px;
+}
+.admin-shell-replay-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--chrome-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-shell-replay-text {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--chrome-text-secondary);
+}
+.admin-shell-replay-stage {
+  position: relative;
+  width: 100%;
+  max-height: 240px;
+  overflow: hidden;
+  border-radius: 4px;
+  
+  
+}
+.admin-shell-replay-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 240px;
+  overflow: visible;
+}
+.admin-shell-replay-track {
+  fill: none;
+  stroke: var(--chrome-border-strong);
+  stroke-width: 6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.admin-shell-replay-dot {
+  pointer-events: all;
+  cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 280ms ease;
+}
+.admin-shell-replay-dot:hover {
+  filter: brightness(1.2);
+}
+/* F1 broadcast-style driver card. Always dark — matches the TV-graphic
+   aesthetic regardless of admin theme. */
+.admin-shell-replay-tooltip {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #1a1a1d 0%, #0b0b0d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  min-width: 180px;
+  max-width: 260px;
+}
+.admin-shell-replay-tooltip-number {
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  color: #fff;
+  width: 38px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #2a2a2e 0%, #18181b 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+.admin-shell-replay-tooltip-bar {
+  width: 3px;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+.admin-shell-replay-tooltip-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 7px 12px 8px 9px;
+  min-width: 0;
+}
+.admin-shell-replay-tooltip-name {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fff;
+  white-space: nowrap;
+  line-height: 1.15;
+}
+.admin-shell-replay-tooltip-first {
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  font-weight: 400;
+}
+.admin-shell-replay-tooltip-last {
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+.admin-shell-replay-tooltip-team {
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  font-weight: 400;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.62);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+.admin-shell-replay-tooltip-tyre {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px 0 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+.admin-shell-replay-tooltip-tyre img {
+  width: 28px;
+  height: 28px;
+  display: block;
+  object-fit: contain;
+}
+
+/* Light-theme variant — flip the F1 driver card to a clean white surface
+   while keeping the team-colour bar as is. */
+[data-admin-theme="light"] .admin-shell-replay-tooltip {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f4f6 100%);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+[data-admin-theme="light"] .admin-shell-replay-tooltip-number {
+  color: #161618;
+  background: linear-gradient(180deg, #f7f7f9 0%, #e9e9ec 100%);
+  border-right-color: rgba(0, 0, 0, 0.06);
+}
+[data-admin-theme="light"] .admin-shell-replay-tooltip-name {
+  color: #161618;
+}
+[data-admin-theme="light"] .admin-shell-replay-tooltip-team {
+  color: rgba(0, 0, 0, 0.55);
+}
+[data-admin-theme="light"] .admin-shell-replay-tooltip-tyre {
+  border-left-color: rgba(0, 0, 0, 0.08);
+}
+.admin-shell-replay-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--chrome-text-secondary);
+}
+.admin-shell-replay-lap {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--chrome-text);
+}
+.admin-shell-replay-meta-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Formula1', 'Titillium Web', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--chrome-text);
+}
+.admin-shell-replay-caption-swatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.admin-shell-replay-rc {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 9px 8px;
+  border-radius: 4px;
+  background: var(--chrome-elevated);
+  border: 1px solid var(--chrome-border);
+  border-left-width: 3px;
+  border-left-color: var(--chrome-border-strong);
+  transition: border-left-color 200ms ease;
+  min-height: 38px;
+}
+.admin-shell-replay-rc-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--chrome-text-tertiary);
+}
+.admin-shell-replay-rc-text {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--chrome-text);
+  letter-spacing: 0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+.admin-shell-replay-controls {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  margin-top: 1px;
+}
+.admin-shell-replay-control {
+  flex: 1 1 auto;
+  height: 22px;
+  padding: 0 4px;
+  background: var(--chrome-raised, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--chrome-border);
+  border-radius: 4px;
+  color: var(--chrome-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-shell-replay-control:hover {
+  border-color: var(--chrome-border-strong);
+  color: var(--chrome-text);
+}
+.admin-shell-replay-control[aria-pressed='true'] {
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  color: #fff;
+}
+.admin-shell-replay-restart {
+  flex: 0 0 26px;
+  width: 26px;
+  padding: 0;
+}
+.admin-shell-replay-restart:hover {
+  color: var(--chrome-text);
+}
+
 /* ────────── Main ────────── */
 
 .admin-shell-main {
